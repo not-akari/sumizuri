@@ -7,3 +7,6 @@ Sumizuri Reader Optimized for low end device
 
 - Sync Server
 - Trackers
+
+Discord Server  https://discord.gg/A8RPJjz7W5
+
