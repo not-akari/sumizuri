@@ -1,0 +1,8 @@
+query MediaWithEntry($id: Int!) {
+  Media(id: $id) {
+    ...MediaCore
+    mediaListEntry {
+      ...ListEntry
+    }
+  }
+}

@@ -1,0 +1,45 @@
+fragment MediaCore on Media {
+  id
+  type
+  format
+  status(version: 2)
+  title {
+    romaji
+    english
+    native
+  }
+  coverImage {
+    large
+    medium
+  }
+  chapters
+  volumes
+  episodes
+  startDate {
+    year
+  }
+  siteUrl
+  isAdult
+  synonyms
+}
+
+fragment ListEntry on MediaList {
+  id
+  mediaId
+  status
+  progress
+  progressVolumes
+  score(format: POINT_100)
+  repeat
+  startedAt {
+    year
+    month
+    day
+  }
+  completedAt {
+    year
+    month
+    day
+  }
+  updatedAt
+}

@@ -1,0 +1,2250 @@
+{
+  "@@locale": "en",
+  "coverUnreadChapters": "{count, plural, one{1 unread chapter} other{{count} unread chapters}}",
+  "@coverUnreadChapters": { "placeholders": { "count": { "type": "int" } } },
+  "coverDownloadedChapters": "{count, plural, one{1 chapter downloaded} other{{count} chapters downloaded}}",
+  "@coverDownloadedChapters": { "placeholders": { "count": { "type": "int" } } },
+  "relativeYearsAgo": "{count}y ago",
+  "@relativeYearsAgo": { "placeholders": { "count": { "type": "int" } } },
+  "relativeMonthsAgo": "{count}mo ago",
+  "@relativeMonthsAgo": { "placeholders": { "count": { "type": "int" } } },
+  "relativeDaysAgo": "{count}d ago",
+  "@relativeDaysAgo": { "placeholders": { "count": { "type": "int" } } },
+  "relativeHoursAgo": "{count}h ago",
+  "@relativeHoursAgo": { "placeholders": { "count": { "type": "int" } } },
+  "relativeMinutesAgo": "{count}m ago",
+  "@relativeMinutesAgo": { "placeholders": { "count": { "type": "int" } } },
+  "relativeJustNow": "just now",
+  "unlocksInHours": "Unlocks in {count}h",
+  "@unlocksInHours": { "placeholders": { "count": { "type": "int" } } },
+  "unlocksInMinutes": "Unlocks in {count}m",
+  "@unlocksInMinutes": { "placeholders": { "count": { "type": "int" } } },
+  "unlocksSoon": "Unlocks soon",
+  "commonConfirm": "Confirm",
+  "searchClear": "Clear",
+  "retry": "Retry",
+  "onboardingSkip": "Skip",
+  "onboardingRestoreBackup": "Restore from backup",
+  "onboardingBack": "Back",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get started",
+  "mediaTypesTitle": "What do you read or watch?",
+  "mediaTypesSubtitle": "Turn on whichever ones you actually read or watch.",
+  "mediaTypeLastOneHint": "At least one media type must stay enabled.",
+  "mediaTypeMangaTitle": "Manga",
+  "mediaTypeMangaSubtitle": "Comics and graphic novels.",
+  "mediaTypeNovelTitle": "Novels",
+  "mediaTypeNovelSubtitle": "Text-based light novels and web novels.",
+  "mediaTypeAnimeTitle": "Anime",
+  "mediaTypeAnimeSubtitle": "Series and films you watch.",
+  "libraryModeTitle": "How do you want your library?",
+  "libraryModeUnifiedTitle": "Unified",
+  "libraryModeUnifiedSubtitle": "Manga, novels, and anime together in one library.",
+  "libraryModeSplitTitle": "Split by type",
+  "libraryModeSplitSubtitle": "Separate destinations for manga, novels, and anime.",
+  "libraryModeChangeHint": "Change this anytime in Settings.",
+  "themePageTitle": "Pick a look",
+  "themeModeSystem": "System",
+  "themeModeLight": "Light",
+  "themeModeDark": "Dark",
+  "themeModeAmoled": "AMOLED",
+  "libraryTitle": "Library",
+  "@libraryTitle": {
+    "description": "Also reused as the nav bar tooltip for the unified library destination, not just the screen's own app bar title."
+  },
+  "libraryEmpty": "Your library is empty. Add something from Browse to get started.",
+  "libraryContinueReading": "Continue Reading",
+  "libraryTagline": "Your manga, novels, and anime, all in one place.",
+  "categoriesTitle": "Categories",
+  "categoriesEmpty": "No categories yet. Add one to start organizing your library.",
+  "categoriesAdd": "Add category",
+  "categoriesHideAllChip": "Hide \"All\" chip in Library",
+  "categoriesHideDefaultChip": "Hide \"Default\" chip in Library",
+  "categoriesEnableTitle": "Use categories",
+  "categoriesEnableHint": "Off hides categories from Library entirely.",
+  "categoriesDisabledMessage": "Categories are off. Turn them on above to organize your library.",
+  "categoryNameHint": "Category name",
+  "categoryRename": "Rename",
+  "categoryDelete": "Delete",
+  "categoryDeleteConfirmTitle": "Delete this category?",
+  "categoryDeleteConfirmMessage": "\"{name}\" will be removed. Entries stay in your library.",
+  "@categoryDeleteConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryExcludeFromUpdate": "Skip in \"Update library\"",
+  "categorySmartRuleTooltip": "Sort & filter",
+  "librarySortEditorTitle": "Sort library",
+  "categorySmartRuleTitle": "Sort & filter for \"{name}\"",
+  "@categorySmartRuleTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categorySmartRuleEnable": "Use custom sort & filter",
+  "categorySmartRuleStatusLabel": "Status",
+  "categorySmartRuleStatusAny": "Any",
+  "categorySmartRuleStatusOngoing": "Ongoing",
+  "categorySmartRuleStatusCompleted": "Completed",
+  "categorySmartRuleStatusHiatus": "On hiatus",
+  "categorySmartRuleSortLabel": "Sort by",
+  "categorySmartRuleSortTitle": "Title",
+  "categorySmartRuleSortUnreadCount": "Unread count",
+  "categorySmartRuleSortAddedAt": "Date added",
+  "categorySmartRuleSortLastUpdatedAt": "Last updated",
+  "categorySmartRuleAscending": "Ascending",
+  "categorySmartRuleDescending": "Descending",
+  "categorySmartRuleSave": "Save",
+  "libraryCategoryAll": "All",
+  "libraryCategoryDefault": "Default",
+  "libraryManageCategories": "Manage categories",
+  "libraryEditCategoriesTitleCount": "Categories for {count} titles",
+  "@libraryEditCategoriesTitleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "librarySelectionCount": "{count} selected",
+  "@librarySelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "librarySelectAll": "Select all",
+  "libraryBulkRemoveConfirmTitle": "Remove from library?",
+  "libraryBulkRemoveConfirmMessage": "{count} titles and their reading history will be removed from your library.",
+  "@libraryBulkRemoveConfirmMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryBulkRemoveFailed": "Couldn't remove {count} titles.",
+  "@libraryBulkRemoveFailed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryBulkCategoriesFailed": "Couldn't update categories for {count} titles.",
+  "@libraryBulkCategoriesFailed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryBulkCategoriesMixedTypes": "Select titles of one media type to assign categories.",
+  "libraryBulkMigrateMixedTypes": "Select titles of one media type to migrate them together: a source only searches one type at a time.",
+  "libraryUpdate": "Update library",
+  "libraryUpdateCategory": "Update this category",
+  "libraryOpenRandom": "Open a random title",
+  "libraryUpdateStarted": "Checking {count} entries for new chapters…",
+  "@libraryUpdateStarted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryUpdateFinished": "Updated {count} entries.",
+  "@libraryUpdateFinished": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryUpdateFinishedWithFailures": "Updated {count} entries, {failed} failed.",
+  "@libraryUpdateFinishedWithFailures": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryUpdateAlreadyRunning": "Already updating the library.",
+  "libraryUpdateCancelling": "Cancelling…",
+  "libraryUpdateCancelled": "Update cancelled after {count} entries.",
+  "@libraryUpdateCancelled": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryAutoUpdateTitle": "Auto update",
+  "libraryAutoUpdateIntervalLabel": "Check for new chapters every",
+  "libraryAutoUpdateIntervalNever": "Never",
+  "libraryAutoUpdateBackgroundHint": "On a phone this also runs while the app is closed. The system decides exactly when, so a check can come later than the time chosen. It leaves downloading new chapters to the app (turn on notifications in Settings > Notifications to be told about them), and only titles whose source can be read without a browser page are checked.",
+  "libraryAutoUpdateInterval1h": "1 hour",
+  "libraryAutoUpdateInterval3h": "3 hours",
+  "libraryAutoUpdateInterval6h": "6 hours",
+  "libraryAutoUpdateInterval12h": "12 hours",
+  "libraryAutoUpdateInterval24h": "24 hours",
+  "libraryAutoUpdateWifiOnly": "Wi-Fi only",
+  "libraryAutoUpdateWifiOnlyHint": "Skip an automatic check while on mobile data. Doesn't affect the manual Update library button.",
+  "settingsSectionSecurity": "Security",
+  "settingsSectionNotifications": "Notifications",
+  "notificationsHideInAppTitle": "Hide pop-ups while I'm in the app",
+  "notificationsHideInAppHint": "Desktop pop-ups stay away while Sumizuri is the window you're using, so they never cover what you're watching or reading. Any that appeared while you were away are cleared when you come back.",
+  "notificationsPermissionDenied": "The system did not allow notifications. You can allow them for Sumizuri in the phone's settings.",
+  "notificationsPhoneHint": "Asks the system for permission, then tells you when the background library check finds new chapters or episodes.",
+  "notificationsEnabledTitle": "Enable notifications",
+  "notificationsEnabledHint": "Library updates, downloads, and other background activity can notify you when they finish.",
+  "securityAppLock": "App lock",
+  "securityAppLockHint": "Require a PIN, password, or biometric to open the app.",
+  "securityUseBiometric": "Use biometric",
+  "securityUseBiometricHint": "Try fingerprint/face unlock first, with your PIN or password as a fallback.",
+  "securityUseBiometricUnavailable": "Not available on this device.",
+  "securityChangePin": "Change PIN or password",
+  "setPinTitle": "Set PIN or password",
+  "setPinEnterNew": "Enter a new PIN or password",
+  "setPinHint": "Numbers, letters, or symbols — type it or tap the keypad.",
+  "setPinConfirm": "Re-enter it to confirm",
+  "setPinMismatch": "Those didn't match. Try again.",
+  "setPinTooShort": "Must be at least {min} characters.",
+  "@setPinTooShort": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "setPinContinue": "Continue",
+  "appLockTitle": "Enter your PIN or password",
+  "appLockWrongPin": "That's not right.",
+  "appLockUseBiometric": "Use biometric instead",
+  "appLockUseBiometricHint": "Or type your PIN or password.",
+  "appLockBiometricReason": "Unlock Sumizuri",
+  "appLockUnlock": "Unlock",
+  "libraryEntrySourceMissing": "This entry's source isn't installed anymore.",
+  "libraryEntryNeedsMigration": "This title was imported and has no source yet. Migrate it to open it.",
+  "dashboardSeeAll": "See all",
+  "updatesTitle": "Updates",
+  "updatesEmpty": "No new chapters yet. New chapters on entries in your library show up here.",
+  "historyTitle": "History",
+  "historyEmpty": "No reading history yet. Chapters you open show up here.",
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Also reused as the nav bar tooltip for the Settings destination, not just the screen's own app bar title."
+  },
+  "settingsLoadFailed": "Failed to load settings: {error}",
+  "@settingsLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsSectionAppearance": "Appearance",
+  "settingsSectionLibrary": "Library",
+  "settingsSectionReader": "Reader",
+  "settingsSectionDownloads": "Downloads",
+  "downloadsTitle": "Downloads",
+  "downloadsSubtitle": "Downloaded chapters, auto-download, download location",
+  "settingsSectionBackup": "Backup & Restore",
+  "settingsSectionSupport": "Support",
+  "settingsSectionAdvanced": "Advanced",
+  "advancedPerformanceOverlayTile": "Performance overlay",
+  "advancedPerformanceOverlaySubtitle": "Show FPS and RAM usage on screen.",
+  "storageSourceSessions": "Source sessions",
+  "storageSourceSessionsHint": "Logins and solved bot checks that sources keep. Clearing them signs you out of sources; your library is not touched.",
+  "storageClearSessionsTitle": "Clear source sessions?",
+  "storageClearSessionsMessage": "Every source forgets its login and any solved bot check, and the hidden browser used for some sources is reset. You may have to solve a check or sign in again. Your library, history and downloads stay.",
+  "storageSessionsCleared": "Source sessions cleared.",
+  "advancedImageCacheTitle": "Clear image cache",
+  "advancedImageCacheSubtitle": "Frees memory used by cached cover and page images.",
+  "advancedClearImageCache": "Clear",
+  "advancedImageCacheCleared": "Image cache cleared.",
+  "settingsDownloadLocationTile": "Download location",
+  "settingsDownloadLocationDefault": "Default (app storage)",
+  "settingsDownloadLocationChoose": "Choose folder",
+  "settingsDownloadLocationReset": "Use default",
+  "dbMigrationTitle": "Database update needed",
+  "dbMigrationMessage": "This update needs to upgrade your local database. Back up first, just in case something goes wrong?",
+  "dbMigrationBackUpAndContinue": "Back up and continue",
+  "dbMigrationSkipAndContinue": "Skip and continue",
+  "dbMigrationBackingUp": "Backing up...",
+  "dbTooOldTitle": "Your data is from an older version",
+  "dbTooOldMessage": "This update can't upgrade data saved by such an old version (database version {version}). Save a copy of it to a file first, then start fresh. The copy stays exactly as it is.",
+  "@dbTooOldMessage": { "placeholders": { "version": { "type": "int" } } },
+  "dataLocationTitle": "Where should your data live?",
+  "dataLocationBody": "Sumizuri keeps its database, backups, covers, themes and fonts in one folder. Pick it now, before there is anything to move.",
+  "dataLocationDataFolder": "Data folder",
+  "dataLocationDataDefault": "App folder (default)",
+  "dataLocationDownloadsFolder": "Downloads folder",
+  "dataLocationDownloadsDefault": "Inside the data folder (default)",
+  "dataLocationUseDefault": "Use default",
+  "dataLocationFoundExisting": "Sumizuri data already exists here and will be used.",
+  "dataLocationHint": "Tap a row to choose a folder. You can change the downloads folder later in Settings.",
+  "dataLocationUnsupported": "This device keeps Sumizuri's data in its own private folder.",
+  "dataLocationNeedsAccess": "Sumizuri needs 'All files access' to use a folder outside its own. Allow it in the system settings, then try again.",
+  "dataLocationNotWritable": "Sumizuri can't write to that folder. Pick another one.",
+  "dataLocationContinue": "Continue",
+  "sourceBrowseEpisodesHeading": "Episodes",
+  "sourceBrowseEpisodeCount": "{count, plural, one{1 episode} other{{count} episodes}}",
+  "@sourceBrowseEpisodeCount": { "placeholders": { "count": { "type": "int" } } },
+  "sourceBrowseContinueWatching": "Continue watching",
+  "continueWatchingResume": "Resume Ep. {chapter}",
+  "@continueWatchingResume": { "placeholders": { "chapter": { "type": "String" } } },
+  "continueWatchingNext": "Continue Ep. {chapter}",
+  "@continueWatchingNext": { "placeholders": { "chapter": { "type": "String" } } },
+  "continueWatchingAlternative": "Or continue Ep. {chapter}",
+  "@continueWatchingAlternative": { "placeholders": { "chapter": { "type": "String" } } },
+  "episodeMarkWatched": "Mark as watched",
+  "episodeMarkUnwatched": "Mark as unwatched",
+  "episodeMenuMarkAllWatched": "Mark all watched",
+  "episodeMenuMarkAllUnwatched": "Mark all unwatched",
+  "episodeMarkPreviousAsWatched": "Mark previous as watched",
+  "sourceEditorTestMethodVideos": "getVideoList",
+  "playerFailedTitle": "This episode couldn't be played",
+  "playerFailureSource": "The source couldn't list the videos for this episode.",
+  "playerFailureNoVideos": "The source has no videos for this episode.",
+  "playerFailureDidNotStart": "The video didn't start. Another source may work.",
+  "playerFailureNetwork": "The connection to the video server dropped or timed out. Check your connection and try again.",
+  "playerSectionSubtitles": "Subtitles",
+  "playerSectionQuality": "Quality and audio",
+  "playerSectionControls": "Controls",
+  "playerSubtitlePreview": "This is how subtitles will look.",
+  "playerSubtitleColorTitle": "Colour",
+  "playerColorWhite": "White",
+  "playerColorYellow": "Yellow",
+  "playerColorCyan": "Cyan",
+  "playerColorGreen": "Green",
+  "playerSubtitleBackgroundTitle": "Style",
+  "playerBackgroundNone": "Plain",
+  "playerBackgroundOutline": "Shadow",
+  "playerBackgroundBox": "Box",
+  "playerSubtitleBoldTitle": "Bold text",
+  "playerSubtitlePositionTitle": "Position",
+  "playerPositionLow": "Low",
+  "playerPositionUsual": "Usual",
+  "playerPositionHigh": "High",
+  "playerSubtitlesOnTitle": "Always show subtitles",
+  "playerSubtitlesOnHint": "Turns subtitles on whenever an episode has any: in your language below if it has that, else English, else the first one. Off starts every episode without them; you can still turn them on from the player.",
+  "playerSubtitleLanguageTitle": "Subtitle language",
+  "playerSubtitleLanguageHint": "The language to prefer, such as English or en. Empty prefers English.",
+  "playerQualityModeTitle": "Start each episode with",
+  "playerQualityRemember": "Last picked",
+  "playerQualityBest": "Best quality",
+  "playerQualityLowest": "Lowest (saves data)",
+  "playerAudioPreferenceTitle": "Sub or dub",
+  "playerAudioPreferenceHint": "For sources that list them as separate videos. Used when the video is labelled Sub or Dub.",
+  "playerAudioAny": "Either",
+  "playerAudioSub": "Sub",
+  "playerAudioDub": "Dub",
+  "playerDefaultSpeedTitle": "Starting speed",
+  "playerDoubleTapTitle": "Double tap jumps",
+  "playerHideControlsTitle": "Hide controls after",
+  "playerHideNever": "Never",
+  "playerSwipeGesturesTitle": "Swipe gestures",
+  "playerSwipeGesturesHint": "Drag sideways to seek, drag on the right to change volume, hold to speed up. Off leaves taps only.",
+  "playerHoldSpeedTitle": "Speed while holding",
+  "playerShowLogTitle": "Show the video log",
+  "playerShowLogHint": "A small strip at the top of the video that says what the player is doing (which episode, which video, errors), with a button to copy it. For finding out why something does not play. You can also hide it from the player.",
+  "playerLogCopy": "Copy log",
+  "playerLogCopied": "Copied",
+  "playerLogEmpty": "Nothing yet",
+  "playerLogShow": "Show log",
+  "playerLogHide": "Hide log",
+  "playerFailurePlayback": "The video stopped with an error.",
+  "playerEngineMissing": "The video player couldn't start on this device.",
+  "playerRetry": "Try again",
+  "playerTryAnother": "Try another source",
+  "playerClose": "Close",
+  "playerQuality": "Quality",
+  "playerSourceNumber": "Source {number}",
+  "@playerSourceNumber": { "placeholders": { "number": { "type": "int" } } },
+  "playerSubtitles": "Subtitles",
+  "playerTrackOff": "Off",
+  "playerAudio": "Audio",
+  "playerTrackNumber": "Track {number}",
+  "@playerTrackNumber": { "placeholders": { "number": { "type": "String" } } },
+  "playerSpeed": "Speed",
+  "playerNextEpisode": "Next episode",
+  "playerPreviousEpisode": "Previous episode",
+  "playerFullscreen": "Fullscreen",
+  "playerExitFullscreen": "Exit fullscreen",
+  "playerFitScreen": "Change how the video fills the screen",
+  "playerLock": "Lock controls",
+  "playerUnlock": "Unlock",
+  "playerSkip": "Skip {seconds}s",
+  "@playerSkip": { "placeholders": { "seconds": { "type": "int" } } },
+  "playerSkipIntro": "Skip intro",
+  "playerSkipEnding": "Skip ending",
+  "playerUpNext": "Next episode",
+  "playerSkipTitle": "Skip button length",
+  "playerSkipHint": "How far the skip button in the player jumps ahead, for getting past an opening.",
+  "playerSubtitleSizeTitle": "Subtitle size",
+  "playerSizeSmall": "Small",
+  "playerSizeMedium": "Medium",
+  "playerSizeLarge": "Large",
+  "libraryContinueWatching": "Continue Watching",
+  "entryDetailFurthestWatchedBadge": "Furthest: Ep. {chapter}",
+  "@entryDetailFurthestWatchedBadge": { "placeholders": { "chapter": { "type": "String" } } },
+  "timelineWatchedSingle": "Watched Ep. {chapter}",
+  "@timelineWatchedSingle": { "placeholders": { "chapter": { "type": "String" } } },
+  "timelineWatchedRange": "Watched Ep. {from}–{to}",
+  "@timelineWatchedRange": { "placeholders": { "from": { "type": "String" }, "to": { "type": "String" } } },
+  "timelineRewatchedSingle": "Re-watched Ep. {chapter}",
+  "@timelineRewatchedSingle": { "placeholders": { "chapter": { "type": "String" } } },
+  "timelineRewatchedRange": "Re-watched Ep. {from}–{to}",
+  "@timelineRewatchedRange": { "placeholders": { "from": { "type": "String" }, "to": { "type": "String" } } },
+  "notificationNewEpisodesSingleBody": "{count, plural, =1{1 new episode: {chapters}} other{{count} new episodes: {chapters}}}",
+  "@notificationNewEpisodesSingleBody": { "placeholders": { "count": { "type": "int" }, "chapters": { "type": "String" } } },
+  "notificationNewEpisodesMultiTitle": "New episodes available",
+  "notificationNewEpisodesMultiBody": "{episodeCount} new episodes found across {entryCount} titles.",
+  "@notificationNewEpisodesMultiBody": { "placeholders": { "episodeCount": { "type": "int" }, "entryCount": { "type": "int" } } },
+  "notificationEpisodeNumber": "Ep. {number}",
+  "@notificationEpisodeNumber": { "placeholders": { "number": { "type": "String" } } },
+  "notificationEpisodeFallback": "Episode",
+  "episodeShort": "Ep. {number}",
+  "@episodeShort": { "placeholders": { "number": { "type": "String" } } },
+  "seasonNumbered": "Season {number}",
+  "@seasonNumbered": { "placeholders": { "number": { "type": "String" } } },
+  "seasonOther": "Other",
+  "seasonProgress": "{read} of {total} watched",
+  "@seasonProgress": { "placeholders": { "read": { "type": "int" }, "total": { "type": "int" } } },
+  "seasonBack": "Back to seasons",
+  "playerSettingsTitle": "Player",
+  "playerAutoPlayNext": "Play the next episode automatically",
+  "playerAutoPlayNextHint": "When an episode ends, the next one starts by itself.",
+  "dataFolderSame": "Your data is already in that folder.",
+  "dataFolderMoveTitle": "Move your data?",
+  "dataFolderMoveMessage": "Sumizuri will copy your database, backups, covers, themes, fonts and downloads to:\n{path}\n\nThis can take a while, and the app has to restart afterwards. Your current folder is left as it is.",
+  "@dataFolderMoveMessage": { "placeholders": { "path": { "type": "String" } } },
+  "dataFolderMove": "Move",
+  "dataFolderUseTitle": "Use the data in that folder?",
+  "dataFolderUseMessage": "{path} already holds Sumizuri data. Sumizuri will use it after a restart. Your current data is left where it is and is not merged in.",
+  "@dataFolderUseMessage": { "placeholders": { "path": { "type": "String" } } },
+  "dataFolderUse": "Use it",
+  "dataFolderMoving": "Moving your data…",
+  "dataFolderNested": "Pick a folder that is not inside the current data folder and does not contain it.",
+  "dataFolderFailed": "Couldn't move your data: {error}",
+  "@dataFolderFailed": { "placeholders": { "error": { "type": "String" } } },
+  "dataFolderRestartTitle": "Restart Sumizuri",
+  "dataFolderRestartMessage": "Your data is ready in the new folder. Restart Sumizuri to start using it. The old folder is untouched: delete it once you have checked that everything is there.",
+  "dataFolderRestart": "Restart now",
+  "dataFolderClose": "Close the app",
+  "dbMigrationFailedTitle": "The update couldn't upgrade your data",
+  "dbMigrationFailedMessage": "Your data (database version {version}) is unchanged. Save a copy of it to a file before you start fresh, so it isn't lost.",
+  "@dbMigrationFailedMessage": { "placeholders": { "version": { "type": "int" } } },
+  "dbTooOldExport": "Save a copy of my data",
+  "dbTooOldExported": "Saved to {path}",
+  "@dbTooOldExported": { "placeholders": { "path": { "type": "String" } } },
+  "dbTooOldExportFailed": "Couldn't save the copy: {error}",
+  "@dbTooOldExportFailed": { "placeholders": { "error": { "type": "String" } } },
+  "dbTooOldReset": "Start fresh",
+  "dbTooOldResetConfirmTitle": "Start fresh?",
+  "dbTooOldResetConfirmMessage": "This erases your library, reading progress and settings from this device. If you haven't saved a copy, they can't be brought back.",
+  "dbTooOldResetConfirmConfirm": "Erase and start fresh",
+  "dbTooOldResetFailed": "Couldn't erase the old data: {error}",
+  "@dbTooOldResetFailed": { "placeholders": { "error": { "type": "String" } } },
+  "dbTooOldCancel": "Cancel",
+  "dbTooOldStartFailed": "The old data was erased, but the app could not start: {error}",
+  "@dbTooOldStartFailed": { "placeholders": { "error": { "type": "String" } } },
+  "settingsRestoreLastBackupNone": "No database backup found.",
+  "settingsRestoreLastBackupConfirmTitle": "Restore this backup?",
+  "settingsRestoreLastBackupConfirmMessage": "This replaces your current library, categories, sources, and settings with the backup taken before the last database update. This can't be undone.",
+  "settingsRestoreLastBackupConfirmConfirm": "Restore",
+  "settingsRestoreLastBackupDone": "Restored. Restart Sumizuri to finish.",
+  "settingsRestoreLastBackupRestartNow": "Restart now",
+  "chapterListLayoutTitle": "Chapter list layout",
+  "chapterListLayoutList": "List",
+  "chapterListLayoutGrid": "Grid",
+  "navStyleTitle": "Navigation style",
+  "navStyleAuto": "Auto",
+  "navStyleIsland": "Island",
+  "navStyleBottomBar": "Bottom bar",
+  "navStyleRail": "Rail",
+  "navStyleDrawer": "Drawer",
+  "storageSubtitle": "Backup & restore",
+  "storageUsageSummary": "{size} used · {chapters} chapters across {entries} series",
+  "@storageUsageSummary": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "chapters": {
+        "type": "int"
+      },
+      "entries": {
+        "type": "int"
+      }
+    }
+  },
+  "storageNoDownloadsYet": "No downloads yet.",
+  "storageDownloadsSectionTitle": "Downloads",
+  "storageAutoDownloadOnUpdate": "Auto-download new chapters",
+  "storageAutoDownloadOnUpdateHint": "Downloads new chapters automatically after \"Update library\" finds them.",
+  "storageAutoDownloadOnAdd": "Auto-download on add",
+  "storageAutoDownloadOnAddHint": "Downloads an entry's existing chapters as soon as it's added to your library.",
+  "downloadsWifiOnlyTitle": "Wi-Fi only",
+  "downloadsWifiOnlyHint": "Only auto-download over Wi-Fi or ethernet, never mobile data.",
+  "downloadsAutoLimitLabel": "Auto-download limit",
+  "downloadsAutoLimitHint": "How many chapters to grab at once when auto-download finds new ones.",
+  "downloadsAutoLimitUnlimited": "All",
+  "libraryBadgeUnread": "Unread count on covers",
+  "libraryBadgeDownloaded": "Downloaded count on covers",
+  "downloadsAheadLabel": "Download while reading",
+  "downloadsAheadHint": "Fetch the next chapters in the background while you read, so they open straight away. Follows the Wi-Fi only setting.",
+  "downloadsAheadOff": "Off",
+  "downloadsKeepBehindLabel": "Keep after reading",
+  "downloadsKeepBehindHint": "How many recently read chapters stay downloaded before older ones are removed.",
+  "downloadsKeepBehindNever": "Keep forever",
+  "downloadsKeepBehindImmediate": "Delete immediately",
+  "storageDownloadedEntriesTitle": "Downloaded",
+  "storageChapterCount": "{count} chapters",
+  "@storageChapterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storageDeleteEntryDownloads": "Delete downloads",
+  "storageDeleteEntryConfirmTitle": "Delete downloads for \"{name}\"?",
+  "@storageDeleteEntryConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "storageDeleteEntryConfirmMessage": "Removes every downloaded chapter for this entry from disk. This can't be undone.",
+  "storageDeleteAllDownloads": "Delete all downloads",
+  "storageDeleteAllConfirmTitle": "Delete all downloads?",
+  "storageDeleteAllConfirmMessage": "Removes every downloaded chapter across your whole library from disk. This can't be undone.",
+  "storageDeleteConfirmConfirm": "Delete",
+  "storageBackupSectionTitle": "Backup & Restore",
+  "settingsCreateBackupTile": "Create backup",
+  "settingsCreateBackupSubtitle": "Save your library, categories, sources, and settings to a file",
+  "backupPasswordSetTitle": "Protect this backup?",
+  "backupPasswordSetMessage": "Set a password to encrypt this backup file, or leave it blank to save it as plain text.",
+  "backupPasswordLabel": "Password",
+  "backupPasswordConfirmLabel": "Confirm password",
+  "backupPasswordMismatch": "The passwords don't match.",
+  "backupPasswordSkip": "Skip",
+  "backupPasswordSetConfirm": "Protect",
+  "backupPasswordEnterTitle": "This backup is protected",
+  "backupPasswordUnlock": "Unlock",
+  "settingsBackupSaved": "Backup saved to {path}",
+  "@settingsBackupSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsRestoreBackupTile": "Restore backup",
+  "settingsRestoreBackupSubtitle": "Load a library, categories, sources, and settings from a backup file",
+  "settingsRestoreBackupDone": "Restored {restored} entries ({skipped} skipped).",
+  "@settingsRestoreBackupDone": {
+    "placeholders": {
+      "restored": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsNetworkTimeoutTile": "Request timeout",
+  "settingsNetworkTimeoutSubtitle": "How long a source's network requests wait before failing",
+  "settingsNetworkTimeoutSeconds": "{seconds}s",
+  "@settingsNetworkTimeoutSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsNetworkUserAgentTile": "User-Agent override",
+  "settingsNetworkUserAgentSubtitle": "Sent with every request a source makes that doesn't set its own",
+  "settingsNetworkUserAgentHint": "Leave blank to use the default",
+  "settingsSearchHint": "Search settings",
+  "settingsAppearanceSubtitle": "Theme, grid size, navigation, motion",
+  "settingsLibrarySettingsTile": "Media & layout",
+  "settingsLibrarySettingsSubtitle": "Which media types show up, unified or split library",
+  "settingsThemeTile": "Theme",
+  "settingsThemeSubtitle": "Color scheme, light/dark, intensity",
+  "settingsMediaTypesTile": "Media types",
+  "settingsLibraryModeTile": "Library layout",
+  "settingsGridTileSizeTile": "Grid tile size",
+  "backgroundTitle": "Background",
+  "backgroundIntensity": "Intensity",
+  "backgroundLookReset": "Reset to default",
+  "settingsReduceMotionTile": "Reduce motion",
+  "settingsReduceMotionSubtitle": "Skip page-switch and page-turn animations",
+  "settingsGridTileSizeSubtitle": "How big covers show in the Library, Updates, and History grids",
+  "gridTileSizeSmall": "Small",
+  "gridTileSizeMedium": "Medium",
+  "gridTileSizeLarge": "Large",
+  "settingsAboutTitle": "About",
+  "settingsAboutVersion": "Version {version}",
+  "@settingsAboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutCheckForUpdates": "Check for updates",
+  "aboutCheckForUpdatesOnStartup": "Check for updates on startup",
+  "aboutUpToDate": "Sumizuri is up to date.",
+  "aboutUpdateAvailable": "A new version of Sumizuri is available.",
+  "aboutUpdateCheckFailed": "Couldn't check for updates.",
+  "aboutJoinDiscord": "Join our Discord",
+  "aboutLicenses": "Open source licenses",
+  "aboutResetOnboarding": "Reset onboarding",
+  "aboutResetOnboardingConfirmTitle": "Reset onboarding?",
+  "aboutResetOnboardingConfirmMessage": "You'll see the welcome screens again next time you open the app. Your library and settings won't be affected.",
+  "aboutResetOnboardingConfirmConfirm": "Reset",
+  "navMangaLibrary": "Manga",
+  "@navMangaLibrary": {
+    "description": "Only shown in split-by-type library mode, unified mode uses libraryTitle instead."
+  },
+  "navNovelLibrary": "Novels",
+  "@navNovelLibrary": {
+    "description": "Only shown in split-by-type library mode, unified mode uses libraryTitle instead."
+  },
+  "navAnimeLibrary": "Anime",
+  "@navAnimeLibrary": {
+    "description": "Only shown in split-by-type library mode, unified mode uses libraryTitle instead."
+  },
+  "navProfile": "Profile",
+  "navCustomizationTitle": "Customize navigation",
+  "navCustomizationHint": "Choose which destinations appear in the navigation bar, and drag to reorder them.",
+  "navCustomizationDragHint": "Drag to reorder",
+  "homeScreenOrderTitle": "Home screen order",
+  "homeScreenOrderHint": "Updates and History show as sections on your Library screen unless pinned to navigation above, in which case they move there instead. Drag to reorder these sections.",
+  "settingsExportLogs": "Export logs",
+  "settingsLogsTitle": "Logs",
+  "settingsLogsSubtitle": "Warnings, errors and memory alerts",
+  "settingsLogsClear": "Clear logs",
+  "settingsLogsEmpty": "No log entries",
+  "settingsLogsCopied": "Copied",
+  "settingsLogsFilterAll": "All",
+  "settingsLogsFilterMemory": "Memory",
+  "settingsExportLogsSaved": "Saved to {path}",
+  "@settingsExportLogsSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "browseTitle": "Browse",
+  "globalSearchTitle": "Search {mediaType}",
+  "@globalSearchTitle": {
+    "placeholders": {
+      "mediaType": {
+        "type": "String"
+      }
+    }
+  },
+  "globalSearchHint": "Search across every installed source",
+  "globalSearchEmpty": "No results.",
+  "globalSearchNoSources": "No enabled sources for this media type.",
+  "reposTitle": "Repos",
+  "reposEmpty": "No repos yet. Add one to browse and install sources from it.",
+  "reposAdd": "Add repo",
+  "repoUrlHint": "Repo index URL",
+  "repoAddFailed": "Couldn't add this repo: {error}",
+  "@repoAddFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "repoRemove": "Remove repo",
+  "repoRemoveConfirmTitle": "Remove this repo?",
+  "repoRemoveConfirmMessage": "\"{name}\" will be removed. Sources already installed from it stay installed.",
+  "@repoRemoveConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "repoBrowseEmpty": "This repo has no sources listed.",
+  "repoBrowseAllLanguages": "All languages",
+  "repoBrowseShowNsfw": "Show NSFW",
+  "repoBrowseNsfwBadge": "NSFW",
+  "repoBrowseFilteredEmpty": "Nothing matches this filter.",
+  "repoBrowseLoadFailed": "Couldn't load this repo: {error}",
+  "@repoBrowseLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "repoSourceInstall": "Install",
+  "repoSourceUpdate": "Update",
+  "repoSourceInstalled": "Installed",
+  "repoSourceInstalledMessage": "Installed \"{name}\".",
+  "@repoSourceInstalledMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "repoSourceInstallFailed": "Couldn't install \"{name}\": {error}",
+  "@repoSourceInstallFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "repoSourceVersionAvailable": "v{version} available",
+  "@repoSourceVersionAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "repoSourceVersionInstalledUpdated": "Installed v{version} · updated {date}",
+  "@repoSourceVersionInstalledUpdated": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDownloadDelayTile": "Delay between downloads",
+  "settingsDownloadDelaySubtitle": "Pause between chapters in a batch download, so a source's anti-bot detection is less likely to flag or ban the account",
+  "settingsDownloadDelayOff": "Off",
+  "repoSourceRefetch": "Re-fetch latest code",
+  "repoSourceUninstall": "Uninstall",
+  "repoSourceUninstallConfirmTitle": "Uninstall this source?",
+  "repoSourceUninstallConfirmMessage": "\"{name}\" and its saved JS code will be removed. This can't be undone.",
+  "@repoSourceUninstallConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "browseImportSource": "Import source",
+  "browseAddSource": "Add source",
+  "browseEmpty": "No sources yet. Add one with the JS editor to get started.",
+  "browseAllLanguages": "All languages",
+  "browseFilteredEmpty": "No installed sources in this language.",
+  "browseInstalledSources": "Installed sources",
+  "browseDiscover": "Discover",
+  "browseDiscoverReposSubtitle": "Add new sources from a repo list",
+  "browseDiscoverImportSubtitle": ".js or .json source file",
+  "browseDiscoverWriteSubtitle": "Open the source editor",
+  "browseSourceDisabled": "Disabled",
+  "browseAddWarningTitle": "Third-party code warning",
+  "browseAddWarningMessage": "Sources run JavaScript from wherever you got it, with network access. Only add sources from people you trust. Sumizuri cannot verify what a source's code actually does, and is not responsible for a source breaking, disappearing, or behaving unexpectedly. Report source problems to whoever made that source, not Sumizuri.",
+  "browseAddWarningCancel": "Cancel",
+  "browseAddWarningContinue": "I understand, continue",
+  "browseSourceDetailsStatusLabel": "Status",
+  "browseSourceDetailsAddedLabel": "Added",
+  "browseSourceDetailsRemove": "Remove",
+  "browseSourceDetailsSettings": "Settings",
+  "browseSourceDetailsRemoveConfirmTitle": "Remove this source?",
+  "browseSourceDetailsRemoveConfirmMessage": "This deletes its saved JS code. This can't be undone.",
+  "browseSourceDetailsRemoveConfirmCancel": "Cancel",
+  "browseSourceDetailsRemoveConfirmConfirm": "Remove",
+  "browseSourceDetailsClearCookies": "Clear cookies",
+  "browseSourceDetailsCookiesCleared": "Cookies cleared for this source.",
+  "sourceBrowseLoadMore": "Load more",
+  "sourceBrowseRepeatPagination": "Stopped loading more. This source doesn't seem to support paging past this point.",
+  "sourceBrowseAddToLibrary": "Add to library",
+  "sourceBrowseInLibrary": "In library",
+  "sourceBrowseRemoveFromLibrary": "Remove from library",
+  "sourceBrowseRemoveConfirmTitle": "Remove from library?",
+  "sourceBrowseRemoveConfirmMessage": "\"{title}\" and its reading history will be removed from your library.",
+  "@sourceBrowseRemoveConfirmMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceBrowseRemovedFromLibrary": "Removed \"{title}\" from library.",
+  "@sourceBrowseRemovedFromLibrary": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceBrowseWebview": "Webview",
+  "sourceBrowseContinueReading": "Continue reading",
+  "chapterDownload": "Download",
+  "chapterRemoveDownload": "Remove download",
+  "chapterDownloadRemoved": "Download removed.",
+  "imagePreviewDownload": "Download",
+  "imagePreviewReplaceCover": "Replace cover",
+  "imagePreviewRestoreCover": "Restore original cover",
+  "libraryCoverReplaced": "Cover updated.",
+  "libraryCoverRemoved": "Restored the original cover.",
+  "imageDownloaded": "Saved to {path}",
+  "@imageDownloaded": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "imageDownloadFailed": "Couldn't save the image: {error}",
+  "@imageDownloadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceBrowseAddedToLibrary": "Added \"{title}\" to library.",
+  "@sourceBrowseAddedToLibrary": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceBrowseAlreadyInLibraryMessage": "This series is already in your library from this source.",
+  "sourceBrowseViewLibrary": "View library",
+  "sourceBrowsePossibleDuplicateTitle": "Possible duplicate",
+  "sourceBrowsePossibleDuplicateMessage": "\"{title}\" is already in your library from a different source. Add this as a separate entry, or migrate the existing one to this source?",
+  "@sourceBrowsePossibleDuplicateMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceBrowseAddAnyway": "Add anyway",
+  "sourceBrowseMigrate": "Migrate",
+  "sourceBrowseMigrated": "Migrated \"{title}\" to this source.",
+  "@sourceBrowseMigrated": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceBrowseChaptersHeading": "Chapters",
+  "sourceBrowseChapterCount": "{count} chapters",
+  "@sourceBrowseChapterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sourceBrowseRefreshChapters": "Refresh chapters",
+  "chapterListMissingChapters": "{count, plural, =1{1 chapter missing} other{{count} chapters missing}}",
+  "@chapterListMissingChapters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chapterMenuSort": "Sort",
+  "chapterMenuMoreOptions": "More options",
+  "chapterMenuDownloadAll": "Download all",
+  "chapterMenuMarkAllRead": "Mark all read",
+  "chapterMenuMarkAllUnread": "Mark all unread",
+  "chapterMenuSelectAll": "Select all",
+  "sourceBrowseCommentsHeading": "Comments",
+  "sourceBrowseCommentsNotSupported": "This source doesn't provide comments.",
+  "sourceBrowseCommentSortNewest": "Newest",
+  "sourceBrowseCommentSortOldest": "Oldest",
+  "sourceBrowseCommentSortTop": "Top",
+  "sourceBrowseLockedTitle": "Requires login",
+  "sourceBrowseLockedMessage": "This chapter is marked as premium/login-gated by the source. Sumizuri has no login flow, so it can't fetch this content.",
+  "sourceBrowseTimeLockedMessage": "You can't open this chapter yet, it's behind early access. {countdown}.",
+  "@sourceBrowseTimeLockedMessage": {
+    "placeholders": {
+      "countdown": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceBrowseLockedDismiss": "OK",
+  "sourceEditorAddTitle": "Add source",
+  "sourceEditorEditTitle": "Edit source",
+  "sourceEditorNameLabel": "Name",
+  "sourceEditorLangLabel": "Language",
+  "sourceEditorMediaTypeLabel": "Media type",
+  "sourceEditorEngineJs": "JS extension",
+  "sourceEditorEngineJson": "JSON declarative",
+  "sourceEditorIconUrlLabel": "Icon URL",
+  "sourceEditorExport": "Export to .js file",
+  "sourceEditorExported": "Exported.",
+  "sourceEditorBaseUrlLabel": "Base URL",
+  "sourceEditorOpenInBrowser": "Open in browser",
+  "sourceEditorInspectHtml": "Inspect HTML",
+  "sourceEditorTabInfo": "Info",
+  "sourceEditorTabTest": "Test",
+  "htmlInspectorTitle": "Inspect HTML",
+  "htmlInspectorUrlLabel": "URL",
+  "htmlInspectorFetch": "Fetch",
+  "htmlInspectorFilterLabel": "Filter lines containing...",
+  "htmlInspectorStripScripts": "Strip <script>",
+  "htmlInspectorStripStyles": "Strip <style>",
+  "htmlInspectorStripComments": "Strip comments",
+  "htmlInspectorStripSvg": "Strip <svg>",
+  "htmlInspectorStripBoilerplate": "Strip nav/header/footer/iframe",
+  "htmlInspectorStripMeta": "Strip <meta>/<link>",
+  "htmlInspectorStripOptions": "Strip options",
+  "solveInBrowser": "Solve in browser",
+  "cloudflareSolverSaveSessionFailed": "Failed to save this session: {error}",
+  "@cloudflareSolverSaveSessionFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceEditorSave": "Save",
+  "sourceEditorMissingFields": "Name, language, icon URL, and base URL are required.",
+  "sourceEditorInvalid": "Couldn't load this source: {message}",
+  "@sourceEditorInvalid": {
+    "description": "Shown when the JS fails to load/validate, message is the underlying failure's text.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceEditorTestTitle": "Test",
+  "sourceEditorTestMethodLabel": "Method",
+  "sourceEditorTestMethodSearch": "Search",
+  "sourceEditorTestMethodPopular": "Popular",
+  "sourceEditorTestMethodLatest": "Latest",
+  "sourceEditorTestMethodChapters": "Chapters",
+  "sourceEditorTestMethodPages": "Pages",
+  "sourceEditorTestMethodDetails": "Details",
+  "sourceEditorTestMethodComments": "Comments (series)",
+  "sourceEditorTestMethodChapterComments": "Comments (chapter)",
+  "sourceEditorTestQueryLabel": "Query",
+  "sourceEditorTestUrlLabel": "URL",
+  "sourceEditorTestPageLabel": "Page",
+  "sourceEditorTestRun": "Run",
+  "sourceEditorTabResult": "Result",
+  "sourceEditorTabRequests": "Requests",
+  "sourceEditorTabConsole": "Console",
+  "sourceEditorTabFindings": "Findings",
+  "sourceEditorCopyReport": "Copy report",
+  "sourceEditorReportCopied": "Report copied. Paste it wherever you want help with the source.",
+  "sourceEditorCopyBody": "Copy body",
+  "sourceEditorNoRequests": "No requests were made.",
+  "sourceEditorNoConsole": "Nothing was printed. console.log(...) in your source shows up here.",
+  "sourceEditorNoFindings": "Nothing looks wrong.",
+  "sourceEditorFindingsSections": "Lists the source returned",
+  "sourceEditorFindingsSearches": "Searches in pages",
+  "sourceEditorIssues": "{errors, plural, =0{} =1{1 error} other{{errors} errors}}{both, select, yes{, } other{}}{warnings, plural, =0{} =1{1 warning} other{{warnings} warnings}}",
+  "@sourceEditorIssues": {
+    "placeholders": {
+      "errors": { "type": "int" },
+      "both": { "type": "String" },
+      "warnings": { "type": "int" }
+    }
+  },
+  "sourceEditorTestOutputEmpty": "Run a test to see output here.",
+  "readerNoPagesFound": "No pages found.",
+  "readerMode": "Reading mode",
+  "readerModeContinuousVertical": "Continuous vertical (Webtoon)",
+  "readerModeRightToLeft": "Right to left (Manga)",
+  "readerModeLeftToRight": "Left to right (Western)",
+  "readerModeVerticalPaged": "Vertical paged",
+  "readerScaleType": "Scale type",
+  "readerScaleTypeFitScreen": "Fit screen",
+  "readerScaleTypeFitWidth": "Fit width",
+  "readerScaleTypeFitHeight": "Fit height",
+  "readerScaleTypeOriginal": "Original size",
+  "readerColumnWidth": "Column width",
+  "readerColumnWidthSmall": "Small (600px)",
+  "readerColumnWidthMedium": "Medium (800px)",
+  "readerColumnWidthLarge": "Large (1000px)",
+  "readerColumnWidthFull": "Full width",
+  "readerImageQuality": "Image quality",
+  "readerImageQualityQuality": "Quality",
+  "readerImageQualityBalanced": "Balanced",
+  "readerImageQualityPerformance": "Performance",
+  "readerBackground": "Background color",
+  "readerBackgroundBlack": "Black (AMOLED)",
+  "readerBackgroundDark": "Dark gray",
+  "readerBackgroundWhite": "White",
+  "readerBackgroundSepia": "Sepia",
+  "novelReadingMode": "Reading mode",
+  "novelModePaged": "Paged",
+  "novelModeContinuous": "Continuous vertical",
+  "readerPageGap": "Page gap",
+  "readerPageGapNone": "None",
+  "readerPageGapSmall": "Small",
+  "readerPageGapMedium": "Medium",
+  "readerPageGapLarge": "Large",
+  "readerInvertTaps": "Invert tap zones",
+  "readerInvertTapsDescription": "Tap left for next page, right for previous",
+  "chapterSortAscending": "Sort chapters ascending",
+  "chapterSortAscendingDescription": "Show chapter 1 first instead of the newest chapter first",
+  "readerDualPage": "Dual page spread",
+  "readerDualPageOff": "Off",
+  "readerDualPageOn": "Dual page",
+  "readerDualPageCover": "Dual page (separate cover)",
+  "readerSettingsTitle": "Reader Settings",
+  "readerSettingsMangaTab": "Manga",
+  "readerSettingsNovelTab": "Novel",
+  "readerEndOfChapter": "End of chapter",
+  "readerLoadingNextChapter": "Loading next chapter...",
+  "readerLoadingPreviousChapter": "Loading previous chapter...",
+  "readerNoMoreChapters": "No more chapters",
+  "readerNoPreviousChapters": "First chapter reached",
+  "readerRetryChapter": "Retry loading chapter",
+  "readerPreviousChapter": "Previous",
+  "readerNextChapter": "Next chapter",
+  "novelFontFamily": "Font",
+  "novelFontFamilySystemDefault": "Default",
+  "novelFontFamilyOpenDyslexic": "OpenDyslexic",
+  "novelFontSize": "Font size",
+  "novelLineHeight": "Line height",
+  "novelParagraphSpacing": "Paragraph spacing",
+  "readerScopeThisTitle": "This series only",
+  "readerScopeGlobal": "Global default",
+  "readerPageIndicator": "{current} / {total}",
+  "@readerPageIndicator": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "readerPrevChapter": "Prev chapter",
+  "profileTitle": "Profiles",
+  "dateGroupToday": "Today",
+  "dateGroupYesterday": "Yesterday",
+  "profileReadingSince": "Reading since {date}",
+  "@profileReadingSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "profileSwitch": "Switch profile",
+  "profileNew": "New profile",
+  "profileEdit": "Edit profile",
+  "profileCropAvatarTitle": "Crop avatar",
+  "profileName": "Profile name",
+  "profileNameHint": "Enter profile name",
+  "profileDelete": "Delete profile",
+  "profileDeleteConfirmTitle": "Delete \"{name}\"?",
+  "@profileDeleteConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileDeleteConfirmMessage": "This profile's library, categories, and personal settings will be permanently removed.",
+  "profileCannotDeleteOnly": "You cannot delete the only profile.",
+  "profileSetupTitle": "Who's reading?",
+  "profileSetupSubtitle": "Set up your profile to start your library and personalize your settings.",
+  "profileTrackersSectionTitle": "Trackers",
+  "profileSyncSectionTitle": "Sync",
+  "aniListLoginTitle": "Connect AniList",
+  "aniListLoginWaiting": "Log in to AniList in the browser that just opened. This will finish automatically once you approve access.",
+  "aniListNotConfigured": "Unavailable: this build has no AniList client secret (ANILIST_CLIENT_SECRET). See env.example.json.",
+  "trackingTitle": "Tracking",
+  "trackingConnectFirst": "Connect AniList from your profile to track this title.",
+  "trackingSearchHint": "Search AniList",
+  "trackingNoResults": "Nothing found on AniList.",
+  "trackingLinkedTo": "Tracked on AniList as {title}",
+  "@trackingLinkedTo": {
+    "placeholders": { "title": { "type": "String" } }
+  },
+  "trackingChange": "Change title",
+  "trackingStop": "Stop tracking",
+  "trackingSendNow": "Send now",
+  "trackingQueued": "Changes are waiting and will be sent to AniList shortly.",
+  "trackingUpToDate": "Nothing waiting to be sent.",
+  "trackingSent": "Sent to AniList.",
+  "trackingNotOnList": "Not on your AniList yet. It is added when you read a chapter.",
+  "trackingRemote": "On AniList: {status}, chapter {progress}",
+  "@trackingRemote": {
+    "placeholders": { "status": { "type": "String" }, "progress": { "type": "int" } }
+  },
+  "trackingStatusCurrent": "Reading",
+  "trackingStatusPlanning": "Planning",
+  "trackingStatusCompleted": "Completed",
+  "trackingStatusDropped": "Dropped",
+  "trackingStatusPaused": "Paused",
+  "trackingStatusRepeating": "Re-reading",
+  "aniListLoginTimedOut": "Timed out waiting for AniList. Try again.",
+  "aniListLoadFailed": "Could not load AniList account, tap to try again",
+  "aniListNotConnected": "Not connected",
+  "aniListConnect": "Connect",
+  "aniListConnectedAs": "Connected as {name}",
+  "@aniListConnectedAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "aniListDisconnectTitle": "Disconnect AniList?",
+  "aniListDisconnectMessage": "You'll need to log in again to reconnect this AniList account.",
+  "aniListDisconnectConfirm": "Disconnect",
+  "entryDetailFurthestBadge": "Furthest: Ch. {chapter}",
+  "@entryDetailFurthestBadge": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineReadSingle": "Read Ch. {chapter}",
+  "@timelineReadSingle": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineReadRange": "Read Ch. {from}–{to}",
+  "@timelineReadRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineRereadSingle": "Re-read Ch. {chapter}",
+  "@timelineRereadSingle": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineRereadRange": "Re-read Ch. {from}–{to}",
+  "@timelineRereadRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "continueReadingResume": "Resume Ch. {chapter}",
+  "@continueReadingResume": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "continueReadingNext": "Continue Ch. {chapter}",
+  "@continueReadingNext": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "continueReadingAlternative": "Or continue Ch. {chapter}",
+  "@continueReadingAlternative": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "profileSearchHint": "Search profiles...",
+  "profileNotFound": "No profiles found",
+  "securityAppLockGracePeriod": "Lock after",
+  "securityAppLockGracePeriodImmediately": "Immediately",
+  "securityAppLockGracePeriod1Min": "1 minute",
+  "securityAppLockGracePeriod5Min": "5 minutes",
+  "securityAppLockGracePeriod10Min": "10 minutes",
+  "securityAppLockGracePeriod30Min": "30 minutes",
+  "notificationNewChaptersSingleTitle": "{entryTitle}",
+  "@notificationNewChaptersSingleTitle": {
+    "placeholders": {
+      "entryTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationNewChaptersSingleBody": "{count, plural, =1{1 new chapter: {chapters}} other{{count} new chapters: {chapters}}}",
+  "@notificationNewChaptersSingleBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "chapters": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationNewChaptersMultiTitle": "New chapters available",
+  "notificationNewChaptersMultiBody": "{chapterCount} new chapters found across {entryCount} titles.",
+  "@notificationNewChaptersMultiBody": {
+    "placeholders": {
+      "chapterCount": {
+        "type": "int"
+      },
+      "entryCount": {
+        "type": "int"
+      }
+    }
+  },
+  "timelineRereadBadge": "RE-READ",
+  "notificationMoreChaptersSuffix": " (+{count} more)",
+  "@notificationMoreChaptersSuffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationChapterNumber": "Ch. {number}",
+  "@notificationChapterNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationChapterFallback": "Chapter",
+  "branchTitle": "Reading branch",
+  "branchNew": "New branch",
+  "branchRename": "Rename branch",
+  "branchDelete": "Delete branch",
+  "branchDeleteConfirmTitle": "Delete this branch?",
+  "branchDeleteConfirmMessage": "\"{name}\" and its reading progress will be deleted.",
+  "@branchDeleteConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "branchNameHint": "Branch name",
+  "branchCannotDeleteOnly": "Cannot delete the only branch",
+  "sourceEditorTestMethodFilters": "Filters",
+  "browseFiltersTitle": "Search filters",
+  "browseFiltersApply": "Apply",
+  "browseFiltersReset": "Reset",
+  "browseFiltersEmpty": "No filters available for this source.",
+  "sourcePreferencesTitle": "Source settings",
+  "sourcePreferencesReset": "Reset to defaults",
+  "sourcePreferencesResetConfirmTitle": "Reset settings?",
+  "sourcePreferencesResetConfirmMessage": "All settings for this source will be restored to their defaults.",
+  "sourceEditorTestMethodPreferences": "Preferences",
+  "settingsHelpTranslateTitle": "Help translate Sumizuri",
+  "settingsHelpTranslateSubtitle": "Translate the app into your language or contribute improvements",
+  "translationEditorTitle": "Translation Editor",
+  "translationEditorSearchHint": "Search by key, description, or text...",
+  "translationEditorFilterAll": "All",
+  "translationEditorFilterUntranslated": "Untranslated",
+  "translationEditorFilterTranslated": "Translated",
+  "translationEditorNewLocale": "New language",
+  "translationEditorImportArb": "Import ARB",
+  "translationEditorExportArb": "Export ARB",
+  "translationEditorExportSuccess": "Exported to {path}",
+  "@translationEditorExportSuccess": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "translationEditorMissingPlaceholdersWarning": "Missing placeholders: {placeholders}",
+  "@translationEditorMissingPlaceholdersWarning": {
+    "placeholders": {
+      "placeholders": {
+        "type": "String"
+      }
+    }
+  },
+  "translationEditorAddCategory": "Add category",
+  "translationEditorExactNumberMatch": "Exact number (=N)",
+  "translationEditorInsertPlaceholder": "Insert placeholder",
+  "translationEditorDeleteCategory": "Delete category",
+  "translationEditorDiscardDraft": "Delete draft",
+  "translationEditorDiscardDraftConfirm": "Are you sure you want to delete this language draft?",
+  "translationEditorSave": "Save",
+  "translationEditorSource": "Source (English)",
+  "translationEditorSelectLocalePrompt": "Select or add a language to start translating",
+  "translationEditorEmptySearch": "No matching strings found",
+  "translationEditorCustomCategoryLabel": "Category name (e.g. =0, few)",
+  "chapterSelectedCount": "{count, plural, =1{1 selected} other{{count} selected}}",
+  "@chapterSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chapterMarkAsRead": "Mark as read",
+  "chapterMarkAsUnread": "Mark as unread",
+  "chapterMarkPreviousAsRead": "Mark previous as read",
+  "chapterDownloadSelected": "Download",
+  "chapterDeleteDownload": "Delete download",
+  "chapterSelectAll": "Select all",
+  "chapterInvertSelection": "Invert selection",
+  "chapterSwipeMarkRead": "Mark as read",
+  "chapterSwipeMarkUnread": "Mark as unread",
+  "profileStatsTitle": "Statistics",
+  "profileCalendarTitle": "Updates Calendar",
+  "profileCalendarSubtitle": "Past and predicted chapter releases",
+  "profileActivitySectionTitle": "Activity & Insights",
+  "statsCurrentStreak": "Current streak",
+  "statsBestStreak": "Best streak",
+  "statsActiveDays": "Active days",
+  "statsToday": "Today",
+  "statsThisWeek": "This week",
+  "statsThisMonth": "This month",
+  "statsTopSeries": "Top read series",
+  "statsLibraryBreakdown": "Library breakdown",
+  "statsAverages": "Averages",
+  "statsPerSession": "Per session",
+  "statsPerActiveDay": "Per active day",
+  "statsPerWeek": "Per week",
+  "statsReadingSince": "Reading since {date}",
+  "@statsReadingSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "statsBestDay": "Best day",
+  "statsDaysCount": "{count, plural, =1{1 day} other{{count} days}}",
+  "@statsDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsChaptersCount": "{count, plural, =1{1 chapter} other{{count} chapters}}",
+  "@statsChaptersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsWeeksCount": "{count, plural, =1{1 week} other{{count} weeks}}",
+  "@statsWeeksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsMonthsCount": "{count, plural, =1{1 month} other{{count} months}}",
+  "@statsMonthsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsYearsCount": "{count, plural, =1{1 year} other{{count} years}}",
+  "@statsYearsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsInsights": "Insights",
+  "statsBacklog": "Backlog",
+  "statsReReads": "Re-reads",
+  "statsReReadsFraction": "{count} of {total}",
+  "@statsReReadsFraction": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "statsMostActiveDay": "Most active day",
+  "statsMostActiveTime": "Most active time",
+  "statsBacklogEta": "Est. {duration} to clear at your current pace",
+  "@statsBacklogEta": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "statsBacklogCleared": "You're all caught up",
+  "statsTimeMorning": "Morning",
+  "statsTimeAfternoon": "Afternoon",
+  "statsTimeEvening": "Evening",
+  "statsTimeNight": "Night",
+  "calendarNoActivity": "No releases expected on this day",
+  "calendarToday": "Today",
+  "calendarReleasesCount": "{count, plural, =1{1 release} other{{count} releases}}",
+  "@calendarReleasesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarUpcomingCount": "{count, plural, =1{1 upcoming} other{{count} upcoming}}",
+  "@calendarUpcomingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarPredictedBadge": "Predicted",
+  "calendarChapterNumber": "Chapter {number}",
+  "@calendarChapterNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "themesNew": "New theme",
+  "themesNewName": "My theme",
+  "themesImport": "Import theme",
+  "themesExport": "Export",
+  "themesHide": "Hide",
+  "themesShowHidden": "Show {count, plural, one{1 hidden preset} other{{count} hidden presets}}",
+  "@themesShowHidden": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "themesEdit": "Edit",
+  "themesDuplicate": "Duplicate",
+  "themesDelete": "Delete",
+  "themesDeleteConfirmTitle": "Delete this theme?",
+  "themesDeleteConfirmMessage": "\"{name}\" will be deleted. This can't be undone.",
+  "@themesDeleteConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "themesImported": "Imported \"{name}\".",
+  "@themesImported": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "themesImportFailed": "Couldn't import: {error}",
+  "@themesImportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "themesExported": "Saved to {path}",
+  "@themesExported": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "themeEditorTitle": "Edit theme",
+  "themeEditorName": "Theme name",
+  "themeEditorLight": "Light",
+  "themeEditorDark": "Dark",
+  "themeEditorOled": "OLED",
+  "themeEditorSave": "Save",
+  "themeEditorPreview": "Preview",
+  "themeEditorAuto": "Auto",
+  "themeEditorResetColor": "Reset to automatic",
+  "themeEditorPickColor": "Pick a color",
+  "themeEditorHexLabel": "Hex color",
+  "themeEditorApply": "Apply",
+  "themeEditorDiscardTitle": "Discard changes?",
+  "themeEditorDiscardMessage": "Your edits to this theme won't be saved.",
+  "themeEditorDiscard": "Discard",
+  "themeEditorAutoHint": "Colors set to Auto are derived from the others.",
+  "themeRolePrimary": "Primary",
+  "themeRolePrimaryContainer": "Primary container",
+  "themeRoleSecondary": "Secondary",
+  "themeRoleTertiary": "Tertiary",
+  "themeRoleError": "Error",
+  "themeRoleSurface": "Background",
+  "themePreviewLibrary": "Library",
+  "themePreviewBrowse": "Browse",
+  "themePreviewDetail": "Detail",
+  "themePreviewSettings": "Settings",
+  "themePreviewComponents": "Components",
+  "themePreviewShuffle": "Shuffle sample titles",
+  "themePreviewExpand": "Full-page preview",
+  "themeEditorTabColors": "Colors",
+  "themeEditorTabShape": "Components",
+  "themeShapeCard": "Cards",
+  "themeShapeItem": "List items",
+  "themeShapeCover": "Covers",
+  "themeShapeButton": "Buttons",
+  "themeShapeChip": "Chips & badges",
+  "themeShapeIconTile": "Icon tiles",
+  "themeShapeDialog": "Dialogs",
+  "themeShapeSheet": "Bottom sheet corner",
+  "themeShapeBorderWidth": "Border width",
+  "themeShapeStyleAsymmetric": "Asymmetric",
+  "themeShapeStyleUniform": "Uniform",
+  "themeShapeStylePill": "Pill",
+  "themeShapeLarge": "Large corner",
+  "themeShapeSmall": "Small corner",
+  "themeShapeRadius": "Corner radius",
+  "themeShapeReset": "Reset shapes",
+  "themePickerPresets": "Presets",
+  "themePickerFromTheme": "From this theme",
+  "themeEditorEditing": "Editing colors for",
+  "themeEditorCustom": "Custom",
+  "themeShapeNavBar": "Navigation bar",
+  "themeShapeNavIndicator": "Navigation selection",
+  "themeOptionsReset": "Reset to defaults",
+  "themeGroupTypography": "Typography",
+  "themeGroupLayout": "Layout",
+  "themeGroupEffects": "Effects",
+  "themeGroupMotion": "Motion",
+  "themeGroupComponents": "List rows",
+  "themeTextScale": "Text size",
+  "themeDensityCompact": "Compact",
+  "themeDensityComfortable": "Normal",
+  "themeDensitySpacious": "Roomy",
+  "themeSpacing": "Spacing",
+  "themeBloom": "Background glow",
+  "themeBrushStrokes": "Hand-drawn lines",
+  "themeCoverShadow": "Cover shadows",
+  "themeHoverScale": "Hover grow",
+  "themePressScale": "Press shrink",
+  "themeTransitionSpeed": "Tab speed",
+  "themeListIconTiles": "Icon tiles in rows",
+  "themeListChevron": "Arrows on rows",
+  "themeEditorTabType": "Type & layout",
+  "themeEditorTabEffects": "Effects & motion",
+  "themeEditorPreviewResize": "Drag to resize preview",
+  "themeHeadingFont": "Heading font",
+  "themeBodyFont": "Body font",
+  "themeFontDefault": "App default",
+  "themeFontsBundled": "Built in",
+  "themeFontsDownloaded": "Downloaded when used",
+  "themeFontsImported": "Your fonts",
+  "themeFontImport": "Import font file (.ttf / .otf)",
+  "themeFontRemove": "Remove font",
+  "themeFontNote": "Downloaded fonts need internet the first time. Imported fonts stay on this device, so a shared theme falls back to the default font elsewhere.",
+  "themePreviewUpdates": "Updates",
+  "themePreviewHistory": "History",
+  "themeGroupBackground": "Background",
+  "themeBackgroundTint": "Color intensity",
+  "settingsLogsFilterFps": "FPS",
+  "settingsLogsRecording": "What gets recorded",
+  "settingsLogsCategoryWarning": "Warnings",
+  "settingsLogsCategoryError": "Errors",
+  "settingsLogsCategoryMemory": "Memory watchdog",
+  "settingsLogsCategoryFps": "FPS watchdog",
+  "settingsLogsFilterWarnings": "Warnings",
+  "settingsLogsFilterErrors": "Errors",
+  "advancedDiagnosticsSection": "Diagnostics",
+  "advancedDiagnosticReport": "Export diagnostic report",
+  "advancedDiagnosticReportSubtitle": "App, device, settings, memory and recent logs in one file to send with a bug report.",
+  "settingsLogsFilterNetwork": "Network",
+  "settingsLogsFilterDatabase": "Database",
+  "settingsLogsFilterRebuilds": "Rebuilds",
+  "settingsLogsFilterSources": "Sources",
+  "settingsLogsCategorySources": "Source (extension) problems",
+  "settingsLogsCategoryNetwork": "Slow source calls",
+  "settingsLogsCategoryDatabase": "Slow database queries",
+  "settingsLogsCategoryRebuild": "Widget rebuild counts",
+  "licensesSearchHint": "Search packages",
+  "licensesNoMatch": "No packages match that search.",
+  "licensesSummary": "{count} open source packages",
+  "@licensesSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "licensesCount": "{count, plural, =1{1 license} other{{count} licenses}}",
+  "@licensesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "appearanceModeSection": "Mode",
+  "restorePreviewTitle": "Restore this backup?",
+  "restorePreviewCreated": "Made {date}",
+  "@restorePreviewCreated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "restorePreviewEntries": "Library entries",
+  "restorePreviewChapters": "Chapters",
+  "restorePreviewRead": "Chapters marked read",
+  "restorePreviewHistory": "Reading history records",
+  "restorePreviewSources": "Sources",
+  "restorePreviewCategories": "Categories",
+  "restorePreviewThemes": "Custom themes",
+  "restorePreviewMergeNote": "Restoring adds to what you have now. Nothing is deleted.",
+  "restorePreviewConfirm": "Restore",
+  "autoBackupSection": "Automatic backups",
+  "autoBackupTitle": "Back up automatically",
+  "autoBackupHint": "Saves a backup on this device in the background.",
+  "autoBackupLast": "Last backup {date}",
+  "@autoBackupLast": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "autoBackupEvery": "How often",
+  "autoBackupDays": "{days, plural, =1{Daily} other{Every {days} days}}",
+  "@autoBackupDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "autoBackupKeep": "Copies to keep",
+  "autoBackupCopies": "{count} copies",
+  "@autoBackupCopies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "autoBackupNow": "Back up now",
+  "restorePointsSection": "Restore points",
+  "restorePointsEmpty": "No automatic backups yet. Turn them on above, or tap Back up now.",
+  "safetyCopiesSection": "Database safety copies",
+  "safetyCopiesHint": "Made automatically before the app updates its database. Restoring one restarts the app.",
+  "storageOverviewSection": "Storage used",
+  "storageDatabase": "Library database",
+  "storageAutoBackups": "Automatic backups",
+  "storageSafetyCopies": "Safety copies",
+  "storageThemesFonts": "Themes and fonts",
+  "storageCustomCovers": "Custom covers",
+  "translationEntryNotTranslated": "Not translated yet",
+  "onboardingWelcomeTitle": "Welcome to Sumizuri",
+  "onboardingWelcomeBody": "Manga and novels from any source, in one quiet library. A few quick choices first.",
+  "onboardingBegin": "Begin",
+  "onboardingStep": "STEP {current} OF {total}",
+  "@onboardingStep": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingThemeBody": "Pick a look. You can change it, or make your own, any time in Appearance.",
+  "onboardingBackupTitle": "Protect your library",
+  "onboardingBackupBody": "Keep your library, progress and settings safe with automatic backups.",
+  "onboardingBackupHint": "Backups stay on this device. You can change how often, or export one, in Settings → Backup.",
+  "changelogTitle": "What's new",
+  "changelogNewVersion": "Version {version} is available",
+  "@changelogNewVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "changelogNoNotes": "This release has no notes.",
+  "changelogAllReleases": "All releases on GitHub",
+  "aboutUpdateNoReleases": "No published releases were found, so there's nothing to update to.",
+  "aboutUpdateRateLimited": "GitHub is limiting requests right now. Try again in a little while.",
+  "updateDialogTitle": "Version {version} is available",
+  "@updateDialogTitle": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateDialogBody": "You're on {version}.",
+  "@updateDialogBody": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updatePromptBackUp": "Back up, then update",
+  "updatePromptSkipBackup": "Update without backup",
+  "updatePromptLater": "Update later",
+  "updatePromptBackingUp": "Backing up…",
+  "updatePromptClose": "Close",
+  "updatePromptExplain": "A backup saves your library and settings to a file first, so you can restore them if the update goes wrong.",
+  "updatePromptBackupFailed": "The backup could not be made: {error}",
+  "@updatePromptBackupFailed": { "placeholders": { "error": { "type": "String" } } },
+  "updateNow": "Update now",
+  "updateDownloading": "Downloading the update…",
+  "updateProgress": "{received} of {total} MB",
+  "@updateProgress": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "updateInstalling": "Installing. Sumizuri will restart by itself.",
+  "updateFailed": "The update didn't finish: {reason}",
+  "@updateFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "updateClose": "Close",
+  "updateOpenReleasePage": "Open release page",
+  "docsTitle": "Documentation",
+  "docsSubtitle": "Guides for writing your own sources",
+  "syncTitle": "Sync",
+  "syncSubtitle": "Keep your library in step across devices",
+  "syncServerLabel": "Server address",
+  "syncSignedInAs": "Signed in as {username}",
+  "@syncSignedInAs": {
+    "placeholders": { "username": { "type": "String" } }
+  },
+  "syncSignOut": "Sign out",
+  "syncNow": "Sync now",
+  "syncRunning": "Syncing",
+  "syncFailed": "Sync failed",
+  "syncNeverSynced": "Never synced",
+  "syncLastSynced": "Last synced {time}",
+  "@syncLastSynced": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "syncAdvancedLabel": "Advanced",
+  "syncUploadOnly": "Upload only",
+  "syncUploadOnlyHint": "Send everything on this device and let it win. Nothing that exists only on the server is deleted.",
+  "syncDownloadOnly": "Download only",
+  "syncDownloadOnlyHint": "Pull everything the server has and merge it in. Nothing on this device is deleted.",
+  "syncSectionAccount": "Account",
+  "syncSignInWithBrowser": "Sign in with browser",
+  "syncWaitingForBrowser": "Waiting for the browser",
+  "syncCancel": "Cancel",
+  "syncBrowserSignInHint": "Opens your server's sign-in page in your browser. Sign in there and come back. No password is typed into or kept by the app.",
+  "syncNewAccountHint": "No account yet? On that page, register with an invite code from whoever runs the server.",
+  "syncProfileNote": "Profile {profile}. Every profile has its own sync account, so profiles never mix.",
+  "@syncProfileNote": {
+    "placeholders": { "profile": { "type": "String" } }
+  },
+  "syncAutoTitle": "Automatic sync",
+  "syncOnLaunch": "Sync when the app opens",
+  "syncInBackground": "Sync in the background",
+  "syncInBackgroundHint": "Also sync on this timer while the app is closed. Your phone decides when it actually runs, often less often than the timer, and it uses some battery and data.",
+  "syncInBackgroundNeedsTimer": "Choose a timer above first.",
+  "syncIntervalOff": "Timer off",
+  "syncInterval15m": "15 minutes",
+  "syncInterval30m": "30 minutes",
+  "syncInterval1h": "1 hour",
+  "syncInterval3h": "3 hours",
+  "syncInterval6h": "6 hours",
+  "syncInterval12h": "12 hours",
+  "syncInterval24h": "24 hours",
+  "syncChooseProfile": "Which profile should this sync with?",
+  "syncChooseProfileHint": "Pick a profile that already exists on your account, or create a new one. Profiles stay separate from each other.",
+  "syncNewProfileName": "New profile",
+  "syncLinkedTo": "Syncing with profile {name}",
+  "@syncLinkedTo": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "syncStopSyncingProfile": "Stop syncing this profile",
+  "syncRefresh": "Refresh",
+  "syncNameProfileTitle": "Name this profile",
+  "syncProfileNameLabel": "Profile name",
+  "syncCreate": "Create",
+  "syncCreateProfileButton": "Create a new profile",
+  "readerControlsTitle": "Controls",
+  "readerControlsSubtitle": "Keyboard shortcuts and tap zones",
+  "readerControlsKeyboardTab": "Keyboard",
+  "readerControlsTapTab": "Tap zones",
+  "readerControlsNotSet": "Not set",
+  "readerControlsAddKey": "Add a key",
+  "readerControlsPressKey": "Press the key you want",
+  "readerControlsPressKeyHint": "Hold Ctrl, Shift or Alt with it to include them.",
+  "readerControlsAlreadyUsed": "{key} already does “{action}”. Move it here?",
+  "@readerControlsAlreadyUsed": {
+    "placeholders": {
+      "key": {"type": "String"},
+      "action": {"type": "String"}
+    }
+  },
+  "readerControlsMove": "Move it here",
+  "readerControlsResetAction": "Reset",
+  "readerControlsResetKeys": "Reset keyboard",
+  "readerControlsResetZones": "Reset these zones",
+  "readerControlsExport": "Export preset",
+  "readerControlsImport": "Import preset",
+  "readerControlsSaved": "Preset saved",
+  "readerControlsImported": "Preset imported",
+  "readerControlsImportFailed": "That file is not a controls preset.",
+  "readerControlsPaged": "Paged",
+  "readerControlsContinuous": "Continuous",
+  "readerControlsTapNote": "The reader is split into a 3 by 3 grid; each square does what you choose. “Invert tap zones” in Reader Settings still swaps left and right in paged readers.",
+  "readerControlsNothing": "Nothing",
+  "readerControlsPickAction": "What should this zone do?",
+  "readerActionNextPage": "Next page",
+  "readerActionPreviousPage": "Previous page",
+  "readerActionPageRight": "Turn toward the right",
+  "readerActionPageLeft": "Turn toward the left",
+  "readerActionScrollDown": "Scroll down",
+  "readerActionScrollUp": "Scroll up",
+  "readerActionToggleOverlays": "Show or hide controls",
+  "readerActionNextChapter": "Next chapter",
+  "readerActionPreviousChapter": "Previous chapter",
+  "readerActionOpenSettings": "Open reader settings",
+  "readerGesturesTitle": "Gestures",
+  "readerGesturesSubtitle": "What each tap zone does",
+  "readerControlsScrolling": "Scrolling",
+  "readerControlsScrollNote": "For vertical and webtoon readers. Holding an arrow key glides at a fraction of this distance per key repeat.",
+  "readerControlsArrowStep": "Arrow key distance",
+  "readerControlsPageStep": "Page key distance",
+  "readerControlsTapStep": "Tap zone distance",
+  "readerControlsPixels": "{pixels} px",
+  "@readerControlsPixels": {"placeholders": {"pixels": {"type": "int"}}},
+  "readerControlsPercentOfScreen": "{percent}% of the screen",
+  "@readerControlsPercentOfScreen": {"placeholders": {"percent": {"type": "int"}}},
+  "readerControlsHoldSpeed": "Held arrow key speed",
+  "readerControlsAutoSpeed": "Auto scroll speed",
+  "readerControlsPxPerSecond": "{pixels} px/s",
+  "@readerControlsPxPerSecond": {"placeholders": {"pixels": {"type": "int"}}},
+  "readerActionToggleAutoScroll": "Start or stop auto scroll",
+  "readerActionAutoScrollFaster": "Auto scroll faster",
+  "readerActionAutoScrollSlower": "Auto scroll slower",
+  "readerAutoScrollNow": "Auto scroll: {pixels} px/s",
+  "@readerAutoScrollNow": {"placeholders": {"pixels": {"type": "int"}}},
+  "readerAutoScrollStart": "Start auto scroll",
+  "readerAutoScrollStop": "Stop auto scroll",
+  "chapterSwipeSelect": "Select",
+  "readerControlsAppTab": "App",
+  "appGesturesLibrary": "Library",
+  "appGesturesTap": "Tap",
+  "appGesturesLongPress": "Long press",
+  "appGesturesDoubleTap": "Double tap",
+  "appGesturesChapters": "Chapters",
+  "appGesturesSwipeRight": "Swipe right",
+  "appGesturesSwipeLeft": "Swipe left",
+  "appGesturesNavigation": "Navigation",
+  "appGesturesNavDoubleTap": "Double-tap a tab",
+  "appGesturesSwipeTabs": "Swipe between tabs",
+  "appGesturesSwipeTabsHint": "Turn this off if you switch tabs by accident on a large screen.",
+  "appGesturesShortcuts": "App shortcuts",
+  "appGesturesReset": "Reset app gestures",
+  "libraryActionOpen": "Open",
+  "libraryActionSelect": "Select",
+  "chapterActionToggleRead": "Mark read or unread",
+  "chapterActionDownload": "Download",
+  "chapterActionSelect": "Select",
+  "navActionSearch": "Search",
+  "appShortcutNextTab": "Next tab",
+  "appShortcutPreviousTab": "Previous tab",
+  "appShortcutSearch": "Search",
+  "appShortcutOpenSettings": "Open settings",
+  "libraryUpdateSkipCompleted": "Skip completed titles",
+  "libraryUpdateSkipCompletedHint": "Titles the source lists as finished are not checked for new chapters.",
+  "libraryUpdateSkipUnread": "Skip titles with unread chapters",
+  "libraryUpdateSkipUnreadHint": "Nothing new is needed until you have caught up.",
+  "libraryUpdateSkipNotStarted": "Skip titles you have not started",
+  "libraryUpdateSkipNotStartedHint": "Titles with no chapter read are left out.",
+  "incognitoTitle": "Incognito mode",
+  "incognitoHint": "Chapters you read are not added to history, progress or statistics.",
+  "incognitoActive": "Incognito: reading is not being recorded",
+  "readerHideSystemBars": "Hide status and navigation bars",
+  "readerHideSystemBarsHint": "Reading fills the whole screen, so the clock and notification icons are out of the way. Swipe from the edge to show them for a moment. Pop-up notifications from other apps can still appear. Some phones lower the screen refresh rate while the bars are hidden; if reading looks less smooth than the rest of the app, turn this off.",
+  "readerKeepScreenOn": "Keep the screen on",
+  "readerKeepScreenOnHint": "The screen does not dim or lock while you read.",
+  "readerVolumeKeys": "Volume keys turn pages",
+  "readerVolumeKeysHint": "Volume down goes forward and volume up goes back. Only while the reader is open.",
+  "readerVerticalNavigator": "Vertical page navigator",
+  "readerVerticalNavigatorHint": "A slim slider at the edge of long-strip chapters to jump through them.",
+  "readerActionOpenInBrowser": "Open chapter in browser",
+  "readerOpenInBrowserFailed": "This chapter has no web address that can be opened.",
+  "chapterActionBookmark": "Bookmark or remove bookmark",
+  "chapterSwipeBookmark": "Bookmark",
+  "chapterSwipeUnbookmark": "Remove bookmark",
+  "readerActionToggleBookmark": "Bookmark this chapter",
+  "readerBookmarkAdded": "Chapter bookmarked",
+  "readerBookmarkRemoved": "Bookmark removed",
+  "librarySearchHint": "Search your library (try status:ongoing or naruto OR bleach)",
+  "downloadsSkipDuplicateRead": "Skip duplicates of read chapters",
+  "downloadsSkipDuplicateReadHint": "A chapter that shares its number with one you already read is not downloaded.",
+  "storagePageTitle": "Storage",
+  "storagePageSubtitle": "Where the disk space goes, and what can be cleared",
+  "storageRefresh": "Measure again",
+  "storageDownloadedChapters": "Downloaded chapters",
+  "storageManageDownloads": "See and delete downloads by title",
+  "storageUnfinishedDownloads": "Unfinished downloads",
+  "storageUnfinishedDownloadsHint": "Chapters whose download stopped part way. They carry on next time, or can be cleared.",
+  "storageClear": "Clear",
+  "storageClearUnfinishedTitle": "Clear unfinished downloads?",
+  "storageClearUnfinishedMessage": "Removes the pages saved so far for chapters that did not finish. Those chapters will download from the start next time.",
+  "storageBusyDownloading": "Wait for the current downloads to finish first.",
+  "storageFreed": "Freed {size}",
+  "@storageFreed": {"placeholders": {"size": {"type": "String"}}},
+  "chapterMenuFilterScanlators": "Filter by scanlator",
+  "scanlatorFilterTitle": "Scanlators",
+  "scanlatorFilterHint": "Untick a group to hide its chapters for this title.",
+  "scanlatorFilterShowAll": "Show all",
+  "scanlatorFilterApply": "Apply",
+  "migrationTitle": "Migrate to another source",
+  "migrationPickSource": "Move to which source?",
+  "migrationNoSources": "No enabled sources for {mediaType}. Install or enable one to migrate into it.",
+  "@migrationNoSources": { "placeholders": { "mediaType": { "type": "String" } } },
+  "migrationSearch": "Search",
+  "migrationCancel": "Stop",
+  "migrationTabFound": "Found ({count})",
+  "@migrationTabFound": {"placeholders": {"count": {"type": "int"}}},
+  "migrationTabReview": "Review ({count})",
+  "@migrationTabReview": {"placeholders": {"count": {"type": "int"}}},
+  "migrationTabNotFound": "Not found ({count})",
+  "@migrationTabNotFound": {"placeholders": {"count": {"type": "int"}}},
+  "migrationMovedSoFar": "{count} moved so far",
+  "@migrationMovedSoFar": {"placeholders": {"count": {"type": "int"}}},
+  "migrationMatch": "{percent} match",
+  "@migrationMatch": {"placeholders": {"percent": {"type": "String"}}},
+  "migrationNotThisOne": "Not this one",
+  "migrationNoneOfThese": "None of these",
+  "migrationNoneFound": "Nothing found yet. Pick a source and press Search.",
+  "migrationNoneToReview": "Nothing needs a look.",
+  "migrationNoneMissing": "Every title has a match.",
+  "migrationTryAnotherHint": "These were not found here. Pick a different source above and search again to try only these.",
+  "migrationManualSearchAction": "Search manually",
+  "migrationManualSearchTitle": "Search {source}",
+  "@migrationManualSearchTitle": {"placeholders": {"source": {"type": "String"}}},
+  "migrationManualSearchHint": "Search title",
+  "migrationManualSearchPrompt": "Type a title and search.",
+  "migrationManualSearchEmpty": "Nothing found.",
+  "libraryNeedsMigrationBanner": "{count} {mediaType} titles need a source",
+  "@libraryNeedsMigrationBanner": {"placeholders": {"count": {"type": "int"}, "mediaType": {"type": "String"}}},
+  "missingSourcesTitle": "Entries missing a source",
+  "missingSourcesSettingsSubtitle": "{count} titles need a source",
+  "@missingSourcesSettingsSubtitle": {"placeholders": {"count": {"type": "int"}}},
+  "missingSourcesNone": "Every title has a source.",
+  "missingSourcesHint": "These were imported without a source, or their source was uninstalled. Migrate each group to a source that has them.",
+  "entryRecommendationsTitle": "You might also like",
+  "missingSourcesGroupTitle": "{count} {mediaType} titles",
+  "@missingSourcesGroupTitle": {"placeholders": {"count": {"type": "int"}, "mediaType": {"type": "String"}}},
+  "migrationMoveTitle": "Move {count} titles",
+  "@migrationMoveTitle": {"placeholders": {"count": {"type": "int"}}},
+  "migrationMoveMessage": "Each title changes to the new source. What you have read, your bookmarks and your history carry over by chapter number; chapters the new source does not have are dropped.",
+  "migrationMove": "Move",
+  "migrationMoved": "{moved} moved, {failed} failed",
+  "@migrationMoved": {"placeholders": {"moved": {"type": "int"}, "failed": {"type": "int"}}},
+  "libraryBulkMigrate": "Migrate to another source",
+  "onboardingUseSync": "I already use Sumizuri sync",
+  "onboardingSyncTitle": "Sign in to your sync server",
+  "onboardingSyncBody": "Bring your library, progress and settings from another device.",
+  "onboardingSyncAddressEmpty": "Enter your server's address first.",
+  "onboardingSyncAddressInvalid": "That does not look like a server address. Try something like sync.example.com or 192.168.1.10:3000.",
+  "onboardingSyncVerifying": "Checking your account",
+  "onboardingSyncProfilesFailed": "You signed in, but your profiles could not be loaded: {reason}",
+  "onboardingSyncNoProfiles": "Your account has no profiles yet. Start one and this device will fill it.",
+  "onboardingSyncPickBody": "Which profile's library should this device get?",
+  "onboardingSyncDownloading": "Bringing your library over",
+  "onboardingSyncRetry": "Try again",
+  "@onboardingSyncProfilesFailed": {"placeholders": {"reason": {"type": "String"}}},
+  "onboardingSyncContinueAnyway": "Continue without syncing",
+  "aniListAccountTitle": "AniList account",
+  "aniListTabOverview": "Overview",
+  "aniListTabAnime": "Anime",
+  "aniListTabManga": "Manga",
+  "aniListTabQueue": "Queue",
+  "aniListStatTitles": "{count, plural, =1{1 title} other{{count} titles}}",
+  "@aniListStatTitles": {"placeholders":{"count":{"type":"int"}}},
+  "aniListStatWatched": "{count} episodes watched",
+  "@aniListStatWatched": {"placeholders":{"count":{"type":"String"}}},
+  "aniListStatRead": "{count} chapters read",
+  "@aniListStatRead": {"placeholders":{"count":{"type":"String"}}},
+  "aniListStatDays": "{days} days of watching",
+  "@aniListStatDays": {"placeholders":{"days":{"type":"String"}}},
+  "aniListStatMean": "Mean score {score}",
+  "@aniListStatMean": {"placeholders":{"score":{"type":"String"}}},
+  "aniListOpenOnSite": "Open on AniList",
+  "aniListImportTitle": "Import to library",
+  "aniListImportHint": "Adds titles from your AniList lists to the library. Then you can move them to a source.",
+  "aniListSyncTitle": "Sync progress",
+  "aniListSyncHint": "Marks what AniList says you have read or watched as read here, and sends anything you are further along in.",
+  "aniListSyncRunning": "Syncing...",
+  "aniListSyncDone": "{pulled} updated here, {pushed} queued for AniList, {waiting} waiting for a source.",
+  "@aniListSyncDone": {"placeholders":{"pulled":{"type":"int"},"pushed":{"type":"int"},"waiting":{"type":"int"}}},
+  "aniListImportPickTitle": "Import which lists?",
+  "aniListImportAnime": "Anime ({count})",
+  "@aniListImportAnime": {"placeholders":{"count":{"type":"int"}}},
+  "aniListImportManga": "Manga and novels ({count})",
+  "@aniListImportManga": {"placeholders":{"count":{"type":"int"}}},
+  "aniListImportRunning": "Importing...",
+  "aniListImportDone": "{added} added to the library, {skipped} already there, {failed} failed.",
+  "@aniListImportDone": {"placeholders":{"added":{"type":"int"},"skipped":{"type":"int"},"failed":{"type":"int"}}},
+  "migrationPromptAction": "Migrate now",
+  "migrationPromptHint": "Imported titles have no source yet. Select them in the library and choose Migrate, or migrate them now.",
+  "aniListListEmpty": "Nothing here.",
+  "aniListListSearch": "Search this list",
+  "aniListFilterAll": "All",
+  "aniListProgressOf": "{progress} of {total}",
+  "@aniListProgressOf": {"placeholders":{"progress":{"type":"int"},"total":{"type":"int"}}},
+  "aniListProgressOnly": "{progress}",
+  "@aniListProgressOnly": {"placeholders":{"progress":{"type":"int"}}},
+  "aniListNoScore": "No score",
+  "aniListAddToLibrary": "Add to library",
+  "aniListEditTitle": "Edit entry",
+  "aniListFieldStatus": "Status",
+  "aniListFieldProgress": "Progress",
+  "aniListFieldScore": "Score (0 to 100)",
+  "aniListFieldStarted": "Started",
+  "aniListFieldCompleted": "Completed",
+  "aniListDateNotSet": "Not set",
+  "aniListSave": "Save to AniList",
+  "aniListSaved": "Saved to AniList.",
+  "aniListSaveFailed": "Could not save: {reason}",
+  "@aniListSaveFailed": {"placeholders":{"reason":{"type":"String"}}},
+  "aniListRemoveEntry": "Remove from AniList",
+  "aniListRemoveEntryTitle": "Remove from your AniList?",
+  "aniListRemoveEntryMessage": "\"{title}\" is deleted from your AniList list. Your library is not touched.",
+  "@aniListRemoveEntryMessage": {"placeholders":{"title":{"type":"String"}}},
+  "aniListLoadListFailed": "Could not load this list: {reason}",
+  "@aniListLoadListFailed": {"placeholders":{"reason":{"type":"String"}}},
+  "aniListQueueEmpty": "Nothing is waiting to be sent.",
+  "aniListQueueHint": "Progress is sent in a batch after a few minutes. You can send it now.",
+  "aniListSendNow": "Send now",
+  "aniListSendResultSent": "{sent} sent, {failed} refused.",
+  "@aniListSendResultSent": {"placeholders":{"sent":{"type":"int"},"failed":{"type":"int"}}},
+  "aniListSendResultNothing": "Nothing to send.",
+  "aniListSendResultNoAccount": "Log in to AniList first.",
+  "aniListSendResultExpired": "Your AniList login expired. Connect again.",
+  "aniListSendResultLater": "AniList is busy. It will be tried again later.",
+  "aniListQueueDiscard": "Remove from queue",
+  "aniListQueueTries": "{count, plural, =1{Tried once} other{Tried {count} times}}",
+  "@aniListQueueTries": {"placeholders":{"count":{"type":"int"}}},
+  "trackingStatusCurrentAnime": "Watching",
+  "trackingStatusRepeatingAnime": "Re-watching",
+  "downloadQueueTitle": "Download queue",
+  "downloadQueueEmpty": "Nothing is downloading.",
+  "downloadQueueRunning": "Downloading",
+  "downloadQueueWaiting": "Waiting",
+  "downloadQueuePaused": "Paused",
+  "downloadQueueFailed": "Failed",
+  "downloadQueuePause": "Pause",
+  "downloadQueueResume": "Resume",
+  "downloadQueueRetry": "Try again",
+  "downloadQueueCancel": "Cancel and delete what was downloaded",
+  "downloadQueuePauseAll": "Pause all",
+  "downloadQueueResumeAll": "Resume all",
+  "downloadQueueClearFailed": "Clear failed",
+  "downloadQueueCancelAll": "Cancel all",
+  "downloadQueueAdded": "{count, plural, =0{Already in the download queue} =1{1 added to the download queue} other{{count} added to the download queue}}",
+  "@downloadQueueAdded": {"placeholders":{"count":{"type":"int"}}},
+  "downloadQueueView": "View",
+  "downloadQueueRowHint": "{count, plural, =0{Nothing is downloading} =1{1 download} other{{count} downloads}}",
+  "@downloadQueueRowHint": {"placeholders":{"count":{"type":"int"}}},
+  "commonCancel": "Cancel",
+  "commonOk": "OK",
+  "commonDelete": "Delete",
+  "commonAdd": "Add",
+  "extensionSolveTheChallengeOrLog": "Solve the challenge or log in normally below, then go back.",
+  "extensionCouldNotStartTheEmbedded": "Could not start the embedded browser: {initError}",
+  "@extensionCouldNotStartTheEmbedded": { "placeholders": { "initError": { "type": "Object" } } },
+  "extensionCouldNotStartTheEmbedded2": "Could not start the embedded browser: {initError}\n\nThis feature needs the WebView2 Runtime installed (bundled with Windows 11 and modern Windows 10 by default).",
+  "@extensionCouldNotStartTheEmbedded2": { "placeholders": { "initError": { "type": "Object" } } },
+  "extensionError": "Error: {error}",
+  "@extensionError": { "placeholders": { "error": { "type": "Object" } } },
+  "extensionUsuallyReleasesOn": "Usually releases on {scheduleGuess}",
+  "@extensionUsuallyReleasesOn": { "placeholders": { "scheduleGuess": { "type": "Object" } } },
+  "extensionUsuallyReleasesOnEstimatedFrom": "Usually releases on {scheduleGuess} (estimated from past chapters)",
+  "@extensionUsuallyReleasesOnEstimatedFrom": { "placeholders": { "scheduleGuess": { "type": "Object" } } },
+  "profileStreak": "Streak",
+  "profileRead": "Read",
+  "readerNextChapter2": "Next Chapter",
+  "settingNoSettingsMatch": "No settings match \"{query}\"",
+  "@settingNoSettingsMatch": { "placeholders": { "query": { "type": "Object" } } },
+  "settingAppLanguage": "App language",
+  "settingSystemDefaultEnglish": "System default (English)",
+  "settingUseTheDefaultBuiltIn": "Use the default built-in language",
+  "settingCustomCommunityTranslations": "Custom & community translations",
+  "settingTranslations": "Translations",
+  "settingTranslationEditor": "Translation editor",
+  "settingCreateOrEditTranslations": "Create or edit translations",
+  "statisticNoReadingActivityYet": "No reading activity yet",
+  "statisticStartReadingMangaNovelsOr": "Start reading manga, novels, or anime to see your stats, streaks, and insights here.",
+  "statisticPreviousMonth": "Previous month",
+  "statisticNextMonth": "Next month",
+  "statisticTotal": "{totalLibraryEntries} total",
+  "@statisticTotal": { "placeholders": { "totalLibraryEntries": { "type": "Object" } } },
+  "statisticFavorites": "Favorites",
+  "themeEditorBrowseExtensionRepos": "Browse extension repos",
+  "themeEditorWriteYourOwnSource": "Write your own source",
+  "themeEditorContinueCh142": "Continue — Ch. 142",
+  "themeEditorADistrictCartographerInheritsHer": "A district cartographer inherits her late master’s ink stock, and the debts owed to the men who supplied it.",
+  "themeEditorReaderTextFonts": "Reader text & fonts",
+  "themeEditorGeneral": "General",
+  "themeEditorLibraryUpdatesAndDownloads": "Library updates and downloads",
+  "themeEditorWiFiOnlyDownloads": "Wi-Fi only downloads",
+  "themeEditorFilled": "Filled",
+  "themeEditorTonal": "Tonal",
+  "themeEditorOutlined": "Outlined",
+  "themeEditorChip": "Chip",
+  "themeEditorChoice": "Choice",
+  "themeEditorFilter": "Filter",
+  "themeEditorTextField": "Text field",
+  "themeEditorACardSurface": "A card surface",
+  "themeEditorDialog": "Dialog",
+  "themeEditorThisIsHowDialogsLook": "This is how dialogs look.",
+  "themeEditorBottomSheet": "Bottom sheet",
+  "translationAddTranslationLanguage": "Add translation language",
+  "translationImportedTranslationsFor": "Imported {length} translations for {targetLocale}",
+  "@translationImportedTranslationsFor": { "placeholders": { "length": { "type": "Object" }, "targetLocale": { "type": "Object" } } },
+  "translationFailedToImport": "Failed to import: {e}",
+  "@translationFailedToImport": { "placeholders": { "e": { "type": "Object" } } },
+  "translationFailedToExport": "Failed to export: {e}",
+  "@translationFailedToExport": { "placeholders": { "e": { "type": "Object" } } },
+  "translationActiveInApp": "Active in app",
+  "translationRevertedToSystemDefaultLanguage": "Reverted to system default language",
+  "translationUseInApp": "Use in app",
+  "translationSwitchedAppLanguageTo": "Switched app language to {activeLocale}",
+  "@translationSwitchedAppLanguageTo": { "placeholders": { "activeLocale": { "type": "Object" } } },
+  "translationClearSearch": "Clear search",
+  "translationSearchLanguageOrCode": "Search language or code...",
+  "translationUseCustomTag": "Use custom tag \"{trimmedQuery}\"",
+  "@translationUseCustomTag": { "placeholders": { "trimmedQuery": { "type": "Object" } } },
+  "translationNoLanguagesFound": "No languages found",
+  "translationTranslationFor": "Translation for \"{label}\"...",
+  "@translationTranslationFor": { "placeholders": { "label": { "type": "Object" } } },
+  "translationEGFemaleMaleOther": "e.g. female, male, other",
+  "translationOfTranslated": "{doneCount} of {totalCount} translated",
+  "@translationOfTranslated": { "placeholders": { "doneCount": { "type": "Object" }, "totalCount": { "type": "Object" } } },
+  "translationCopySourceText": "Copy source text",
+  "translationCopiedSourceTextToClipboard": "Copied source text to clipboard",
+  "translationPreviousString": "Previous string",
+  "translationNextString": "Next string",
+  "translationClearTranslation": "Clear translation",
+  "translationSaveNext": "Save & Next",
+  "translationTranslation": "{locale} translation",
+  "@translationTranslation": { "placeholders": { "locale": { "type": "Object" } } },
+  "translationEnterTranslation": "Enter translation...",
+  "translationLivePluralPreview": "Live Plural Preview",
+  "translationCount": "count = {pluralTestCount}",
+  "@translationCount": { "placeholders": { "pluralTestCount": { "type": "Object" } } },
+  "readerFailedToLoadChapter": "Failed to load chapter",
+  "settingsDebugSection": "Debug",
+  "sourcePreferenceNoneSelected": "None selected",
+  "translationEditorExportShare": "Share this file in our Discord server to contribute!",
+  "readerPageTapToRetry": "Tap to try again",
+  "chapterMenuSeriesDownloadSettings": "Download settings for this series",
+  "seriesDownloadSettingsTitle": "Downloads for this series",
+  "seriesDownloadSettingsHint": "These apply to this series only. What you leave alone follows Settings > Downloads.",
+  "seriesDownloadSettingsUseApp": "Use the app settings",
+  "readerSettingsDefaultsHint": "These are the defaults for every series. In the reader, choose This series to keep a setting for that series only.",
+  "advancedHighRefreshTitle": "Fastest screen refresh rate",
+  "advancedHighRefreshHint": "Asks the phone to run Sumizuri at its fastest refresh rate, such as 120 Hz, including while reading. It can use more battery.",
+  "repoCopyUrl": "Copy repo address",
+  "repoUrlCopied": "Repo address copied",
+  "startupFailedTitle": "Sumizuri could not start",
+  "startupFailedMessage": "Something went wrong while starting. Try again, and if it keeps happening, copy the details below and send them along.",
+  "startupSlowTitle": "Starting is taking a long time",
+  "startupSlowMessage": "The app is still starting. The details below say which step it is on, and it will open by itself if that step finishes. If it seems stuck, copy the details and send them along.",
+  "startupCopyDetails": "Copy details",
+  "startupTryAgain": "Try again",
+  "translationCustomTagValid": "Custom BCP-47 language tag",
+  "translationCustomTagInvalid": "Invalid language tag. Primary language must be recognized.",
+  "settingSystemDefault": "System default",
+  "settingLanguageEnglish": "English",
+  "repoLinkTitle": "Add this repo?",
+  "repoLinkMessage": "{url}\n\nA link asked Sumizuri to add this repo. Sources from a repo run code, so only add repos from people you trust.",
+  "@repoLinkMessage": { "placeholders": { "url": { "type": "String" } } },
+  "repoLinkAdded": "Added {name}",
+  "@repoLinkAdded": { "placeholders": { "name": { "type": "String" } } },
+  "repoLinkOpen": "Open",
+  "browseAddLocal": "Add a local folder",
+  "browseAddLocalSubtitle": "Read CBZ files, folders of pictures, EPUB and text files from this device",
+  "browseLocalTypeTitle": "What is in this folder?",
+  "browseLocalManga": "Manga and comics",
+  "browseLocalNovel": "Novels",
+  "readerScreenDim": "Dim the screen",
+  "readerScreenWarmth": "Warm light",
+  "playerSubtitleLoadFile": "Load a subtitle file",
+  "playerPictureInPicture": "Picture in picture",
+  "playerAutoPipTitle": "Picture in picture when leaving",
+  "playerAutoPipHint": "Keeps the video playing in a small window when you leave the app",
+  "playerCast": "Cast",
+  "playerCastToDevice": "Cast to a device",
+  "playerCastSearching": "Looking for devices on the network",
+  "playerCastHeadersHint": "Only sends a plain video address. A source that needs extra request headers to load its video cannot be cast.",
+  "playerCastingTo": "Casting to {device}",
+  "@playerCastingTo": { "placeholders": { "device": { "type": "String" } } },
+  "playerCastStop": "Stop casting",
+  "settingsMangayomiImportTile": "Import from Mangayomi",
+  "settingsMangayomiImportSubtitle": "Add the library, categories, chapters and history from a Mangayomi .backup file",
+  "settingsMangayomiImportWarning": "This adds every title from the Mangayomi backup to your library. Titles are not linked to a source yet: use Migrate afterward to attach an installed source to each one.",
+  "settingsMangayomiImportDone": "Added {added} titles, {skipped} were already imported",
+  "@settingsMangayomiImportDone": { "placeholders": { "added": { "type": "int" }, "skipped": { "type": "int" } } },
+  "settingsMihonImportTile": "Import from Mihon",
+  "settingsMihonImportSubtitle": "Add the library, chapters and history from a Mihon .tachibk file",
+  "settingsMihonImportWarning": "This adds every favorited title from the Mihon backup to your library. Titles are not linked to a source yet: use Migrate afterward to attach an installed source to each one. Categories are not carried over.",
+  "settingsMihonImportDone": "Added {added} titles, {skipped} were already imported",
+  "@settingsMihonImportDone": { "placeholders": { "added": { "type": "int" }, "skipped": { "type": "int" } } },
+  "autoSourceMatchRunning": "Checking {count} imported titles against installed sources…",
+  "@autoSourceMatchRunning": { "placeholders": { "count": { "type": "int" } } },
+  "autoSourceMatchDone": "{count} titles matched an installed source automatically",
+  "@autoSourceMatchDone": { "placeholders": { "count": { "type": "int" } } }
+}

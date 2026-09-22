@@ -1,0 +1,15 @@
+targets:
+  $default:
+    builders:
+      graphql_codegen:
+        options:
+          # Only the AniList queries live in .graphql files.
+          assetsPath: lib/features/trackers/data/anilist/graphql/**.graphql
+          addTypename: false
+          scalars:
+            Json:
+              type: Object
+            CountryCode:
+              type: String
+            FuzzyDateInt:
+              type: int

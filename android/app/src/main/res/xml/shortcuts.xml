@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press the launcher icon on the home screen for these. Each opens
+     sumizuri://open/<tab>, which core/navigation/shortcut_link.dart reads itself. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- No targetPackage/targetClass: those Gradle placeholders are not substituted in a
+         plain resource file, and debug and release are different application ids (see
+         DEVELOPMENT.md, "Debug builds are a separate app"). The action+data pair alone
+         resolves to whichever one of them declared the matching intent-filter. -->
+    <shortcut
+        android:shortcutId="library"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_library_short"
+        android:shortcutLongLabel="@string/shortcut_library_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="sumizuri://open/library"/>
+    </shortcut>
+    <shortcut
+        android:shortcutId="updates"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_updates_short"
+        android:shortcutLongLabel="@string/shortcut_updates_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="sumizuri://open/updates"/>
+    </shortcut>
+    <shortcut
+        android:shortcutId="history"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_history_short"
+        android:shortcutLongLabel="@string/shortcut_history_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="sumizuri://open/history"/>
+    </shortcut>
+</shortcuts>

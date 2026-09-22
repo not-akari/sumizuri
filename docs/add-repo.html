@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add a repo to Sumizuri</title>
+<style>
+  :root { color-scheme: light dark; --paper: #f4efe3; --ink: #1d1913; --ash: #6d6455; --seal: #b5432a; --card: #ffffff; }
+  @media (prefers-color-scheme: dark) { :root { --paper: #17130f; --ink: #e9dfc6; --ash: #8d8272; --seal: #c33a1e; --card: #221d17; } }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--paper); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; }
+  main { max-width: 32rem; margin: 1rem; padding: 1.5rem; background: var(--card); border-radius: 6px; }
+  h1 { margin: 0 0 .5rem; font-size: 1.25rem; }
+  p { margin: .5rem 0; color: var(--ash); }
+  code { display: block; margin: .75rem 0; padding: .5rem .75rem; overflow-wrap: anywhere; background: var(--paper); color: var(--ink); border-radius: 4px; }
+  a.button { display: inline-block; margin-top: .5rem; padding: .6rem 1.1rem; background: var(--seal); color: #fff; text-decoration: none; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Add this repo to Sumizuri</h1>
+  <p id="message">Opening Sumizuri.</p>
+  <code id="repo" hidden></code>
+  <a class="button" id="open" href="#" hidden>Open Sumizuri</a>
+  <p id="help" hidden>Nothing opened? Install Sumizuri first, then come back and tap the button. You can also copy the address above and add it under Browse, Repos.</p>
+</main>
+<script>
+  // Only web addresses are passed on, so this page cannot be used to send anything else to the app.
+  var params = new URLSearchParams(location.search);
+  var repo = (params.get('url') || '').trim();
+  var valid = /^https?:\/\/[^\s]+$/i.test(repo);
+  var message = document.getElementById('message');
+  if (!valid) {
+    message.textContent = 'This link has no repo address, so there is nothing to add.';
+  } else {
+    var link = 'sumizuri://add-repo?url=' + encodeURIComponent(repo);
+    var repoBox = document.getElementById('repo');
+    repoBox.textContent = repo;
+    repoBox.hidden = false;
+    var open = document.getElementById('open');
+    open.href = link;
+    open.hidden = false;
+    document.getElementById('help').hidden = false;
+    location.href = link;
+  }
+</script>
+</body>
+</html>

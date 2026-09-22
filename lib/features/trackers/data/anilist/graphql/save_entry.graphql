@@ -1,0 +1,24 @@
+# Creates the entry if the title is not on the list yet, otherwise updates it.
+mutation SaveEntry(
+  $mediaId: Int!
+  $status: MediaListStatus
+  $progress: Int
+  $progressVolumes: Int
+  $scoreRaw: Int
+  $repeat: Int
+  $startedAt: FuzzyDateInput
+  $completedAt: FuzzyDateInput
+) {
+  SaveMediaListEntry(
+    mediaId: $mediaId
+    status: $status
+    progress: $progress
+    progressVolumes: $progressVolumes
+    scoreRaw: $scoreRaw
+    repeat: $repeat
+    startedAt: $startedAt
+    completedAt: $completedAt
+  ) {
+    ...ListEntry
+  }
+}

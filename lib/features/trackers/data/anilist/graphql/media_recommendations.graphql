@@ -1,0 +1,11 @@
+query MediaRecommendations($id: Int!, $perPage: Int = 12) {
+  Media(id: $id) {
+    recommendations(sort: [RATING_DESC], perPage: $perPage) {
+      nodes {
+        mediaRecommendation {
+          ...MediaCore
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+query ViewerStats {
+  Viewer {
+    statistics {
+      anime {
+        count
+        episodesWatched
+        minutesWatched
+        meanScore
+      }
+      manga {
+        count
+        chaptersRead
+        volumesRead
+        meanScore
+      }
+    }
+  }
+}

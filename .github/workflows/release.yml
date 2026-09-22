@@ -1,0 +1,285 @@
+name: Release
+
+on:
+  push:
+    tags: ['*']
+  workflow_dispatch:
+    inputs:
+      windows:
+        description: Build Windows (zip + installer)
+        type: boolean
+        default: true
+      android:
+        description: Build Android APKs
+        type: boolean
+        default: true
+      linux:
+        description: Build Linux zip
+        type: boolean
+        default: true
+      macos:
+        description: Build macOS (dmg)
+        type: boolean
+        default: true
+      ios:
+        description: Build iOS (unsigned ipa)
+        type: boolean
+        default: true
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.4'
+
+jobs:
+  check-version:
+    name: Tag matches pubspec
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pub="$(grep -m1 '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//; s/+.*//')"
+          echo "tag=$tag pubspec=$pub"
+          if [ "$tag" != "$pub" ]; then
+            echo "::error::Tag '$tag' does not match pubspec.yaml version '$pub'."
+            exit 1
+          fi
+
+  analyze:
+    name: Analyze
+    needs: check-version
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Generated code is current
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+          git diff --exit-code -- lib/features/trackers/data/anilist/graphql
+      - run: flutter analyze
+
+  windows:
+    name: Windows (zip + installer)
+    needs: [check-version, analyze]
+    if: github.event_name != 'workflow_dispatch' || inputs.windows
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build windows --release --dart-define=ANILIST_CLIENT_SECRET=${{ secrets.ANILIST_CLIENT_SECRET }}
+      - name: Zip
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build/dist | Out-Null
+          Get-ChildItem build/windows/x64/runner/Release -Exclude *.exp,*.lib |
+            Compress-Archive -DestinationPath build/dist/sumizuri-windows.zip -Force
+      - name: Installer (Inno Setup)
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          $version = ((Select-String -Path pubspec.yaml -Pattern '^version:\s*(\S+)').Matches[0].Groups[1].Value -split '\+')[0]
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$version" installer/sumizuri.iss
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: build/dist/*
+          retention-days: 1
+          if-no-files-found: error
+
+  android:
+    name: Android APKs
+    needs: [check-version, analyze]
+    if: github.event_name != 'workflow_dispatch' || inputs.android
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Signing key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No ANDROID_KEYSTORE_BASE64 secret. The APKs get a throwaway debug key, so they cannot update an app installed from a build signed with a different key."
+          fi
+      - run: flutter pub get
+      - name: Build
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/symbols --dart-define=ANILIST_CLIENT_SECRET=${{ secrets.ANILIST_CLIENT_SECRET }}
+      - name: Rename
+        run: |
+          mkdir -p build/dist
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/dist/sumizuri-android-arm64.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/dist/sumizuri-android-arm32.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk build/dist/sumizuri-android-x86_64.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: build/dist/*
+          retention-days: 1
+          if-no-files-found: error
+      - name: Debug symbols
+        # Obfuscation strips symbol names from the compiled Dart code (smaller,
+        # and not worth publishing to users) - kept separately and longer so a
+        # native crash from this build can still be decoded later if needed.
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-symbols
+          path: build/symbols/*
+          retention-days: 90
+          if-no-files-found: error
+
+  linux:
+    name: Linux zip
+    needs: [check-version, analyze]
+    if: github.event_name != 'workflow_dispatch' || inputs.linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y g++ cmake ninja-build pkg-config libgtk-3-dev libsecret-1-dev libjsoncpp-dev libnotify-dev libmpv-dev zip
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build linux --release --dart-define=ANILIST_CLIENT_SECRET=${{ secrets.ANILIST_CLIENT_SECRET }}
+      - name: Zip
+        run: |
+          mkdir -p build/dist
+          cd build/linux/x64/release
+          zip -qr "$GITHUB_WORKSPACE/build/dist/sumizuri-linux.zip" bundle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: build/dist/*
+          retention-days: 1
+          if-no-files-found: error
+
+  macos:
+    name: macOS (dmg)
+    needs: [check-version, analyze]
+    if: github.event_name != 'workflow_dispatch' || inputs.macos
+    runs-on: macos-latest
+    timeout-minutes: 40
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build macos --release --dart-define=ANILIST_CLIENT_SECRET=${{ secrets.ANILIST_CLIENT_SECRET }}
+      - name: Disk image
+        run: |
+          mkdir -p build/dist stage
+          cp -R build/macos/Build/Products/Release/*.app stage/
+          ln -s /Applications stage/Applications
+          hdiutil create -volname Sumizuri -srcfolder stage -ov -format UDZO build/dist/sumizuri-macos.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: build/dist/*
+          retention-days: 1
+          if-no-files-found: error
+
+  ios:
+    name: iOS (unsigned ipa)
+    needs: [check-version, analyze]
+    if: github.event_name != 'workflow_dispatch' || inputs.ios
+    runs-on: macos-latest
+    timeout-minutes: 40
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign --dart-define=ANILIST_CLIENT_SECRET=${{ secrets.ANILIST_CLIENT_SECRET }}
+      - name: Package ipa
+        run: |
+          mkdir -p build/dist Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          zip -qr build/dist/sumizuri-ios-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios
+          path: build/dist/*
+          retention-days: 1
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: [windows, android, linux, macos, ios]
+    if: startsWith(github.ref, 'refs/tags/') && !cancelled() && needs.windows.result == 'success' && needs.android.result == 'success' && needs.linux.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Release notes from the changelog
+        run: |
+          awk '/^## /{n++; next} n==1' assets/changelog.md > release_notes.md
+          if [ ! -s release_notes.md ]; then echo "See the changelog in the app." > release_notes.md; fi
+          cat >> release_notes.md <<NOTES
+
+          ---
+          **Installing**
+          - Windows: run sumizuri-setup.exe (or unzip sumizuri-windows.zip).
+          - Linux: unzip sumizuri-linux.zip and run it. Video playback needs the libmpv library installed (on Debian or Ubuntu: sudo apt install libmpv2).
+          - Android: install the APK for your phone (arm64 for most).
+          - macOS: open the dmg and drag Sumizuri to Applications. The app is not notarized yet, so the first launch needs right-click → Open (or run: xattr -cr /Applications/sumizuri.app).
+          - iOS: the ipa is unsigned. Sideload it with Sideloadly, AltStore or SideStore.
+          NOTES
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Early Access ${{ github.ref_name }}
+          prerelease: true
+          body_path: release_notes.md
+          files: dist/*

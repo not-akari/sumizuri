@@ -1,0 +1,24 @@
+query UserList(
+  $userId: Int!
+  $type: MediaType!
+  $chunk: Int = 1
+  $perChunk: Int = 100
+) {
+  MediaListCollection(
+    userId: $userId
+    type: $type
+    chunk: $chunk
+    perChunk: $perChunk
+    forceSingleCompletedList: true
+  ) {
+    hasNextChunk
+    lists {
+      entries {
+        ...ListEntry
+        media {
+          ...MediaCore
+        }
+      }
+    }
+  }
+}

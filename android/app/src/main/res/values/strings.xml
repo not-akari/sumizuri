@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Labels for the home screen long-press shortcuts, see res/xml/shortcuts.xml. -->
+<resources>
+    <string name="shortcut_library_short">Library</string>
+    <string name="shortcut_library_long">Open Library</string>
+    <string name="shortcut_updates_short">Updates</string>
+    <string name="shortcut_updates_long">Open Updates</string>
+    <string name="shortcut_history_short">History</string>
+    <string name="shortcut_history_long">Open History</string>
+</resources>
