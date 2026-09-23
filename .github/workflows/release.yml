@@ -180,7 +180,12 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build linux --release --dart-define=ANILIST_CLIENT_SECRET=${{ secrets.ANILIST_CLIENT_SECRET }}
+      # TEMP: -v to see the actual failing compile command line and the CXX
+      # compiler identification CMake picks, since the default spinner output
+      # swallows both and the current -Wno-error=deprecated-literal-operator
+      # guard should already prevent this failure but empirically doesn't.
+      # Revert to the plain command once the Linux build is green again.
+      - run: flutter build linux --release -v --dart-define=ANILIST_CLIENT_SECRET=${{ secrets.ANILIST_CLIENT_SECRET }}
       - name: Zip
         run: |
           mkdir -p build/dist

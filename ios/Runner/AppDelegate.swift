@@ -1,5 +1,10 @@
 import Flutter
 import UIKit
+// Needed to see WorkmanagerPlugin's Swift symbols: Flutter's SPM wrapper used to
+// re-export this automatically, but workmanager_apple now builds as a plain
+// CocoaPods framework (see release.yml's FLUTTER_SWIFT_PACKAGE_MANAGER=false),
+// which requires an explicit module import across the framework boundary.
+import workmanager_apple
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
