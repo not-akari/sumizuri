@@ -174,21 +174,31 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y g++ cmake ninja-build pkg-config libgtk-3-dev libsecret-1-dev libjsoncpp-dev libnotify-dev libmpv-dev zip
+      - name: Alias g++ to clang++
+        # This whole project actually builds with Clang here (confirmed via CMake's
+        # own CMAKE_CXX_COMPILER_ID reporting "Clang" for every target). flutter_js's
+        # vendored linux/CMakeLists.txt does `set(CMAKE_CXX_COMPILER "g++")` - almost
+        # certainly copied from its Android build config - which can't actually
+        # change the compiler CMake already locked in, but Ninja's generated build
+        # command still literally runs the word "g++", which resolves to the real
+        # GNU g++ installed above. Real GCC doesn't understand
+        # -Wno-error=deprecated-literal-operator, so that one target broke while
+        # every other target (correctly invoking clang++) was fine. Shimming "g++"
+        # to point at clang++, earlier in PATH than the real one, makes that literal
+        # invocation match what CMake already believes the compiler to be.
+        run: |
+          mkdir -p "$HOME/.local/compiler-shim"
+          ln -sf "$(command -v clang++)" "$HOME/.local/compiler-shim/g++"
+          echo "$HOME/.local/compiler-shim" >> "$GITHUB_PATH"
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
       - run: flutter pub get
-      # TEMP: -v to see the actual failing compile command line and the CXX
-      # compiler identification CMake picks, since the default spinner output
-      # swallows both and the current -Wno-error=deprecated-literal-operator
-      # guard should already prevent this failure but empirically doesn't.
-      # Revert to the plain command once the Linux build is green again.
+      # TEMP: -v kept for one more confirmation run of the g++-shim fix above.
+      # Revert to the plain command once this is confirmed green.
       - run: flutter build linux --release -v --dart-define=ANILIST_CLIENT_SECRET=${{ secrets.ANILIST_CLIENT_SECRET }}
-      - name: Show compiler-id diagnostic (TEMP)
-        if: always()
-        run: find build -name 'genex_debug_*.txt' -exec sh -c 'echo "--- {} ---"; cat {}' \;
       - name: Zip
         run: |
           mkdir -p build/dist

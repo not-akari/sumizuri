@@ -37,42 +37,20 @@ endif()
 # flutter_secure_storage_linux vendors an old nlohmann/json.hpp that Clang
 # flags as using a deprecated literal operator; without downgrading that
 # from -Werror, it is a hard build failure in a plugin we don't control.
-# GCC does not know this warning by this name at all - and unlike an
-# unknown plain -Wno-<name> (which GCC quietly accepts, for exactly this
-# kind of forward/backward compatibility), an unknown -Wno-error=<name> is
-# a hard error on GCC no matter what, so this can never be added there.
-# (A CheckCXXCompilerFlag probe was tried here first and did not actually
-# catch this. A plain `if(CMAKE_CXX_COMPILER_ID STREQUAL ...)` was tried
-# second and still added the flag under GCC - flutter_js's own linux/
-# CMakeLists.txt calls a second, nested project(... LANGUAGES CXX C) before
-# calling this function, which throws off that plain variable read in this
-# function's scope. A generator expression is used instead, since it
-# resolves per-target at generate time and isn't affected by that.)
-
-# Compilation settings that should be applied to most targets.
-#
-# Be cautious about adding new options here, as plugins use this function by
-# default. In most cases, you should add new options to specific targets instead
-# of modifying this function.
+# This project actually builds Linux with Clang (confirmed via
+# CMAKE_CXX_COMPILER_ID), so the guard below is correct for the whole build.
+# flutter_js's own vendored linux/CMakeLists.txt separately does
+# `set(CMAKE_CXX_COMPILER "g++")` (copied from its Android build config),
+# which cannot change the compiler CMake already locked in, but does make
+# Ninja literally run the word "g++" for that one target - real GNU g++,
+# which doesn't know this flag at all. That mismatch is worked around in
+# release.yml by shimming "g++" to point at clang++ on PATH, so it actually
+# matches what CMake already believes the compiler to be everywhere else.
 function(APPLY_STANDARD_SETTINGS TARGET)
-  # TEMP diagnostic: the generator-expression guard below still isn't
-  # preventing this flag from reaching GCC for flutter_js_plugin specifically,
-  # which nests its own project(LANGUAGES CXX C) before calling this function.
-  # Print what this scope actually sees so the next CI log shows the truth
-  # instead of another guess. Remove once the real cause is found.
-  message(STATUS "APPLY_STANDARD_SETTINGS(${TARGET}): CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}")
   target_compile_features(${TARGET} PUBLIC cxx_std_14)
   target_compile_options(${TARGET} PRIVATE -Wall -Werror)
   target_compile_options(${TARGET} PRIVATE
     "$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wno-error=deprecated-literal-operator>")
-  # file(GENERATE) resolves generator expressions during the generate step,
-  # which always runs even if the later ninja build fails - unlike a
-  # POST_BUILD custom command, which would never run for a target that
-  # fails to compile in the first place. TARGET_GENEX_EVAL is required here
-  # because file(GENERATE)'s CONTENT has no target of its own to bind
-  # CXX_COMPILER_ID to (a bare/unbound use of it is a hard CMake error).
-  file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/genex_debug_${TARGET}.txt"
-    CONTENT "CXX_COMPILER_ID=$<TARGET_GENEX_EVAL:${TARGET},$<CXX_COMPILER_ID>> IS_CLANG=$<TARGET_GENEX_EVAL:${TARGET},$<CXX_COMPILER_ID:Clang>>\n")
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
   target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
 endfunction()
