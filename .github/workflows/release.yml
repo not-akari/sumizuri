@@ -237,7 +237,19 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
+        env:
+          # Flutter's SPM integration generates its FlutterGeneratedPluginSwiftPackage
+          # wrapper pinned to Flutter's own template floor (iOS 13), not this project's
+          # real deployment target, so Xcode's SPM integrity check fails on
+          # flutter_chrome_cast's GoogleCast dependency (needs iOS 16) no matter what
+          # this project's own Podfile/pbxproj say (flutter/flutter#189422,
+          # flutter/flutter#162072 - open upstream bugs, not something fixable here).
+          # flutter_chrome_cast ships a CocoaPods podspec too, so disabling SPM routes
+          # it there instead, where the Podfile's platform/post_install already apply.
+          FLUTTER_SWIFT_PACKAGE_MANAGER: 'false'
       - run: flutter build ios --release --no-codesign --dart-define=ANILIST_CLIENT_SECRET=${{ secrets.ANILIST_CLIENT_SECRET }}
+        env:
+          FLUTTER_SWIFT_PACKAGE_MANAGER: 'false'
       - name: Package ipa
         run: |
           mkdir -p build/dist Payload
