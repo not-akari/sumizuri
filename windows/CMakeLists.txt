@@ -32,6 +32,14 @@ set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 # Use Unicode for all projects.
 add_definitions(-DUNICODE -D_UNICODE)
 
+# Some native Windows plugins (local_auth_windows, permission_handler_windows,
+# webview_windows) still use the old, pre-standard <experimental/coroutine>
+# header. A newer MSVC's STL turns that into a hard build error instead of a
+# warning - this is the exact define Microsoft's own error message says to
+# set to keep it a warning for now. Set here, before the plugins are added
+# below, so every plugin's build picks it up too.
+add_definitions(-D_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
+
 # Compilation settings that should be applied to most targets.
 #
 # Be cautious about adding new options here, as plugins use this function by
