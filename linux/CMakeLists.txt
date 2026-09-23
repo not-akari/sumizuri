@@ -42,7 +42,12 @@ endif()
 # kind of forward/backward compatibility), an unknown -Wno-error=<name> is
 # a hard error on GCC no matter what, so this can never be added there.
 # (A CheckCXXCompilerFlag probe was tried here first and did not actually
-# catch this - the compiler identity is checked directly instead.)
+# catch this. A plain `if(CMAKE_CXX_COMPILER_ID STREQUAL ...)` was tried
+# second and still added the flag under GCC - flutter_js's own linux/
+# CMakeLists.txt calls a second, nested project(... LANGUAGES CXX C) before
+# calling this function, which throws off that plain variable read in this
+# function's scope. A generator expression is used instead, since it
+# resolves per-target at generate time and isn't affected by that.)
 
 # Compilation settings that should be applied to most targets.
 #
@@ -52,9 +57,8 @@ endif()
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_14)
   target_compile_options(${TARGET} PRIVATE -Wall -Werror)
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    target_compile_options(${TARGET} PRIVATE -Wno-error=deprecated-literal-operator)
-  endif()
+  target_compile_options(${TARGET} PRIVATE
+    "$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wno-error=deprecated-literal-operator>")
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
   target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
 endfunction()
