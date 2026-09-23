@@ -68,9 +68,11 @@ function(APPLY_STANDARD_SETTINGS TARGET)
   # file(GENERATE) resolves generator expressions during the generate step,
   # which always runs even if the later ninja build fails - unlike a
   # POST_BUILD custom command, which would never run for a target that
-  # fails to compile in the first place.
+  # fails to compile in the first place. TARGET_GENEX_EVAL is required here
+  # because file(GENERATE)'s CONTENT has no target of its own to bind
+  # CXX_COMPILER_ID to (a bare/unbound use of it is a hard CMake error).
   file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/genex_debug_${TARGET}.txt"
-    CONTENT "CXX_COMPILER_ID=$<CXX_COMPILER_ID> IS_CLANG=$<CXX_COMPILER_ID:Clang>\n")
+    CONTENT "CXX_COMPILER_ID=$<TARGET_GENEX_EVAL:${TARGET},$<CXX_COMPILER_ID>> IS_CLANG=$<TARGET_GENEX_EVAL:${TARGET},$<CXX_COMPILER_ID:Clang>>\n")
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
   target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
 endfunction()
