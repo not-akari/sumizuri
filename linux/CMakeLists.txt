@@ -34,15 +34,15 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "Debug" "Profile" "Release")
 endif()
 
-# flutter_secure_storage_linux vendors an old nlohmann/json.hpp that some
-# compilers flag as using a deprecated literal operator; without downgrading
-# that from -Werror, it is a hard build failure in a plugin we don't control.
-# Not every compiler even recognizes this warning's name though (GCC does
-# not), and handing an unknown warning name straight to -Wno-error breaks
-# the build on a compiler that has never heard of it - so it is probed for
-# first instead of assumed.
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("-Wno-error=deprecated-literal-operator" SUPPORTS_WNO_ERROR_DEPRECATED_LITERAL_OPERATOR)
+# flutter_secure_storage_linux vendors an old nlohmann/json.hpp that Clang
+# flags as using a deprecated literal operator; without downgrading that
+# from -Werror, it is a hard build failure in a plugin we don't control.
+# GCC does not know this warning by this name at all - and unlike an
+# unknown plain -Wno-<name> (which GCC quietly accepts, for exactly this
+# kind of forward/backward compatibility), an unknown -Wno-error=<name> is
+# a hard error on GCC no matter what, so this can never be added there.
+# (A CheckCXXCompilerFlag probe was tried here first and did not actually
+# catch this - the compiler identity is checked directly instead.)
 
 # Compilation settings that should be applied to most targets.
 #
@@ -52,7 +52,7 @@ check_cxx_compiler_flag("-Wno-error=deprecated-literal-operator" SUPPORTS_WNO_ER
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_14)
   target_compile_options(${TARGET} PRIVATE -Wall -Werror)
-  if(SUPPORTS_WNO_ERROR_DEPRECATED_LITERAL_OPERATOR)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(${TARGET} PRIVATE -Wno-error=deprecated-literal-operator)
   endif()
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
