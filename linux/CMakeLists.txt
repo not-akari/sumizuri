@@ -55,10 +55,22 @@ endif()
 # default. In most cases, you should add new options to specific targets instead
 # of modifying this function.
 function(APPLY_STANDARD_SETTINGS TARGET)
+  # TEMP diagnostic: the generator-expression guard below still isn't
+  # preventing this flag from reaching GCC for flutter_js_plugin specifically,
+  # which nests its own project(LANGUAGES CXX C) before calling this function.
+  # Print what this scope actually sees so the next CI log shows the truth
+  # instead of another guess. Remove once the real cause is found.
+  message(STATUS "APPLY_STANDARD_SETTINGS(${TARGET}): CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}")
   target_compile_features(${TARGET} PUBLIC cxx_std_14)
   target_compile_options(${TARGET} PRIVATE -Wall -Werror)
   target_compile_options(${TARGET} PRIVATE
     "$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wno-error=deprecated-literal-operator>")
+  # file(GENERATE) resolves generator expressions during the generate step,
+  # which always runs even if the later ninja build fails - unlike a
+  # POST_BUILD custom command, which would never run for a target that
+  # fails to compile in the first place.
+  file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/genex_debug_${TARGET}.txt"
+    CONTENT "CXX_COMPILER_ID=$<CXX_COMPILER_ID> IS_CLANG=$<CXX_COMPILER_ID:Clang>\n")
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
   target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
 endfunction()

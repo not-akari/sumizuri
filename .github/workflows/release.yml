@@ -186,6 +186,9 @@ jobs:
       # guard should already prevent this failure but empirically doesn't.
       # Revert to the plain command once the Linux build is green again.
       - run: flutter build linux --release -v --dart-define=ANILIST_CLIENT_SECRET=${{ secrets.ANILIST_CLIENT_SECRET }}
+      - name: Show compiler-id diagnostic (TEMP)
+        if: always()
+        run: find build -name 'genex_debug_*.txt' -exec sh -c 'echo "--- {} ---"; cat {}' \;
       - name: Zip
         run: |
           mkdir -p build/dist
