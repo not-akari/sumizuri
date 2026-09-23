@@ -19,12 +19,15 @@ typedef ExtensionCapabilities = ({
   bool hasFilters,
   bool hasPreferences,
   int? rateLimitMs,
+  Map<String, String>? defaultHeaders,
 });
 
 abstract interface class ExtensionService {
   MSourceInfo get info;
 
   int? get rateLimitMs;
+
+  Map<String, String>? get defaultHeaders;
 
   Future<Result<List<MEntry>, AppFailure>> search(
     String query, {

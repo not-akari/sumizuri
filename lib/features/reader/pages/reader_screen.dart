@@ -442,6 +442,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                                         notifier.setActiveChapter,
                                     onPageChanged: notifier.setPageIndex,
                                     imageQuality: state.imageQuality,
+                                    headers: widget.service.defaultHeaders,
                                   );
                                 }
 
@@ -455,6 +456,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                                   initialPage: state.currentPageIndex,
                                   onPageChanged: notifier.setPageIndex,
                                   imageQuality: state.imageQuality,
+                                  headers: widget.service.defaultHeaders,
                                 );
                               },
                             ),

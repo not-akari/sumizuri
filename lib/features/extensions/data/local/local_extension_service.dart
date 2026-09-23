@@ -37,6 +37,9 @@ class LocalExtensionService implements ExtensionService {
   @override
   int? get rateLimitMs => null;
 
+  @override
+  Map<String, String>? get defaultHeaders => null;
+
   Future<Result<T, AppFailure>> _guard<T>(Future<T> Function() body) async {
     try {
       return Ok(await body());
@@ -126,6 +129,7 @@ class LocalExtensionService implements ExtensionService {
         hasFilters: false,
         hasPreferences: false,
         rateLimitMs: null,
+        defaultHeaders: null,
       ));
 
   @override

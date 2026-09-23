@@ -533,6 +533,13 @@ String _readMetadata(JavascriptRuntime runtime) {
         if (typeof globalName !== 'undefined' && typeof globalName === 'string') return globalName;
         return null;
       }
+      var headers = (typeof extension.headers === 'object' && extension.headers !== null && !Array.isArray(extension.headers))
+        ? extension.headers
+        : (typeof HEADERS === 'object' && HEADERS !== null && !Array.isArray(HEADERS))
+          ? HEADERS
+          : (typeof __sourceConfig === 'object' && __sourceConfig !== null && typeof __sourceConfig.headers === 'object' && !Array.isArray(__sourceConfig.headers))
+            ? __sourceConfig.headers
+            : null;
       return JSON.stringify({
         name: pick('name', typeof NAME === 'undefined' ? undefined : NAME),
         lang: pick('lang', typeof LANG === 'undefined' ? undefined : LANG),
@@ -546,6 +553,7 @@ String _readMetadata(JavascriptRuntime runtime) {
         rateLimitMs: typeof extension.rateLimitMs === 'number'
             ? extension.rateLimitMs
             : (typeof RATE_LIMIT_MS === 'number' ? RATE_LIMIT_MS : null),
+        headers: headers,
       });
     })()
   ''');

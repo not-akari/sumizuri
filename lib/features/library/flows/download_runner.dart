@@ -225,7 +225,10 @@ class SourceDownloadEngine implements DownloadEngine {
       pages: pages,
       shouldStop: () => handle.stopRequested,
       fetch: (url) async {
-        final response = await handle.client.get(Uri.parse(url));
+        final response = await handle.client.get(
+          Uri.parse(url),
+          headers: service.defaultHeaders,
+        );
         if (response.statusCode != 200) {
           throw Exception('HTTP ${response.statusCode}');
         }

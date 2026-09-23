@@ -66,9 +66,13 @@ class JsExtensionService implements ExtensionService {
   final AppLogger? _logger;
   bool _disposed = false;
   int? _rateLimitMs;
+  Map<String, String>? _defaultHeaders;
 
   @override
   int? get rateLimitMs => _rateLimitMs;
+
+  @override
+  Map<String, String>? get defaultHeaders => _defaultHeaders;
 
   // Bounds one isolate round-trip.
   static const _defaultCallTimeout = Duration(minutes: 5);
@@ -110,17 +114,16 @@ class JsExtensionService implements ExtensionService {
     );
 
     final initResult = await service._send('init', jsSource);
-    return initResult.when(
-      ok: (_) {
+    switch (initResult) {
+      case Ok():
         service._counted = true;
         liveCount++;
+        await service.readCapabilities();
         return Ok(service);
-      },
-      err: (failure) {
+      case Err(:final error):
         service._isolate.kill(priority: Isolate.immediate);
-        return Err(failure);
-      },
-    );
+        return Err(error);
+    }
   }
 
   static Future<Result<JsExtensionService, AppFailure>> loadSource(
@@ -314,6 +317,11 @@ class JsExtensionService implements ExtensionService {
           final decoded = (jsonDecode(json) as Map).cast<String, dynamic>();
           final rateLimit = decoded['rateLimitMs'] as int?;
           _rateLimitMs = rateLimit;
+          final headersRaw = decoded['headers'] as Map?;
+          final headers = headersRaw?.map(
+            (k, v) => MapEntry(k.toString(), v.toString()),
+          );
+          _defaultHeaders = headers;
           return Ok((
             hasDetails: decoded['hasDetails'] == true,
             hasComments: decoded['hasComments'] == true,
@@ -321,6 +329,7 @@ class JsExtensionService implements ExtensionService {
             hasFilters: decoded['hasFilters'] == true,
             hasPreferences: decoded['hasPreferences'] == true,
             rateLimitMs: rateLimit,
+            defaultHeaders: headers,
           ));
         } catch (error) {
           final failure = ExtensionFailure('${info.name}.metadata: $error');
