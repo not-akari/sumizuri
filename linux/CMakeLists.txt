@@ -34,6 +34,16 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "Debug" "Profile" "Release")
 endif()
 
+# flutter_secure_storage_linux vendors an old nlohmann/json.hpp that some
+# compilers flag as using a deprecated literal operator; without downgrading
+# that from -Werror, it is a hard build failure in a plugin we don't control.
+# Not every compiler even recognizes this warning's name though (GCC does
+# not), and handing an unknown warning name straight to -Wno-error breaks
+# the build on a compiler that has never heard of it - so it is probed for
+# first instead of assumed.
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("-Wno-error=deprecated-literal-operator" SUPPORTS_WNO_ERROR_DEPRECATED_LITERAL_OPERATOR)
+
 # Compilation settings that should be applied to most targets.
 #
 # Be cautious about adding new options here, as plugins use this function by
@@ -41,11 +51,10 @@ endif()
 # of modifying this function.
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_14)
-  # -Wno-error=deprecated-literal-operator: flutter_secure_storage_linux vendors
-  # an old nlohmann/json.hpp that newer GCC/clang flag as deprecated; without
-  # this, -Werror turns that warning into a hard build failure in a plugin we
-  # don't control.
-  target_compile_options(${TARGET} PRIVATE -Wall -Werror -Wno-error=deprecated-literal-operator)
+  target_compile_options(${TARGET} PRIVATE -Wall -Werror)
+  if(SUPPORTS_WNO_ERROR_DEPRECATED_LITERAL_OPERATOR)
+    target_compile_options(${TARGET} PRIVATE -Wno-error=deprecated-literal-operator)
+  endif()
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
   target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
 endfunction()
