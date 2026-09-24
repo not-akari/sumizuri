@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:sumizuri/features/extensions/providers/extension_providers.dart'
+import 'package:sumizuri/features/extensions/data/engines/json/json_comments.dart'
     show stripJsonComments;
 
 // Checks a JSON source for the mistakes the engine would otherwise swallow.
@@ -344,7 +344,10 @@ void _lintSection(
       '$name.fields.${entry.key}',
       entry.value,
       // Without "itemsPath" a section reads a page, or HTML inside JSON with "htmlPath".
-      inSelectorSection: !hasPath,
+      // "details" has no itemSelector and can read HTML directly or JSON from root.
+      inSelectorSection: hasPath
+          ? false
+          : (hasSelector || name != 'details' ? true : null),
       error: error,
       warn: warn,
     );
@@ -374,7 +377,7 @@ void _lintSection(
 void _lintField(
   String path,
   Object? field, {
-  required bool inSelectorSection,
+  required bool? inSelectorSection,
   required void Function(String path, String message) error,
   required void Function(String path, String message) warn,
 }) {
@@ -411,13 +414,13 @@ void _lintField(
       'Uses ${sources.map((s) => '"$s"').join(' and ')} together; only one of them is used.',
     );
   }
-  if (field['path'] != null && inSelectorSection) {
+  if (field['path'] != null && inSelectorSection == true) {
     warn(
       path,
       '"path" reads a JSON field, but this section reads a page with "itemSelector"; use "selector".',
     );
   }
-  if (field['selector'] != null && !inSelectorSection) {
+  if (field['selector'] != null && inSelectorSection == false) {
     warn(
       path,
       '"selector" reads HTML, but this section reads JSON with "itemsPath"; use "path".',
@@ -579,6 +582,7 @@ Map<String, String?>? detectJsonMetadata(String text) {
       'lang': asString(decoded['lang']),
       'iconUrl': asString(decoded['iconUrl']),
       'baseUrl': asString(decoded['baseUrl']),
+      'webBaseUrl': asString(decoded['webBaseUrl']),
     };
   } on FormatException {
     return null;

@@ -505,6 +505,11 @@
     if (typeof sectionConfig.itemsPath === 'string') {
       return getPath(JSON.parse(response.body), sectionConfig.itemsPath);
     }
+    if (typeof response.body === 'string' && response.body.trim().charAt(0) === '{') {
+      try {
+        return JSON.parse(response.body);
+      } catch (_) {}
+    }
     return { html: htmlBody(sectionConfig, response), text: '', attributes: {} };
   }
 
@@ -693,14 +698,14 @@
       return Promise.resolve([]);
     }
     var baseUrl = config.baseUrl || '';
-    if (sectionConfig.pagination) {
-      return runSectionPaginated(sectionConfig, request, baseUrl, resolvedVars);
-    }
-    return fetchSectionPage(request, sectionConfig).then(function (response) {
-      return extractItems(sectionConfig, response);
-    }).then(function (elements) {
-      return mapItems(sectionConfig, elements, baseUrl, resolvedVars);
-    }).then(function (mapped) {
+    var itemsPromise = sectionConfig.pagination
+      ? runSectionPaginated(sectionConfig, request, baseUrl, resolvedVars)
+      : fetchSectionPage(request, sectionConfig).then(function (response) {
+          return extractItems(sectionConfig, response);
+        }).then(function (elements) {
+          return mapItems(sectionConfig, elements, baseUrl, resolvedVars);
+        });
+    return itemsPromise.then(function (mapped) {
       return traceSection(sectionConfig, mapped);
     }).then(function (mapped) {
       return applySort(mapped, sectionConfig);
