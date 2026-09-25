@@ -20,8 +20,8 @@ class SubtitleSettingsPage extends ConsumerWidget {
       readString: watchString,
     );
 
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    return SettingsScaffold(
+      rowMargin: 0,
       title: Text(l10n.playerSectionSubtitles),
       body: ListView(
         padding: EdgeInsets.fromLTRB(

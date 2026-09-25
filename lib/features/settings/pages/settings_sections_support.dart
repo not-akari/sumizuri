@@ -14,8 +14,10 @@ SettingsSection buildSupportSection({
   required String? appVersion,
 }) => SettingsSection(
   title: l10n.settingsSectionSupport,
+  group: SettingsGroup.help,
   entries: [
     SettingsEntry(
+      searchOnly: true,
       icon: Icons.receipt_long_outlined,
       title: l10n.settingsLogsTitle,
       subtitle: l10n.settingsLogsSubtitle,
@@ -33,6 +35,7 @@ SettingsSection buildSupportSection({
     ),
     SettingsEntry(
       icon: Icons.language_outlined,
+      group: SettingsGroup.general,
       title: l10n.settingAppLanguage,
       subtitle: appLanguageSubtitle(l10n, ref),
       keywords: const [
@@ -45,6 +48,7 @@ SettingsSection buildSupportSection({
       onTap: (context, ref) => showAppLanguageDialog(context, ref),
     ),
     SettingsEntry(
+      searchOnly: true,
       icon: Icons.translate_outlined,
       title: l10n.settingsHelpTranslateTitle,
       subtitle: l10n.settingsHelpTranslateSubtitle,

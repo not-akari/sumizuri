@@ -9,7 +9,7 @@
     <shortcut
         android:shortcutId="library"
         android:enabled="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_shortcut_library"
         android:shortcutShortLabel="@string/shortcut_library_short"
         android:shortcutLongLabel="@string/shortcut_library_long">
         <intent
@@ -19,7 +19,7 @@
     <shortcut
         android:shortcutId="updates"
         android:enabled="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_shortcut_updates"
         android:shortcutShortLabel="@string/shortcut_updates_short"
         android:shortcutLongLabel="@string/shortcut_updates_long">
         <intent
@@ -29,7 +29,7 @@
     <shortcut
         android:shortcutId="history"
         android:enabled="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_shortcut_history"
         android:shortcutShortLabel="@string/shortcut_history_short"
         android:shortcutLongLabel="@string/shortcut_history_long">
         <intent

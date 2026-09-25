@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
 
 import 'package:sumizuri/bootstrap/security/secure_storage_provider.dart';
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/core/widgets/overlays/app_sheet.dart';
 import 'package:sumizuri/core/widgets/controls/settings_controls.dart';
@@ -56,8 +56,7 @@ class _SecuritySettingsPageState extends ConsumerState<SecuritySettingsPage> {
     final graceMinutes =
         ref.watch(appLockGracePeriodMinutesProvider).value ?? 0;
 
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    return SettingsScaffold(
       title: Text(l10n.settingsSectionSecurity),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),

@@ -90,6 +90,8 @@ class CalendarTab extends ConsumerWidget {
               ),
               const SizedBox(height: 10),
               AppCard(
+                flattenWhenCompact: true,
+                tone: AppCardTone.inset,
                 child: releases.isEmpty
                     ? Center(
                         child: Padding(

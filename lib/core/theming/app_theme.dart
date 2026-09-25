@@ -81,8 +81,19 @@ ThemeData _applyShapes(
   ThemeOptions options = const ThemeOptions(),
 ]) {
   final buttonShape = shapes.button.border();
+  final cs = _readable(theme.colorScheme);
+  // The hairline every floating surface (sheets, dialogs, fields) is drawn with.
+  final hairline = BorderSide(
+    color: cs.outlineVariant.withValues(alpha: 0.7),
+    width: shapes.borderWidth,
+  );
+  final fieldBorder = OutlineInputBorder(
+    borderRadius: shapes.item.radius,
+    borderSide: hairline,
+  );
+  final displayFamily = resolveFontFamily(options.typography.displayFont);
   return theme.copyWith(
-    colorScheme: _readable(theme.colorScheme),
+    colorScheme: cs,
     appBarTheme: theme.appBarTheme.copyWith(
       backgroundColor: theme.colorScheme.surface,
       surfaceTintColor: Colors.transparent,
@@ -100,14 +111,64 @@ ThemeData _applyShapes(
         shape: WidgetStatePropertyAll(buttonShape),
       ),
     ),
+    // Sheets and dialogs sit one step above the page, edged with a hairline
+    // instead of a shadow, so they read as paper laid on the ink wash.
     bottomSheetTheme: theme.bottomSheetTheme.copyWith(
+      backgroundColor: cs.surfaceContainerHigh,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      modalElevation: 0,
+      modalBarrierColor: Colors.black.withValues(alpha: 0.55),
+      dragHandleColor: cs.onSurfaceVariant.withValues(alpha: 0.4),
+      dragHandleSize: const Size(36, 4),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(shapes.sheetRadius),
         ),
+        side: hairline,
       ),
     ),
-    dialogTheme: theme.dialogTheme.copyWith(shape: shapes.dialog.border()),
+    dialogTheme: theme.dialogTheme.copyWith(
+      backgroundColor: cs.surfaceContainerHigh,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: shapes.dialog.border(side: hairline),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      // Built on the text theme, so the chosen body font still applies.
+      titleTextStyle: theme.textTheme.titleLarge?.copyWith(
+        fontFamily: displayFamily,
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+        color: cs.onSurface,
+      ),
+      contentTextStyle: theme.textTheme.bodyMedium?.copyWith(
+        height: 1.45,
+        color: cs.onSurfaceVariant,
+      ),
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 520),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      border: fieldBorder,
+      enabledBorder: fieldBorder,
+      disabledBorder: fieldBorder.copyWith(
+        borderSide: hairline.copyWith(
+          color: hairline.color.withValues(alpha: 0.35),
+        ),
+      ),
+      focusedBorder: fieldBorder.copyWith(
+        borderSide: BorderSide(color: cs.primary, width: 1.5),
+      ),
+      errorBorder: fieldBorder.copyWith(
+        borderSide: BorderSide(color: cs.error),
+      ),
+      focusedErrorBorder: fieldBorder.copyWith(
+        borderSide: BorderSide(color: cs.error, width: 1.5),
+      ),
+    ),
     visualDensity: switch (options.layout.density) {
       LayoutDensity.compact => const VisualDensity(
         horizontal: -1,

@@ -1,8 +1,10 @@
 import 'package:drift/drift.dart';
 
 import 'package:sumizuri/bootstrap/database/app_database.dart';
+import 'package:sumizuri/features/trackers/models/tracker_models.dart';
 
-const _tracker = 'anilist';
+/// How the media type of a library entry is stored: manga, novel, anime.
+const _animeTypeIndex = 2;
 
 /// Nothing is retried forever.
 const maxSendAttempts = 8;
@@ -25,6 +27,7 @@ class TrackerLink {
 
 class PendingTitle {
   const PendingTitle({
+    required this.media,
     required this.linkId,
     required this.libraryEntryId,
     required this.mediaId,
@@ -33,6 +36,8 @@ class PendingTitle {
     required this.attempts,
   });
 
+  /// Which of the tracker's two lists [mediaId] is on.
+  final TrackerMedia media;
   final int linkId;
   final int libraryEntryId;
   final int mediaId;
@@ -65,11 +70,13 @@ class QueuedTitle {
   final String? lastError;
 }
 
+/// The links and the outbox of one tracker. Every query is limited to it.
 class TrackerStore {
-  TrackerStore(this._db, {int Function()? now})
+  TrackerStore(this._db, {this.tracker = 'anilist', int Function()? now})
     : _now = now ?? (() => DateTime.now().millisecondsSinceEpoch);
 
   final AppDatabase _db;
+  final String tracker;
   final int Function() _now;
 
   Future<TrackerLink?> linkFor(int libraryEntryId) async {
@@ -77,13 +84,13 @@ class TrackerStore {
         await (_db.select(_db.trackerLinks)..where(
               (t) =>
                   t.libraryEntryId.equals(libraryEntryId) &
-                  t.tracker.equals(_tracker),
+                  t.tracker.equals(tracker),
             ))
             .getSingleOrNull();
     return row == null ? null : _toLink(row);
   }
 
-  /// With [queue] false it links without telling AniList, as in an import.
+  /// With [queue] false it links without telling the tracker, as in an import.
   Future<void> link({
     required int libraryEntryId,
     required int mediaId,
@@ -96,6 +103,7 @@ class TrackerStore {
         .insert(
           TrackerLinksCompanion.insert(
             libraryEntryId: libraryEntryId,
+            tracker: Value(tracker),
             remoteMediaId: mediaId,
             remoteTitle: title,
             remoteChapters: Value(chapters),
@@ -127,8 +135,11 @@ class TrackerStore {
           'FROM tracker_outbox o '
           'JOIN tracker_links tl ON tl.id = o.link_id '
           'JOIN library_entries e ON e.id = tl.library_entry_id '
-          'WHERE e.profile_id = ? ORDER BY o.first_queued_at',
-          variables: [Variable.withInt(profileId)],
+          'WHERE e.profile_id = ? AND tl.tracker = ? ORDER BY o.first_queued_at',
+          variables: [
+            Variable.withInt(profileId),
+            Variable.withString(tracker),
+          ],
         )
         .get();
     return [
@@ -157,40 +168,48 @@ class TrackerStore {
     'UPDATE tracker_outbox SET next_try_at = 0 WHERE link_id IN ('
     'SELECT tl.id FROM tracker_links tl '
     'JOIN library_entries e ON e.id = tl.library_entry_id '
-    'WHERE e.profile_id = ?)',
-    [profileId],
+    'WHERE e.profile_id = ? AND tl.tracker = ?)',
+    [profileId, tracker],
   );
 
-  /// The titles of the profile linked to AniList: media id to library entry and link.
-  Future<Map<int, ({int libraryEntryId, int linkId})>> linkedTitles(
+  /// The titles of the profile linked to this tracker, by list and media id.
+  Future<Map<TrackerTitleKey, ({int libraryEntryId, int linkId})>> linkedTitles(
     int profileId,
   ) async {
     final rows = await _db
         .customSelect(
-          'SELECT tl.id AS link_id, tl.library_entry_id, tl.remote_media_id '
-          'FROM tracker_links tl '
+          'SELECT tl.id AS link_id, tl.library_entry_id, tl.remote_media_id, '
+          'e.media_type FROM tracker_links tl '
           'JOIN library_entries e ON e.id = tl.library_entry_id '
           'WHERE e.profile_id = ? AND tl.tracker = ?',
           variables: [
             Variable.withInt(profileId),
-            Variable.withString(_tracker),
+            Variable.withString(tracker),
           ],
         )
         .get();
     return {
       for (final row in rows)
-        row.read<int>('remote_media_id'): (
+        (
+          _mediaOf(row.read<int>('media_type')),
+          row.read<int>('remote_media_id'),
+        ): (
           libraryEntryId: row.read<int>('library_entry_id'),
           linkId: row.read<int>('link_id'),
         ),
     };
   }
 
+  static TrackerMedia _mediaOf(int libraryMediaType) =>
+      libraryMediaType == _animeTypeIndex
+      ? TrackerMedia.anime
+      : TrackerMedia.manga;
+
   Future<void> unlink(int libraryEntryId) =>
       (_db.delete(_db.trackerLinks)..where(
             (t) =>
                 t.libraryEntryId.equals(libraryEntryId) &
-                t.tracker.equals(_tracker),
+                t.tracker.equals(tracker),
           ))
           .go();
 
@@ -204,18 +223,23 @@ class TrackerStore {
     final rows = await _db
         .customSelect(
           'SELECT o.link_id, o.version, o.first_queued_at, o.attempts, '
-          'tl.library_entry_id, tl.remote_media_id '
+          'tl.library_entry_id, tl.remote_media_id, e.media_type '
           'FROM tracker_outbox o '
           'JOIN tracker_links tl ON tl.id = o.link_id '
           'JOIN library_entries e ON e.id = tl.library_entry_id '
-          'WHERE e.profile_id = ? AND o.next_try_at <= ? '
+          'WHERE e.profile_id = ? AND tl.tracker = ? AND o.next_try_at <= ? '
           'ORDER BY o.first_queued_at',
-          variables: [Variable.withInt(profileId), Variable.withInt(_now())],
+          variables: [
+            Variable.withInt(profileId),
+            Variable.withString(tracker),
+            Variable.withInt(_now()),
+          ],
         )
         .get();
     return [
       for (final row in rows)
         PendingTitle(
+          media: _mediaOf(row.read<int>('media_type')),
           linkId: row.read<int>('link_id'),
           libraryEntryId: row.read<int>('library_entry_id'),
           mediaId: row.read<int>('remote_media_id'),
@@ -231,8 +255,11 @@ class TrackerStore {
         .customSelect(
           'SELECT COUNT(*) AS n FROM tracker_outbox o '
           'JOIN tracker_links tl ON tl.id = o.link_id '
-          'WHERE tl.library_entry_id = ?',
-          variables: [Variable.withInt(libraryEntryId)],
+          'WHERE tl.library_entry_id = ? AND tl.tracker = ?',
+          variables: [
+            Variable.withInt(libraryEntryId),
+            Variable.withString(tracker),
+          ],
         )
         .getSingle();
     return row.read<int>('n') > 0;
@@ -243,7 +270,9 @@ class TrackerStore {
         .customSelect(
           'SELECT DISTINCT e.profile_id AS profile_id FROM tracker_outbox o '
           'JOIN tracker_links tl ON tl.id = o.link_id '
-          'JOIN library_entries e ON e.id = tl.library_entry_id',
+          'JOIN library_entries e ON e.id = tl.library_entry_id '
+          'WHERE tl.tracker = ?',
+          variables: [Variable.withString(tracker)],
         )
         .get();
     return [for (final row in rows) row.read<int>('profile_id')];
@@ -306,8 +335,8 @@ class TrackerStore {
     'UPDATE tracker_outbox SET next_try_at = ? WHERE link_id IN ('
     'SELECT tl.id FROM tracker_links tl '
     'JOIN library_entries e ON e.id = tl.library_entry_id '
-    'WHERE e.profile_id = ?)',
-    [retryAt.millisecondsSinceEpoch, profileId],
+    'WHERE e.profile_id = ? AND tl.tracker = ?)',
+    [retryAt.millisecondsSinceEpoch, profileId, tracker],
   );
 
   TrackerLink _toLink(TrackerLinkRow row) => TrackerLink(

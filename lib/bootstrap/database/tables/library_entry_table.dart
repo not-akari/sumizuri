@@ -15,6 +15,10 @@ import 'package:sumizuri/bootstrap/database/tables/profile_table.dart';
   unique: true,
 )
 @TableIndex(name: 'idx_library_entries_updated_at', columns: {#updatedAt})
+@TableIndex(
+  name: 'idx_library_entries_active_branch',
+  columns: {#activeBranchId},
+)
 class LibraryEntries extends Table {
   IntColumn get id => integer().autoIncrement()();
 

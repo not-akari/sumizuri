@@ -19,6 +19,8 @@ class TopReadSeriesCard extends ConsumerWidget {
     if (stats.topReadEntries.isEmpty) return const SizedBox.shrink();
 
     return AppCard(
+      flattenWhenCompact: true,
+      tone: AppCardTone.inset,
       title: l10n.statsTopSeries,
       titleGap: 10,
       child: Column(

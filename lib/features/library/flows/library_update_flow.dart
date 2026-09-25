@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sumizuri/bootstrap/logging/logger_provider.dart';
 import 'package:sumizuri/bootstrap/notifications/notification_provider.dart';
 import 'package:sumizuri/core/utils/downloads/jittered_delay.dart';
+import 'package:sumizuri/features/extensions/data/extension_service.dart';
 import 'package:sumizuri/features/extensions/models/installed_source.dart';
 import 'package:sumizuri/features/extensions/models/m_chapter.dart';
 import 'package:sumizuri/features/extensions/models/m_entry.dart';
@@ -95,10 +96,12 @@ Future<_UpdateOutcome?> _runUpdateCore(
     }
 
     final sources = container.read(installedSourcesProvider).value ?? const [];
+    final startedAt = DateTime.now();
     progressNotifier.set((
       processed: 0,
       total: entries.length,
       cancelRequested: false,
+      startedAt: startedAt,
     ));
 
     var processed = 0;
@@ -109,148 +112,165 @@ Future<_UpdateOutcome?> _runUpdateCore(
     final foundNewChapters =
         <({String entryTitle, List<MChapter> chapters, bool anime})>[];
 
-    for (final entry in entries) {
-      if (container.read(libraryUpdateProgressProvider)?.cancelRequested ??
-          false) {
-        cancelled = true;
-        break;
-      }
-      if (deadline != null && DateTime.now().isAfter(deadline)) {
-        ranOutOfTime = true;
-        break;
-      }
-      try {
-        final parsedSourceId = int.tryParse(entry.sourceId);
-        AppInstalledSource? source;
-        for (final candidate in sources) {
-          if (candidate.id == parsedSourceId) {
-            source = candidate;
-            break;
-          }
+    // Keyed by source id, so a library with many entries on the same handful
+    // of sources spawns one isolate and boots the JS engine once per source
+    // instead of once per entry - the entry loop below can revisit the same
+    // source many times without reloading it. Disposed together at the end,
+    // once every entry has been processed, since the iteration order here is
+    // also what the background-mode resume cursor depends on and isn't
+    // grouped by source itself.
+    final serviceCache = <int, ExtensionService>{};
+    try {
+      for (final entry in entries) {
+        if (container.read(libraryUpdateProgressProvider)?.cancelRequested ??
+            false) {
+          cancelled = true;
+          break;
         }
-        if (source == null) {
-          failed++;
-          continue;
+        if (deadline != null && DateTime.now().isAfter(deadline)) {
+          ranOutOfTime = true;
+          break;
         }
-
-        final serviceResult = await loadInstalledSource(
-          container,
-          MSourceInfo.fromInstalledSource(source),
-          source,
-          logger: logger,
-        );
-        final service = serviceResult.valueOrNull;
-        if (service == null) {
-          failed++;
-          continue;
-        }
-
         try {
-          final chaptersResult = await service.getChapterList(
-            MEntry(
-              url: entry.externalId,
-              title: entry.title,
-              coverUrl: entry.coverUrl,
-            ),
-          );
-          if (service.rateLimitMs != null && service.rateLimitMs! > 0) {
-            await Future<void>.delayed(jitteredDelay(service.rateLimitMs!));
+          final parsedSourceId = int.tryParse(entry.sourceId);
+          AppInstalledSource? source;
+          for (final candidate in sources) {
+            if (candidate.id == parsedSourceId) {
+              source = candidate;
+              break;
+            }
           }
-          final chapters = chaptersResult.valueOrNull;
-          if (chapters == null) {
+          if (source == null) {
             failed++;
             continue;
           }
 
-          final autoDownload =
-              container.read(autoDownloadOnLibraryUpdateProvider).value ??
-              false;
-          final notifsEnabled =
-              container.read(notificationsEnabledProvider).value ?? true;
-          Set<String>? existingUrls;
-          if (autoDownload || notifsEnabled) {
-            final existingResult = await container
-                .read(libraryRepositoryProvider)
-                .getAllChapters(entry.id);
-            existingUrls = {
-              for (final record
-                  in existingResult.valueOrNull ?? const <ChapterRecord>[])
-                record.url,
-            };
+          var service = serviceCache[source.id];
+          if (service == null) {
+            final serviceResult = await loadInstalledSource(
+              container,
+              MSourceInfo.fromInstalledSource(source),
+              source,
+              logger: logger,
+            );
+            service = serviceResult.valueOrNull;
+            if (service == null) {
+              failed++;
+              continue;
+            }
+            serviceCache[source.id] = service;
           }
 
-          await container
-              .read(libraryRepositoryProvider)
-              .syncChapters(
-                libraryEntryId: entry.id,
-                chapters: [
-                  for (final chapter in chapters)
-                    ChapterSyncItem(
-                      url: chapter.url,
-                      number: chapter.number,
-                      title: chapter.title,
-                      dateUploaded: chapter.dateUploaded,
-                    ),
-                ],
-              );
-          updated++;
+          {
+            final chaptersResult = await service.getChapterList(
+              MEntry(
+                url: entry.externalId,
+                title: entry.title,
+                coverUrl: entry.coverUrl,
+              ),
+            );
+            if (service.rateLimitMs != null && service.rateLimitMs! > 0) {
+              await Future<void>.delayed(jitteredDelay(service.rateLimitMs!));
+            }
+            final chapters = chaptersResult.valueOrNull;
+            if (chapters == null) {
+              failed++;
+              continue;
+            }
 
-          if (existingUrls != null) {
-            final newChapters = [
-              for (final chapter in chapters)
-                if (!existingUrls.contains(chapter.url)) chapter,
-            ];
-            if (newChapters.isNotEmpty) {
-              if (notifsEnabled) {
-                foundNewChapters.add((
-                  entryTitle: entry.title,
-                  chapters: newChapters,
-                  anime: service.info.mediaType == MediaType.anime,
-                ));
-              }
-              if (autoDownload && await canAutoDownloadNow(container)) {
-                final wanted = await capAutoDownloadChapters(
-                  newChapters,
-                  container,
+            final autoDownload =
+                container.read(autoDownloadOnLibraryUpdateProvider).value ??
+                false;
+            final notifsEnabled =
+                container.read(notificationsEnabledProvider).value ?? true;
+            Set<String>? existingUrls;
+            if (autoDownload || notifsEnabled) {
+              final existingResult = await container
+                  .read(libraryRepositoryProvider)
+                  .getAllChapters(entry.id);
+              existingUrls = {
+                for (final record
+                    in existingResult.valueOrNull ?? const <ChapterRecord>[])
+                  record.url,
+              };
+            }
+
+            await container
+                .read(libraryRepositoryProvider)
+                .syncChapters(
                   libraryEntryId: entry.id,
+                  chapters: [
+                    for (final chapter in chapters)
+                      ChapterSyncItem(
+                        url: chapter.url,
+                        number: chapter.number,
+                        title: chapter.title,
+                        dateUploaded: chapter.dateUploaded,
+                      ),
+                  ],
                 );
-                if (background) {
-                  // A background run is cut off without warning, so the app downloads them when it opens.
-                  await saveToStoredQueue(
-                    container.read(downloadQueueStoreProvider),
-                    libraryEntryId: entry.id,
-                    sourceId: entry.sourceId,
+            updated++;
+
+            if (existingUrls != null) {
+              final newChapters = [
+                for (final chapter in chapters)
+                  if (!existingUrls.contains(chapter.url)) chapter,
+              ];
+              if (newChapters.isNotEmpty) {
+                if (notifsEnabled) {
+                  foundNewChapters.add((
                     entryTitle: entry.title,
-                    mediaType: service.info.mediaType,
-                    chapters: wanted,
-                  );
-                } else {
-                  await downloadAllChapters(
-                    container: container,
-                    service: service,
+                    chapters: newChapters,
+                    anime: service.info.mediaType == MediaType.anime,
+                  ));
+                }
+                if (autoDownload && await canAutoDownloadNow(container)) {
+                  final wanted = await capAutoDownloadChapters(
+                    newChapters,
+                    container,
                     libraryEntryId: entry.id,
-                    sourceId: entry.sourceId,
-                    entryTitle: entry.title,
-                    chapters: wanted,
                   );
+                  if (background) {
+                    // A background run is cut off without warning, so the app downloads them when it opens.
+                    await saveToStoredQueue(
+                      container.read(downloadQueueStoreProvider),
+                      libraryEntryId: entry.id,
+                      sourceId: entry.sourceId,
+                      entryTitle: entry.title,
+                      mediaType: service.info.mediaType,
+                      chapters: wanted,
+                    );
+                  } else {
+                    await downloadAllChapters(
+                      container: container,
+                      service: service,
+                      libraryEntryId: entry.id,
+                      sourceId: entry.sourceId,
+                      entryTitle: entry.title,
+                      chapters: wanted,
+                    );
+                  }
                 }
               }
             }
           }
         } finally {
-          await service.dispose();
-        }
-      } finally {
-        processed++;
+          processed++;
 
-        final currentCancelRequested =
-            container.read(libraryUpdateProgressProvider)?.cancelRequested ??
-            false;
-        progressNotifier.set((
-          processed: processed,
-          total: entries.length,
-          cancelRequested: currentCancelRequested,
-        ));
+          final currentCancelRequested =
+              container.read(libraryUpdateProgressProvider)?.cancelRequested ??
+              false;
+          progressNotifier.set((
+            processed: processed,
+            total: entries.length,
+            cancelRequested: currentCancelRequested,
+            startedAt: startedAt,
+          ));
+        }
+      }
+    } finally {
+      for (final service in serviceCache.values) {
+        await service.dispose();
       }
     }
 

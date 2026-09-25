@@ -169,7 +169,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your library is empty. Add something from Browse to get started.';
 
   @override
-  String get libraryContinueReading => 'Continue Reading';
+  String get libraryContinueReading => 'Continue reading';
 
   @override
   String get libraryTagline =>
@@ -216,7 +216,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String categoryDeleteConfirmMessage(String name) {
-    return '\"$name\" will be removed. Entries stay in your library.';
+    return '\"$name\" will be removed. Titles stay in your library.';
   }
 
   @override
@@ -279,6 +279,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get libraryCategoryAll => 'All';
 
   @override
+  String feedChapter(String number) {
+    return 'Chapter $number';
+  }
+
+  @override
+  String feedEpisode(String number) {
+    return 'Episode $number';
+  }
+
+  @override
+  String feedChapterTitled(String number, String title) {
+    return 'Ch. $number · $title';
+  }
+
+  @override
+  String feedEpisodeTitled(String number, String title) {
+    return 'Ep. $number · $title';
+  }
+
+  @override
   String get libraryCategoryDefault => 'Default';
 
   @override
@@ -334,17 +354,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String libraryUpdateStarted(int count) {
-    return 'Checking $count entries for new chapters…';
+    return 'Checking $count titles for new chapters…';
   }
 
   @override
   String libraryUpdateFinished(int count) {
-    return 'Updated $count entries.';
+    return 'Updated $count titles.';
   }
 
   @override
   String libraryUpdateFinishedWithFailures(int count, int failed) {
-    return 'Updated $count entries, $failed failed.';
+    return 'Updated $count titles, $failed failed.';
   }
 
   @override
@@ -355,7 +375,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String libraryUpdateCancelled(int count) {
-    return 'Update cancelled after $count entries.';
+    return 'Update canceled after $count titles.';
   }
 
   @override
@@ -486,7 +506,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get libraryEntrySourceMissing =>
-      'This entry\'s source isn\'t installed anymore.';
+      'This title\'s source isn\'t installed anymore.';
 
   @override
   String get libraryEntryNeedsMigration =>
@@ -500,7 +520,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updatesEmpty =>
-      'No new chapters yet. New chapters on entries in your library show up here.';
+      'No new chapters yet. New chapters on titles in your library show up here.';
 
   @override
   String get historyTitle => 'History';
@@ -530,14 +550,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionDownloads => 'Downloads';
 
   @override
+  String get downloadsTabAutomatic => 'Automatic';
+
+  @override
+  String get downloadsSectionWhere => 'Where';
+
+  @override
+  String get downloadsSectionHow => 'How';
+
+  @override
+  String get downloadsSectionWhen => 'When to download';
+
+  @override
   String get downloadsTitle => 'Downloads';
 
   @override
-  String get downloadsSubtitle =>
-      'Downloaded chapters, auto-download, download location';
+  String get downloadsSubtitle => 'Queue, auto-download, location and storage';
 
   @override
-  String get settingsSectionBackup => 'Backup & Restore';
+  String get settingsSectionBackup => 'Backup & restore';
+
+  @override
+  String get settingsGroupGeneral => 'General';
+
+  @override
+  String get settingsGroupContent => 'Library & reading';
+
+  @override
+  String get settingsDownloadsAndStorage => 'Downloads & storage';
+
+  @override
+  String get settingsGroupData => 'Data';
+
+  @override
+  String get settingsGroupHelp => 'Help & advanced';
 
   @override
   String get settingsSectionSupport => 'Support';
@@ -608,7 +654,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dbMigrationSkipAndContinue => 'Skip and continue';
 
   @override
-  String get dbMigrationBackingUp => 'Backing up...';
+  String get dbMigrationBackingUp => 'Backing up…';
 
   @override
   String get dbTooOldTitle => 'Your data is from an older version';
@@ -745,7 +791,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playerSubtitlePreview => 'This is how subtitles will look.';
 
   @override
-  String get playerSubtitleColorTitle => 'Colour';
+  String get playerSubtitleColorTitle => 'Color';
 
   @override
   String get playerColorWhite => 'White';
@@ -968,7 +1014,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playerSizeLarge => 'Large';
 
   @override
-  String get libraryContinueWatching => 'Continue Watching';
+  String get libraryContinueWatching => 'Continue watching';
 
   @override
   String entryDetailFurthestWatchedBadge(String chapter) {
@@ -1198,18 +1244,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navStyleDrawer => 'Drawer';
 
   @override
-  String get storageSubtitle => 'Backup & restore';
+  String get storageSubtitle => 'Save your library to a file, or restore it';
 
   @override
   String storageUsageSummary(String size, int chapters, int entries) {
-    return '$size used · $chapters chapters across $entries series';
+    return '$size used · $chapters chapters across $entries titles';
   }
 
   @override
   String get storageNoDownloadsYet => 'No downloads yet.';
-
-  @override
-  String get storageDownloadsSectionTitle => 'Downloads';
 
   @override
   String get storageAutoDownloadOnUpdate => 'Auto-download new chapters';
@@ -1223,7 +1266,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageAutoDownloadOnAddHint =>
-      'Downloads an entry\'s existing chapters as soon as it\'s added to your library.';
+      'Downloads a title\'s existing chapters as soon as it\'s added to your library.';
 
   @override
   String get downloadsWifiOnlyTitle => 'Wi-Fi only';
@@ -1289,7 +1332,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageDeleteEntryConfirmMessage =>
-      'Removes every downloaded chapter for this entry from disk. This can\'t be undone.';
+      'Removes every downloaded chapter for this title from disk. This can\'t be undone.';
 
   @override
   String get storageDeleteAllDownloads => 'Delete all downloads';
@@ -1305,7 +1348,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageDeleteConfirmConfirm => 'Delete';
 
   @override
-  String get storageBackupSectionTitle => 'Backup & Restore';
+  String get storageBackupSectionTitle => 'Backup & restore';
 
   @override
   String get settingsCreateBackupTile => 'Create backup';
@@ -1356,7 +1399,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsRestoreBackupDone(int restored, int skipped) {
-    return 'Restored $restored entries ($skipped skipped).';
+    return 'Restored $restored titles ($skipped skipped).';
   }
 
   @override
@@ -1386,14 +1429,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAppearanceSubtitle =>
-      'Theme, grid size, navigation, motion';
-
-  @override
-  String get settingsLibrarySettingsTile => 'Media & layout';
+      'Theme, background, grid size, navigation';
 
   @override
   String get settingsLibrarySettingsSubtitle =>
-      'Which media types show up, unified or split library';
+      'Media types, categories, auto-update';
 
   @override
   String get settingsThemeTile => 'Theme';
@@ -1408,10 +1448,87 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLibraryModeTile => 'Library layout';
 
   @override
-  String get settingsGridTileSizeTile => 'Grid tile size';
+  String get settingsGridTileSizeTile => 'Library display';
 
   @override
   String get backgroundTitle => 'Background';
+
+  @override
+  String get backgroundGradient => 'Gradient';
+
+  @override
+  String get backgroundGradientHint =>
+      'Color the background with a gradient, on any theme.';
+
+  @override
+  String get backgroundGradientLinear => 'Linear';
+
+  @override
+  String get backgroundGradientRadial => 'Radial';
+
+  @override
+  String get backgroundGradientDirection => 'Direction';
+
+  @override
+  String get backgroundGradientStrength => 'Strength';
+
+  @override
+  String get backgroundGradientColors => 'Colors';
+
+  @override
+  String get backgroundGradientStart => 'Start';
+
+  @override
+  String get backgroundGradientEnd => 'End';
+
+  @override
+  String get backgroundGradientThird => 'Extra';
+
+  @override
+  String get gradientPresetDusk => 'Dusk';
+
+  @override
+  String get gradientPresetSakura => 'Sakura';
+
+  @override
+  String get gradientPresetOcean => 'Ocean';
+
+  @override
+  String get gradientPresetForest => 'Forest';
+
+  @override
+  String get gradientPresetEmber => 'Ember';
+
+  @override
+  String get gradientPresetAurora => 'Aurora';
+
+  @override
+  String get gradientPresetSunrise => 'Sunrise';
+
+  @override
+  String get gradientPresetMono => 'Mono';
+
+  @override
+  String get listStyleTitle => 'List style';
+
+  @override
+  String get listStyleAuto => 'Automatic';
+
+  @override
+  String get listStyleCards => 'Cards';
+
+  @override
+  String get listStyleCompact => 'Compact';
+
+  @override
+  String get listStyleHint =>
+      'Compact rows drop the boxes so more fits on screen. Automatic is compact on phones and cards on larger screens.';
+
+  @override
+  String get appearanceTabLayout => 'Layout';
+
+  @override
+  String get appearanceTabAccessibility => 'Accessibility';
 
   @override
   String get backgroundIntensity => 'Intensity';
@@ -1428,7 +1545,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGridTileSizeSubtitle =>
-      'How big covers show in the Library, Updates, and History grids';
+      'Grid or list, compact or roomy, and how big covers show';
+
+  @override
+  String get libraryDisplayTitle => 'Library display';
+
+  @override
+  String get libraryDisplayUpdatesPage => 'Updates page';
+
+  @override
+  String get libraryDisplayHistoryPage => 'History page';
+
+  @override
+  String get libraryDisplayHomeTitle => 'Home page sections';
+
+  @override
+  String get libraryDisplayHomeContinue => 'Continue reading';
+
+  @override
+  String get libraryDisplayHomeUpdates => 'Updates';
+
+  @override
+  String get libraryDisplayHomeHistory => 'History';
+
+  @override
+  String get shelfStyleShelf => 'Row that scrolls';
+
+  @override
+  String get shelfStyleGrid => 'Grid';
+
+  @override
+  String get shelfStyleList => 'List';
+
+  @override
+  String chapterShort(String number) {
+    return 'Ch. $number';
+  }
+
+  @override
+  String get libraryShowProgress => 'Progress bar on titles';
+
+  @override
+  String get libraryShowProgressHint =>
+      'How much of each title you have read. Its look is set in the theme editor.';
+
+  @override
+  String get libraryDisplayStyleLabel => 'Layout';
+
+  @override
+  String get libraryDisplayComfortableGrid => 'Comfortable grid';
+
+  @override
+  String get libraryDisplayCompactGrid => 'Compact grid';
+
+  @override
+  String get libraryDisplayCoverGrid => 'Cover only';
+
+  @override
+  String get libraryDisplayList => 'List';
+
+  @override
+  String get libraryDisplayCompactList => 'Compact list';
+
+  @override
+  String get libraryDisplayButtonTooltip => 'Display';
 
   @override
   String get gridTileSizeSmall => 'Small';
@@ -1448,6 +1628,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get aboutSectionUpdates => 'Updates';
+
+  @override
+  String get aboutSectionHelp => 'Help & community';
+
+  @override
+  String get aboutSectionMore => 'More';
+
+  @override
   String get aboutCheckForUpdates => 'Check for updates';
 
   @override
@@ -1464,6 +1653,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutJoinDiscord => 'Join our Discord';
+
+  @override
+  String get aboutJoinDiscordSubtitle =>
+      'Get help, share feedback, and follow updates';
 
   @override
   String get aboutLicenses => 'Open source licenses';
@@ -1498,10 +1691,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navCustomizationHint =>
-      'Choose which destinations appear in the navigation bar, and drag to reorder them.';
+      'Drag to reorder. Switch a destination off to hide it.';
 
   @override
-  String get navCustomizationDragHint => 'Drag to reorder';
+  String get navSectionShown => 'In the navigation';
+
+  @override
+  String get navSectionHidden => 'Not shown';
+
+  @override
+  String get navAlwaysShown => 'Always shown';
 
   @override
   String get homeScreenOrderTitle => 'Home screen order';
@@ -1598,6 +1797,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get repoBrowseNsfwBadge => 'NSFW';
 
   @override
+  String get sourceObsoleteBadge => 'Obsolete';
+
+  @override
+  String get sourceUpdateBadge => 'Update available';
+
+  @override
+  String sourceDuplicatesBanner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sources are installed twice',
+      one: '1 source is installed twice',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sourceDuplicatesMerge => 'Merge';
+
+  @override
+  String sourceDuplicatesMerged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Merged $count duplicates',
+      one: 'Merged 1 duplicate',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repoObsoleteHeading => 'No longer in this repo';
+
+  @override
+  String get repoObsoleteHint =>
+      'The repo removed this source, so it will not get updates or fixes.';
+
+  @override
   String get repoBrowseFilteredEmpty => 'Nothing matches this filter.';
 
   @override
@@ -1639,7 +1876,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDownloadDelaySubtitle =>
-      'Pause between chapters in a batch download, so a source\'s anti-bot detection is less likely to flag or ban the account';
+      'Wait between chapters in a batch download, so sources are less likely to block you';
 
   @override
   String get settingsDownloadDelayOff => 'Off';
@@ -1813,7 +2050,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sourceBrowseAlreadyInLibraryMessage =>
-      'This series is already in your library from this source.';
+      'This title is already in your library from this source.';
 
   @override
   String get sourceBrowseViewLibrary => 'View library';
@@ -1823,7 +2060,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sourceBrowsePossibleDuplicateMessage(String title) {
-    return '\"$title\" is already in your library from a different source. Add this as a separate entry, or migrate the existing one to this source?';
+    return '\"$title\" is already in your library from a different source. Add this as a separate title, or migrate the existing one to this source?';
   }
 
   @override
@@ -1847,6 +2084,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sourceBrowseRefreshChapters => 'Refresh chapters';
+
+  @override
+  String chapterListDuplicates(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count duplicate chapters',
+      one: '1 duplicate chapter',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chapterDetectDuplicates => 'Detect duplicate chapters';
+
+  @override
+  String get chapterDetectDuplicatesDescription =>
+      'Flags a chapter a source lists twice and lets you hide the extra copies. Turn off to always show the list exactly as the source gives it.';
+
+  @override
+  String get chapterListHideDuplicates => 'Hide';
+
+  @override
+  String get chapterListShowDuplicates => 'Show';
+
+  @override
+  String chapterListGapInline(String range) {
+    return 'Missing $range';
+  }
 
   @override
   String chapterListMissingChapters(int count) {
@@ -1963,7 +2229,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get htmlInspectorFetch => 'Fetch';
 
   @override
-  String get htmlInspectorFilterLabel => 'Filter lines containing...';
+  String get htmlInspectorFilterLabel => 'Filter lines containing…';
 
   @override
   String get htmlInspectorStripScripts => 'Strip <script>';
@@ -2235,7 +2501,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerDualPageCover => 'Dual page (separate cover)';
 
   @override
-  String get readerSettingsTitle => 'Reader Settings';
+  String get readerSettingsTitle => 'Reader';
+
+  @override
+  String get readerSettingsGeneralTab => 'General';
+
+  @override
+  String get readerSettingsScreenSection => 'Screen';
+
+  @override
+  String get readerSettingsChapterListSection => 'Chapter list';
 
   @override
   String get readerSettingsMangaTab => 'Manga';
@@ -2247,10 +2522,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerEndOfChapter => 'End of chapter';
 
   @override
-  String get readerLoadingNextChapter => 'Loading next chapter...';
+  String get readerLoadingNextChapter => 'Loading next chapter…';
 
   @override
-  String get readerLoadingPreviousChapter => 'Loading previous chapter...';
+  String get readerLoadingPreviousChapter => 'Loading previous chapter…';
 
   @override
   String get readerNoMoreChapters => 'No more chapters';
@@ -2286,7 +2561,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get novelParagraphSpacing => 'Paragraph spacing';
 
   @override
-  String get readerScopeThisTitle => 'This series only';
+  String get readerScopeThisTitle => 'This title only';
 
   @override
   String get readerScopeGlobal => 'Global default';
@@ -2317,6 +2592,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileSwitch => 'Switch profile';
 
   @override
+  String get profileEditShort => 'Edit';
+
+  @override
+  String get profileActive => 'Active';
+
+  @override
+  String get profileChangePhoto => 'Change photo';
+
+  @override
+  String get profileSaveChanges => 'Save changes';
+
+  @override
+  String get profileCreate => 'Create profile';
+
+  @override
+  String profileCreatedOn(String date) {
+    return 'Created $date';
+  }
+
+  @override
+  String get profileRecentActivity => 'Recent activity';
+
+  @override
+  String profileLastDays(int days) {
+    return 'Last $days days';
+  }
+
+  @override
   String get profileNew => 'New profile';
 
   @override
@@ -2344,6 +2647,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'This profile\'s library, categories, and personal settings will be permanently removed.';
 
   @override
+  String get profileDeleteSwitchFirst =>
+      'To delete this profile, switch to another one first.';
+
+  @override
+  String get profileDeleting => 'Deleting… a large library can take a moment.';
+
+  @override
   String get profileCannotDeleteOnly => 'You cannot delete the only profile.';
 
   @override
@@ -2360,32 +2670,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileSyncSectionTitle => 'Sync';
 
   @override
-  String get aniListLoginTitle => 'Connect AniList';
+  String trackerLoginTitle(String tracker) {
+    return 'Connect $tracker';
+  }
 
   @override
-  String get aniListLoginWaiting =>
-      'Log in to AniList in the browser that just opened. This will finish automatically once you approve access.';
+  String trackerLoginWaiting(String tracker) {
+    return 'Log in to $tracker in the browser that just opened, then come back here. This finishes automatically once you approve access.';
+  }
 
   @override
-  String get aniListNotConfigured =>
-      'Unavailable: this build has no AniList client secret (ANILIST_CLIENT_SECRET). See env.example.json.';
+  String trackerNotConfigured(String tracker) {
+    return 'Unavailable: this build has no $tracker client key. See env.example.json.';
+  }
+
+  @override
+  String entryDetailFromSource(String source) {
+    return 'From $source';
+  }
 
   @override
   String get trackingTitle => 'Tracking';
 
   @override
-  String get trackingConnectFirst =>
-      'Connect AniList from your profile to track this title.';
+  String trackingConnectFirst(String tracker) {
+    return 'Connect $tracker from your profile to track this title.';
+  }
 
   @override
-  String get trackingSearchHint => 'Search AniList';
+  String trackingSearchHint(String tracker) {
+    return 'Search $tracker';
+  }
 
   @override
-  String get trackingNoResults => 'Nothing found on AniList.';
+  String trackingNoResults(String tracker) {
+    return 'Nothing found on $tracker.';
+  }
 
   @override
-  String trackingLinkedTo(String title) {
-    return 'Tracked on AniList as $title';
+  String trackingLinkedTo(String tracker, String title) {
+    return 'Tracked on $tracker as $title';
   }
 
   @override
@@ -2398,22 +2722,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackingSendNow => 'Send now';
 
   @override
-  String get trackingQueued =>
-      'Changes are waiting and will be sent to AniList shortly.';
+  String trackingQueued(String tracker) {
+    return 'Changes are waiting and will be sent to $tracker shortly.';
+  }
 
   @override
   String get trackingUpToDate => 'Nothing waiting to be sent.';
 
   @override
-  String get trackingSent => 'Sent to AniList.';
+  String trackingSent(String tracker) {
+    return 'Sent to $tracker.';
+  }
 
   @override
-  String get trackingNotOnList =>
-      'Not on your AniList yet. It is added when you read a chapter.';
+  String trackingNotOnList(String tracker) {
+    return 'Not on your $tracker yet. It is added when you read a chapter.';
+  }
 
   @override
-  String trackingRemote(String status, int progress) {
-    return 'On AniList: $status, chapter $progress';
+  String trackingRemote(String tracker, String status, int progress) {
+    return 'On $tracker: $status, progress $progress';
+  }
+
+  @override
+  String trackingFailedCount(int count, String tracker) {
+    return '$count not saved by $tracker.';
   }
 
   @override
@@ -2435,33 +2768,103 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trackingStatusRepeating => 'Re-reading';
 
   @override
-  String get aniListLoginTimedOut =>
-      'Timed out waiting for AniList. Try again.';
+  String trackerLoginTimedOut(String tracker) {
+    return 'Timed out waiting for $tracker. Try again.';
+  }
 
   @override
-  String get aniListLoadFailed =>
-      'Could not load AniList account, tap to try again';
+  String trackerLoadFailed(String tracker) {
+    return 'Could not load $tracker account, tap to try again';
+  }
 
   @override
-  String get aniListNotConnected => 'Not connected';
+  String trackerProblemNotConnected(String tracker) {
+    return 'Connect $tracker first.';
+  }
 
   @override
-  String get aniListConnect => 'Connect';
+  String trackerProblemLoginExpired(String tracker) {
+    return 'Your $tracker login has expired. Connect again.';
+  }
 
   @override
-  String aniListConnectedAs(String name) {
+  String trackerProblemLoginFailed(String tracker) {
+    return '$tracker login failed. Try again.';
+  }
+
+  @override
+  String trackerProblemBusy(String tracker) {
+    return '$tracker is busy. Try again in a minute.';
+  }
+
+  @override
+  String trackerProblemNotFound(String tracker) {
+    return 'Not found on $tracker.';
+  }
+
+  @override
+  String trackerProblemTitleGone(String tracker) {
+    return 'This title no longer exists on $tracker.';
+  }
+
+  @override
+  String trackerProblemNetwork(String tracker) {
+    return 'Could not reach $tracker. Check your connection.';
+  }
+
+  @override
+  String trackerProblemRefused(String tracker) {
+    return '$tracker refused the request.';
+  }
+
+  @override
+  String trackerProblemSearchTooShort(String tracker) {
+    return '$tracker needs at least 3 letters to search.';
+  }
+
+  @override
+  String trackerProblemUnknown(String tracker) {
+    return 'Something went wrong talking to $tracker.';
+  }
+
+  @override
+  String trackerProblemRefusedStatus(String tracker, int status) {
+    return '$tracker refused the request ($status).';
+  }
+
+  @override
+  String get trackerOauthConnectedTitle => 'You\'re connected.';
+
+  @override
+  String get trackerOauthRefusedTitle => 'Nothing was connected.';
+
+  @override
+  String get trackerOauthCloseHint =>
+      'You can close this tab and go back to Sumizuri.';
+
+  @override
+  String get trackerNotConnected => 'Not connected';
+
+  @override
+  String get trackerConnect => 'Connect';
+
+  @override
+  String trackerConnectedAs(String name) {
     return 'Connected as $name';
   }
 
   @override
-  String get aniListDisconnectTitle => 'Disconnect AniList?';
+  String trackerDisconnectTitle(String tracker) {
+    return 'Disconnect $tracker?';
+  }
 
   @override
-  String get aniListDisconnectMessage =>
-      'You\'ll need to log in again to reconnect this AniList account.';
+  String trackerDisconnectMessage(String tracker) {
+    return 'You\'ll need to log in again to reconnect this $tracker account.';
+  }
 
   @override
-  String get aniListDisconnectConfirm => 'Disconnect';
+  String get trackerDisconnectConfirm => 'Disconnect';
 
   @override
   String entryDetailFurthestBadge(String chapter) {
@@ -2504,7 +2907,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get profileSearchHint => 'Search profiles...';
+  String get profileSearchHint => 'Search profiles…';
 
   @override
   String get profileNotFound => 'No profiles found';
@@ -2632,11 +3035,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Translate the app into your language or contribute improvements';
 
   @override
-  String get translationEditorTitle => 'Translation Editor';
+  String get translationEditorTitle => 'Translation editor';
 
   @override
   String get translationEditorSearchHint =>
-      'Search by key, description, or text...';
+      'Search by key, description, or text…';
 
   @override
   String get translationEditorFilterAll => 'All';
@@ -2744,13 +3147,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileStatsTitle => 'Statistics';
 
   @override
-  String get profileCalendarTitle => 'Updates Calendar';
+  String get profileCalendarTitle => 'Updates calendar';
 
   @override
   String get profileCalendarSubtitle => 'Past and predicted chapter releases';
 
   @override
-  String get profileActivitySectionTitle => 'Activity & Insights';
+  String get profileActivitySectionTitle => 'Activity & insights';
 
   @override
   String get statsCurrentStreak => 'Current streak';
@@ -2928,6 +3331,66 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get randomizeTitle => 'Randomize';
+
+  @override
+  String get randomizeHint =>
+      'Choose what to shuffle. Everything you leave off stays as it is.';
+
+  @override
+  String get randomizeAction => 'Randomize';
+
+  @override
+  String get randomizeAll => 'All';
+
+  @override
+  String get randomizeNone => 'None';
+
+  @override
+  String get randomizeColors => 'Colors';
+
+  @override
+  String get randomizeColorsHint => 'A new palette for light and dark';
+
+  @override
+  String get randomizeShapes => 'Shapes';
+
+  @override
+  String get randomizeShapesHint => 'Corner rounding and border weight';
+
+  @override
+  String get randomizeFonts => 'Fonts';
+
+  @override
+  String get randomizeFontsHint => 'Title and body typefaces';
+
+  @override
+  String get randomizeSpacing => 'Spacing';
+
+  @override
+  String get randomizeSpacingHint => 'Density and the room between things';
+
+  @override
+  String get randomizeEffects => 'Effects';
+
+  @override
+  String get randomizeEffectsHint => 'Hand-drawn lines and cover shadows';
+
+  @override
+  String get randomizeComponents => 'Components';
+
+  @override
+  String get randomizeComponentsHint =>
+      'Icon tiles, arrows and how solid cards look';
+
+  @override
+  String get randomizeBackground => 'Background';
+
+  @override
+  String get randomizeBackgroundHint =>
+      'Glow, tint and a gradient behind the app';
+
+  @override
   String get themesNew => 'New theme';
 
   @override
@@ -2958,6 +3421,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themesDuplicate => 'Duplicate';
+
+  @override
+  String get themesSelect => 'Select';
+
+  @override
+  String get themesSelectAll => 'Select all';
+
+  @override
+  String get themesSelectDone => 'Done';
+
+  @override
+  String themesSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String themesDeleteManyTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Delete $count themes?',
+      one: 'Delete 1 theme?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get themesDeleteManyMessage =>
+      'Your own themes are deleted for good. Built-in themes can\'t be deleted, so they\'re hidden; \"Show hidden\" brings them back. The theme in use is kept.';
 
   @override
   String get themesDelete => 'Delete';
@@ -3075,10 +3567,81 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themePreviewExpand => 'Full-page preview';
 
   @override
+  String get themeEditorTabBackground => 'Background';
+
+  @override
+  String get themeEditorUndo => 'Undo';
+
+  @override
+  String get themeEditorRedo => 'Redo';
+
+  @override
+  String get themeDensity => 'Density';
+
+  @override
+  String get themeSpacingHint => 'How much room there is between things';
+
+  @override
+  String get themeBrushStrokesHint => 'Hand-drawn underlines and accents';
+
+  @override
+  String get themeCoverShadowHint => 'A soft shadow under covers';
+
+  @override
+  String get themeHoverScaleHint =>
+      'How much things grow when the pointer is over them';
+
+  @override
+  String get themePressScaleHint => 'How much things shrink when pressed';
+
+  @override
+  String get themeTransitionSpeedHint => 'How fast tabs and pages change';
+
+  @override
+  String get themeBloomHint => 'The soft colored glow behind everything';
+
+  @override
+  String get themeBackgroundTintHint =>
+      'How much of the theme color tints the background';
+
+  @override
+  String get themeShapeStartFrom => 'Start from';
+
+  @override
+  String get themeShapeCorners => 'Corners';
+
+  @override
+  String get themeShapeCharacterSharp => 'Sharp';
+
+  @override
+  String get themeShapeCharacterSoft => 'Soft';
+
+  @override
+  String get themeShapeCharacterRound => 'Round';
+
+  @override
+  String get themeShapeCharacterLeaf => 'Leaf';
+
+  @override
+  String get themeGroupCards => 'Cards';
+
+  @override
+  String get themeCardOpacity => 'Card opacity';
+
+  @override
+  String get themeCardOpacityHint => 'Lower lets the background show through';
+
+  @override
+  String get themeCardBorders => 'Card outlines';
+
+  @override
+  String get backgroundGradientStyle => 'Style';
+
+  @override
   String get themeEditorTabColors => 'Colors';
 
   @override
-  String get themeEditorTabShape => 'Components';
+  String get themeEditorTabShape => 'Shape';
 
   @override
   String get themeShapeCard => 'Cards';
@@ -3124,9 +3687,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeShapeRadius => 'Corner radius';
-
-  @override
-  String get themeShapeReset => 'Reset shapes';
 
   @override
   String get themePickerPresets => 'Presets';
@@ -3208,6 +3768,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeEditorTabEffects => 'Effects & motion';
+
+  @override
+  String get themeEditorTabProgress => 'Progress bar';
+
+  @override
+  String get themeProgressPreview => 'Preview';
+
+  @override
+  String get themeProgressNote =>
+      'Turn the bar on in Settings › Appearance › Library display. Here you choose how it looks.';
+
+  @override
+  String get themeProgressLooks => 'Looks';
+
+  @override
+  String get themeProgressLookThin => 'Thin line';
+
+  @override
+  String get themeProgressLookNeon => 'Neon';
+
+  @override
+  String get themeProgressLookCandy => 'Candy';
+
+  @override
+  String get themeProgressLookSteps => 'Steps';
+
+  @override
+  String get themeProgressShape => 'Shape';
+
+  @override
+  String get themeProgressStyle => 'Style';
+
+  @override
+  String get themeProgressStyleLine => 'Line';
+
+  @override
+  String get themeProgressStyleGlow => 'Glow';
+
+  @override
+  String get themeProgressStyleStriped => 'Striped';
+
+  @override
+  String get themeProgressStyleSegments => 'Steps';
+
+  @override
+  String get themeProgressPlacement => 'Position';
+
+  @override
+  String get themeProgressOnCover => 'On the cover';
+
+  @override
+  String get themeProgressBelowCover => 'Under the cover';
+
+  @override
+  String get themeProgressThickness => 'Thickness';
+
+  @override
+  String get themeProgressTrack => 'Empty part';
+
+  @override
+  String get themeProgressGlow => 'Glow';
+
+  @override
+  String get themeProgressRounded => 'Rounded ends';
+
+  @override
+  String get themeProgressAnimate => 'Move the stripes';
+
+  @override
+  String get themeProgressColorTitle => 'Color';
+
+  @override
+  String get themeProgressColor => 'Color of the bar';
+
+  @override
+  String get themeProgressColorAccent => 'Accent';
+
+  @override
+  String get themeProgressColorGradient => 'Gradient';
+
+  @override
+  String get themeProgressColorCustom => 'Custom';
+
+  @override
+  String get themeProgressCustomColor => 'Custom color';
+
+  @override
+  String get themeProgressWhen => 'When to show it';
+
+  @override
+  String get themeProgressPercent => 'Show the percentage in lists';
+
+  @override
+  String get themeProgressHideEmpty => 'Hide when nothing is read';
+
+  @override
+  String get themeProgressHideComplete => 'Hide when finished';
 
   @override
   String get themeEditorPreviewResize => 'Drag to resize preview';
@@ -3486,6 +4143,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get changelogNoNotes => 'This release has no notes.';
+
+  @override
+  String get changelogInstalled => 'Installed';
+
+  @override
+  String get changelogNew => 'New';
+
+  @override
+  String get changelogPrerelease => 'Pre-release';
+
+  @override
+  String get changelogOffline =>
+      'Couldn\'t reach GitHub. Showing the notes that came with this version.';
+
+  @override
+  String get changelogRetry => 'Try again';
+
+  @override
+  String get changelogOlder => 'Show older releases';
 
   @override
   String get changelogAllReleases => 'All releases on GitHub';
@@ -3777,11 +4453,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerControlsContinuous => 'Continuous';
 
   @override
-  String get readerControlsTapNote =>
-      'The reader is split into a 3 by 3 grid; each square does what you choose. “Invert tap zones” in Reader Settings still swaps left and right in paged readers.';
+  String get readerControlsNothing => 'Nothing';
 
   @override
-  String get readerControlsNothing => 'Nothing';
+  String get controlsGroupTurning => 'Turning pages';
+
+  @override
+  String get controlsGroupScrolling => 'Scrolling';
+
+  @override
+  String get controlsGroupChapters => 'Chapters';
+
+  @override
+  String get controlsGroupReader => 'Reader';
+
+  @override
+  String get controlsGroupAutoScroll => 'Auto-scroll';
+
+  @override
+  String get tapPresetStandard => 'Standard';
+
+  @override
+  String get tapPresetEdges => 'Edges only';
+
+  @override
+  String get tapPresetLShaped => 'L-shape';
+
+  @override
+  String get tapPresetWideCenter => 'Wide center';
+
+  @override
+  String get tapPresetMenuOnly => 'Menu only';
+
+  @override
+  String get controlsPresetsTitle => 'Layouts';
+
+  @override
+  String get controlsZoneSizeTitle => 'Zone size';
+
+  @override
+  String get controlsSideWidth => 'Side zones';
+
+  @override
+  String get controlsEdgeHeight => 'Top and bottom zones';
+
+  @override
+  String get controlsMirror => 'Swap left and right';
+
+  @override
+  String get controlsTapHint => 'Tap a zone to choose what it does.';
+
+  @override
+  String get controlsSearchHint => 'Search actions';
+
+  @override
+  String get controlsNoMatch => 'No action matches.';
+
+  @override
+  String get controlsKeyboardHint =>
+      'Tap an action to add a key. A key can only do one thing.';
+
+  @override
+  String get controlsResetAll => 'Reset all controls';
+
+  @override
+  String get controlsResetAllTitle => 'Reset all controls?';
+
+  @override
+  String get controlsResetAllMessage =>
+      'Keys, tap zones, scrolling and app gestures go back to the defaults.';
+
+  @override
+  String get controlsResetAllConfirm => 'Reset';
 
   @override
   String get readerControlsPickAction => 'What should this zone do?';
@@ -3981,7 +4724,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get incognitoHint =>
-      'Chapters you read are not added to history, progress or statistics.';
+      'What you read or watch is kept out of history, progress and statistics.';
 
   @override
   String get incognitoActive => 'Incognito: reading is not being recorded';
@@ -4040,8 +4783,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerBookmarkRemoved => 'Bookmark removed';
 
   @override
-  String get librarySearchHint =>
-      'Search your library (try status:ongoing or naruto OR bleach)';
+  String get librarySearchHint => 'Search your library';
+
+  @override
+  String get librarySearchHelpTooltip => 'Search tips';
+
+  @override
+  String get librarySearchHelpTitle => 'Search tips';
+
+  @override
+  String get librarySearchHelpSubtitle =>
+      'Type words to match titles, or combine them with these.';
+
+  @override
+  String get librarySearchHelpPhrase => 'An exact phrase';
+
+  @override
+  String get librarySearchHelpExclude => 'Leave out a word';
+
+  @override
+  String get librarySearchHelpOr => 'Either word';
+
+  @override
+  String get librarySearchHelpGroup => 'Group with parentheses';
+
+  @override
+  String get librarySearchHelpStatus => 'Ongoing, completed or hiatus';
+
+  @override
+  String get librarySearchHelpSource => 'From a source';
+
+  @override
+  String get librarySearchHelpCategory => 'In a category';
+
+  @override
+  String get librarySearchHelpType => 'Manga, novel or anime';
+
+  @override
+  String get librarySearchHelpFavorite => 'Favorites only';
+
+  @override
+  String get librarySearchHelpUnread => 'By unread chapters';
 
   @override
   String get downloadsSkipDuplicateRead => 'Skip duplicates of read chapters';
@@ -4109,6 +4891,89 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanlatorFilterApply => 'Apply';
 
   @override
+  String get migrationRules => 'Match rules';
+
+  @override
+  String get migrationRulesHint =>
+      'These apply to the next search. Titles already searched keep their result.';
+
+  @override
+  String get migrationRuleChapters => 'Chapters';
+
+  @override
+  String get migrationRuleChaptersAny => 'Any';
+
+  @override
+  String get migrationRuleChaptersAtLeastAsMany => 'At least as many as I have';
+
+  @override
+  String get migrationRuleChaptersAtLeastAsNew =>
+      'Newest chapter is the same or later';
+
+  @override
+  String get migrationRuleChaptersCoversProgress =>
+      'Has the chapter I\'m up to';
+
+  @override
+  String get migrationRuleStrictness => 'Title match';
+
+  @override
+  String get migrationRuleStrict => 'Strict';
+
+  @override
+  String get migrationRuleBalanced => 'Balanced';
+
+  @override
+  String get migrationRuleLoose => 'Loose';
+
+  @override
+  String get migrationRuleAutoAccept => 'Pick clear matches for me';
+
+  @override
+  String get migrationRuleAutoAcceptHint =>
+      'Off sends every match to Review, so you confirm each one.';
+
+  @override
+  String get migrationRulePreferMore => 'Prefer the one with more chapters';
+
+  @override
+  String get migrationRulePreferMoreHint =>
+      'When several results match about equally well, choose the longest.';
+
+  @override
+  String migrationSkippedFewer(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matches skipped: they have fewer chapters than you',
+      one: '1 match skipped: it has fewer chapters than you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String migrationSkippedBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matches skipped: their newest chapters are behind yours',
+      one: '1 match skipped: its newest chapter is behind yours',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String migrationSkippedProgress(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matches skipped: they don\'t reach the chapter you\'re on',
+      one: '1 match skipped: it doesn\'t reach the chapter you\'re on',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get migrationTitle => 'Migrate to another source';
 
   @override
@@ -4121,6 +4986,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get migrationSearch => 'Search';
+
+  @override
+  String get migrationSearchAllSources => 'Try all sources';
 
   @override
   String get migrationCancel => 'Stop';
@@ -4148,6 +5016,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String migrationMatch(String percent) {
     return '$percent match';
+  }
+
+  @override
+  String migrationMatchOn(String percent, String source) {
+    return '$percent match on $source';
   }
 
   @override
@@ -4193,7 +5066,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get missingSourcesTitle => 'Entries missing a source';
+  String get missingSourcesSearchHint => 'Search these titles';
+
+  @override
+  String get missingSourcesMigrateHint =>
+      'Pick a source and match them all in one go';
+
+  @override
+  String get missingSourcesMigrateOne => 'Migrate this title';
+
+  @override
+  String get missingSourcesDuplicate => 'Duplicate';
+
+  @override
+  String get missingSourcesTitle => 'Titles missing a source';
 
   @override
   String missingSourcesSettingsSubtitle(int count) {
@@ -4279,22 +5165,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingSyncContinueAnyway => 'Continue without syncing';
 
   @override
-  String get aniListAccountTitle => 'AniList account';
+  String trackerAccountTitle(String tracker) {
+    return '$tracker account';
+  }
 
   @override
-  String get aniListTabOverview => 'Overview';
+  String get trackerMetricEpisodes => 'Episodes';
 
   @override
-  String get aniListTabAnime => 'Anime';
+  String get trackerMetricChapters => 'Chapters';
 
   @override
-  String get aniListTabManga => 'Manga';
+  String get trackerMetricDays => 'Days watched';
 
   @override
-  String get aniListTabQueue => 'Queue';
+  String get trackerMetricMean => 'Mean score';
 
   @override
-  String aniListStatTitles(int count) {
+  String get trackerMetricTitles => 'titles';
+
+  @override
+  String get trackerSectionTools => 'Sync and import';
+
+  @override
+  String get trackerMenuRefresh => 'Refresh';
+
+  @override
+  String trackerImportShown(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Import these $count titles',
+      one: 'Import this title',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get trackerTabOverview => 'Overview';
+
+  @override
+  String get trackerTabAnime => 'Anime';
+
+  @override
+  String get trackerTabManga => 'Manga';
+
+  @override
+  String get trackerTabQueue => 'Queue';
+
+  @override
+  String trackerStatTitles(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -4305,68 +5225,52 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String aniListStatWatched(String count) {
-    return '$count episodes watched';
+  String trackerOpenOnSite(String tracker) {
+    return 'Open on $tracker';
   }
 
   @override
-  String aniListStatRead(String count) {
-    return '$count chapters read';
+  String get trackerImportTitle => 'Import to library';
+
+  @override
+  String trackerImportHint(String tracker) {
+    return 'Adds titles from your $tracker lists to the library. Then you can move them to a source.';
   }
 
   @override
-  String aniListStatDays(String days) {
-    return '$days days of watching';
+  String get trackerSyncTitle => 'Sync progress';
+
+  @override
+  String trackerSyncHint(String tracker) {
+    return 'Marks what $tracker says you have read or watched as read here, and sends anything you are further along in.';
   }
 
   @override
-  String aniListStatMean(String score) {
-    return 'Mean score $score';
+  String get trackerSyncRunning => 'Syncing…';
+
+  @override
+  String trackerSyncDone(String tracker, int pulled, int pushed, int waiting) {
+    return '$pulled updated here, $pushed queued for $tracker, $waiting waiting for a source.';
   }
 
   @override
-  String get aniListOpenOnSite => 'Open on AniList';
+  String get trackerImportPickTitle => 'Import which lists?';
 
   @override
-  String get aniListImportTitle => 'Import to library';
-
-  @override
-  String get aniListImportHint =>
-      'Adds titles from your AniList lists to the library. Then you can move them to a source.';
-
-  @override
-  String get aniListSyncTitle => 'Sync progress';
-
-  @override
-  String get aniListSyncHint =>
-      'Marks what AniList says you have read or watched as read here, and sends anything you are further along in.';
-
-  @override
-  String get aniListSyncRunning => 'Syncing...';
-
-  @override
-  String aniListSyncDone(int pulled, int pushed, int waiting) {
-    return '$pulled updated here, $pushed queued for AniList, $waiting waiting for a source.';
-  }
-
-  @override
-  String get aniListImportPickTitle => 'Import which lists?';
-
-  @override
-  String aniListImportAnime(int count) {
+  String trackerImportAnime(int count) {
     return 'Anime ($count)';
   }
 
   @override
-  String aniListImportManga(int count) {
+  String trackerImportManga(int count) {
     return 'Manga and novels ($count)';
   }
 
   @override
-  String get aniListImportRunning => 'Importing...';
+  String get trackerImportRunning => 'Importing…';
 
   @override
-  String aniListImportDone(int added, int skipped, int failed) {
+  String trackerImportDone(int added, int skipped, int failed) {
     return '$added added to the library, $skipped already there, $failed failed.';
   }
 
@@ -4378,112 +5282,124 @@ class AppLocalizationsEn extends AppLocalizations {
       'Imported titles have no source yet. Select them in the library and choose Migrate, or migrate them now.';
 
   @override
-  String get aniListListEmpty => 'Nothing here.';
+  String get trackerListEmpty => 'Nothing here.';
 
   @override
-  String get aniListListSearch => 'Search this list';
+  String get trackerListSearch => 'Search this list';
 
   @override
-  String get aniListFilterAll => 'All';
+  String get trackerFilterAll => 'All';
 
   @override
-  String aniListProgressOf(int progress, int total) {
+  String trackerProgressOf(int progress, int total) {
     return '$progress of $total';
   }
 
   @override
-  String aniListProgressOnly(int progress) {
+  String trackerProgressOnly(int progress) {
     return '$progress';
   }
 
   @override
-  String get aniListNoScore => 'No score';
+  String get trackerNoScore => 'No score';
 
   @override
-  String get aniListAddToLibrary => 'Add to library';
+  String get trackerAddToLibrary => 'Add to library';
 
   @override
-  String get aniListEditTitle => 'Edit entry';
+  String get trackerEditTitle => 'Edit entry';
 
   @override
-  String get aniListFieldStatus => 'Status';
+  String get trackerFieldStatus => 'Status';
 
   @override
-  String get aniListFieldProgress => 'Progress';
+  String get trackerFieldProgress => 'Progress';
 
   @override
-  String get aniListFieldScore => 'Score (0 to 100)';
+  String get trackerFieldScore => 'Score (0 to 10)';
 
   @override
-  String get aniListFieldStarted => 'Started';
+  String get trackerFieldStarted => 'Started';
 
   @override
-  String get aniListFieldCompleted => 'Completed';
+  String get trackerFieldCompleted => 'Completed';
 
   @override
-  String get aniListDateNotSet => 'Not set';
+  String get trackerDateNotSet => 'Not set';
 
   @override
-  String get aniListSave => 'Save to AniList';
+  String trackerSave(String tracker) {
+    return 'Save to $tracker';
+  }
 
   @override
-  String get aniListSaved => 'Saved to AniList.';
+  String trackerSaved(String tracker) {
+    return 'Saved to $tracker.';
+  }
 
   @override
-  String aniListSaveFailed(String reason) {
+  String trackerSaveFailed(String reason) {
     return 'Could not save: $reason';
   }
 
   @override
-  String get aniListRemoveEntry => 'Remove from AniList';
-
-  @override
-  String get aniListRemoveEntryTitle => 'Remove from your AniList?';
-
-  @override
-  String aniListRemoveEntryMessage(String title) {
-    return '\"$title\" is deleted from your AniList list. Your library is not touched.';
+  String trackerRemoveEntry(String tracker) {
+    return 'Remove from $tracker';
   }
 
   @override
-  String aniListLoadListFailed(String reason) {
+  String trackerRemoveEntryTitle(String tracker) {
+    return 'Remove from your $tracker?';
+  }
+
+  @override
+  String trackerRemoveEntryMessage(String tracker, String title) {
+    return '\"$title\" is deleted from your $tracker list. Your library is not touched.';
+  }
+
+  @override
+  String trackerLoadListFailed(String reason) {
     return 'Could not load this list: $reason';
   }
 
   @override
-  String get aniListQueueEmpty => 'Nothing is waiting to be sent.';
+  String get trackerQueueEmpty => 'Nothing is waiting to be sent.';
 
   @override
-  String get aniListQueueHint =>
+  String get trackerQueueHint =>
       'Progress is sent in a batch after a few minutes. You can send it now.';
 
   @override
-  String get aniListSendNow => 'Send now';
+  String get trackerSendNow => 'Send now';
 
   @override
-  String aniListSendResultSent(int sent, int failed) {
+  String trackerSendResultSent(int sent, int failed) {
     return '$sent sent, $failed refused.';
   }
 
   @override
-  String get aniListSendResultNothing => 'Nothing to send.';
+  String get trackerSendResultNothing => 'Nothing to send.';
 
   @override
-  String get aniListSendResultNoAccount => 'Log in to AniList first.';
+  String trackerSendResultNoAccount(String tracker) {
+    return 'Log in to $tracker first.';
+  }
 
   @override
-  String get aniListSendResultExpired =>
-      'Your AniList login expired. Connect again.';
+  String trackerSendResultExpired(String tracker) {
+    return 'Your $tracker login expired. Connect again.';
+  }
 
   @override
-  String get aniListSendResultLater =>
-      'AniList is busy. It will be tried again later.';
+  String trackerSendResultLater(String tracker) {
+    return '$tracker is busy. It will be tried again later.';
+  }
 
   @override
-  String get aniListQueueDiscard => 'Remove from queue';
+  String get trackerQueueDiscard => 'Remove from queue';
 
   @override
-  String aniListQueueTries(int count) {
+  String trackerQueueTries(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -4616,7 +5532,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileRead => 'Read';
 
   @override
-  String get readerNextChapter2 => 'Next Chapter';
+  String get readerNextChapter2 => 'Next chapter';
 
   @override
   String settingNoSettingsMatch(Object query) {
@@ -4765,7 +5681,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get translationClearSearch => 'Clear search';
 
   @override
-  String get translationSearchLanguageOrCode => 'Search language or code...';
+  String get translationSearchLanguageOrCode => 'Search language or code…';
 
   @override
   String translationUseCustomTag(Object trimmedQuery) {
@@ -4777,7 +5693,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String translationTranslationFor(Object label) {
-    return 'Translation for \"$label\"...';
+    return 'Translation for \"$label\"…';
   }
 
   @override
@@ -4805,7 +5721,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get translationClearTranslation => 'Clear translation';
 
   @override
-  String get translationSaveNext => 'Save & Next';
+  String get translationSaveNext => 'Save & next';
 
   @override
   String translationTranslation(Object locale) {
@@ -4813,10 +5729,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get translationEnterTranslation => 'Enter translation...';
+  String get translationEnterTranslation => 'Enter translation…';
 
   @override
-  String get translationLivePluralPreview => 'Live Plural Preview';
+  String get translationLivePluralPreview => 'Live plural preview';
 
   @override
   String translationCount(Object pluralTestCount) {
@@ -4841,7 +5757,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chapterMenuSeriesDownloadSettings =>
-      'Download settings for this series';
+      'Download settings for this title';
 
   @override
   String get seriesDownloadSettingsTitle => 'Downloads for this series';
@@ -4855,7 +5771,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readerSettingsDefaultsHint =>
-      'These are the defaults for every series. In the reader, choose This series to keep a setting for that series only.';
+      'These are the defaults for every title. In the reader, choose \"This title only\" to keep a setting for that title alone.';
 
   @override
   String get advancedHighRefreshTitle => 'Fastest screen refresh rate';
@@ -4996,15 +5912,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsMihonImportSubtitle =>
-      'Add the library, chapters and history from a Mihon .tachibk file';
+      'Add the library, categories, chapters and history from a Mihon .tachibk file';
 
   @override
   String get settingsMihonImportWarning =>
-      'This adds every favorited title from the Mihon backup to your library. Titles are not linked to a source yet: use Migrate afterward to attach an installed source to each one. Categories are not carried over.';
+      'This adds every favorited title from the Mihon backup to your library. Titles are not linked to a source yet: use Migrate afterward to attach an installed source to each one.';
 
   @override
   String settingsMihonImportDone(int added, int skipped) {
     return 'Added $added titles, $skipped were already imported';
+  }
+
+  @override
+  String backupImportProgress(int completed, int total) {
+    return 'Importing $completed of $total';
+  }
+
+  @override
+  String backupImportEta(String eta) {
+    return 'About $eta left';
+  }
+
+  @override
+  String get backupImportCancelling => 'Canceling…';
+
+  @override
+  String backupImportCancelledDone(int added, int skipped) {
+    return 'Import canceled: added $added titles, $skipped were already imported';
   }
 
   @override

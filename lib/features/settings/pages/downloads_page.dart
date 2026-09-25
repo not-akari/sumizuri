@@ -1,4 +1,7 @@
 import 'package:sumizuri/core/widgets/controls/app_choice.dart';
+import 'package:sumizuri/core/widgets/navigation/squiggle_tab_bar.dart';
+import 'package:sumizuri/features/settings/pages/storage_page.dart';
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:sumizuri/core/theming/app_layout.dart';
 import 'package:sumizuri/core/utils/files/folder_picker.dart';
 import 'package:sumizuri/core/utils/files/folder_problem_text.dart';
@@ -8,7 +11,6 @@ import 'package:sumizuri/features/settings/registry/settings_catalog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sumizuri/core/widgets/overlays/app_sheet.dart';
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/core/widgets/overlays/confirm_dialog.dart';
 import 'package:sumizuri/core/widgets/controls/settings_controls.dart';
@@ -31,6 +33,8 @@ class DownloadsPage extends ConsumerStatefulWidget {
 }
 
 class _DownloadsPageState extends ConsumerState<DownloadsPage> {
+  int _tab = 0;
+
   Map<int, int> _sizesByEntry = const {};
   int _totalBytes = 0;
   List<DownloadedEntry> _sizedFor = const [];
@@ -63,7 +67,7 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
       l10n.storageDeleteEntryConfirmTitle(entry.title),
       l10n.storageDeleteEntryConfirmMessage,
     );
-    if (!confirmed) return;
+    if (!confirmed || !mounted) return;
     final repository = ref.read(libraryRepositoryProvider);
     for (final chapter in entry.chapters) {
       await deleteChapterDownload(
@@ -81,7 +85,7 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
       l10n.storageDeleteAllConfirmTitle,
       l10n.storageDeleteAllConfirmMessage,
     );
-    if (!confirmed) return;
+    if (!confirmed || !mounted) return;
     final repository = ref.read(libraryRepositoryProvider);
     for (final entry in entries) {
       for (final chapter in entry.chapters) {
@@ -175,130 +179,161 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
       (sum, entry) => sum + entry.chapters.length,
     );
 
-    return AmbientScaffold(
-      maxContentWidth: 720,
-      title: Text(l10n.downloadsTitle),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
+    final downloads = <Widget>[
+      AppListRow(
+        icon: Icons.downloading_outlined,
+        title: l10n.downloadQueueTitle,
+        subtitle: l10n.downloadQueueRowHint(queueCount),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => const DownloadQueuePage()),
+        ),
+      ),
+      AppSectionLabel(label: l10n.downloadsSectionWhere),
+      AppListRow(
+        icon: Icons.folder_outlined,
+        title: l10n.settingsDownloadLocationTile,
+        subtitle: downloadDirPath ?? l10n.settingsDownloadLocationDefault,
+        onTap: () => _pickDownloadDirectory(context, ref),
+      ),
+      AppSectionLabel(label: l10n.downloadsSectionHow),
+      AppSwitchRow(
+        icon: Icons.wifi_outlined,
+        title: l10n.downloadsWifiOnlyTitle,
+        subtitle: l10n.downloadsWifiOnlyHint,
+        value: wifiOnly,
+        onChanged: repo.setDownloadsWifiOnly,
+      ),
+      AppSwitchRow(
+        icon: Icons.copy_all_outlined,
+        title: l10n.downloadsSkipDuplicateRead,
+        subtitle: l10n.downloadsSkipDuplicateReadHint,
+        value:
+            ref
+                .watch(boolSettingProvider(Settings.downloadsSkipDuplicateRead))
+                .value ??
+            false,
+        onChanged: (on) =>
+            repo.putSetting(Settings.downloadsSkipDuplicateRead, on),
+      ),
+      AppListRow(
+        icon: Icons.timer_outlined,
+        title: l10n.settingsDownloadDelayTile,
+        subtitle: l10n.settingsDownloadDelaySubtitle,
+        trailing: AppChoice<int>.of(
+          style: AppChoiceStyle.menu,
+          expanded: false,
+          values: const [0, 1, 2, 3, 5],
+          label: (seconds) => seconds == 0
+              ? l10n.settingsDownloadDelayOff
+              : l10n.settingsNetworkTimeoutSeconds(seconds),
+          value: const [0, 1, 2, 3, 5].contains(downloadDelay)
+              ? downloadDelay
+              : 1,
+          onChanged: repo.setDownloadDelaySeconds,
+        ),
+      ),
+    ];
+
+    final automatic = <Widget>[
+      AppSectionLabel(label: l10n.downloadsSectionWhen),
+      AppSwitchRow(
+        icon: Icons.cloud_download_outlined,
+        title: l10n.storageAutoDownloadOnUpdate,
+        subtitle: l10n.storageAutoDownloadOnUpdateHint,
+        value: autoOnUpdate,
+        onChanged: repo.setAutoDownloadOnLibraryUpdate,
+      ),
+      AppSwitchRow(
+        icon: Icons.playlist_add_check_outlined,
+        title: l10n.storageAutoDownloadOnAdd,
+        subtitle: l10n.storageAutoDownloadOnAddHint,
+        value: autoOnAdd,
+        onChanged: repo.setAutoDownloadOnAddToLibrary,
+      ),
+      AutoDownloadLimitsSection(
+        autoLimit: autoLimit,
+        keepBehind: keepBehind,
+        downloadAhead: downloadAhead,
+        onAutoLimitChanged: repo.setAutoDownloadChapterLimit,
+        onKeepBehindChanged: repo.setKeepDownloadsBehind,
+        onDownloadAheadChanged: (count) =>
+            repo.putSetting(Settings.downloadAheadCount, count),
+      ),
+    ];
+
+    final storage = <Widget>[
+      AppListRow(
+        icon: Icons.pie_chart_outline,
+        title: l10n.storageUsageSummary(
+          formatStorageBytes(_totalBytes),
+          totalChapters,
+          entries.length,
+        ),
+      ),
+      AppListRow(
+        icon: Icons.cleaning_services_outlined,
+        title: l10n.storagePageTitle,
+        subtitle: l10n.storagePageSubtitle,
+        onTap: () => Navigator.of(context)
+            .push(MaterialPageRoute<void>(builder: (_) => const StoragePage())),
+      ),
+      AppSectionLabel(label: l10n.storageDownloadedEntriesTitle),
+      if (entries.isEmpty)
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: context.layout.gutter,
+            vertical: 8,
+          ),
+          child: Text(
+            l10n.storageNoDownloadsYet,
+            style: theme.textTheme.bodyMedium,
+          ),
+        )
+      else ...[
+        StorageDownloadedEntriesCard(
+          entries: entries,
+          sizesByEntry: _sizesByEntry,
+          onDeleteEntryDownloads: _deleteEntryDownloads,
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            context.layout.gutter,
+            8,
+            context.layout.gutter,
+            0,
+          ),
+          child: OutlinedButton.icon(
+            onPressed: () => _deleteAllDownloads(entries),
+            icon: const Icon(Icons.delete_sweep_outlined),
+            label: Text(l10n.storageDeleteAllDownloads),
+          ),
+        ),
+      ],
+    ];
+
+    return SettingsScaffold(
+      title: Text(l10n.settingsDownloadsAndStorage),
+      body: Column(
         children: [
-          AppListRow(
-            icon: Icons.downloading_outlined,
-            title: l10n.downloadQueueTitle,
-            subtitle: l10n.downloadQueueRowHint(queueCount),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const DownloadQueuePage(),
-              ),
+          SquiggleTabBar(
+            labels: [
+              l10n.downloadsTitle,
+              l10n.downloadsTabAutomatic,
+              l10n.storagePageTitle,
+            ],
+            activeIndex: _tab,
+            onSelected: (i) => setState(() => _tab = i),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(0, 4, 0, 96),
+              children: switch (_tab) {
+                0 => downloads,
+                1 => automatic,
+                _ => storage,
+              },
             ),
           ),
-          AppListRow(
-            icon: Icons.pie_chart_outline,
-            title: l10n.storageUsageSummary(
-              formatStorageBytes(_totalBytes),
-              totalChapters,
-              entries.length,
-            ),
-          ),
-          AppSectionLabel(label: l10n.storageDownloadsSectionTitle),
-          AppListRow(
-            icon: Icons.folder_outlined,
-            title: l10n.settingsDownloadLocationTile,
-            subtitle: downloadDirPath ?? l10n.settingsDownloadLocationDefault,
-            onTap: () => _pickDownloadDirectory(context, ref),
-          ),
-          AppSwitchRow(
-            icon: Icons.cloud_download_outlined,
-            title: l10n.storageAutoDownloadOnUpdate,
-            subtitle: l10n.storageAutoDownloadOnUpdateHint,
-            value: autoOnUpdate,
-            onChanged: repo.setAutoDownloadOnLibraryUpdate,
-          ),
-          AppSwitchRow(
-            icon: Icons.playlist_add_check_outlined,
-            title: l10n.storageAutoDownloadOnAdd,
-            subtitle: l10n.storageAutoDownloadOnAddHint,
-            value: autoOnAdd,
-            onChanged: repo.setAutoDownloadOnAddToLibrary,
-          ),
-          AppSwitchRow(
-            icon: Icons.copy_all_outlined,
-            title: l10n.downloadsSkipDuplicateRead,
-            subtitle: l10n.downloadsSkipDuplicateReadHint,
-            value:
-                ref
-                    .watch(
-                      boolSettingProvider(Settings.downloadsSkipDuplicateRead),
-                    )
-                    .value ??
-                false,
-            onChanged: (on) =>
-                repo.putSetting(Settings.downloadsSkipDuplicateRead, on),
-          ),
-          AppSwitchRow(
-            icon: Icons.wifi_outlined,
-            title: l10n.downloadsWifiOnlyTitle,
-            subtitle: l10n.downloadsWifiOnlyHint,
-            value: wifiOnly,
-            onChanged: repo.setDownloadsWifiOnly,
-          ),
-          AppListRow(
-            icon: Icons.timer_outlined,
-            title: l10n.settingsDownloadDelayTile,
-            subtitle: l10n.settingsDownloadDelaySubtitle,
-            trailing: AppChoice<int>.of(
-              style: AppChoiceStyle.menu,
-              expanded: false,
-              values: const [0, 1, 2, 3, 5],
-              label: (seconds) => seconds == 0
-                  ? l10n.settingsDownloadDelayOff
-                  : l10n.settingsNetworkTimeoutSeconds(seconds),
-              value: const [0, 1, 2, 3, 5].contains(downloadDelay)
-                  ? downloadDelay
-                  : 1,
-              onChanged: repo.setDownloadDelaySeconds,
-            ),
-          ),
-          AutoDownloadLimitsSection(
-            autoLimit: autoLimit,
-            keepBehind: keepBehind,
-            downloadAhead: downloadAhead,
-            onAutoLimitChanged: repo.setAutoDownloadChapterLimit,
-            onKeepBehindChanged: repo.setKeepDownloadsBehind,
-            onDownloadAheadChanged: (count) =>
-                repo.putSetting(Settings.downloadAheadCount, count),
-          ),
-          AppSectionLabel(label: l10n.storageDownloadedEntriesTitle),
-          if (entries.isEmpty)
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.layout.gutter,
-                vertical: 8,
-              ),
-              child: Text(
-                l10n.storageNoDownloadsYet,
-                style: theme.textTheme.bodyMedium,
-              ),
-            )
-          else ...[
-            StorageDownloadedEntriesCard(
-              entries: entries,
-              sizesByEntry: _sizesByEntry,
-              onDeleteEntryDownloads: _deleteEntryDownloads,
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                context.layout.gutter,
-                8,
-                context.layout.gutter,
-                0,
-              ),
-              child: OutlinedButton.icon(
-                onPressed: () => _deleteAllDownloads(entries),
-                icon: const Icon(Icons.delete_sweep_outlined),
-                label: Text(l10n.storageDeleteAllDownloads),
-              ),
-            ),
-          ],
         ],
       ),
     );

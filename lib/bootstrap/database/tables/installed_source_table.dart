@@ -32,4 +32,5 @@ class InstalledSources extends Table {
   TextColumn get repoUrl => text().nullable()();
   TextColumn get repoSourceId => text().nullable()();
   IntColumn get version => integer().withDefault(const Constant(1))();
+  BoolColumn get nsfw => boolean().withDefault(const Constant(false))();
 }

@@ -36,9 +36,9 @@ extension SettingRows on AppDatabase {
 
   Stream<T> watchSettingRow<T>(SettingDef<T> def, {int profileId = 1}) {
     final key = '${settingScopeId(def, profileId)}:${def.id}';
-    return _watchAllSettingRows(
-      profileId,
-    ).map((all) => def.decode(all[key])).distinct();
+    return _watchAllSettingRows(profileId)
+        .map((all) => def.decode(all[key]))
+        .distinct();
   }
 
   Future<T> readSettingRow<T>(SettingDef<T> def, {int profileId = 1}) =>

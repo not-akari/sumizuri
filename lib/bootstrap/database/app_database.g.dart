@@ -1269,8 +1269,7 @@ class LibraryEntry extends DataClass implements Insertable<LibraryEntry> {
   final DateTime lastUpdatedAt;
   final ReaderMode? readerMode;
 
-  /// Whether auto-detection has already run for this entry, so a normal
-  /// (non-webtoon) series isn't re-probed on every chapter open forever.
+  /// Whether auto-detection has already run for this entry.
   final bool readerModeChecked;
 
   /// Two-page layout chosen for this series alone. Null follows the app setting.
@@ -4724,6 +4723,19 @@ class $InstalledSourcesTable extends InstalledSources
     requiredDuringInsert: false,
     defaultValue: const Constant(1),
   );
+  static const VerificationMeta _nsfwMeta = const VerificationMeta('nsfw');
+  @override
+  late final GeneratedColumn<bool> nsfw = GeneratedColumn<bool>(
+    'nsfw',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("nsfw" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4741,6 +4753,7 @@ class $InstalledSourcesTable extends InstalledSources
     repoUrl,
     repoSourceId,
     version,
+    nsfw,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4842,6 +4855,12 @@ class $InstalledSourcesTable extends InstalledSources
         version.isAcceptableOrUnknown(data['version']!, _versionMeta),
       );
     }
+    if (data.containsKey('nsfw')) {
+      context.handle(
+        _nsfwMeta,
+        nsfw.isAcceptableOrUnknown(data['nsfw']!, _nsfwMeta),
+      );
+    }
     return context;
   }
 
@@ -4913,6 +4932,10 @@ class $InstalledSourcesTable extends InstalledSources
         DriftSqlType.int,
         data['${effectivePrefix}version'],
       )!,
+      nsfw: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}nsfw'],
+      )!,
     );
   }
 
@@ -4941,6 +4964,7 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
   final String? repoUrl;
   final String? repoSourceId;
   final int version;
+  final bool nsfw;
   const InstalledSource({
     required this.id,
     this.clientId,
@@ -4957,6 +4981,7 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
     this.repoUrl,
     this.repoSourceId,
     required this.version,
+    required this.nsfw,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4986,6 +5011,7 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
       map['repo_source_id'] = Variable<String>(repoSourceId);
     }
     map['version'] = Variable<int>(version);
+    map['nsfw'] = Variable<bool>(nsfw);
     return map;
   }
 
@@ -5012,6 +5038,7 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
           ? const Value.absent()
           : Value(repoSourceId),
       version: Value(version),
+      nsfw: Value(nsfw),
     );
   }
 
@@ -5038,6 +5065,7 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
       repoUrl: serializer.fromJson<String?>(json['repoUrl']),
       repoSourceId: serializer.fromJson<String?>(json['repoSourceId']),
       version: serializer.fromJson<int>(json['version']),
+      nsfw: serializer.fromJson<bool>(json['nsfw']),
     );
   }
   @override
@@ -5061,6 +5089,7 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
       'repoUrl': serializer.toJson<String?>(repoUrl),
       'repoSourceId': serializer.toJson<String?>(repoSourceId),
       'version': serializer.toJson<int>(version),
+      'nsfw': serializer.toJson<bool>(nsfw),
     };
   }
 
@@ -5080,6 +5109,7 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
     Value<String?> repoUrl = const Value.absent(),
     Value<String?> repoSourceId = const Value.absent(),
     int? version,
+    bool? nsfw,
   }) => InstalledSource(
     id: id ?? this.id,
     clientId: clientId.present ? clientId.value : this.clientId,
@@ -5096,6 +5126,7 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
     repoUrl: repoUrl.present ? repoUrl.value : this.repoUrl,
     repoSourceId: repoSourceId.present ? repoSourceId.value : this.repoSourceId,
     version: version ?? this.version,
+    nsfw: nsfw ?? this.nsfw,
   );
   InstalledSource copyWithCompanion(InstalledSourcesCompanion data) {
     return InstalledSource(
@@ -5118,6 +5149,7 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
           ? data.repoSourceId.value
           : this.repoSourceId,
       version: data.version.present ? data.version.value : this.version,
+      nsfw: data.nsfw.present ? data.nsfw.value : this.nsfw,
     );
   }
 
@@ -5138,7 +5170,8 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
           ..write('addedAt: $addedAt, ')
           ..write('repoUrl: $repoUrl, ')
           ..write('repoSourceId: $repoSourceId, ')
-          ..write('version: $version')
+          ..write('version: $version, ')
+          ..write('nsfw: $nsfw')
           ..write(')'))
         .toString();
   }
@@ -5160,6 +5193,7 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
     repoUrl,
     repoSourceId,
     version,
+    nsfw,
   );
   @override
   bool operator ==(Object other) =>
@@ -5179,7 +5213,8 @@ class InstalledSource extends DataClass implements Insertable<InstalledSource> {
           other.addedAt == this.addedAt &&
           other.repoUrl == this.repoUrl &&
           other.repoSourceId == this.repoSourceId &&
-          other.version == this.version);
+          other.version == this.version &&
+          other.nsfw == this.nsfw);
 }
 
 class InstalledSourcesCompanion extends UpdateCompanion<InstalledSource> {
@@ -5198,6 +5233,7 @@ class InstalledSourcesCompanion extends UpdateCompanion<InstalledSource> {
   final Value<String?> repoUrl;
   final Value<String?> repoSourceId;
   final Value<int> version;
+  final Value<bool> nsfw;
   const InstalledSourcesCompanion({
     this.id = const Value.absent(),
     this.clientId = const Value.absent(),
@@ -5214,6 +5250,7 @@ class InstalledSourcesCompanion extends UpdateCompanion<InstalledSource> {
     this.repoUrl = const Value.absent(),
     this.repoSourceId = const Value.absent(),
     this.version = const Value.absent(),
+    this.nsfw = const Value.absent(),
   });
   InstalledSourcesCompanion.insert({
     this.id = const Value.absent(),
@@ -5231,6 +5268,7 @@ class InstalledSourcesCompanion extends UpdateCompanion<InstalledSource> {
     this.repoUrl = const Value.absent(),
     this.repoSourceId = const Value.absent(),
     this.version = const Value.absent(),
+    this.nsfw = const Value.absent(),
   }) : name = Value(name),
        mediaType = Value(mediaType),
        jsSource = Value(jsSource);
@@ -5250,6 +5288,7 @@ class InstalledSourcesCompanion extends UpdateCompanion<InstalledSource> {
     Expression<String>? repoUrl,
     Expression<String>? repoSourceId,
     Expression<int>? version,
+    Expression<bool>? nsfw,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5267,6 +5306,7 @@ class InstalledSourcesCompanion extends UpdateCompanion<InstalledSource> {
       if (repoUrl != null) 'repo_url': repoUrl,
       if (repoSourceId != null) 'repo_source_id': repoSourceId,
       if (version != null) 'version': version,
+      if (nsfw != null) 'nsfw': nsfw,
     });
   }
 
@@ -5286,6 +5326,7 @@ class InstalledSourcesCompanion extends UpdateCompanion<InstalledSource> {
     Value<String?>? repoUrl,
     Value<String?>? repoSourceId,
     Value<int>? version,
+    Value<bool>? nsfw,
   }) {
     return InstalledSourcesCompanion(
       id: id ?? this.id,
@@ -5303,6 +5344,7 @@ class InstalledSourcesCompanion extends UpdateCompanion<InstalledSource> {
       repoUrl: repoUrl ?? this.repoUrl,
       repoSourceId: repoSourceId ?? this.repoSourceId,
       version: version ?? this.version,
+      nsfw: nsfw ?? this.nsfw,
     );
   }
 
@@ -5356,6 +5398,9 @@ class InstalledSourcesCompanion extends UpdateCompanion<InstalledSource> {
     if (version.present) {
       map['version'] = Variable<int>(version.value);
     }
+    if (nsfw.present) {
+      map['nsfw'] = Variable<bool>(nsfw.value);
+    }
     return map;
   }
 
@@ -5376,7 +5421,8 @@ class InstalledSourcesCompanion extends UpdateCompanion<InstalledSource> {
           ..write('addedAt: $addedAt, ')
           ..write('repoUrl: $repoUrl, ')
           ..write('repoSourceId: $repoSourceId, ')
-          ..write('version: $version')
+          ..write('version: $version, ')
+          ..write('nsfw: $nsfw')
           ..write(')'))
         .toString();
   }
@@ -9394,6 +9440,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_library_entries_updated_at',
     'CREATE INDEX idx_library_entries_updated_at ON library_entries (updated_at)',
   );
+  late final Index idxLibraryEntriesActiveBranch = Index(
+    'idx_library_entries_active_branch',
+    'CREATE INDEX idx_library_entries_active_branch ON library_entries (active_branch_id)',
+  );
   late final Index idxEntryBranchesEntry = Index(
     'idx_entry_branches_entry',
     'CREATE INDEX idx_entry_branches_entry ON entry_branches (library_entry_id)',
@@ -9442,6 +9492,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_categories_updated_at',
     'CREATE INDEX idx_categories_updated_at ON categories (updated_at)',
   );
+  late final Index idxCategoriesProfile = Index(
+    'idx_categories_profile',
+    'CREATE INDEX idx_categories_profile ON categories (profile_id)',
+  );
   late final Index idxEntryCategoriesCategory = Index(
     'idx_entry_categories_category',
     'CREATE INDEX idx_entry_categories_category ON entry_categories (category_id)',
@@ -9486,6 +9540,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_reading_sessions_updated_at',
     'CREATE INDEX idx_reading_sessions_updated_at ON reading_sessions (updated_at)',
   );
+  late final Index idxReadingSessionsContentUnit = Index(
+    'idx_reading_sessions_content_unit',
+    'CREATE INDEX idx_reading_sessions_content_unit ON reading_sessions (content_unit_id)',
+  );
+  late final Index idxReadingSessionsBranch = Index(
+    'idx_reading_sessions_branch',
+    'CREATE INDEX idx_reading_sessions_branch ON reading_sessions (branch_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9513,6 +9575,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxLibraryEntriesSource,
     idxLibraryEntriesClientId,
     idxLibraryEntriesUpdatedAt,
+    idxLibraryEntriesActiveBranch,
     idxEntryBranchesEntry,
     idxEntryBranchesClientId,
     idxEntryBranchesUpdatedAt,
@@ -9525,6 +9588,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxChapterProgressUpdatedAt,
     idxCategoriesClientId,
     idxCategoriesUpdatedAt,
+    idxCategoriesProfile,
     idxEntryCategoriesCategory,
     idxLogEntriesTime,
     idxInstalledSourcesClientId,
@@ -9536,6 +9600,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxReadingSessionsTime,
     idxReadingSessionsClientId,
     idxReadingSessionsUpdatedAt,
+    idxReadingSessionsContentUnit,
+    idxReadingSessionsBranch,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -14317,6 +14383,7 @@ typedef $$InstalledSourcesTableCreateCompanionBuilder =
       Value<String?> repoUrl,
       Value<String?> repoSourceId,
       Value<int> version,
+      Value<bool> nsfw,
     });
 typedef $$InstalledSourcesTableUpdateCompanionBuilder =
     InstalledSourcesCompanion Function({
@@ -14335,6 +14402,7 @@ typedef $$InstalledSourcesTableUpdateCompanionBuilder =
       Value<String?> repoUrl,
       Value<String?> repoSourceId,
       Value<int> version,
+      Value<bool> nsfw,
     });
 
 class $$InstalledSourcesTableFilterComposer
@@ -14419,6 +14487,11 @@ class $$InstalledSourcesTableFilterComposer
 
   ColumnFilters<int> get version => $composableBuilder(
     column: $table.version,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get nsfw => $composableBuilder(
+    column: $table.nsfw,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -14506,6 +14579,11 @@ class $$InstalledSourcesTableOrderingComposer
     column: $table.version,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get nsfw => $composableBuilder(
+    column: $table.nsfw,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$InstalledSourcesTableAnnotationComposer
@@ -14565,6 +14643,9 @@ class $$InstalledSourcesTableAnnotationComposer
 
   GeneratedColumn<int> get version =>
       $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<bool> get nsfw =>
+      $composableBuilder(column: $table.nsfw, builder: (column) => column);
 }
 
 class $$InstalledSourcesTableTableManager
@@ -14619,6 +14700,7 @@ class $$InstalledSourcesTableTableManager
                 Value<String?> repoUrl = const Value.absent(),
                 Value<String?> repoSourceId = const Value.absent(),
                 Value<int> version = const Value.absent(),
+                Value<bool> nsfw = const Value.absent(),
               }) => InstalledSourcesCompanion(
                 id: id,
                 clientId: clientId,
@@ -14635,6 +14717,7 @@ class $$InstalledSourcesTableTableManager
                 repoUrl: repoUrl,
                 repoSourceId: repoSourceId,
                 version: version,
+                nsfw: nsfw,
               ),
           createCompanionCallback:
               ({
@@ -14653,6 +14736,7 @@ class $$InstalledSourcesTableTableManager
                 Value<String?> repoUrl = const Value.absent(),
                 Value<String?> repoSourceId = const Value.absent(),
                 Value<int> version = const Value.absent(),
+                Value<bool> nsfw = const Value.absent(),
               }) => InstalledSourcesCompanion.insert(
                 id: id,
                 clientId: clientId,
@@ -14669,6 +14753,7 @@ class $$InstalledSourcesTableTableManager
                 repoUrl: repoUrl,
                 repoSourceId: repoSourceId,
                 version: version,
+                nsfw: nsfw,
               ),
           withReferenceMapper: (p0) => p0
               .map(

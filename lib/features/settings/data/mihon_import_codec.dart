@@ -34,6 +34,15 @@ class MihonHistoryEntry {
   final DateTime? lastReadAt;
 }
 
+/// A library category from the backup. Titles refer to it by [order], not
+/// by id, exactly as Mihon's own restore does.
+class MihonCategory {
+  const MihonCategory({required this.name, required this.order});
+
+  final String name;
+  final int order;
+}
+
 /// Favorited title imported from the backup's manga list.
 class MihonManga {
   const MihonManga({
@@ -43,6 +52,7 @@ class MihonManga {
     required this.sourceName,
     required this.chapters,
     required this.history,
+    this.categoryOrders = const [],
   });
 
   final String title;
@@ -53,13 +63,17 @@ class MihonManga {
   final String? sourceName;
   final List<MihonChapter> chapters;
   final List<MihonHistoryEntry> history;
+
+  /// The [MihonCategory.order] of each category this title was in.
+  final List<int> categoryOrders;
 }
 
 /// Library entries extracted from a Mihon backup.
 class MihonBackup {
-  const MihonBackup({required this.manga});
+  const MihonBackup({required this.manga, this.categories = const []});
 
   final List<MihonManga> manga;
+  final List<MihonCategory> categories;
 }
 
 /// Something in the file could not be read as a Mihon backup.
@@ -114,19 +128,27 @@ List<_Field> _decodeMessage(Uint8List buf, int start, int end) {
         pos = next;
       case 2:
         final (len, afterLen) = _readVarint(buf, afterTag);
-        fields.add(_Field(fieldNumber, wireType, buf.sublist(afterLen, afterLen + len)));
+        fields.add(
+          _Field(fieldNumber, wireType, buf.sublist(afterLen, afterLen + len)),
+        );
         pos = afterLen + len;
       case 5:
         fields.add(
           _Field(
             fieldNumber,
             wireType,
-            ByteData.sublistView(buf, afterTag, afterTag + 4).getUint32(0, Endian.little),
+            ByteData.sublistView(
+              buf,
+              afterTag,
+              afterTag + 4,
+            ).getUint32(0, Endian.little),
           ),
         );
         pos = afterTag + 4;
       case 1:
-        pos = afterTag + 8; // A 64-bit fixed field; nothing this codec needs uses one.
+        pos =
+            afterTag +
+            8; // A 64-bit fixed field; nothing this codec needs uses one.
       default:
         throw MihonBackupUnreadable('Unexpected protobuf wire type $wireType.');
     }
@@ -136,7 +158,9 @@ List<_Field> _decodeMessage(Uint8List buf, int start, int end) {
 
 String? _str(List<_Field> msg, int number) {
   for (final f in msg) {
-    if (f.number == number) return utf8.decode(f.value as Uint8List, allowMalformed: true);
+    if (f.number == number) {
+      return utf8.decode(f.value as Uint8List, allowMalformed: true);
+    }
   }
   return null;
 }
@@ -156,6 +180,27 @@ List<List<_Field>> _messages(List<_Field> msg, int number) => [
     if (f.number == number)
       _decodeMessage(f.value as Uint8List, 0, (f.value as Uint8List).length),
 ];
+
+/// A repeated integer field, whether written one value per entry or packed
+/// into a single length-delimited run.
+List<int> _varints(List<_Field> msg, int number) {
+  final out = <int>[];
+  for (final f in msg) {
+    if (f.number != number) continue;
+    if (f.wireType == 0) {
+      out.add(f.value as int);
+    } else if (f.wireType == 2) {
+      final bytes = f.value as Uint8List;
+      var pos = 0;
+      while (pos < bytes.length) {
+        final (value, next) = _readVarint(bytes, pos);
+        out.add(value);
+        pos = next;
+      }
+    }
+  }
+  return out;
+}
 
 double? _float32(List<_Field> msg, int number) {
   for (final f in msg) {
@@ -197,7 +242,12 @@ MihonBackup readMihonBackup(File file) {
 
   final manga = [
     for (final m in _messages(top, 1))
-      if (_flag(m, 111))
+      // BackupManga.favorite (proto field 100) defaults to true, so
+      // kotlinx.serialization omits it from the wire for every favorited
+      // manga - only non-favorited entries (favorite = false) get it
+      // written, with value 0. Presence therefore means "not a favorite",
+      // the opposite of _flag's usual "presence means true" convention.
+      if (_varint(m, 100) != 0)
         MihonManga(
           title: (_str(m, 3) ?? '').trim(),
           url: _str(m, 2) ?? '',
@@ -215,6 +265,7 @@ MihonBackup readMihonBackup(File file) {
                 number: _float32(c, 9),
               ),
           ],
+          categoryOrders: _varints(m, 17),
           history: [
             for (final h in _messages(m, 104))
               MihonHistoryEntry(
@@ -225,5 +276,11 @@ MihonBackup readMihonBackup(File file) {
         ),
   ];
 
-  return MihonBackup(manga: manga);
+  final categories = [
+    for (final c in _messages(top, 2))
+      if (_str(c, 1) case final name?)
+        MihonCategory(name: name.trim(), order: _varint(c, 2) ?? 0),
+  ];
+
+  return MihonBackup(manga: manga, categories: categories);
 }

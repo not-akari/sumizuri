@@ -1,11 +1,11 @@
 import 'dart:io' show Platform;
 
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sumizuri/core/theming/app_layout.dart';
 import 'package:sumizuri/bootstrap/notifications/notification_provider.dart';
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/controls/settings_controls.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 import 'package:sumizuri/features/settings/registry/settings_catalog.dart';
@@ -54,8 +54,7 @@ class NotificationsSettingsPage extends ConsumerWidget {
             .watch(boolSettingProvider(Settings.notificationsHideWhileInApp))
             .value ??
         true;
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    return SettingsScaffold(
       title: Text(l10n.settingsSectionNotifications),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),

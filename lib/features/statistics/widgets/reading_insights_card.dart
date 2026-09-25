@@ -27,6 +27,8 @@ class ReadingInsightsCard extends StatelessWidget {
     };
 
     return AppCard(
+      flattenWhenCompact: true,
+      tone: AppCardTone.inset,
       title: l10n.statsInsights,
       titleGap: 10,
       child: Column(

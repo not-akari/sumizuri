@@ -272,6 +272,7 @@ class SumizuriApp extends ConsumerWidget {
     final darkVariant = amoled ? DarkVariant.amoled : DarkVariant.standard;
     final reduceMotion = ref.watch(reduceMotionProvider).value ?? false;
     final backgroundIntensity = ref.watch(effectiveBackgroundIntensityProvider);
+    final listStyle = ref.watch(listStyleProvider).value ?? AppListStyle.auto;
     final showPerformanceOverlay =
         ref.watch(showPerformanceOverlayProvider).value ?? false;
 
@@ -338,6 +339,12 @@ class SumizuriApp extends ConsumerWidget {
           ),
           child: AmbientScope(
             intensity: backgroundIntensity,
+            compactLists: switch (listStyle) {
+              AppListStyle.compact => true,
+              AppListStyle.cards => false,
+              // Dense on a phone, where every line counts.
+              AppListStyle.auto => mediaQuery.size.width < 600,
+            },
             child: StartupDebugLog(
               enabled: kDebugMode,
               child: PerformanceHud(

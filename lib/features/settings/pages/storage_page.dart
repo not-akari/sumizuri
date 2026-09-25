@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,7 +8,6 @@ import 'package:sumizuri/features/settings/widgets/clear_image_cache_row.dart';
 import 'package:sumizuri/core/theming/app_layout.dart';
 import 'package:sumizuri/bootstrap/storage/app_paths.dart';
 import 'package:sumizuri/core/utils/files/folder_picker.dart';
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/core/widgets/overlays/confirm_dialog.dart';
 import 'package:sumizuri/features/library/flows/chapter_download_flow.dart';
@@ -97,8 +97,8 @@ class _StoragePageState extends ConsumerState<StoragePage> {
       color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
     _storage ??= _measure();
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    return SettingsScaffold(
+      rowMargin: 0,
       title: Text(l10n.storagePageTitle),
       actions: [
         IconButton(

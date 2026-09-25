@@ -1,10 +1,41 @@
 // The ambient background: each piece paints its slice of one window-sized picture.
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'package:sumizuri/core/theming/ambient_scope.dart';
+import 'package:sumizuri/core/theming/theme_options.dart';
 import 'package:sumizuri/core/theming/theme_shapes.dart';
 
 part 'ambient_window_render.dart';
+
+/// The user's gradient with its colours settled and its strength applied,
+/// ready to paint across the window.
+class _ResolvedGradient {
+  const _ResolvedGradient(this.style, this.angle, this.colors);
+
+  final GradientStyle style;
+  final double angle;
+  final List<Color> colors;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _ResolvedGradient &&
+      other.style == style &&
+      other.angle == angle &&
+      _same(other.colors, colors);
+
+  @override
+  int get hashCode => Object.hash(style, angle, Object.hashAll(colors));
+
+  static bool _same(List<Color> a, List<Color> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+}
 
 // A unit circle each wash gradient is defined against, then placed with canvas transforms.
 final _unitCircle = Rect.fromCircle(center: Offset.zero, radius: 1);
@@ -44,11 +75,30 @@ class WindowAmbient extends StatefulWidget {
 class _WindowAmbientState extends State<WindowAmbient> {
   // Rebuilt only when the theme's colours change, and each Paint is reused.
   List<_Bloom> _blooms = const [];
+  _ResolvedGradient? _gradient;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final cs = Theme.of(context).colorScheme;
+    // The gradient is the theme's own; the intensity setting still dims it.
+    final background = context.options.background;
+    final gradientAlpha =
+        background.gradientStrength *
+        AmbientScope.intensityOf(context).clamp(0.0, 1.0);
+    _gradient = !background.gradient
+        ? null
+        : _ResolvedGradient(
+            background.gradientStyle,
+            background.gradientAngle,
+            [
+              for (final c in background.resolve(
+                primary: cs.primary,
+                tertiary: cs.tertiary,
+              ))
+                c.withValues(alpha: gradientAlpha),
+            ],
+          );
     final strength =
         context.options.effects.bloom * AmbientScope.intensityOf(context);
     double a(double base) => (base * strength).clamp(0.0, 1.0);
@@ -85,6 +135,7 @@ class _WindowAmbientState extends State<WindowAmbient> {
       child: _WindowAmbientLeaf(
         base: cs.surface,
         blooms: _blooms,
+        gradient: _gradient,
         window: MediaQuery.sizeOf(context),
         epoch: AmbientEpoch.of(context),
       ),

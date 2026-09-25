@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:sumizuri/core/theming/theme_options.dart';
 import 'package:sumizuri/core/theming/theme_shapes.dart';
+import 'package:sumizuri/core/widgets/content/entry_progress_bar.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 import 'package:sumizuri/core/utils/formatting/series_status_bucket.dart';
 import 'package:sumizuri/core/widgets/content/cover_image.dart';
@@ -37,6 +39,18 @@ class LibraryCoverThumbnail extends StatelessWidget {
   }
 }
 
+/// Where the title of a tile goes: under the cover, over the foot of it, or nowhere.
+enum CoverTileVariant { comfortable, compact, coverOnly }
+
+/// The status of a series in words, or null when it is not known.
+String? coverStatusText(String? status, AppLocalizations l10n) =>
+    switch (classifySeriesStatus(status)) {
+      SeriesStatusBucket.ongoing => l10n.categorySmartRuleStatusOngoing,
+      SeriesStatusBucket.completed => l10n.categorySmartRuleStatusCompleted,
+      SeriesStatusBucket.hiatus => l10n.categorySmartRuleStatusHiatus,
+      SeriesStatusBucket.unknown => null,
+    };
+
 class MangaCoverTile extends StatelessWidget {
   const MangaCoverTile({
     super.key,
@@ -54,7 +68,15 @@ class MangaCoverTile extends StatelessWidget {
     this.selectable = false,
     this.caption,
     this.marked = false,
+    this.variant = CoverTileVariant.comfortable,
+    this.progress,
   });
+
+  /// How much of the title is read, from 0 to 1, or null to show no bar.
+  final double? progress;
+
+  /// Where the title is drawn.
+  final CoverTileVariant variant;
 
   /// A line under the title for anything else worth knowing, such as progress.
   final String? caption;
@@ -133,6 +155,17 @@ class MangaCoverTile extends StatelessWidget {
         _statusColor(statusBucket, theme.colorScheme) ?? Colors.white70;
     final titleStyle = theme.textTheme.bodySmall;
 
+    final look = context.options.progress;
+    final showBar =
+        progress != null && EntryProgressBar.visible(progress!, look);
+    // With no room below the cover, the bar goes on it.
+    final barOnCover =
+        showBar &&
+        (look.placement == ProgressPlacement.onCover ||
+            variant != CoverTileVariant.comfortable);
+    final barBelow = showBar && !barOnCover;
+    // Whatever sits at the foot of the cover moves up out of the bar's way.
+    final barLift = barOnCover ? look.thickness + 4 : 0.0;
     final titleHeight =
         (titleStyle?.fontSize ?? 12) * (titleStyle?.height ?? 1.3) * 2;
     final cover = AspectRatio(
@@ -223,7 +256,11 @@ class MangaCoverTile extends StatelessWidget {
             if (downloadedCount != null && downloadedCount! > 0)
               Positioned(
                 right: 6,
-                bottom: 6,
+                bottom:
+                    (variant == CoverTileVariant.compact
+                        ? (caption == null ? 46 : 58)
+                        : 6) +
+                    barLift,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.72),
@@ -255,10 +292,10 @@ class MangaCoverTile extends StatelessWidget {
                   ),
                 ),
               ),
-            if (statusLabel != null)
+            if (statusLabel != null && variant == CoverTileVariant.comfortable)
               Positioned(
                 left: 6,
-                bottom: 6,
+                bottom: 6 + barLift,
 
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -281,10 +318,80 @@ class MangaCoverTile extends StatelessWidget {
                   ),
                 ),
               ),
+            if (variant == CoverTileVariant.compact)
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: panelShapeInner,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    // The whole width of the cover, whatever the title is.
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: DecoratedBox(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Colors.transparent, Colors.black87],
+                          ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(6, 22, 6, 6 + barLift),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (caption != null)
+                                Text(
+                                  caption!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            if (barOnCover)
+              Positioned(
+                left: 6,
+                right: 6,
+                bottom: 6,
+                child: EntryProgressBar(progress: progress!, onCover: true),
+              ),
           ],
         ),
       ),
     );
+    if (variant != CoverTileVariant.comfortable) {
+      // The cover is the whole tile.
+      return PressableScale(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          onDoubleTap: onDoubleTap,
+          borderRadius: panelShape,
+          child: heroTag == null ? cover : Hero(tag: heroTag!, child: cover),
+        ),
+      );
+    }
     return PressableScale(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -301,6 +408,11 @@ class MangaCoverTile extends StatelessWidget {
                   ? cover
                   : Hero(tag: heroTag!, child: cover),
             ),
+            if (barBelow)
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: EntryProgressBar(progress: progress!),
+              ),
             const SizedBox(height: 6),
             SizedBox(
               height: titleHeight,

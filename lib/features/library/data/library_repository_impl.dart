@@ -35,6 +35,7 @@ part 'library_repository_restore.dart';
 /// One line of the history and updates feeds, read from a joined chapter and entry row.
 typedef ChapterFeedRow = ({
   int libraryEntryId,
+  MediaType mediaType,
   String entryTitle,
   String? entryCoverUrl,
   String? customCoverPath,
@@ -89,6 +90,10 @@ class DriftLibraryRepository
           hidden.equals(false),
     );
 
+    final totalCount = _db.contentUnits.id.count(
+      filter: _db.contentUnits.id.isNotNull() & hidden.equals(false),
+    );
+
     final query = _db.select(_db.libraryEntries).join([
       leftOuterJoin(
         _db.contentUnits,
@@ -101,7 +106,7 @@ class DriftLibraryRepository
               _db.libraryEntries.activeBranchId,
             ),
       ),
-    ])..addColumns([unreadCount]);
+    ])..addColumns([unreadCount, totalCount]);
 
     var where = _db.libraryEntries.profileId.equals(profileId);
     if (mediaType != null) {
@@ -124,6 +129,7 @@ class DriftLibraryRepository
           mediaType: entry.mediaType,
           favorite: entry.favorite,
           unreadCount: row.read(unreadCount) ?? 0,
+          totalCount: row.read(totalCount) ?? 0,
           sourceId: entry.sourceId,
           externalId: entry.externalId,
           status: entry.status,
@@ -191,24 +197,27 @@ class DriftLibraryRepository
               .getSingleOrNull();
       if (exact != null) return LibraryMatch(exactMatchId: exact.id);
 
-      final all = await (_db.select(
-        _db.libraryEntries,
-      )..where((t) => t.profileId.equals(profileId))).get();
+      // Filtered in SQL by title, instead of loading and scanning the whole
+      // library here: this runs on every import/migration lookup, and doing
+      // that per call made a large backup restore quadratic in library size.
       final lowerTitle = title.toLowerCase();
-      final matches = all
-          .where(
-            (e) =>
-                e.sourceId != sourceId && e.title.toLowerCase() == lowerTitle,
-          )
-          .map(
-            (e) => LibraryDuplicateCandidate(
-              id: e.id,
-              title: e.title,
-              coverUrl: e.coverUrl,
-              sourceId: e.sourceId,
-            ),
-          )
-          .toList();
+      final others =
+          await (_db.select(_db.libraryEntries)..where(
+                (t) =>
+                    t.profileId.equals(profileId) &
+                    t.sourceId.equals(sourceId).not() &
+                    t.title.lower().equals(lowerTitle),
+              ))
+              .get();
+      final matches = [
+        for (final e in others)
+          LibraryDuplicateCandidate(
+            id: e.id,
+            title: e.title,
+            coverUrl: e.coverUrl,
+            sourceId: e.sourceId,
+          ),
+      ];
       return LibraryMatch(otherSourceMatches: matches);
     });
   }
@@ -275,6 +284,27 @@ class DriftLibraryRepository
   }
 
   @override
+  Future<Result<void, AppFailure>> removeManyFromLibrary(
+    Iterable<int> entryIds,
+  ) {
+    return guardFailure(_logger, _tag, () async {
+      // One transaction for the whole selection: Drift only notifies
+      // watchLibrary() once the transaction commits, instead of once per
+      // row, which is what made deleting a few thousand selected entries
+      // one at a time effectively hang (each delete re-ran the library's
+      // full join+aggregate query and rebuilt the grid).
+      await _db.transaction(() async {
+        for (final entryId in entryIds) {
+          await (_db.delete(_db.libraryEntries)..where(
+                (t) => t.profileId.equals(profileId) & t.id.equals(entryId),
+              ))
+              .go();
+        }
+      });
+    });
+  }
+
+  @override
   Stream<ReaderMode?> watchEntryReaderMode(int entryId) {
     return (_db.select(_db.libraryEntries)..where((t) => t.id.equals(entryId)))
         .watchSingleOrNull()
@@ -334,10 +364,9 @@ class DriftLibraryRepository
 
   @override
   Future<bool> hasCheckedReaderMode(int entryId) async {
-    final row =
-        await (_db.select(
-          _db.libraryEntries,
-        )..where((t) => t.id.equals(entryId))).getSingleOrNull();
+    final row = await (_db.select(
+      _db.libraryEntries,
+    )..where((t) => t.id.equals(entryId))).getSingleOrNull();
     return row?.readerModeChecked ?? false;
   }
 
@@ -379,6 +408,7 @@ class DriftLibraryRepository
     final entry = row.readTable(_db.libraryEntries);
     return (
       libraryEntryId: entry.id,
+      mediaType: entry.mediaType,
       entryTitle: entry.title,
       entryCoverUrl: entry.coverUrl,
       customCoverPath: entry.customCoverPath,
@@ -413,6 +443,7 @@ class DriftLibraryRepository
         final fields = _readChapterFeedRow(row);
         return UpdateChapterSummary(
           libraryEntryId: fields.libraryEntryId,
+          mediaType: fields.mediaType,
           entryTitle: fields.entryTitle,
           entryCoverUrl: fields.entryCoverUrl,
           customCoverPath: fields.customCoverPath,

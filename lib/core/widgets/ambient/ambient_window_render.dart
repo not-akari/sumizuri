@@ -4,18 +4,20 @@ class _WindowAmbientLeaf extends LeafRenderObjectWidget {
   const _WindowAmbientLeaf({
     required this.base,
     required this.blooms,
+    required this.gradient,
     required this.window,
     required this.epoch,
   });
 
   final Color base;
   final List<_Bloom> blooms;
+  final _ResolvedGradient? gradient;
   final Size window;
   final int epoch;
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      _RenderWindowAmbient(base, blooms, window, epoch);
+      _RenderWindowAmbient(base, blooms, gradient, window, epoch);
 
   @override
   void updateRenderObject(
@@ -25,20 +27,31 @@ class _WindowAmbientLeaf extends LeafRenderObjectWidget {
     renderObject
       ..base = base
       ..blooms = blooms
+      ..gradient = gradient
       ..window = window
       ..epoch = epoch;
   }
 }
 
 class _RenderWindowAmbient extends RenderBox {
-  _RenderWindowAmbient(this._base, this._blooms, this._window, this._epoch)
-    : _basePaint = Paint()..color = _base;
+  _RenderWindowAmbient(
+    this._base,
+    this._blooms,
+    this._gradient,
+    this._window,
+    this._epoch,
+  ) : _basePaint = Paint()..color = _base;
 
   Color _base;
   Paint _basePaint;
   List<_Bloom> _blooms;
+  _ResolvedGradient? _gradient;
   Size _window;
   int _epoch;
+
+  // The gradient's paint is rebuilt only when it or the window changes.
+  Paint? _gradientPaint;
+  Size? _gradientPaintWindow;
 
   set epoch(int value) {
     if (value == _epoch) return;
@@ -59,10 +72,40 @@ class _RenderWindowAmbient extends RenderBox {
     markNeedsPaint();
   }
 
+  set gradient(_ResolvedGradient? value) {
+    if (value == _gradient) return;
+    _gradient = value;
+    _gradientPaint = null;
+    markNeedsPaint();
+  }
+
   set window(Size value) {
     if (value == _window) return;
     _window = value;
     markNeedsPaint();
+  }
+
+  Paint _paintFor(_ResolvedGradient gradient) {
+    final cached = _gradientPaint;
+    if (cached != null && _gradientPaintWindow == _window) return cached;
+    final rect = Offset.zero & _window;
+    final radians = gradient.angle * math.pi / 180;
+    final dx = math.cos(radians);
+    final dy = math.sin(radians);
+    final shader = switch (gradient.style) {
+      GradientStyle.linear => LinearGradient(
+        begin: Alignment(-dx, -dy),
+        end: Alignment(dx, dy),
+        colors: gradient.colors,
+      ).createShader(rect),
+      GradientStyle.radial => RadialGradient(
+        center: Alignment(dx * 0.7, dy * 0.7),
+        radius: 1.0,
+        colors: gradient.colors,
+      ).createShader(rect),
+    };
+    _gradientPaintWindow = _window;
+    return _gradientPaint = Paint()..shader = shader;
   }
 
   @override
@@ -84,6 +127,10 @@ class _RenderWindowAmbient extends RenderBox {
       ..clipRect(offset & size)
       ..drawRect(offset & size, _basePaint)
       ..translate(origin.dx, origin.dy);
+    final gradient = _gradient;
+    if (gradient != null) {
+      canvas.drawRect(Offset.zero & _window, _paintFor(gradient));
+    }
     for (final bloom in _blooms) {
       final cx = (bloom.align.x * 0.5 + 0.5) * _window.width;
       final cy = (bloom.align.y * 0.5 + 0.5) * _window.height;

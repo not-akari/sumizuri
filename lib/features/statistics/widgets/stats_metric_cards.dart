@@ -18,6 +18,8 @@ class StreakHeroCard extends StatelessWidget {
     final detail = TextStyle(fontSize: 12, color: cs.onSurfaceVariant);
 
     return AppCard(
+      flattenWhenCompact: true,
+      tone: AppCardTone.inset,
       child: Row(
         children: [
           Container(
@@ -88,6 +90,8 @@ class VolumeMetricsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return AppCard(
+      flattenWhenCompact: true,
+      tone: AppCardTone.inset,
       child: _MetricRow(
         metrics: [
           (l10n.statsToday, '${stats.chaptersToday}'),
@@ -108,6 +112,8 @@ class AveragesCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return AppCard(
+      flattenWhenCompact: true,
+      tone: AppCardTone.inset,
       title: l10n.statsAverages,
       titleGap: 12,
       child: Column(

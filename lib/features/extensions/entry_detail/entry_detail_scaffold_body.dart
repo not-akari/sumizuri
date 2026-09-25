@@ -20,9 +20,13 @@ class EntryDetailNarrowBody extends StatefulWidget {
     this.furthestChapter,
     this.heroTag,
     this.scrollOffset,
+    this.sourceName,
   });
 
   final MEntry entry;
+
+  /// The name of the source the title is read from.
+  final String? sourceName;
   final MediaType mediaType;
   final List<MChapter>? chapters;
   final List<Widget> posterActions;
@@ -81,11 +85,13 @@ class _EntryDetailNarrowBodyState extends State<EntryDetailNarrowBody> {
           SliverToBoxAdapter(
             child: MobileHeroHeader(
               entry: entry,
+              sourceName: widget.sourceName,
               actions: posterActions,
               continueButton: continueButton,
               libraryEntryId: libraryEntryId,
               customCoverPath: customCoverPath,
               heroTag: heroTag,
+              scrollOffset: widget.scrollOffset,
             ),
           ),
           if (entry.rating != null ||
@@ -126,9 +132,15 @@ class EntryDetailWideBody extends StatefulWidget {
     this.libraryEntryId,
     this.customCoverPath,
     this.furthestChapter,
+    this.heroTag,
+    this.scrollOffset,
+    this.sourceName,
   });
 
   final MEntry entry;
+
+  /// The name of the source the title is read from.
+  final String? sourceName;
   final MediaType mediaType;
   final List<MChapter>? chapters;
   final List<Widget> posterActions;
@@ -137,6 +149,9 @@ class EntryDetailWideBody extends StatefulWidget {
   final int? libraryEntryId;
   final String? customCoverPath;
   final double? furthestChapter;
+  final String? heroTag;
+
+  final ValueNotifier<double>? scrollOffset;
 
   @override
   State<EntryDetailWideBody> createState() => _EntryDetailWideBodyState();
@@ -147,7 +162,20 @@ class _EntryDetailWideBodyState extends State<EntryDetailWideBody> {
   final _mainScrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    _mainScrollController.addListener(_reportScroll);
+  }
+
+  void _reportScroll() {
+    if (_mainScrollController.hasClients) {
+      widget.scrollOffset?.value = _mainScrollController.offset;
+    }
+  }
+
+  @override
   void dispose() {
+    _mainScrollController.removeListener(_reportScroll);
     _sidebarScrollController.dispose();
     _mainScrollController.dispose();
     super.dispose();
@@ -163,8 +191,10 @@ class _EntryDetailWideBodyState extends State<EntryDetailWideBody> {
     final libraryEntryId = widget.libraryEntryId;
     final customCoverPath = widget.customCoverPath;
     final furthestChapter = widget.furthestChapter;
+    // The bar floats over the page, so content starts below it.
+    final barInset = MediaQuery.paddingOf(context).top;
 
-    return Row(
+    final layout = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
@@ -173,7 +203,7 @@ class _EntryDetailWideBodyState extends State<EntryDetailWideBody> {
             controller: _sidebarScrollController,
             child: SingleChildScrollView(
               controller: _sidebarScrollController,
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB(16, 16 + barInset, 16, 16),
               child: DesktopSidebar(
                 entry: entry,
                 chapters: chapters,
@@ -182,6 +212,7 @@ class _EntryDetailWideBodyState extends State<EntryDetailWideBody> {
                 libraryEntryId: libraryEntryId,
                 customCoverPath: customCoverPath,
                 furthestChapter: furthestChapter,
+                heroTag: widget.heroTag,
               ),
             ),
           ),
@@ -193,7 +224,13 @@ class _EntryDetailWideBodyState extends State<EntryDetailWideBody> {
             child: CustomScrollView(
               controller: _mainScrollController,
               slivers: [
-                SliverToBoxAdapter(child: DesktopMainHeader(entry: entry)),
+                SliverToBoxAdapter(child: SizedBox(height: barInset)),
+                SliverToBoxAdapter(
+                  child: DesktopMainHeader(
+                    entry: entry,
+                    sourceName: widget.sourceName,
+                  ),
+                ),
                 SliverToBoxAdapter(
                   child: EntryRecommendationsRow(
                     title: entry.title,
@@ -207,6 +244,22 @@ class _EntryDetailWideBodyState extends State<EntryDetailWideBody> {
             ),
           ),
         ),
+      ],
+    );
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: DetailCoverBackdrop(
+            url: entry.coverUrl,
+            filePath: customCoverPath,
+          ),
+        ),
+        layout,
       ],
     );
   }
@@ -227,10 +280,12 @@ class EntryDetailBody extends StatelessWidget {
     this.furthestChapter,
     this.heroTag,
     this.scrollOffset,
+    this.sourceName,
   });
 
   final bool isWide;
   final MEntry entry;
+  final String? sourceName;
   final MediaType mediaType;
   final List<MChapter>? chapters;
   final List<Widget> posterActions;
@@ -247,6 +302,7 @@ class EntryDetailBody extends StatelessWidget {
     if (isWide) {
       return EntryDetailWideBody(
         entry: entry,
+        sourceName: sourceName,
         mediaType: mediaType,
         chapters: chapters,
         posterActions: posterActions,
@@ -255,10 +311,13 @@ class EntryDetailBody extends StatelessWidget {
         libraryEntryId: libraryEntryId,
         customCoverPath: customCoverPath,
         furthestChapter: furthestChapter,
+        heroTag: heroTag,
+        scrollOffset: scrollOffset,
       );
     }
     return EntryDetailNarrowBody(
       entry: entry,
+      sourceName: sourceName,
       mediaType: mediaType,
       chapters: chapters,
       posterActions: posterActions,

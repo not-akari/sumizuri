@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.14)
 project(runner LANGUAGES CXX)
 
+# Picks the debug app icon in Runner.rc for a Debug build. Deliberately not
+# relying on target_compile_definitions()'s _DEBUG define reaching the RC
+# compiler - CMake's propagation of target defines into .rc resource
+# compilation is inconsistent across generators. CMAKE_RC_FLAGS_<CONFIG> is
+# the mechanism CMake actually provides for per-config RC compiler flags.
+set(CMAKE_RC_FLAGS_DEBUG "${CMAKE_RC_FLAGS_DEBUG} -DSUMIZURI_DEBUG_ICON")
+
 # Define the application target. To change its name, change BINARY_NAME in the
 # top-level CMakeLists.txt, not the value here, or `flutter run` will no longer
 # work.

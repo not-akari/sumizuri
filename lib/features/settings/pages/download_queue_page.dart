@@ -108,6 +108,7 @@ class _DownloadTile extends ConsumerWidget {
     final status = item.status;
     final request = item.request;
     return AppCard(
+      flattenWhenCompact: true,
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
       padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
       child: Row(

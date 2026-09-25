@@ -9,6 +9,7 @@ class BackupImportResult {
     required this.failed,
     required this.addedIds,
     required this.candidates,
+    this.cancelled = false,
   });
 
   /// Titles added to the library.
@@ -25,4 +26,8 @@ class BackupImportResult {
 
   /// Entries to test against installed sources based on recorded addresses/names.
   final List<AutoMatchCandidate> candidates;
+
+  /// Whether the user stopped the import before every title was processed.
+  /// Everything counted above was already committed to the library.
+  final bool cancelled;
 }

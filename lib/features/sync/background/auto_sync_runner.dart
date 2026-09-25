@@ -63,9 +63,9 @@ class _AutoSyncRunnerState extends ConsumerState<AutoSyncRunner>
   Future<void> _check({bool launch = false}) async {
     if (!mounted) return;
     final repository = ref.read(syncRepositoryProvider);
+    final profileId = ref.read(currentProfileIdProvider);
     if (await repository.linkedProfile() == null) return;
     final preferences = await repository.preferences();
-    final profileId = ref.read(currentProfileIdProvider);
     final now = DateTime.now().millisecondsSinceEpoch;
     final last = await repository.lastSyncedAt();
     final reference = last > (_lastAttempt[profileId] ?? 0)

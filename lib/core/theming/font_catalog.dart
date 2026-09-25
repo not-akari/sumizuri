@@ -1,4 +1,4 @@
-import 'package:google_fonts/google_fonts.dart';
+import 'package:sumizuri/core/theming/google_font_loader.dart';
 
 const googleFontPrefix = 'google:';
 const customFontPrefix = 'custom:';
@@ -43,12 +43,9 @@ const googleFontChoices = [
 String? resolveFontFamily(String value) {
   if (value.isEmpty) return null;
   if (value.startsWith(googleFontPrefix)) {
-    try {
-      return GoogleFonts.getFont(value.substring(googleFontPrefix.length))
-          .fontFamily;
-    } catch (_) {
-      return null;
-    }
+    final family = value.substring(googleFontPrefix.length);
+    GoogleFontLoader.ensureLoaded(family);
+    return family;
   }
   return value;
 }

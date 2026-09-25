@@ -1,9 +1,12 @@
+import 'package:country_flags/country_flags.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
+import 'package:sumizuri/core/utils/formatting/language_flag.dart';
 import 'package:sumizuri/core/utils/formatting/media_type_label.dart';
+import 'package:sumizuri/core/utils/network/origin_headers.dart';
 import 'package:sumizuri/core/widgets/overlays/app_sheet.dart';
 import 'package:sumizuri/core/utils/files/folder_problem_text.dart';
 import 'package:sumizuri/core/utils/files/folder_picker.dart';
@@ -24,6 +27,7 @@ import 'package:sumizuri/features/settings/providers/settings_providers.dart';
 import 'package:sumizuri/features/extensions/providers/extension_providers.dart';
 import 'package:sumizuri/features/extensions/pages/global_search_page.dart';
 import 'package:sumizuri/features/repos/pages/repo_list_page.dart';
+import 'package:sumizuri/features/repos/providers/repo_presence.dart';
 import 'package:sumizuri/features/extensions/pages/source_browse_page.dart';
 import 'package:sumizuri/features/extensions/widgets/source_details_sheet.dart';
 import 'package:sumizuri/features/extensions/editor/source_editor_page.dart';
@@ -51,9 +55,13 @@ class _SourceRow extends StatelessWidget {
     required this.l10n,
     required this.onOpenDetails,
     required this.onOpen,
+    this.obsolete = false,
+    this.updatable = false,
   });
 
   final AppInstalledSource source;
+  final bool obsolete;
+  final bool updatable;
   final AppLocalizations l10n;
   final VoidCallback onOpenDetails;
   final VoidCallback onOpen;
@@ -70,7 +78,10 @@ class _SourceRow extends StatelessWidget {
           backgroundColor: cs.surface,
           backgroundImage: source.iconUrl.isEmpty
               ? null
-              : NetworkImage(source.iconUrl),
+              : NetworkImage(
+                  source.iconUrl,
+                  headers: originHeaders(source.iconUrl),
+                ),
           onBackgroundImageError: source.iconUrl.isEmpty ? null : (_, _) {},
           child: source.iconUrl.isEmpty
               ? Icon(
@@ -83,9 +94,38 @@ class _SourceRow extends StatelessWidget {
         ),
       ),
       title: source.name,
-      subtitle: source.enabled
-          ? '${source.lang} · ${source.mediaType.name}'
-          : '${source.lang} · ${source.mediaType.name} · ${l10n.browseSourceDisabled}',
+      details: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (languageFlagCountryCode(source.lang) case final code?)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(2),
+                child: CountryFlag.fromCountryCode(
+                  code,
+                  theme: const ImageTheme(width: 16, height: 12),
+                ),
+              )
+            else
+              Icon(Icons.language, size: 14, color: cs.outline),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                [
+                  source.mediaType.name,
+                  if (source.nsfw) l10n.repoBrowseNsfwBadge,
+                  if (obsolete) l10n.sourceObsoleteBadge,
+                  if (updatable) l10n.sourceUpdateBadge,
+                  if (!source.enabled) l10n.browseSourceDisabled,
+                ].join(' · '),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, color: cs.outline),
+              ),
+            ),
+          ],
+        ),
+      ],
       trailing: IconButton(
         icon: const Icon(Icons.settings_outlined, size: 20),
         tooltip: l10n.browseSourceDetailsSettings,
@@ -98,6 +138,13 @@ class _SourceRow extends StatelessWidget {
 class _BrowseScreenState extends ConsumerState<BrowseScreen> {
   int _typeIndex = 0;
   String? _languageFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    // Once per session: which installed sources their repo has since dropped.
+    Future.microtask(() => ref.read(repoPresenceProvider.notifier).checkAll());
+  }
 
   String _languageLabel(String code) =>
       lookupCanonicalLocale(code)?.englishName ?? code.toUpperCase();
@@ -186,6 +233,9 @@ class _BrowseScreenState extends ConsumerState<BrowseScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final obsoleteIds = ref.watch(obsoleteSourceIdsProvider);
+    final updatableIds = ref.watch(updatableSourceIdsProvider);
+    final duplicates = ref.watch(duplicateSourceCountProvider);
     final enabledTypes = ref.watch(enabledMediaTypesProvider).orMangaOnly;
     final types = [
       for (final type in MediaType.values)
@@ -220,115 +270,157 @@ class _BrowseScreenState extends ConsumerState<BrowseScreen> {
           final items = _languageFilter == null
               ? byType
               : byType.where((s) => s.lang == _languageFilter).toList();
-          return ListView(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              4,
-              16,
-              context.layout.scrollBottomOf(context),
-            ),
-            children: [
-              if (types.length > 1)
-                SquiggleTabBar(
-                  labels: [
-                    for (final type in types) mediaTypeLabel(type, l10n),
-                  ],
-                  activeIndex: typeIndex,
-                  showUnderline: false,
-                  onSelected: (i) => setState(() {
-                    _typeIndex = i;
-                    _languageFilter = null;
-                  }),
-                ),
-              if (languages.length > 1)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: FilterTabRow<String>(
-                    allLabel: l10n.browseAllLanguages,
-                    selected: _languageFilter,
-                    items: [
-                      for (final lang in languages)
-                        (lang, _languageLabel(lang)),
-                    ],
-                    onSelect: (value) =>
-                        setState(() => _languageFilter = value),
+          // A readable width, with the rows drawn as the settings ones are.
+          return Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: AppRowStyle(
+                horizontalMargin: 0,
+                child: ListView(
+                  padding: EdgeInsets.fromLTRB(
+                    context.layout.gutter,
+                    4,
+                    context.layout.gutter,
+                    context.layout.scrollBottomOf(context),
                   ),
-                ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 4, 10),
-                child: Text(
-                  l10n.browseInstalledSources,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1,
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                ),
-              ),
-              if (items.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(
-                    byType.isEmpty
-                        ? l10n.browseEmpty
-                        : l10n.browseFilteredEmpty,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                )
-              else
-                for (final source in items)
-                  _SourceRow(
-                    source: source,
-                    l10n: l10n,
-                    onOpenDetails: () =>
-                        showSourceDetailsSheet(context, ref, source),
-                    onOpen: source.enabled
-                        ? () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => SourceBrowsePage(source: source),
+                  children: [
+                    if (types.length > 1)
+                      SquiggleTabBar(
+                        labels: [
+                          for (final type in types) mediaTypeLabel(type, l10n),
+                        ],
+                        activeIndex: typeIndex,
+                        showUnderline: false,
+                        onSelected: (i) => setState(() {
+                          _typeIndex = i;
+                          _languageFilter = null;
+                        }),
+                      ),
+                    if (languages.length > 1)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: FilterTabRow<String>(
+                          allLabel: l10n.browseAllLanguages,
+                          selected: _languageFilter,
+                          items: [
+                            for (final lang in languages)
+                              (lang, _languageLabel(lang)),
+                          ],
+                          onSelect: (value) =>
+                              setState(() => _languageFilter = value),
+                        ),
+                      ),
+                    if (duplicates > 0)
+                      AppCard(
+                        tone: AppCardTone.inset,
+                        borderColor: Theme.of(context).colorScheme.error
+                            .withValues(alpha: 0.5),
+                        margin: const EdgeInsets.only(top: 4, bottom: 4),
+                        padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.copy_all_outlined,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.error,
                             ),
-                          )
-                        : () => showSourceDetailsSheet(context, ref, source),
-                  ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 12, 4, 10),
-                child: Text(
-                  l10n.browseDiscover,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1,
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                l10n.sourceDuplicatesBanner(duplicates),
+                                style: const TextStyle(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                final removed = await ref
+                                    .read(installedSourceRepositoryProvider)
+                                    .mergeDuplicates();
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      l10n.sourceDuplicatesMerged(
+                                        removed.valueOrNull ?? 0,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text(l10n.sourceDuplicatesMerge),
+                            ),
+                          ],
+                        ),
+                      ),
+                    AppSectionLabel(label: l10n.browseInstalledSources),
+                    if (items.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          byType.isEmpty
+                              ? l10n.browseEmpty
+                              : l10n.browseFilteredEmpty,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    else
+                      for (final source in items)
+                        _SourceRow(
+                          source: source,
+                          obsolete: obsoleteIds.contains(source.id),
+                          updatable: updatableIds.contains(source.id),
+                          l10n: l10n,
+                          onOpenDetails: () =>
+                              showSourceDetailsSheet(context, ref, source),
+                          onOpen: source.enabled
+                              ? () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        SourceBrowsePage(source: source),
+                                  ),
+                                )
+                              : () => showSourceDetailsSheet(
+                                  context,
+                                  ref,
+                                  source,
+                                ),
+                        ),
+                    AppSectionLabel(label: l10n.browseDiscover),
+                    AppListRow(
+                      icon: Icons.travel_explore_rounded,
+                      title: l10n.reposTitle,
+                      subtitle: l10n.browseDiscoverReposSubtitle,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const RepoListPage()),
+                      ),
+                    ),
+                    if (canChooseFolders)
+                      AppListRow(
+                        icon: Icons.folder_open_outlined,
+                        title: l10n.browseAddLocal,
+                        subtitle: l10n.browseAddLocalSubtitle,
+                        onTap: () => _addLocalFolder(context),
+                      ),
+                    AppListRow(
+                      icon: Icons.file_open_outlined,
+                      title: l10n.browseImportSource,
+                      subtitle: l10n.browseDiscoverImportSubtitle,
+                      onTap: () => _importSource(context),
+                    ),
+                    AppListRow(
+                      icon: Icons.code_rounded,
+                      title: l10n.browseAddSource,
+                      subtitle: l10n.browseDiscoverWriteSubtitle,
+                      onTap: () => _addSource(context),
+                    ),
+                  ],
                 ),
               ),
-              AppListRow(
-                icon: Icons.travel_explore_rounded,
-                title: l10n.reposTitle,
-                subtitle: l10n.browseDiscoverReposSubtitle,
-                onTap: () => Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => const RepoListPage())),
-              ),
-              if (canChooseFolders)
-                AppListRow(
-                  icon: Icons.folder_open_outlined,
-                  title: l10n.browseAddLocal,
-                  subtitle: l10n.browseAddLocalSubtitle,
-                  onTap: () => _addLocalFolder(context),
-                ),
-              AppListRow(
-                icon: Icons.file_open_outlined,
-                title: l10n.browseImportSource,
-                subtitle: l10n.browseDiscoverImportSubtitle,
-                onTap: () => _importSource(context),
-              ),
-              AppListRow(
-                icon: Icons.code_rounded,
-                title: l10n.browseAddSource,
-                subtitle: l10n.browseDiscoverWriteSubtitle,
-                onTap: () => _addSource(context),
-              ),
-            ],
+            ),
           );
         },
       ),

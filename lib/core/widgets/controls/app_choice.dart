@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:sumizuri/core/theming/app_layout.dart';
+import 'package:sumizuri/core/theming/theme_shapes.dart';
 import 'package:sumizuri/core/widgets/controls/toggle_pill.dart';
 
 /// How an [AppChoice] shows its options.
@@ -312,8 +313,10 @@ class _Body<T> extends StatelessWidget {
     final menu = DropdownButton<T?>(
       value: picked,
       isExpanded: choice.expanded,
-      isDense: choice.labelText != null,
+      isDense: true,
       underline: const SizedBox.shrink(),
+      borderRadius: context.shapes.item.radius,
+      dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       hint: choice.placeholder == null ? null : Text(choice.placeholder!),
       items: [
         if (choice.onCleared != null)
@@ -334,11 +337,29 @@ class _Body<T> extends StatelessWidget {
               }
             },
     );
-    if (choice.labelText == null) return menu;
-    return InputDecorator(
-      decoration: InputDecoration(labelText: choice.labelText),
-      isEmpty: picked == null && choice.onCleared == null,
-      child: DropdownButtonHideUnderline(child: menu),
+    if (choice.labelText != null) {
+      return InputDecorator(
+        decoration: InputDecoration(labelText: choice.labelText, isDense: true),
+        isEmpty: picked == null && choice.onCleared == null,
+        child: DropdownButtonHideUnderline(child: menu),
+      );
+    }
+    // An unlabelled menu is often placed where its width is not bounded, such
+    // as in a row, which an InputDecorator refuses. Drawn as the same field by hand.
+    final cs = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: context.shapes.item.radius,
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.7),
+          width: context.shapes.borderWidth,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        child: DropdownButtonHideUnderline(child: menu),
+      ),
     );
   }
 }

@@ -248,10 +248,44 @@ abstract final class Settings {
     'library.showDownloadBadge',
     false,
   );
+  static const libraryShowProgress = SettingDef<bool>(
+    'library.showProgress',
+    false,
+  );
   static const libraryGridTileSize = EnumSetting<LibraryGridTileSize>(
     'library.gridTileSize',
     LibraryGridTileSize.values,
     LibraryGridTileSize.medium,
+  );
+  static const updatesDisplayStyle = EnumSetting<LibraryDisplayStyle>(
+    'updates.displayStyle',
+    LibraryDisplayStyle.values,
+    LibraryDisplayStyle.list,
+  );
+  static const historyDisplayStyle = EnumSetting<LibraryDisplayStyle>(
+    'history.displayStyle',
+    LibraryDisplayStyle.values,
+    LibraryDisplayStyle.list,
+  );
+  static const homeContinueStyle = EnumSetting<DashboardShelfStyle>(
+    'home.continueStyle',
+    DashboardShelfStyle.values,
+    DashboardShelfStyle.shelf,
+  );
+  static const homeUpdatesStyle = EnumSetting<DashboardShelfStyle>(
+    'home.updatesStyle',
+    DashboardShelfStyle.values,
+    DashboardShelfStyle.shelf,
+  );
+  static const homeHistoryStyle = EnumSetting<DashboardShelfStyle>(
+    'home.historyStyle',
+    DashboardShelfStyle.values,
+    DashboardShelfStyle.grid,
+  );
+  static const libraryDisplayStyle = EnumSetting<LibraryDisplayStyle>(
+    'library.displayStyle',
+    LibraryDisplayStyle.values,
+    LibraryDisplayStyle.comfortableGrid,
   );
   static const novelFontFamily = EnumSetting<ReaderFontFamily>(
     'novel.fontFamily',
@@ -381,6 +415,15 @@ abstract final class Settings {
     'downloads.skipDuplicateRead',
     false,
   );
+  static const detectDuplicateChapters = SettingDef<bool>(
+    'chapters.detectDuplicates',
+    true,
+  );
+  static const listStyle = EnumSetting<AppListStyle>(
+    'layout.listStyle',
+    AppListStyle.values,
+    AppListStyle.auto,
+  );
   static const navStyle = EnumSetting<AppNavStyle>(
     'nav.style',
     AppNavStyle.values,
@@ -474,6 +517,13 @@ abstract final class Settings {
     libraryShowUnreadBadge,
     libraryShowDownloadBadge,
     libraryGridTileSize,
+    libraryShowProgress,
+    libraryDisplayStyle,
+    updatesDisplayStyle,
+    historyDisplayStyle,
+    homeContinueStyle,
+    homeUpdatesStyle,
+    homeHistoryStyle,
     novelFontFamily,
     novelFontSize,
     novelLineHeight,
@@ -512,6 +562,8 @@ abstract final class Settings {
     autoDownloadOnLibraryUpdate,
     autoDownloadOnAddToLibrary,
     downloadsSkipDuplicateRead,
+    detectDuplicateChapters,
+    listStyle,
     displayHighRefreshRate,
     navStyle,
     chapterListLayout,

@@ -3,13 +3,10 @@ import 'dart:async';
 // Caches latest stream snapshot and replays it immediately to new subscribers.
 class SharedStreamReplay<T> {
   SharedStreamReplay(Stream<T> source) {
-    _subscription = source.listen(
-      (snapshot) {
-        _latest = snapshot;
-        _controller.add(snapshot);
-      },
-      onError: _controller.addError,
-    );
+    _subscription = source.listen((snapshot) {
+      _latest = snapshot;
+      _controller.add(snapshot);
+    }, onError: _controller.addError);
   }
 
   late final StreamSubscription<T> _subscription;

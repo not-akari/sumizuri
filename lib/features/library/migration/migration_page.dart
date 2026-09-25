@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:sumizuri/core/widgets/content/cover_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sumizuri/core/widgets/controls/app_choice.dart';
+import 'package:sumizuri/core/widgets/cards/app_card.dart';
+import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
+import 'package:sumizuri/core/widgets/controls/settings_controls.dart';
 import 'package:sumizuri/core/theming/app_layout.dart';
 import 'package:sumizuri/core/utils/formatting/media_type_label.dart';
 import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
@@ -11,6 +15,7 @@ import 'package:sumizuri/core/widgets/navigation/squiggle_tab_bar.dart';
 import 'package:sumizuri/features/extensions/models/m_entry.dart';
 import 'package:sumizuri/features/extensions/providers/extension_providers.dart';
 import 'package:sumizuri/features/extensions/models/installed_source.dart';
+import 'package:sumizuri/features/library/migration/match_scoring.dart';
 import 'package:sumizuri/features/library/migration/migration_controller.dart';
 import 'package:sumizuri/features/library/migration/migration_models.dart';
 import 'package:sumizuri/features/library/models/library_types.dart';
@@ -108,34 +113,62 @@ class _MigrationPageState extends ConsumerState<MigrationPage> {
                 context.layout.gutter,
                 8,
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: AppChoice<AppInstalledSource>.of(
-                      style: AppChoiceStyle.menu,
-                      placeholder: l10n.migrationPickSource,
-                      values: sources,
-                      label: (source) => source.name,
-                      value: _target,
-                      onChanged: state.running
-                          ? null
-                          : (source) => setState(() => _target = source),
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppChoice<AppInstalledSource>.of(
+                          style: AppChoiceStyle.menu,
+                          placeholder: l10n.migrationPickSource,
+                          values: sources,
+                          label: (source) => source.name,
+                          value: _target,
+                          onChanged: state.running
+                              ? null
+                              : (source) => setState(() => _target = source),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: l10n.migrationRules,
+                        icon: const Icon(Icons.tune),
+                        onPressed: state.running
+                            ? null
+                            : () => showAppSheet<void>(
+                                context,
+                                builder: (_) => const _RulesSheet(),
+                              ),
+                      ),
+                      const SizedBox(width: 4),
+                      if (state.running)
+                        OutlinedButton(
+                          onPressed: controller.cancel,
+                          child: Text(l10n.migrationCancel),
+                        )
+                      else
+                        FilledButton(
+                          onPressed:
+                              _target == null || (waiting + missing.length) == 0
+                              ? null
+                              : () => controller.search(_target!),
+                          child: Text(l10n.migrationSearch),
+                        ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  if (state.running)
-                    OutlinedButton(
-                      onPressed: controller.cancel,
-                      child: Text(l10n.migrationCancel),
-                    )
-                  else
-                    FilledButton(
-                      onPressed:
-                          _target == null || (waiting + missing.length) == 0
-                          ? null
-                          : () => controller.search(_target!),
-                      child: Text(l10n.migrationSearch),
+                  if (!state.running && sources.length > 1) ...[
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: (waiting + missing.length) == 0
+                            ? null
+                            : () => controller.searchAllSources(sources),
+                        icon: const Icon(Icons.playlist_play, size: 20),
+                        label: Text(l10n.migrationSearchAllSources),
+                      ),
                     ),
+                  ],
                 ],
               ),
             ),
@@ -219,14 +252,11 @@ class _Cover extends StatelessWidget {
       child: SizedBox(
         width: 40,
         height: 56,
+        // The shared cover: cached, and decoded at the size it is shown, not at
+        // the poster's full size (a long list of these used to load hundreds).
         child: url == null
             ? ColoredBox(color: cs.surfaceContainerHighest)
-            : Image.network(
-                url!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) =>
-                    ColoredBox(color: cs.surfaceContainerHighest),
-              ),
+            : CoverImage(url: url, fit: BoxFit.cover),
       ),
     );
   }
@@ -283,7 +313,12 @@ class _FoundList extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     Text(
-                      l10n.migrationMatch(_percent(choice.score.total)),
+                      choice.sourceName == null
+                          ? l10n.migrationMatch(_percent(choice.score.total))
+                          : l10n.migrationMatchOn(
+                              _percent(choice.score.total),
+                              choice.sourceName!,
+                            ),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -326,47 +361,137 @@ class _ReviewList extends StatelessWidget {
       ),
       children: [
         for (final item in items)
-          Card(
+          AppCard(
+            tone: AppCardTone.inset,
+            flattenWhenCompact: true,
             margin: const EdgeInsets.only(bottom: 12),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      _Cover(item.coverUrl),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          item.title,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _Cover(item.coverUrl),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        item.title,
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  for (final option in item.options)
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: _Cover(option.entry.coverUrl),
-                      title: Text(option.entry.title),
-                      subtitle: Text(
-                        l10n.migrationMatch(_percent(option.score.total)),
-                      ),
-                      onTap: () => onChoose(item.entryId, option),
                     ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () => onReject(item.entryId),
-                      child: Text(l10n.migrationNoneOfThese),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                for (final option in item.options)
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: _Cover(option.entry.coverUrl),
+                    title: Text(option.entry.title),
+                    subtitle: Text(
+                      option.sourceName == null
+                          ? l10n.migrationMatch(_percent(option.score.total))
+                          : l10n.migrationMatchOn(
+                              _percent(option.score.total),
+                              option.sourceName!,
+                            ),
                     ),
+                    onTap: () => onChoose(item.entryId, option),
                   ),
-                ],
-              ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => onReject(item.entryId),
+                    child: Text(l10n.migrationNoneOfThese),
+                  ),
+                ),
+              ],
             ),
           ),
+      ],
+    );
+  }
+}
+
+/// Why a title has no match when it is because the chapter rule ruled some out.
+String? _skipNote(AppLocalizations l10n, MigrationItem item) {
+  if (item.excludedCount == 0) return null;
+  return switch (item.excludedRule) {
+    ChapterRule.atLeastAsMany => l10n.migrationSkippedFewer(item.excludedCount),
+    ChapterRule.atLeastAsNew => l10n.migrationSkippedBehind(item.excludedCount),
+    ChapterRule.coversProgress => l10n.migrationSkippedProgress(
+      item.excludedCount,
+    ),
+    ChapterRule.any => null,
+  };
+}
+
+/// The choices for how the next search picks and accepts matches.
+class _RulesSheet extends ConsumerWidget {
+  const _RulesSheet();
+
+  static IconData _chapterIcon(ChapterRule rule) => switch (rule) {
+    ChapterRule.any => Icons.all_inclusive,
+    ChapterRule.atLeastAsMany => Icons.playlist_add_check,
+    ChapterRule.atLeastAsNew => Icons.update,
+    ChapterRule.coversProgress => Icons.bookmark_added_outlined,
+  };
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final rules = ref.watch(migrationSessionProvider.select((s) => s.rules));
+    final controller = ref.read(migrationSessionProvider.notifier);
+    String chapterLabel(ChapterRule rule) => switch (rule) {
+      ChapterRule.any => l10n.migrationRuleChaptersAny,
+      ChapterRule.atLeastAsMany => l10n.migrationRuleChaptersAtLeastAsMany,
+      ChapterRule.atLeastAsNew => l10n.migrationRuleChaptersAtLeastAsNew,
+      ChapterRule.coversProgress => l10n.migrationRuleChaptersCoversProgress,
+    };
+    return AppSheet(
+      title: l10n.migrationRules,
+      subtitle: l10n.migrationRulesHint,
+      children: [
+        AppSectionLabel(label: l10n.migrationRuleChapters),
+        for (final rule in ChapterRule.values)
+          AppOptionRow(
+            icon: _chapterIcon(rule),
+            title: chapterLabel(rule),
+            selected: rules.chapterRule == rule,
+            onTap: () => controller.setRules(rules.copyWith(chapterRule: rule)),
+          ),
+        AppSectionLabel(label: l10n.migrationRuleStrictness),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: context.layout.gutter),
+          child: AppChoice<MatchStrictness>.of(
+            style: AppChoiceStyle.segments,
+            values: MatchStrictness.values,
+            label: (level) => switch (level) {
+              MatchStrictness.strict => l10n.migrationRuleStrict,
+              MatchStrictness.balanced => l10n.migrationRuleBalanced,
+              MatchStrictness.loose => l10n.migrationRuleLoose,
+            },
+            value: rules.strictness,
+            onChanged: (level) =>
+                controller.setRules(rules.copyWith(strictness: level)),
+          ),
+        ),
+        const SizedBox(height: 8),
+        AppSwitchRow(
+          icon: Icons.done_all,
+          title: l10n.migrationRuleAutoAccept,
+          subtitle: l10n.migrationRuleAutoAcceptHint,
+          value: rules.autoAccept,
+          onChanged: (on) =>
+              controller.setRules(rules.copyWith(autoAccept: on)),
+        ),
+        AppSwitchRow(
+          icon: Icons.format_list_numbered,
+          title: l10n.migrationRulePreferMore,
+          subtitle: l10n.migrationRulePreferMoreHint,
+          value: rules.preferMoreChapters,
+          onChanged: (on) =>
+              controller.setRules(rules.copyWith(preferMoreChapters: on)),
+        ),
       ],
     );
   }
@@ -404,7 +529,11 @@ class _MissingList extends StatelessWidget {
             contentPadding: EdgeInsets.zero,
             leading: _Cover(item.coverUrl),
             title: Text(item.title),
-            subtitle: item.error == null ? null : Text(item.error!),
+            subtitle: switch ((item.error, _skipNote(l10n, item))) {
+              (final error?, _) => Text(error),
+              (_, final note?) => Text(note),
+              _ => null,
+            },
             trailing: IconButton(
               tooltip: l10n.migrationManualSearchAction,
               icon: const Icon(Icons.search),
@@ -546,7 +675,11 @@ class _ManualMatchSheetState extends ConsumerState<_ManualMatchSheet> {
           for (final (index, entry) in results.indexed)
             ListTile(
               leading: _Cover(entry.coverUrl),
-              title: Text(entry.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+              title: Text(
+                entry.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               subtitle: entry.author == null
                   ? null
                   : Text(

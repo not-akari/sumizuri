@@ -80,7 +80,9 @@ class _ShortcutLinkCatcherState extends ConsumerState<ShortcutLinkCatcher> {
   }
 
   void _offer(NavDestinationKind kind) {
-    if (mounted) ref.read(requestedNavDestinationProvider.notifier).request(kind);
+    if (mounted) {
+      ref.read(requestedNavDestinationProvider.notifier).request(kind);
+    }
   }
 
   @override

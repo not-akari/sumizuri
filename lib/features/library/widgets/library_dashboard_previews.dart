@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:sumizuri/core/widgets/content/manga_cover_tile.dart';
+import 'package:sumizuri/features/library/flows/open_library_entry.dart';
 import 'package:sumizuri/features/library/models/library_feed_types.dart';
 import 'package:sumizuri/features/library/models/library_types.dart';
-import 'package:sumizuri/features/settings/models/app_settings_types.dart';
-import 'package:sumizuri/l10n/generated/app_localizations.dart';
-import 'package:sumizuri/features/settings/providers/settings_providers.dart';
-import 'package:sumizuri/features/library/widgets/dashboard_section.dart';
 import 'package:sumizuri/features/library/pages/history_screen.dart';
-import 'package:sumizuri/features/library/providers/library_providers.dart';
-import 'package:sumizuri/features/library/flows/open_library_entry.dart';
-import 'package:sumizuri/features/library/widgets/update_cover_card.dart';
 import 'package:sumizuri/features/library/pages/updates_screen.dart';
+import 'package:sumizuri/features/library/providers/library_providers.dart';
+import 'package:sumizuri/features/library/widgets/dashboard_items.dart';
+import 'package:sumizuri/features/library/widgets/dashboard_section.dart';
+import 'package:sumizuri/features/settings/models/app_settings_types.dart';
+import 'package:sumizuri/features/settings/providers/settings_providers.dart';
+import 'package:sumizuri/l10n/generated/app_localizations.dart';
 
 String dashboardHeroTag(String section, int libraryEntryId) =>
     'dash-$section-$libraryEntryId';
@@ -26,10 +25,8 @@ class UpdatesPreviewSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final updates = ref.watch(libraryUpdatesProvider(mediaType: mediaType));
-    final tileWidth =
-        (ref.watch(libraryGridTileSizeProvider).value ??
-                LibraryGridTileSize.medium)
-            .maxExtent;
+    final style =
+        ref.watch(homeUpdatesStyleProvider).value ?? DashboardShelfStyle.shelf;
 
     return updates.when(
       loading: () => const SizedBox.shrink(),
@@ -37,6 +34,7 @@ class UpdatesPreviewSection extends ConsumerWidget {
       data: (items) {
         if (items.isEmpty) return const SizedBox.shrink();
 
+        // One title once, with how many new chapters it has.
         final newChapterCounts = <int, int>{};
         final preview = <UpdateChapterSummary>[];
         for (final item in items) {
@@ -44,7 +42,6 @@ class UpdatesPreviewSection extends ConsumerWidget {
           newChapterCounts[item.libraryEntryId] = count;
           if (count == 1) preview.add(item);
         }
-        final limited = preview.take(10).toList();
 
         return DashboardSection(
           title: l10n.updatesTitle,
@@ -53,41 +50,28 @@ class UpdatesPreviewSection extends ConsumerWidget {
               builder: (_) => UpdatesScreen(mediaType: mediaType),
             ),
           ),
-          child: SizedBox(
-            height: tileWidth * 1.5,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: limited.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 10),
-              itemBuilder: (context, index) {
-                final item = limited[index];
-                final heroTag = dashboardHeroTag(
-                  'updates',
-                  item.libraryEntryId,
-                );
-                return Hero(
-                  tag: heroTag,
-                  child: UpdateCoverCard(
+          child: DashboardItems(
+            style: style,
+            items: [
+              for (final item in preview.take(10))
+                DashboardItem(
+                  title: item.entryTitle,
+                  coverUrl: item.entryCoverUrl,
+                  customCoverPath: item.customCoverPath,
+                  badge: newChapterCounts[item.libraryEntryId],
+                  heroTag: dashboardHeroTag('updates', item.libraryEntryId),
+                  onTap: () => openLibraryEntry(
+                    context,
+                    ref,
+                    libraryEntryId: item.libraryEntryId,
                     title: item.entryTitle,
                     coverUrl: item.entryCoverUrl,
-                    customCoverPath: item.customCoverPath,
-                    newChapterCount: newChapterCounts[item.libraryEntryId],
-                    width: tileWidth,
-                    onTap: () => openLibraryEntry(
-                      context,
-                      ref,
-                      libraryEntryId: item.libraryEntryId,
-                      title: item.entryTitle,
-                      coverUrl: item.entryCoverUrl,
-                      sourceId: item.sourceId,
-                      externalId: item.externalId,
-                      heroTag: heroTag,
-                    ),
+                    sourceId: item.sourceId,
+                    externalId: item.externalId,
+                    heroTag: dashboardHeroTag('updates', item.libraryEntryId),
                   ),
-                );
-              },
-            ),
+                ),
+            ],
           ),
         );
       },
@@ -106,9 +90,8 @@ class HistoryPreviewSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final history = ref.watch(libraryHistoryProvider(mediaType: mediaType));
-    final tileSize =
-        ref.watch(libraryGridTileSizeProvider).value ??
-        LibraryGridTileSize.medium;
+    final style =
+        ref.watch(homeHistoryStyleProvider).value ?? DashboardShelfStyle.grid;
 
     return history.when(
       loading: () => const SizedBox.shrink(),
@@ -130,29 +113,15 @@ class HistoryPreviewSection extends ConsumerWidget {
               builder: (_) => HistoryScreen(mediaType: mediaType),
             ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: tileSize.maxExtent,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.55,
-              ),
-              itemCount: preview.length,
-              itemBuilder: (context, index) {
-                final item = preview[index];
-                final heroTag = dashboardHeroTag(
-                  'history',
-                  item.libraryEntryId,
-                );
-                return MangaCoverTile(
+          child: DashboardItems(
+            style: style,
+            items: [
+              for (final item in preview)
+                DashboardItem(
                   title: item.entryTitle,
                   coverUrl: item.entryCoverUrl,
                   customCoverPath: item.customCoverPath,
-                  heroTag: heroTag,
+                  heroTag: dashboardHeroTag('history', item.libraryEntryId),
                   onTap: () => openLibraryEntry(
                     context,
                     ref,
@@ -161,11 +130,10 @@ class HistoryPreviewSection extends ConsumerWidget {
                     coverUrl: item.entryCoverUrl,
                     sourceId: item.sourceId,
                     externalId: item.externalId,
-                    heroTag: heroTag,
+                    heroTag: dashboardHeroTag('history', item.libraryEntryId),
                   ),
-                );
-              },
-            ),
+                ),
+            ],
           ),
         );
       },

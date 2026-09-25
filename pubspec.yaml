@@ -18,7 +18,6 @@ dependencies:
   intl: ^0.20.2
 
   flex_color_scheme: ^8.3.0
-  google_fonts: ^6.2.1
 
   flutter_riverpod: ^3.1.0
   drift: ^2.35.0
@@ -78,6 +77,8 @@ dependencies:
   gql: ^1.0.1
   app_links: ^7.2.1
   flutter_chrome_cast: ^1.4.8
+  cached_network_image: ^4.0.2
+  country_flags: ^4.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

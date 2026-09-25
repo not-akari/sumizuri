@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:sumizuri/features/settings/flows/mangayomi_import_flow.dart';
 import 'package:sumizuri/features/settings/data/mangayomi_import_codec.dart';
@@ -14,6 +15,7 @@ import 'package:sumizuri/features/library/migration/auto_source_match.dart';
 import 'package:sumizuri/features/library/migration/migration_controller.dart';
 import 'package:sumizuri/features/library/providers/library_providers.dart';
 import 'package:sumizuri/core/utils/files/file_export_helper.dart';
+import 'package:sumizuri/core/utils/formatting/eta.dart';
 import 'package:sumizuri/core/utils/formatting/timestamps.dart';
 import 'package:sumizuri/features/settings/data/backup_codec.dart';
 import 'package:sumizuri/features/settings/data/backup_encryption.dart';
@@ -58,6 +60,115 @@ Future<T> _withProgress<T>(
   try {
     return await work();
   } finally {
+    navigator.pop();
+  }
+}
+
+/// Best-effort screen keep-awake, matching the reader's own wrapper: a
+/// platform without wake locks just throws, and there is nothing to do
+/// about that here.
+void _keepScreenOn(bool on) {
+  try {
+    unawaited(on ? WakelockPlus.enable() : WakelockPlus.disable());
+  } on Object {
+    // A platform without wake locks: nothing to do.
+  }
+}
+
+/// Like [_withProgress], but shows a live "N of total" count and an ETA
+/// instead of a plain spinner, for imports large enough that a bare spinner
+/// would look stuck (a Mihon/Mangayomi library can be thousands of titles).
+/// Also keeps the screen awake for the duration, since a restore this long
+/// running in the foreground shouldn't get interrupted by the display
+/// sleeping.
+Future<T> _withDeterminateProgress<T>(
+  BuildContext context,
+  Future<T> Function(
+    void Function(int completed, int total) onProgress,
+    bool Function() isCancelled,
+  )
+  work,
+) async {
+  final navigator = Navigator.of(context, rootNavigator: true);
+  final progress = ValueNotifier<(int, int)>((0, 0));
+  final cancelRequested = ValueNotifier<bool>(false);
+  final stopwatch = Stopwatch()..start();
+  final l10n = AppLocalizations.of(context)!;
+  showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => PopScope(
+      canPop: false,
+      child: Center(
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: ValueListenableBuilder<(int, int)>(
+              valueListenable: progress,
+              builder: (context, value, _) {
+                final (completed, total) = value;
+                // Only a rough estimate once a few entries have gone by -
+                // the first few can be much slower or faster than average
+                // (cold caches, a title needing more chapters, etc).
+                Duration? eta;
+                if (completed > 0 && total > completed) {
+                  final elapsed = stopwatch.elapsed;
+                  final perEntry = elapsed ~/ completed;
+                  eta = perEntry * (total - completed);
+                }
+                return ValueListenableBuilder<bool>(
+                  valueListenable: cancelRequested,
+                  builder: (context, cancelling, _) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(
+                          value: total > 0 ? completed / total : null,
+                        ),
+                        if (total > 0) ...[
+                          const SizedBox(height: 16),
+                          Text(l10n.backupImportProgress(completed, total)),
+                        ],
+                        if (eta != null && !cancelling) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            l10n.backupImportEta(formatEta(eta)),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        TextButton(
+                          onPressed: cancelling
+                              ? null
+                              : () => cancelRequested.value = true,
+                          child: Text(
+                            cancelling
+                                ? l10n.backupImportCancelling
+                                : l10n.commonCancel,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  _keepScreenOn(true);
+  try {
+    return await work(
+      (completed, total) => progress.value = (completed, total),
+      () => cancelRequested.value,
+    );
+  } finally {
+    _keepScreenOn(false);
+    stopwatch.stop();
+    progress.dispose();
+    cancelRequested.dispose();
     navigator.pop();
   }
 }
@@ -173,9 +284,15 @@ Future<MangayomiImportResult?> pickAndImportMangayomiBackup(
         .showSnackBar(SnackBar(content: Text(error.message)));
     return null;
   }
-  final result = await importMangayomiBackup(
-    library: ref.read(libraryRepositoryProvider),
-    backup: backup,
+  if (!context.mounted) return null;
+  final result = await _withDeterminateProgress(
+    context,
+    (onProgress, isCancelled) => importMangayomiBackup(
+      library: ref.read(libraryRepositoryProvider),
+      backup: backup,
+      onProgress: onProgress,
+      isCancelled: isCancelled,
+    ),
   );
   if (context.mounted) {
     _runAutoMatchInBackground(context, ref, result.candidates);
@@ -204,9 +321,15 @@ Future<MihonImportResult?> pickAndImportMihonBackup(
         .showSnackBar(SnackBar(content: Text(error.message)));
     return null;
   }
-  final result = await importMihonBackup(
-    library: ref.read(libraryRepositoryProvider),
-    backup: backup,
+  if (!context.mounted) return null;
+  final result = await _withDeterminateProgress(
+    context,
+    (onProgress, isCancelled) => importMihonBackup(
+      library: ref.read(libraryRepositoryProvider),
+      backup: backup,
+      onProgress: onProgress,
+      isCancelled: isCancelled,
+    ),
   );
   if (context.mounted) {
     _runAutoMatchInBackground(context, ref, result.candidates);

@@ -56,8 +56,7 @@ Map<MediaType, List<LibraryEntrySummary>> entriesNeedingMigration(Ref ref) {
       ref.watch(libraryEntriesProvider(mediaType: null)).value ??
       const <LibraryEntrySummary>[];
   final installedIds = <int>{
-    for (final s in ref.watch(installedSourcesProvider).value ?? const [])
-      s.id,
+    for (final s in ref.watch(installedSourcesProvider).value ?? const []) s.id,
   };
   return groupEntriesNeedingMigration(entries, installedIds);
 }
@@ -214,7 +213,12 @@ Stream<int?> activeBranchId(Ref ref, int libraryEntryId) {
   return repository.watchActiveBranchId(libraryEntryId);
 }
 
-typedef UpdateProgress = ({int processed, int total, bool cancelRequested});
+typedef UpdateProgress = ({
+  int processed,
+  int total,
+  bool cancelRequested,
+  DateTime startedAt,
+});
 
 @riverpod
 class LibraryUpdateProgress extends _$LibraryUpdateProgress {
@@ -230,6 +234,7 @@ class LibraryUpdateProgress extends _$LibraryUpdateProgress {
         processed: current.processed,
         total: current.total,
         cancelRequested: true,
+        startedAt: current.startedAt,
       );
     }
   }

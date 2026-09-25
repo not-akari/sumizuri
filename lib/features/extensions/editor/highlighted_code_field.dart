@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
-import 'package:highlight/highlight.dart' show Node, highlight;
+import 'package:sumizuri/features/extensions/editor/code_syntax.dart';
 
 class CodeHighlightController extends TextEditingController {
   CodeHighlightController({super.text, this.language = 'javascript'});
@@ -18,48 +18,7 @@ class CodeHighlightController extends TextEditingController {
     required BuildContext context,
     TextStyle? style,
     required bool withComposing,
-  }) {
-    final nodes = highlight.parse(text, language: language).nodes ?? const [];
-    return TextSpan(style: style, children: _convert(nodes));
-  }
-
-  List<TextSpan> _convert(List<Node> nodes) {
-    final spans = <TextSpan>[];
-    var current = spans;
-    final stack = <List<TextSpan>>[];
-
-    void traverse(Node node) {
-      if (node.value != null) {
-        current.add(
-          node.className == null
-              ? TextSpan(text: node.value)
-              : TextSpan(
-                  text: node.value,
-                  style: atomOneDarkTheme[node.className!],
-                ),
-        );
-      } else if (node.children != null) {
-        final tmp = <TextSpan>[];
-        current.add(
-          TextSpan(
-            children: tmp,
-            style: atomOneDarkTheme[node.className ?? ''],
-          ),
-        );
-        stack.add(current);
-        current = tmp;
-        for (final child in node.children!) {
-          traverse(child);
-        }
-        current = stack.removeLast();
-      }
-    }
-
-    for (final node in nodes) {
-      traverse(node);
-    }
-    return spans;
-  }
+  }) => TextSpan(style: style, children: highlightSpans(text, language));
 }
 
 class HighlightedCodeField extends StatelessWidget {

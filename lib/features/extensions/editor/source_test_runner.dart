@@ -85,17 +85,47 @@ Future<SourceTestRun> runSourceTest({
   ) async => (await op).when(ok: format, err: _formatError);
 
   final output = await switch (method) {
-    SourceTestMethod.search => run(service.search(query, page: page), _formatEntries),
-    SourceTestMethod.getPopular => run(service.getPopular(page: page), _formatEntries),
-    SourceTestMethod.getLatest => run(service.getLatest(page: page), _formatEntries),
-    SourceTestMethod.getChapterList => run(service.getChapterList(MEntry(url: url, title: '')), _formatChapters),
-    SourceTestMethod.getPageList => run(service.getPageList(MChapter(url: url, title: '')), _formatPages),
-    SourceTestMethod.getVideoList => run(service.getVideoList(MChapter(url: url, title: '')), _formatVideos),
-    SourceTestMethod.getDetails => run(service.getDetails(MEntry(url: url, title: '')), _formatEntryDetails),
-    SourceTestMethod.getComments => run(service.getComments(MEntry(url: url, title: '')), _formatComments),
-    SourceTestMethod.getChapterComments => run(service.getChapterComments(MChapter(url: url, title: '')), _formatComments),
+    SourceTestMethod.search => run(
+      service.search(query, page: page),
+      _formatEntries,
+    ),
+    SourceTestMethod.getPopular => run(
+      service.getPopular(page: page),
+      _formatEntries,
+    ),
+    SourceTestMethod.getLatest => run(
+      service.getLatest(page: page),
+      _formatEntries,
+    ),
+    SourceTestMethod.getChapterList => run(
+      service.getChapterList(MEntry(url: url, title: '')),
+      _formatChapters,
+    ),
+    SourceTestMethod.getPageList => run(
+      service.getPageList(MChapter(url: url, title: '')),
+      _formatPages,
+    ),
+    SourceTestMethod.getVideoList => run(
+      service.getVideoList(MChapter(url: url, title: '')),
+      _formatVideos,
+    ),
+    SourceTestMethod.getDetails => run(
+      service.getDetails(MEntry(url: url, title: '')),
+      _formatEntryDetails,
+    ),
+    SourceTestMethod.getComments => run(
+      service.getComments(MEntry(url: url, title: '')),
+      _formatComments,
+    ),
+    SourceTestMethod.getChapterComments => run(
+      service.getChapterComments(MChapter(url: url, title: '')),
+      _formatComments,
+    ),
     SourceTestMethod.getFilters => run(service.getFilters(), _formatFilters),
-    SourceTestMethod.getSourcePreferences => run(service.getSourcePreferences(), _formatPreferences),
+    SourceTestMethod.getSourcePreferences => run(
+      service.getSourcePreferences(),
+      _formatPreferences,
+    ),
   };
 
   final skipNote = service.lastSkipNote;

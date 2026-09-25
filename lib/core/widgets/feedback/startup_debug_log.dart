@@ -6,7 +6,11 @@ import 'package:sumizuri/bootstrap/startup/startup_timer.dart';
 
 /// Debug-only overlay displaying timed startup steps live.
 class StartupDebugLog extends StatefulWidget {
-  const StartupDebugLog({super.key, required this.enabled, required this.child});
+  const StartupDebugLog({
+    super.key,
+    required this.enabled,
+    required this.child,
+  });
 
   final bool enabled;
   final Widget child;
@@ -103,7 +107,9 @@ class _StartupDebugLogState extends State<StartupDebugLog> {
                                   style: const TextStyle(
                                     color: Colors.greenAccent,
                                     fontSize: 11,
-                                    fontFeatures: [FontFeature.tabularFigures()],
+                                    fontFeatures: [
+                                      FontFeature.tabularFigures(),
+                                    ],
                                   ),
                                 ),
                             ],

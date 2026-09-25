@@ -183,6 +183,7 @@ mixin DriftLibraryHistoryMethods {
         final fields = _readChapterFeedRow(row);
         return UpdateChapterSummary(
           libraryEntryId: fields.libraryEntryId,
+          mediaType: fields.mediaType,
           entryTitle: fields.entryTitle,
           entryCoverUrl: fields.entryCoverUrl,
           customCoverPath: fields.customCoverPath,

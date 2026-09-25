@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/features/settings/providers/settings_providers.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 
-/// How strong the soft colour washes behind the app are.
+/// How strong the soft colour washes behind the app are, on any theme. The
+/// background itself (its gradient, glow and tint) is part of a theme and is
+/// edited in the theme editor.
 class BackgroundLookPanel extends ConsumerWidget {
   const BackgroundLookPanel({super.key});
 
@@ -12,6 +15,7 @@ class BackgroundLookPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
+    final side = AppRowStyle.marginOf(context);
     final intensity = ref.watch(effectiveBackgroundIntensityProvider);
     final preview = ref.read(backgroundLookPreviewProvider.notifier);
     final repo = ref.read(settingsRepositoryProvider);
@@ -20,7 +24,7 @@ class BackgroundLookPanel extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 12, 0),
+          padding: EdgeInsets.fromLTRB(side, 0, side - 8, 0),
           child: Row(
             children: [
               SizedBox(
@@ -57,7 +61,7 @@ class BackgroundLookPanel extends ConsumerWidget {
           Align(
             alignment: Alignment.centerRight,
             child: Padding(
-              padding: const EdgeInsets.only(right: 12),
+              padding: EdgeInsets.only(right: side - 8),
               child: TextButton(
                 onPressed: () => repo.setBackgroundIntensity(1.0),
                 child: Text(l10n.backgroundLookReset),

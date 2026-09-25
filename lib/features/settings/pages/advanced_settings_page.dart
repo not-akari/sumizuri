@@ -1,12 +1,13 @@
 import 'dart:io' show Platform;
 
+import 'package:sumizuri/features/settings/pages/logs_page.dart';
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sumizuri/features/settings/widgets/clear_image_cache_row.dart';
 import 'package:sumizuri/core/theming/app_layout.dart';
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/core/widgets/controls/settings_controls.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
@@ -25,8 +26,7 @@ class AdvancedSettingsPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final showOverlay =
         ref.watch(showPerformanceOverlayProvider).value ?? false;
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    return SettingsScaffold(
       title: Text(l10n.settingsSectionAdvanced),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
@@ -92,6 +92,14 @@ class AdvancedSettingsPage extends ConsumerWidget {
                   .putSetting(Settings.displayHighRefreshRate, on),
             ),
           AppSectionLabel(label: l10n.advancedDiagnosticsSection),
+          AppListRow(
+            icon: Icons.receipt_long_outlined,
+            title: l10n.settingsLogsTitle,
+            subtitle: l10n.settingsLogsSubtitle,
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute<void>(builder: (_) => const LogsPage())),
+          ),
           AppListRow(
             icon: Icons.bug_report_outlined,
             title: l10n.advancedDiagnosticReport,

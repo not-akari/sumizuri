@@ -2,72 +2,82 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import 'package:sumizuri/core/theming/ambient_scope.dart';
 import 'package:sumizuri/core/theming/theme_shapes.dart';
+import 'package:sumizuri/core/widgets/cards/app_card.dart';
 import 'package:sumizuri/core/widgets/cards/profile_avatar_button.dart';
 import 'package:sumizuri/features/profile/models/profile.dart';
+import 'package:sumizuri/features/profile/widgets/profile_dialogs.dart';
 import 'package:sumizuri/features/statistics/models/reading_statistics.dart';
-import 'package:sumizuri/features/profile/widgets/profile_form_dialogs.dart';
 import 'package:sumizuri/features/statistics/pages/profile_stats_calendar_page.dart';
 import 'package:sumizuri/features/statistics/providers/statistics_providers.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 
-class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({super.key, required this.active, this.compact = false});
+/// Who is signed in, at a glance: the picture, the name, how long they have
+/// been reading, the buttons to switch or edit, and the numbers that matter.
+/// On a wide window the numbers sit beside the person; on a narrow one, under.
+class ProfileHeroCard extends StatelessWidget {
+  const ProfileHeroCard({super.key, required this.active, this.wide = false});
 
   final Profile? active;
+  final bool wide;
 
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _avatar(BuildContext context, Profile? profile, double size) {
     final cs = Theme.of(context).colorScheme;
-    final size = compact ? 64.0 : 92.0;
-
-    final avatar = Stack(
+    return Stack(
       clipBehavior: Clip.none,
       children: [
         Container(
-          padding: const EdgeInsets.all(2),
+          padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: cs.primary, width: 2),
           ),
-          child: ProfileAvatar(profile: active, size: size - 8),
+          child: ProfileAvatar(profile: profile, size: size),
         ),
-        if (active != null)
+        if (profile != null)
           Positioned(
-            right: -2,
-            bottom: -2,
+            right: 0,
+            bottom: 0,
             child: GestureDetector(
-              onTap: () => showEditProfileDialog(context, active!),
+              onTap: () => showEditProfileDialog(context, profile),
               child: Container(
-                width: 26,
-                height: 26,
+                width: 30,
+                height: 30,
                 decoration: BoxDecoration(
                   color: cs.primary,
                   shape: BoxShape.circle,
-                  border: Border.all(color: cs.surface, width: 2),
+                  border: Border.all(color: cs.surface, width: 2.5),
                 ),
-                child: Icon(Icons.edit_rounded, size: 13, color: cs.onPrimary),
+                child: Icon(Icons.edit_rounded, size: 15, color: cs.onPrimary),
               ),
             ),
           ),
       ],
     );
+  }
 
-    if (compact) return avatar;
-
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    return Column(
+    final profile = active;
+
+    final identity = Column(
+      crossAxisAlignment: wide
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        avatar,
-        const SizedBox(height: 14),
-        if (active != null) ...[
+        if (profile != null) ...[
           Text(
-            active!.name,
+            profile.name,
+            textAlign: wide ? TextAlign.start : TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontFamily: context.displayFont,
-              fontSize: 22,
+              fontSize: wide ? 30 : 24,
               fontWeight: FontWeight.w700,
               color: cs.onSurface,
             ),
@@ -75,69 +85,108 @@ class ProfileHeader extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             l10n.profileReadingSince(
-              DateFormat.yMMM().format(active!.createdAt),
+              DateFormat.yMMM().format(profile.createdAt),
             ),
             style: TextStyle(fontSize: 12.5, color: cs.outline),
           ),
         ],
+        const SizedBox(height: 16),
+        Wrap(
+          alignment: wide ? WrapAlignment.start : WrapAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            FilledButton.tonalIcon(
+              onPressed: () => showProfileSwitchDialog(context),
+              icon: const Icon(Icons.swap_horiz, size: 18),
+              label: Text(l10n.profileSwitch),
+            ),
+            if (profile != null)
+              OutlinedButton.icon(
+                onPressed: () => showEditProfileDialog(context, profile),
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: Text(l10n.profileEditShort),
+              ),
+          ],
+        ),
       ],
+    );
+
+    if (wide) {
+      return AppCard(
+        flattenWhenCompact: true,
+        tone: AppCardTone.inset,
+        padding: const EdgeInsets.all(24),
+        child: Row(
+          children: [
+            _avatar(context, profile, 96),
+            const SizedBox(width: 24),
+            Expanded(child: identity),
+            const SizedBox(width: 24),
+            const Expanded(flex: 2, child: ProfileStatTiles()),
+          ],
+        ),
+      );
+    }
+    return AppCard(
+      flattenWhenCompact: true,
+      tone: AppCardTone.inset,
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+      child: Column(
+        children: [
+          _avatar(context, profile, 92),
+          const SizedBox(height: 16),
+          identity,
+          const SizedBox(height: 16),
+          const ProfileStatTiles(),
+        ],
+      ),
     );
   }
 }
 
-class ProfileStatsQuickBar extends ConsumerWidget {
-  const ProfileStatsQuickBar({super.key});
+/// The three numbers that matter, each its own tile, each opening the statistics.
+class ProfileStatTiles extends ConsumerWidget {
+  const ProfileStatTiles({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final stats =
         ref.watch(readingStatisticsProvider).value ?? ReadingStats.empty;
 
-    void openTab(int tab) => Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ProfileStatsCalendarPage(initialTab: tab),
+    void open() => Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const ProfileStatsCalendarPage(initialTab: 0),
       ),
     );
 
     return Row(
       children: [
         Expanded(
-          child: _QuickItem(
+          child: _StatTile(
             icon: Icons.local_fire_department_rounded,
-            iconColor: cs.primary,
             value: '${stats.currentStreak}',
-            label: AppLocalizations.of(context)!.profileStreak,
-            onTap: () => openTab(0),
+            label: l10n.profileStreak,
+            onTap: open,
           ),
         ),
-        Container(
-          width: 1,
-          height: 30,
-          color: cs.outlineVariant.withValues(alpha: 0.5),
-        ),
+        const SizedBox(width: 8),
         Expanded(
-          child: _QuickItem(
+          child: _StatTile(
             icon: Icons.menu_book_rounded,
-            iconColor: cs.primary,
             value: '${stats.totalChaptersRead}',
-            label: AppLocalizations.of(context)!.profileRead,
-            onTap: () => openTab(0),
+            label: l10n.profileRead,
+            onTap: open,
           ),
         ),
-        Container(
-          width: 1,
-          height: 30,
-          color: cs.outlineVariant.withValues(alpha: 0.5),
-        ),
+        const SizedBox(width: 8),
         Expanded(
-          child: _QuickItem(
+          child: _StatTile(
             icon: Icons.collections_bookmark_rounded,
-            iconColor: cs.primary,
             value: '${stats.totalLibraryEntries}',
-            label: AppLocalizations.of(context)!.libraryTitle,
-            onTap: () => openTab(0),
+            label: l10n.libraryTitle,
+            onTap: open,
           ),
         ),
       ],
@@ -145,50 +194,58 @@ class ProfileStatsQuickBar extends ConsumerWidget {
   }
 }
 
-class _QuickItem extends StatelessWidget {
-  const _QuickItem({
+class _StatTile extends StatelessWidget {
+  const _StatTile({
     required this.icon,
-    required this.iconColor,
     required this.value,
     required this.label,
     required this.onTap,
   });
 
   final IconData icon;
-  final Color iconColor;
   final String value;
   final String label;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18, color: iconColor),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
+    final cs = Theme.of(context).colorScheme;
+    // Compact lists: the numbers stand on the page, with no box round each.
+    final flat = AmbientScope.compactListsOf(context);
+    return Material(
+      color: flat ? Colors.transparent : cs.primary.withValues(alpha: 0.08),
+      shape: RoundedRectangleBorder(
+        borderRadius: context.shapes.item.radius,
+        side: flat
+            ? BorderSide.none
+            : BorderSide(color: cs.primary.withValues(alpha: 0.25)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 20, color: cs.primary),
+              const SizedBox(height: 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    fontFamily: context.displayFont,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurface,
+                  ),
+                ),
               ),
-            ),
-            Text(
-              label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: cs.onSurfaceVariant,
-                fontSize: 10,
-              ),
-            ),
-          ],
+              const SizedBox(height: 2),
+              Text(label, style: TextStyle(fontSize: 11.5, color: cs.outline)),
+            ],
+          ),
         ),
       ),
     );

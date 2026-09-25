@@ -97,7 +97,12 @@ class MigrationSession extends _$MigrationSession {
         ),
       );
     }
-    state = MigrationState(items: items);
+    state = MigrationState(items: items, rules: state.rules);
+  }
+
+  /// Changes how the next search picks matches. Results already found stay as they are.
+  void setRules(MigrationRules rules) {
+    if (!state.running) state = state.copyWith(rules: rules);
   }
 
   void cancel() {
@@ -113,14 +118,23 @@ class MigrationSession extends _$MigrationSession {
     );
   }
 
+  /// Entries an automatic search pass should still try: unresolved, not
+  /// found on whatever was tried before, or failed with an error rather
+  /// than a real "not on this source" verdict. `failed` is included here
+  /// deliberately - it means the last attempt errored (rate limit, a
+  /// timeout), not that the title truly isn't on any source, so it must
+  /// stay eligible for the next pass instead of getting stuck forever.
+  List<int> _pendingEntryIds() => [
+    for (final item in state.items)
+      if (item.status == MigrationStatus.queued ||
+          item.status == MigrationStatus.notFound ||
+          item.status == MigrationStatus.failed)
+        item.entryId,
+  ];
+
   Future<void> search(AppInstalledSource target) async {
     if (state.running) return;
-    final todo = [
-      for (final item in state.items)
-        if (item.status == MigrationStatus.queued ||
-            item.status == MigrationStatus.notFound)
-          item.entryId,
-    ];
+    final todo = _pendingEntryIds();
     state = state.copyWith(
       running: true,
       cancelRequested: false,
@@ -129,6 +143,61 @@ class MigrationSession extends _$MigrationSession {
       processed: 0,
       total: todo.length,
     );
+    try {
+      await _searchTarget(target, todo);
+    } finally {
+      state = state.copyWith(
+        running: false,
+        cancelRequested: false,
+        items: [
+          for (final item in state.items)
+            item.status == MigrationStatus.searching
+                ? item.copyWith(status: MigrationStatus.queued)
+                : item,
+        ],
+      );
+    }
+  }
+
+  /// Tries [sources] one after another against whatever is still unresolved,
+  /// moving to the next source automatically instead of making the user
+  /// re-pick and re-press Search for every source in turn. Stops once
+  /// nothing is left to try or every source has had a turn - it never
+  /// loops back around.
+  Future<void> searchAllSources(List<AppInstalledSource> sources) async {
+    if (state.running || sources.isEmpty) return;
+    state = state.copyWith(running: true, cancelRequested: false);
+    try {
+      for (final source in sources) {
+        if (state.cancelRequested) break;
+        final todo = _pendingEntryIds();
+        if (todo.isEmpty) break;
+        state = state.copyWith(
+          targetName: source.name,
+          targetSourceId: '${source.id}',
+          processed: 0,
+          total: todo.length,
+        );
+        await _searchTarget(source, todo);
+      }
+    } finally {
+      state = state.copyWith(
+        running: false,
+        cancelRequested: false,
+        items: [
+          for (final item in state.items)
+            item.status == MigrationStatus.searching
+                ? item.copyWith(status: MigrationStatus.queued)
+                : item,
+        ],
+      );
+    }
+  }
+
+  /// The shared per-source search loop behind both [search] and
+  /// [searchAllSources]. Leaves `running`/`cancelRequested` to the caller,
+  /// since [searchAllSources] keeps both set across several of these calls.
+  Future<void> _searchTarget(AppInstalledSource target, List<int> todo) async {
     ExtensionService? service;
     try {
       service = await ref.read(migrationSourceLoaderProvider)(target);
@@ -150,16 +219,6 @@ class MigrationSession extends _$MigrationSession {
       }
     } finally {
       await service?.dispose();
-      state = state.copyWith(
-        running: false,
-        cancelRequested: false,
-        items: [
-          for (final item in state.items)
-            item.status == MigrationStatus.searching
-                ? item.copyWith(status: MigrationStatus.queued)
-                : item,
-        ],
-      );
     }
   }
 
@@ -212,13 +271,14 @@ class MigrationSession extends _$MigrationSession {
           },
         ),
     ];
-    final ranking = rank(item.subject, candidates);
+    final ranking = rank(item.subject, candidates, rules: state.rules);
     final options = <MigrationOption>[
       for (final (candidate, score) in ranking.ranked)
         MigrationOption(
           entry: closeLook[candidates.indexOf(candidate)],
           chapters: chapterLists[closeLook[candidates.indexOf(candidate)]]!,
           score: score,
+          sourceName: service.info.name,
         ),
     ];
     _update(
@@ -233,6 +293,8 @@ class MigrationSession extends _$MigrationSession {
         chosen: () =>
             ranking.verdict == MigrationVerdict.found ? options.first : null,
         error: () => null,
+        excludedCount: ranking.excluded,
+        excludedRule: state.rules.chapterRule,
       ),
     );
   }
@@ -273,7 +335,12 @@ class MigrationSession extends _$MigrationSession {
       }
       choose(
         entryId,
-        MigrationOption(entry: entry, chapters: list, score: manualMatchScore),
+        MigrationOption(
+          entry: entry,
+          chapters: list,
+          score: manualMatchScore,
+          sourceName: target.name,
+        ),
       );
       return const Ok(null);
     } finally {

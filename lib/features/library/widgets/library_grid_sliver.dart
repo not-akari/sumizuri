@@ -6,6 +6,7 @@ import 'package:sumizuri/features/extensions/providers/extension_providers.dart'
 import 'package:sumizuri/features/library/models/library_search.dart';
 import 'package:sumizuri/core/theming/app_motion.dart';
 import 'package:sumizuri/core/widgets/feedback/error_view.dart';
+import 'package:sumizuri/core/widgets/content/manga_cover_list_row.dart';
 import 'package:sumizuri/core/widgets/content/manga_cover_tile.dart';
 import 'package:sumizuri/features/library/models/category.dart';
 import 'package:sumizuri/features/library/models/category_smart_rule.dart';
@@ -82,9 +83,15 @@ class _LibraryGridSliverState extends ConsumerState<LibraryGridSliver>
     final tileSize =
         ref.watch(libraryGridTileSizeProvider).value ??
         LibraryGridTileSize.medium;
+    final displayStyle =
+        ref.watch(libraryDisplayStyleProvider).value ??
+        LibraryDisplayStyle.comfortableGrid;
     final showUnread =
         ref.watch(boolSettingProvider(Settings.libraryShowUnreadBadge)).value ??
         true;
+    final showProgress =
+        ref.watch(boolSettingProvider(Settings.libraryShowProgress)).value ??
+        false;
     final showDownloads =
         ref
             .watch(boolSettingProvider(Settings.libraryShowDownloadBadge))
@@ -184,75 +191,119 @@ class _LibraryGridSliverState extends ConsumerState<LibraryGridSliver>
             ),
           );
         }
+        Widget buildItem(BuildContext context, int index) {
+          final item = items[index];
+          final heroTag = dashboardHeroTag('library', item.id);
+          final selected = selectedIds.contains(item.id);
+          final selectionMode = selectedIds.isNotEmpty;
+          void toggle() => onToggleSelect(item.id, item.mediaType);
+          void open() => openLibraryEntry(
+            context,
+            ref,
+            libraryEntryId: item.id,
+            title: item.title,
+            coverUrl: item.coverUrl,
+            sourceId: item.sourceId,
+            externalId: item.externalId,
+            heroTag: heroTag,
+          );
+          void run(LibraryCoverAction action) {
+            switch (action) {
+              case LibraryCoverAction.open:
+                open();
+              case LibraryCoverAction.select:
+                toggle();
+              case LibraryCoverAction.none:
+                break;
+            }
+          }
+
+          if (!displayStyle.isGrid) {
+            return MangaCoverListRow(
+              title: item.title,
+              progress: showProgress ? item.readFraction : null,
+              coverUrl: item.coverUrl,
+              customCoverPath: item.customCoverPath,
+              subtitle: sourceNames[item.sourceId],
+              dense: displayStyle == LibraryDisplayStyle.compactList,
+              unreadCount: showUnread && item.unreadCount > 0
+                  ? item.unreadCount
+                  : null,
+              downloadedCount: downloadedCounts[item.id],
+              status: item.status,
+              heroTag: selectionMode ? null : heroTag,
+              selected: selected,
+              selectable: selectionMode,
+              onTap: selectionMode ? toggle : () => run(gestures.libraryTap),
+              onLongPress: selectionMode
+                  ? toggle
+                  : () => run(gestures.libraryLongPress),
+              onDoubleTap:
+                  selectionMode ||
+                      gestures.libraryDoubleTap == LibraryCoverAction.none
+                  ? null
+                  : () => run(gestures.libraryDoubleTap),
+            );
+          }
+          return MangaCoverTile(
+            progress: showProgress ? item.readFraction : null,
+            variant: switch (displayStyle) {
+              LibraryDisplayStyle.compactGrid => CoverTileVariant.compact,
+              LibraryDisplayStyle.coverGrid => CoverTileVariant.coverOnly,
+              _ => CoverTileVariant.comfortable,
+            },
+            title: item.title,
+            coverUrl: item.coverUrl,
+            customCoverPath: item.customCoverPath,
+            unreadCount: showUnread && item.unreadCount > 0
+                ? item.unreadCount
+                : null,
+            downloadedCount: downloadedCounts[item.id],
+            status: item.status,
+            heroTag: selectionMode ? null : heroTag,
+            selected: selected,
+            selectable: selectionMode,
+            onTap: selectionMode ? toggle : () => run(gestures.libraryTap),
+            onLongPress: selectionMode
+                ? toggle
+                : () => run(gestures.libraryLongPress),
+            onDoubleTap:
+                selectionMode ||
+                    gestures.libraryDoubleTap == LibraryCoverAction.none
+                ? null
+                : () => run(gestures.libraryDoubleTap),
+          );
+        }
+
         return SliverFadeTransition(
           opacity: _fade,
           sliver: SliverPadding(
             padding: EdgeInsets.fromLTRB(
+              displayStyle.isGrid ? 12 : 0,
               12,
-              12,
-              12,
+              displayStyle.isGrid ? 12 : 0,
               12 + MediaQuery.paddingOf(context).bottom,
             ),
-            sliver: SliverGrid(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: tileSize.maxExtent,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.55,
-              ),
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final item = items[index];
-                final heroTag = dashboardHeroTag('library', item.id);
-                final selected = selectedIds.contains(item.id);
-                final selectionMode = selectedIds.isNotEmpty;
-                void toggle() => onToggleSelect(item.id, item.mediaType);
-                void open() => openLibraryEntry(
-                  context,
-                  ref,
-                  libraryEntryId: item.id,
-                  title: item.title,
-                  coverUrl: item.coverUrl,
-                  sourceId: item.sourceId,
-                  externalId: item.externalId,
-                  heroTag: heroTag,
-                );
-                void run(LibraryCoverAction action) {
-                  switch (action) {
-                    case LibraryCoverAction.open:
-                      open();
-                    case LibraryCoverAction.select:
-                      toggle();
-                    case LibraryCoverAction.none:
-                      break;
-                  }
-                }
-
-                return MangaCoverTile(
-                  title: item.title,
-                  coverUrl: item.coverUrl,
-                  customCoverPath: item.customCoverPath,
-                  unreadCount: showUnread && item.unreadCount > 0
-                      ? item.unreadCount
-                      : null,
-                  downloadedCount: downloadedCounts[item.id],
-                  status: item.status,
-                  heroTag: selectionMode ? null : heroTag,
-                  selected: selected,
-                  selectable: selectionMode,
-                  onTap: selectionMode
-                      ? toggle
-                      : () => run(gestures.libraryTap),
-                  onLongPress: selectionMode
-                      ? toggle
-                      : () => run(gestures.libraryLongPress),
-                  onDoubleTap:
-                      selectionMode ||
-                          gestures.libraryDoubleTap == LibraryCoverAction.none
-                      ? null
-                      : () => run(gestures.libraryDoubleTap),
-                );
-              }, childCount: items.length),
-            ),
+            sliver: displayStyle.isGrid
+                ? SliverGrid(
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: tileSize.maxExtent,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio:
+                          displayStyle == LibraryDisplayStyle.comfortableGrid
+                          ? 0.55
+                          : coverAspectRatio,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      buildItem,
+                      childCount: items.length,
+                    ),
+                  )
+                : SliverList.builder(
+                    itemCount: items.length,
+                    itemBuilder: buildItem,
+                  ),
           ),
         );
       },

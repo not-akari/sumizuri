@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart' show StreamProvider;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:sumizuri/core/theming/app_theme.dart' show AppColorScheme;
@@ -11,6 +12,7 @@ import 'package:sumizuri/features/reader/models/reader_controls.dart';
 import 'package:sumizuri/features/reader/models/reader_settings_types.dart';
 import 'package:sumizuri/features/settings/models/app_settings_types.dart';
 import 'package:sumizuri/features/settings/registry/setting_def.dart';
+import 'package:sumizuri/features/settings/registry/settings_catalog.dart';
 import 'package:sumizuri/features/settings/data/settings_repository.dart';
 
 import 'package:sumizuri/features/profile/providers/profile_providers.dart';
@@ -65,6 +67,50 @@ class BackgroundLookPreview extends _$BackgroundLookPreview {
   void setIntensity(double? value) =>
       state = BackgroundLookDraft(intensity: value);
 }
+
+/// How list rows are drawn. Not code-generated: a plain stream of the setting.
+final listStyleProvider = StreamProvider<AppListStyle>(
+  (ref) =>
+      ref.watch(settingsRepositoryProvider).watchSetting(Settings.listStyle),
+);
+
+/// How titles are laid out in the library and in tracker lists.
+final libraryDisplayStyleProvider = StreamProvider<LibraryDisplayStyle>(
+  (ref) => ref
+      .watch(settingsRepositoryProvider)
+      .watchSetting(Settings.libraryDisplayStyle),
+);
+
+/// How each list of titles is laid out, one setting for each place it shows.
+final updatesDisplayStyleProvider = StreamProvider<LibraryDisplayStyle>(
+  (ref) => ref
+      .watch(settingsRepositoryProvider)
+      .watchSetting(Settings.updatesDisplayStyle),
+);
+
+final historyDisplayStyleProvider = StreamProvider<LibraryDisplayStyle>(
+  (ref) => ref
+      .watch(settingsRepositoryProvider)
+      .watchSetting(Settings.historyDisplayStyle),
+);
+
+final homeContinueStyleProvider = StreamProvider<DashboardShelfStyle>(
+  (ref) => ref
+      .watch(settingsRepositoryProvider)
+      .watchSetting(Settings.homeContinueStyle),
+);
+
+final homeUpdatesStyleProvider = StreamProvider<DashboardShelfStyle>(
+  (ref) => ref
+      .watch(settingsRepositoryProvider)
+      .watchSetting(Settings.homeUpdatesStyle),
+);
+
+final homeHistoryStyleProvider = StreamProvider<DashboardShelfStyle>(
+  (ref) => ref
+      .watch(settingsRepositoryProvider)
+      .watchSetting(Settings.homeHistoryStyle),
+);
 
 const backgroundIntensityRange = (min: 0.0, max: 1.5);
 

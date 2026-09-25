@@ -185,9 +185,16 @@ MigrationScore scoreCandidate(
 }
 
 class MigrationRanking {
-  const MigrationRanking({required this.verdict, required this.ranked});
+  const MigrationRanking({
+    required this.verdict,
+    required this.ranked,
+    this.excluded = 0,
+  });
 
   final MigrationVerdict verdict;
+
+  /// How many candidates the chapter rule ruled out before scoring.
+  final int excluded;
 
   final List<(MigrationCandidate, MigrationScore)> ranked;
 
@@ -198,28 +205,153 @@ const foundThreshold = 0.85;
 const foundMargin = 0.08;
 const reviewThreshold = 0.5;
 
+/// What a candidate's chapter list must look like to be worth migrating to.
+enum ChapterRule {
+  /// No requirement.
+  any,
+
+  /// It lists at least as many chapters as the title has now.
+  atLeastAsMany,
+
+  /// Its newest chapter is the same as, or later than, the one the title has.
+  atLeastAsNew,
+
+  /// It has the chapter the reader is up to (or beyond it).
+  coversProgress,
+}
+
+/// How close a title has to be to count as the same one.
+enum MatchStrictness { strict, balanced, loose }
+
+/// The user's choices for how a migration search picks and accepts matches.
+class MigrationRules {
+  const MigrationRules({
+    this.chapterRule = ChapterRule.any,
+    this.strictness = MatchStrictness.balanced,
+    this.autoAccept = true,
+    this.preferMoreChapters = false,
+  });
+
+  final ChapterRule chapterRule;
+  final MatchStrictness strictness;
+
+  /// Whether a clear match is chosen for the user. Off sends every match to review.
+  final bool autoAccept;
+
+  /// When several results match about equally well, favour the longest one.
+  final bool preferMoreChapters;
+
+  /// The score a match needs to be picked without asking.
+  double get foundAt => switch (strictness) {
+    MatchStrictness.strict => 0.93,
+    MatchStrictness.balanced => foundThreshold,
+    MatchStrictness.loose => 0.75,
+  };
+
+  /// The score below which a result is not shown at all.
+  double get reviewAt => switch (strictness) {
+    MatchStrictness.strict => 0.65,
+    MatchStrictness.balanced => reviewThreshold,
+    MatchStrictness.loose => 0.4,
+  };
+
+  MigrationRules copyWith({
+    ChapterRule? chapterRule,
+    MatchStrictness? strictness,
+    bool? autoAccept,
+    bool? preferMoreChapters,
+  }) => MigrationRules(
+    chapterRule: chapterRule ?? this.chapterRule,
+    strictness: strictness ?? this.strictness,
+    autoAccept: autoAccept ?? this.autoAccept,
+    preferMoreChapters: preferMoreChapters ?? this.preferMoreChapters,
+  );
+}
+
+/// Whether a candidate with the chapter numbers [candidate] satisfies [rule]
+/// for [subject]. A candidate whose chapters could not be read cannot show it
+/// meets a rule, so it fails any rule but [ChapterRule.any].
+bool meetsChapterRule(
+  MigrationSubject subject,
+  Set<double>? candidate,
+  ChapterRule rule,
+) {
+  if (rule == ChapterRule.any) return true;
+  final mine = subject.chapterNumbers;
+  if (mine.isEmpty) return true;
+  if (candidate == null || candidate.isEmpty) return false;
+  switch (rule) {
+    case ChapterRule.any:
+      return true;
+    case ChapterRule.atLeastAsMany:
+      return candidate.length >= mine.length;
+    case ChapterRule.atLeastAsNew:
+      return candidate.reduce(math.max) >= mine.reduce(math.max) - 1e-6;
+    case ChapterRule.coversProgress:
+      final read = subject.lastReadNumber;
+      if (read == null || read <= 0) return true;
+      return candidate.reduce(math.max) >= read - 1e-6;
+  }
+}
+
 MigrationRanking rank(
   MigrationSubject subject,
   List<MigrationCandidate> candidates, {
   int keep = 3,
+  MigrationRules rules = const MigrationRules(),
 }) {
-  final scored = [for (final c in candidates) (c, scoreCandidate(subject, c))]
+  final allowed = [
+    for (final c in candidates)
+      if (meetsChapterRule(subject, c.chapterNumbers, rules.chapterRule)) c,
+  ];
+  final excluded = candidates.length - allowed.length;
+  final scored = [for (final c in allowed) (c, scoreCandidate(subject, c))]
     ..sort((x, y) => y.$2.total.compareTo(x.$2.total));
   final worthShowing = scored
-      .where((s) => s.$2.total >= reviewThreshold)
+      .where((s) => s.$2.total >= rules.reviewAt)
       .take(keep)
       .toList();
   if (worthShowing.isEmpty) {
-    return const MigrationRanking(
+    return MigrationRanking(
       verdict: MigrationVerdict.notFound,
-      ranked: [],
+      ranked: const [],
+      excluded: excluded,
     );
   }
   final best = worthShowing.first.$2.total;
-  final runnerUp = worthShowing.length > 1 ? worthShowing[1].$2.total : 0.0;
-  final clear = best >= foundThreshold && best - runnerUp >= foundMargin;
+  var ordered = worthShowing;
+  bool clear;
+  if (rules.preferMoreChapters) {
+    // The results that match about as well as the best one are told apart by
+    // length, longest first; their small score gaps no longer count against
+    // being sure.
+    bool nearBest((MigrationCandidate, MigrationScore) s) =>
+        s.$2.total >= best - foundMargin;
+    final group =
+        [
+          for (final (i, s) in worthShowing.indexed)
+            if (nearBest(s)) (i, s),
+        ]..sort((a, b) {
+          final byLength = (b.$2.$1.chapterNumbers?.length ?? 0).compareTo(
+            a.$2.$1.chapterNumbers?.length ?? 0,
+          );
+          return byLength != 0 ? byLength : a.$1.compareTo(b.$1);
+        });
+    ordered = [
+      for (final g in group) g.$2,
+      for (final s in worthShowing)
+        if (!nearBest(s)) s,
+    ];
+    clear = ordered.first.$2.total >= rules.foundAt;
+  } else {
+    final runnerUp = worthShowing.length > 1 ? worthShowing[1].$2.total : 0.0;
+    clear = best >= rules.foundAt && best - runnerUp >= foundMargin;
+  }
   return MigrationRanking(
-    verdict: clear ? MigrationVerdict.found : MigrationVerdict.review,
-    ranked: worthShowing,
+    verdict: clear && rules.autoAccept
+        ? MigrationVerdict.found
+        : MigrationVerdict.review,
+    ranked: ordered,
+    excluded: excluded,
   );
 }

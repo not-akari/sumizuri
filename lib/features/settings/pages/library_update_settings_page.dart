@@ -1,12 +1,12 @@
 import 'dart:io';
 
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sumizuri/core/widgets/controls/app_choice.dart';
 import 'package:sumizuri/core/theming/app_layout.dart';
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/core/widgets/controls/settings_controls.dart';
 import 'package:sumizuri/features/library/models/library_update_rules.dart';
@@ -40,8 +40,7 @@ class LibraryUpdateSettingsPage extends ConsumerWidget {
         ref.watch(autoLibraryUpdateWifiOnlyProvider).value ?? true;
     final skipMask = ref.watch(libraryUpdateSkipProvider).value ?? 0;
 
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    return SettingsScaffold(
       title: Text(l10n.libraryAutoUpdateTitle),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),

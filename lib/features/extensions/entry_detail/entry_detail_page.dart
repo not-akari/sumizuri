@@ -23,6 +23,7 @@ import 'package:sumizuri/features/settings/models/app_settings_types.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 import 'package:sumizuri/features/library/providers/library_providers.dart';
 import 'package:sumizuri/features/settings/providers/settings_providers.dart';
+import 'package:sumizuri/features/settings/registry/settings_catalog.dart';
 import 'package:sumizuri/features/extensions/cloudflare/challenge_error_view.dart';
 import 'package:sumizuri/features/extensions/entry_detail/chapter_overflow_menu.dart';
 import 'package:sumizuri/features/extensions/entry_detail/chapter_selection_app_bar.dart';
@@ -98,8 +99,19 @@ class _EntryDetailPageState extends ConsumerState<EntryDetailPage>
 
   ({String? key})? _openSeason;
 
+  bool _hideDuplicates = false;
+
+  // Read from the setting in build; the getters below run outside it.
+  bool _detectDuplicates = true;
+
   @override
   List<MChapter>? get _visibleChapters {
+    final list = _visibleChaptersWithDuplicates;
+    if (list == null || !_detectDuplicates || !_hideDuplicates) return list;
+    return withoutDuplicateChapters(list);
+  }
+
+  List<MChapter>? get _visibleChaptersWithDuplicates {
     final all = _chapters;
     final open = _openSeason;
     if (all == null || open == null) return all;
@@ -253,6 +265,12 @@ class _EntryDetailPageState extends ConsumerState<EntryDetailPage>
               onBranchChanged: () => _loadChapters(),
             )
           : null,
+      duplicateCount: !_detectDuplicates
+          ? 0
+          : duplicateChapterCount(_visibleChaptersWithDuplicates ?? const []),
+      hidingDuplicates: _detectDuplicates && _hideDuplicates,
+      onToggleDuplicates: () =>
+          setState(() => _hideDuplicates = !_hideDuplicates),
       onRefresh: _chapters == null ? null : _refreshChapters,
       sortAscending:
           _sortAscendingOverride ??
@@ -299,6 +317,11 @@ class _EntryDetailPageState extends ConsumerState<EntryDetailPage>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    _detectDuplicates =
+        ref
+            .watch(boolSettingProvider(Settings.detectDuplicateChapters))
+            .value ??
+        true;
     final entry = _entry;
     if (_service == null) {
       return Scaffold(
@@ -350,7 +373,7 @@ class _EntryDetailPageState extends ConsumerState<EntryDetailPage>
           }
         },
         child: Scaffold(
-          extendBodyBehindAppBar: !isWide && _selection.isEmpty,
+          extendBodyBehindAppBar: _selection.isEmpty,
           appBar: _selection.isNotEmpty
               ? buildChapterSelectionAppBar(
                   selection: _selection,
@@ -377,6 +400,7 @@ class _EntryDetailPageState extends ConsumerState<EntryDetailPage>
                   : EntryDetailBody(
                       isWide: isWide,
                       entry: entry,
+                      sourceName: _service!.info.name,
                       mediaType: _service!.info.mediaType,
                       chapters: _chapters,
                       posterActions: posterActions,

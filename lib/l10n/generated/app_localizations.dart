@@ -343,7 +343,7 @@ abstract class AppLocalizations {
   /// No description provided for @libraryContinueReading.
   ///
   /// In en, this message translates to:
-  /// **'Continue Reading'**
+  /// **'Continue reading'**
   String get libraryContinueReading;
 
   /// No description provided for @libraryTagline.
@@ -427,7 +427,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryDeleteConfirmMessage.
   ///
   /// In en, this message translates to:
-  /// **'\"{name}\" will be removed. Entries stay in your library.'**
+  /// **'\"{name}\" will be removed. Titles stay in your library.'**
   String categoryDeleteConfirmMessage(String name);
 
   /// No description provided for @categoryExcludeFromUpdate.
@@ -544,6 +544,30 @@ abstract class AppLocalizations {
   /// **'All'**
   String get libraryCategoryAll;
 
+  /// No description provided for @feedChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter {number}'**
+  String feedChapter(String number);
+
+  /// No description provided for @feedEpisode.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode {number}'**
+  String feedEpisode(String number);
+
+  /// No description provided for @feedChapterTitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Ch. {number} · {title}'**
+  String feedChapterTitled(String number, String title);
+
+  /// No description provided for @feedEpisodeTitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Ep. {number} · {title}'**
+  String feedEpisodeTitled(String number, String title);
+
   /// No description provided for @libraryCategoryDefault.
   ///
   /// In en, this message translates to:
@@ -631,19 +655,19 @@ abstract class AppLocalizations {
   /// No description provided for @libraryUpdateStarted.
   ///
   /// In en, this message translates to:
-  /// **'Checking {count} entries for new chapters…'**
+  /// **'Checking {count} titles for new chapters…'**
   String libraryUpdateStarted(int count);
 
   /// No description provided for @libraryUpdateFinished.
   ///
   /// In en, this message translates to:
-  /// **'Updated {count} entries.'**
+  /// **'Updated {count} titles.'**
   String libraryUpdateFinished(int count);
 
   /// No description provided for @libraryUpdateFinishedWithFailures.
   ///
   /// In en, this message translates to:
-  /// **'Updated {count} entries, {failed} failed.'**
+  /// **'Updated {count} titles, {failed} failed.'**
   String libraryUpdateFinishedWithFailures(int count, int failed);
 
   /// No description provided for @libraryUpdateAlreadyRunning.
@@ -661,7 +685,7 @@ abstract class AppLocalizations {
   /// No description provided for @libraryUpdateCancelled.
   ///
   /// In en, this message translates to:
-  /// **'Update cancelled after {count} entries.'**
+  /// **'Update canceled after {count} titles.'**
   String libraryUpdateCancelled(int count);
 
   /// No description provided for @libraryAutoUpdateTitle.
@@ -895,7 +919,7 @@ abstract class AppLocalizations {
   /// No description provided for @libraryEntrySourceMissing.
   ///
   /// In en, this message translates to:
-  /// **'This entry\'s source isn\'t installed anymore.'**
+  /// **'This title\'s source isn\'t installed anymore.'**
   String get libraryEntrySourceMissing;
 
   /// No description provided for @libraryEntryNeedsMigration.
@@ -919,7 +943,7 @@ abstract class AppLocalizations {
   /// No description provided for @updatesEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No new chapters yet. New chapters on entries in your library show up here.'**
+  /// **'No new chapters yet. New chapters on titles in your library show up here.'**
   String get updatesEmpty;
 
   /// No description provided for @historyTitle.
@@ -970,6 +994,30 @@ abstract class AppLocalizations {
   /// **'Downloads'**
   String get settingsSectionDownloads;
 
+  /// No description provided for @downloadsTabAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get downloadsTabAutomatic;
+
+  /// No description provided for @downloadsSectionWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Where'**
+  String get downloadsSectionWhere;
+
+  /// No description provided for @downloadsSectionHow.
+  ///
+  /// In en, this message translates to:
+  /// **'How'**
+  String get downloadsSectionHow;
+
+  /// No description provided for @downloadsSectionWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When to download'**
+  String get downloadsSectionWhen;
+
   /// No description provided for @downloadsTitle.
   ///
   /// In en, this message translates to:
@@ -979,14 +1027,44 @@ abstract class AppLocalizations {
   /// No description provided for @downloadsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Downloaded chapters, auto-download, download location'**
+  /// **'Queue, auto-download, location and storage'**
   String get downloadsSubtitle;
 
   /// No description provided for @settingsSectionBackup.
   ///
   /// In en, this message translates to:
-  /// **'Backup & Restore'**
+  /// **'Backup & restore'**
   String get settingsSectionBackup;
+
+  /// No description provided for @settingsGroupGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get settingsGroupGeneral;
+
+  /// No description provided for @settingsGroupContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Library & reading'**
+  String get settingsGroupContent;
+
+  /// No description provided for @settingsDownloadsAndStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads & storage'**
+  String get settingsDownloadsAndStorage;
+
+  /// No description provided for @settingsGroupData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsGroupData;
+
+  /// No description provided for @settingsGroupHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & advanced'**
+  String get settingsGroupHelp;
 
   /// No description provided for @settingsSectionSupport.
   ///
@@ -1117,7 +1195,7 @@ abstract class AppLocalizations {
   /// No description provided for @dbMigrationBackingUp.
   ///
   /// In en, this message translates to:
-  /// **'Backing up...'**
+  /// **'Backing up…'**
   String get dbMigrationBackingUp;
 
   /// No description provided for @dbTooOldTitle.
@@ -1339,7 +1417,7 @@ abstract class AppLocalizations {
   /// No description provided for @playerSubtitleColorTitle.
   ///
   /// In en, this message translates to:
-  /// **'Colour'**
+  /// **'Color'**
   String get playerSubtitleColorTitle;
 
   /// No description provided for @playerColorWhite.
@@ -1759,7 +1837,7 @@ abstract class AppLocalizations {
   /// No description provided for @libraryContinueWatching.
   ///
   /// In en, this message translates to:
-  /// **'Continue Watching'**
+  /// **'Continue watching'**
   String get libraryContinueWatching;
 
   /// No description provided for @entryDetailFurthestWatchedBadge.
@@ -2119,13 +2197,13 @@ abstract class AppLocalizations {
   /// No description provided for @storageSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Backup & restore'**
+  /// **'Save your library to a file, or restore it'**
   String get storageSubtitle;
 
   /// No description provided for @storageUsageSummary.
   ///
   /// In en, this message translates to:
-  /// **'{size} used · {chapters} chapters across {entries} series'**
+  /// **'{size} used · {chapters} chapters across {entries} titles'**
   String storageUsageSummary(String size, int chapters, int entries);
 
   /// No description provided for @storageNoDownloadsYet.
@@ -2133,12 +2211,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No downloads yet.'**
   String get storageNoDownloadsYet;
-
-  /// No description provided for @storageDownloadsSectionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Downloads'**
-  String get storageDownloadsSectionTitle;
 
   /// No description provided for @storageAutoDownloadOnUpdate.
   ///
@@ -2161,7 +2233,7 @@ abstract class AppLocalizations {
   /// No description provided for @storageAutoDownloadOnAddHint.
   ///
   /// In en, this message translates to:
-  /// **'Downloads an entry\'s existing chapters as soon as it\'s added to your library.'**
+  /// **'Downloads a title\'s existing chapters as soon as it\'s added to your library.'**
   String get storageAutoDownloadOnAddHint;
 
   /// No description provided for @downloadsWifiOnlyTitle.
@@ -2275,7 +2347,7 @@ abstract class AppLocalizations {
   /// No description provided for @storageDeleteEntryConfirmMessage.
   ///
   /// In en, this message translates to:
-  /// **'Removes every downloaded chapter for this entry from disk. This can\'t be undone.'**
+  /// **'Removes every downloaded chapter for this title from disk. This can\'t be undone.'**
   String get storageDeleteEntryConfirmMessage;
 
   /// No description provided for @storageDeleteAllDownloads.
@@ -2305,7 +2377,7 @@ abstract class AppLocalizations {
   /// No description provided for @storageBackupSectionTitle.
   ///
   /// In en, this message translates to:
-  /// **'Backup & Restore'**
+  /// **'Backup & restore'**
   String get storageBackupSectionTitle;
 
   /// No description provided for @settingsCreateBackupTile.
@@ -2395,7 +2467,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsRestoreBackupDone.
   ///
   /// In en, this message translates to:
-  /// **'Restored {restored} entries ({skipped} skipped).'**
+  /// **'Restored {restored} titles ({skipped} skipped).'**
   String settingsRestoreBackupDone(int restored, int skipped);
 
   /// No description provided for @settingsNetworkTimeoutTile.
@@ -2443,19 +2515,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAppearanceSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Theme, grid size, navigation, motion'**
+  /// **'Theme, background, grid size, navigation'**
   String get settingsAppearanceSubtitle;
-
-  /// No description provided for @settingsLibrarySettingsTile.
-  ///
-  /// In en, this message translates to:
-  /// **'Media & layout'**
-  String get settingsLibrarySettingsTile;
 
   /// No description provided for @settingsLibrarySettingsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Which media types show up, unified or split library'**
+  /// **'Media types, categories, auto-update'**
   String get settingsLibrarySettingsSubtitle;
 
   /// No description provided for @settingsThemeTile.
@@ -2485,7 +2551,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGridTileSizeTile.
   ///
   /// In en, this message translates to:
-  /// **'Grid tile size'**
+  /// **'Library display'**
   String get settingsGridTileSizeTile;
 
   /// No description provided for @backgroundTitle.
@@ -2493,6 +2559,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Background'**
   String get backgroundTitle;
+
+  /// No description provided for @backgroundGradient.
+  ///
+  /// In en, this message translates to:
+  /// **'Gradient'**
+  String get backgroundGradient;
+
+  /// No description provided for @backgroundGradientHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Color the background with a gradient, on any theme.'**
+  String get backgroundGradientHint;
+
+  /// No description provided for @backgroundGradientLinear.
+  ///
+  /// In en, this message translates to:
+  /// **'Linear'**
+  String get backgroundGradientLinear;
+
+  /// No description provided for @backgroundGradientRadial.
+  ///
+  /// In en, this message translates to:
+  /// **'Radial'**
+  String get backgroundGradientRadial;
+
+  /// No description provided for @backgroundGradientDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get backgroundGradientDirection;
+
+  /// No description provided for @backgroundGradientStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength'**
+  String get backgroundGradientStrength;
+
+  /// No description provided for @backgroundGradientColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors'**
+  String get backgroundGradientColors;
+
+  /// No description provided for @backgroundGradientStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get backgroundGradientStart;
+
+  /// No description provided for @backgroundGradientEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get backgroundGradientEnd;
+
+  /// No description provided for @backgroundGradientThird.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra'**
+  String get backgroundGradientThird;
+
+  /// No description provided for @gradientPresetDusk.
+  ///
+  /// In en, this message translates to:
+  /// **'Dusk'**
+  String get gradientPresetDusk;
+
+  /// No description provided for @gradientPresetSakura.
+  ///
+  /// In en, this message translates to:
+  /// **'Sakura'**
+  String get gradientPresetSakura;
+
+  /// No description provided for @gradientPresetOcean.
+  ///
+  /// In en, this message translates to:
+  /// **'Ocean'**
+  String get gradientPresetOcean;
+
+  /// No description provided for @gradientPresetForest.
+  ///
+  /// In en, this message translates to:
+  /// **'Forest'**
+  String get gradientPresetForest;
+
+  /// No description provided for @gradientPresetEmber.
+  ///
+  /// In en, this message translates to:
+  /// **'Ember'**
+  String get gradientPresetEmber;
+
+  /// No description provided for @gradientPresetAurora.
+  ///
+  /// In en, this message translates to:
+  /// **'Aurora'**
+  String get gradientPresetAurora;
+
+  /// No description provided for @gradientPresetSunrise.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise'**
+  String get gradientPresetSunrise;
+
+  /// No description provided for @gradientPresetMono.
+  ///
+  /// In en, this message translates to:
+  /// **'Mono'**
+  String get gradientPresetMono;
+
+  /// No description provided for @listStyleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'List style'**
+  String get listStyleTitle;
+
+  /// No description provided for @listStyleAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get listStyleAuto;
+
+  /// No description provided for @listStyleCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards'**
+  String get listStyleCards;
+
+  /// No description provided for @listStyleCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get listStyleCompact;
+
+  /// No description provided for @listStyleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact rows drop the boxes so more fits on screen. Automatic is compact on phones and cards on larger screens.'**
+  String get listStyleHint;
+
+  /// No description provided for @appearanceTabLayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get appearanceTabLayout;
+
+  /// No description provided for @appearanceTabAccessibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility'**
+  String get appearanceTabAccessibility;
 
   /// No description provided for @backgroundIntensity.
   ///
@@ -2521,8 +2737,128 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGridTileSizeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'How big covers show in the Library, Updates, and History grids'**
+  /// **'Grid or list, compact or roomy, and how big covers show'**
   String get settingsGridTileSizeSubtitle;
+
+  /// No description provided for @libraryDisplayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Library display'**
+  String get libraryDisplayTitle;
+
+  /// No description provided for @libraryDisplayUpdatesPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates page'**
+  String get libraryDisplayUpdatesPage;
+
+  /// No description provided for @libraryDisplayHistoryPage.
+  ///
+  /// In en, this message translates to:
+  /// **'History page'**
+  String get libraryDisplayHistoryPage;
+
+  /// No description provided for @libraryDisplayHomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home page sections'**
+  String get libraryDisplayHomeTitle;
+
+  /// No description provided for @libraryDisplayHomeContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue reading'**
+  String get libraryDisplayHomeContinue;
+
+  /// No description provided for @libraryDisplayHomeUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates'**
+  String get libraryDisplayHomeUpdates;
+
+  /// No description provided for @libraryDisplayHomeHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get libraryDisplayHomeHistory;
+
+  /// No description provided for @shelfStyleShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Row that scrolls'**
+  String get shelfStyleShelf;
+
+  /// No description provided for @shelfStyleGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid'**
+  String get shelfStyleGrid;
+
+  /// No description provided for @shelfStyleList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get shelfStyleList;
+
+  /// No description provided for @chapterShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Ch. {number}'**
+  String chapterShort(String number);
+
+  /// No description provided for @libraryShowProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress bar on titles'**
+  String get libraryShowProgress;
+
+  /// No description provided for @libraryShowProgressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How much of each title you have read. Its look is set in the theme editor.'**
+  String get libraryShowProgressHint;
+
+  /// No description provided for @libraryDisplayStyleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get libraryDisplayStyleLabel;
+
+  /// No description provided for @libraryDisplayComfortableGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Comfortable grid'**
+  String get libraryDisplayComfortableGrid;
+
+  /// No description provided for @libraryDisplayCompactGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact grid'**
+  String get libraryDisplayCompactGrid;
+
+  /// No description provided for @libraryDisplayCoverGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover only'**
+  String get libraryDisplayCoverGrid;
+
+  /// No description provided for @libraryDisplayList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get libraryDisplayList;
+
+  /// No description provided for @libraryDisplayCompactList.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact list'**
+  String get libraryDisplayCompactList;
+
+  /// No description provided for @libraryDisplayButtonTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get libraryDisplayButtonTooltip;
 
   /// No description provided for @gridTileSizeSmall.
   ///
@@ -2553,6 +2889,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version {version}'**
   String settingsAboutVersion(String version);
+
+  /// No description provided for @aboutSectionUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates'**
+  String get aboutSectionUpdates;
+
+  /// No description provided for @aboutSectionHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & community'**
+  String get aboutSectionHelp;
+
+  /// No description provided for @aboutSectionMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get aboutSectionMore;
 
   /// No description provided for @aboutCheckForUpdates.
   ///
@@ -2589,6 +2943,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Join our Discord'**
   String get aboutJoinDiscord;
+
+  /// No description provided for @aboutJoinDiscordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get help, share feedback, and follow updates'**
+  String get aboutJoinDiscordSubtitle;
 
   /// No description provided for @aboutLicenses.
   ///
@@ -2653,14 +3013,26 @@ abstract class AppLocalizations {
   /// No description provided for @navCustomizationHint.
   ///
   /// In en, this message translates to:
-  /// **'Choose which destinations appear in the navigation bar, and drag to reorder them.'**
+  /// **'Drag to reorder. Switch a destination off to hide it.'**
   String get navCustomizationHint;
 
-  /// No description provided for @navCustomizationDragHint.
+  /// No description provided for @navSectionShown.
   ///
   /// In en, this message translates to:
-  /// **'Drag to reorder'**
-  String get navCustomizationDragHint;
+  /// **'In the navigation'**
+  String get navSectionShown;
+
+  /// No description provided for @navSectionHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Not shown'**
+  String get navSectionHidden;
+
+  /// No description provided for @navAlwaysShown.
+  ///
+  /// In en, this message translates to:
+  /// **'Always shown'**
+  String get navAlwaysShown;
 
   /// No description provided for @homeScreenOrderTitle.
   ///
@@ -2830,6 +3202,48 @@ abstract class AppLocalizations {
   /// **'NSFW'**
   String get repoBrowseNsfwBadge;
 
+  /// No description provided for @sourceObsoleteBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Obsolete'**
+  String get sourceObsoleteBadge;
+
+  /// No description provided for @sourceUpdateBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available'**
+  String get sourceUpdateBadge;
+
+  /// No description provided for @sourceDuplicatesBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 source is installed twice} other{{count} sources are installed twice}}'**
+  String sourceDuplicatesBanner(int count);
+
+  /// No description provided for @sourceDuplicatesMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge'**
+  String get sourceDuplicatesMerge;
+
+  /// No description provided for @sourceDuplicatesMerged.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Merged 1 duplicate} other{Merged {count} duplicates}}'**
+  String sourceDuplicatesMerged(int count);
+
+  /// No description provided for @repoObsoleteHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer in this repo'**
+  String get repoObsoleteHeading;
+
+  /// No description provided for @repoObsoleteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The repo removed this source, so it will not get updates or fixes.'**
+  String get repoObsoleteHint;
+
   /// No description provided for @repoBrowseFilteredEmpty.
   ///
   /// In en, this message translates to:
@@ -2893,7 +3307,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDownloadDelaySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Pause between chapters in a batch download, so a source\'s anti-bot detection is less likely to flag or ban the account'**
+  /// **'Wait between chapters in a batch download, so sources are less likely to block you'**
   String get settingsDownloadDelaySubtitle;
 
   /// No description provided for @settingsDownloadDelayOff.
@@ -3205,7 +3619,7 @@ abstract class AppLocalizations {
   /// No description provided for @sourceBrowseAlreadyInLibraryMessage.
   ///
   /// In en, this message translates to:
-  /// **'This series is already in your library from this source.'**
+  /// **'This title is already in your library from this source.'**
   String get sourceBrowseAlreadyInLibraryMessage;
 
   /// No description provided for @sourceBrowseViewLibrary.
@@ -3223,7 +3637,7 @@ abstract class AppLocalizations {
   /// No description provided for @sourceBrowsePossibleDuplicateMessage.
   ///
   /// In en, this message translates to:
-  /// **'\"{title}\" is already in your library from a different source. Add this as a separate entry, or migrate the existing one to this source?'**
+  /// **'\"{title}\" is already in your library from a different source. Add this as a separate title, or migrate the existing one to this source?'**
   String sourceBrowsePossibleDuplicateMessage(String title);
 
   /// No description provided for @sourceBrowseAddAnyway.
@@ -3261,6 +3675,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refresh chapters'**
   String get sourceBrowseRefreshChapters;
+
+  /// No description provided for @chapterListDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 duplicate chapter} other{{count} duplicate chapters}}'**
+  String chapterListDuplicates(int count);
+
+  /// No description provided for @chapterDetectDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'Detect duplicate chapters'**
+  String get chapterDetectDuplicates;
+
+  /// No description provided for @chapterDetectDuplicatesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Flags a chapter a source lists twice and lets you hide the extra copies. Turn off to always show the list exactly as the source gives it.'**
+  String get chapterDetectDuplicatesDescription;
+
+  /// No description provided for @chapterListHideDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get chapterListHideDuplicates;
+
+  /// No description provided for @chapterListShowDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get chapterListShowDuplicates;
+
+  /// No description provided for @chapterListGapInline.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing {range}'**
+  String chapterListGapInline(String range);
 
   /// No description provided for @chapterListMissingChapters.
   ///
@@ -3469,7 +3919,7 @@ abstract class AppLocalizations {
   /// No description provided for @htmlInspectorFilterLabel.
   ///
   /// In en, this message translates to:
-  /// **'Filter lines containing...'**
+  /// **'Filter lines containing…'**
   String get htmlInspectorFilterLabel;
 
   /// No description provided for @htmlInspectorStripScripts.
@@ -3961,8 +4411,26 @@ abstract class AppLocalizations {
   /// No description provided for @readerSettingsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Reader Settings'**
+  /// **'Reader'**
   String get readerSettingsTitle;
+
+  /// No description provided for @readerSettingsGeneralTab.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get readerSettingsGeneralTab;
+
+  /// No description provided for @readerSettingsScreenSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen'**
+  String get readerSettingsScreenSection;
+
+  /// No description provided for @readerSettingsChapterListSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter list'**
+  String get readerSettingsChapterListSection;
 
   /// No description provided for @readerSettingsMangaTab.
   ///
@@ -3985,13 +4453,13 @@ abstract class AppLocalizations {
   /// No description provided for @readerLoadingNextChapter.
   ///
   /// In en, this message translates to:
-  /// **'Loading next chapter...'**
+  /// **'Loading next chapter…'**
   String get readerLoadingNextChapter;
 
   /// No description provided for @readerLoadingPreviousChapter.
   ///
   /// In en, this message translates to:
-  /// **'Loading previous chapter...'**
+  /// **'Loading previous chapter…'**
   String get readerLoadingPreviousChapter;
 
   /// No description provided for @readerNoMoreChapters.
@@ -4063,7 +4531,7 @@ abstract class AppLocalizations {
   /// No description provided for @readerScopeThisTitle.
   ///
   /// In en, this message translates to:
-  /// **'This series only'**
+  /// **'This title only'**
   String get readerScopeThisTitle;
 
   /// No description provided for @readerScopeGlobal.
@@ -4114,6 +4582,54 @@ abstract class AppLocalizations {
   /// **'Switch profile'**
   String get profileSwitch;
 
+  /// No description provided for @profileEditShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get profileEditShort;
+
+  /// No description provided for @profileActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get profileActive;
+
+  /// No description provided for @profileChangePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get profileChangePhoto;
+
+  /// No description provided for @profileSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get profileSaveChanges;
+
+  /// No description provided for @profileCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create profile'**
+  String get profileCreate;
+
+  /// No description provided for @profileCreatedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {date}'**
+  String profileCreatedOn(String date);
+
+  /// No description provided for @profileRecentActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get profileRecentActivity;
+
+  /// No description provided for @profileLastDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Last {days} days'**
+  String profileLastDays(int days);
+
   /// No description provided for @profileNew.
   ///
   /// In en, this message translates to:
@@ -4162,6 +4678,18 @@ abstract class AppLocalizations {
   /// **'This profile\'s library, categories, and personal settings will be permanently removed.'**
   String get profileDeleteConfirmMessage;
 
+  /// No description provided for @profileDeleteSwitchFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'To delete this profile, switch to another one first.'**
+  String get profileDeleteSwitchFirst;
+
+  /// No description provided for @profileDeleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting… a large library can take a moment.'**
+  String get profileDeleting;
+
   /// No description provided for @profileCannotDeleteOnly.
   ///
   /// In en, this message translates to:
@@ -4192,23 +4720,29 @@ abstract class AppLocalizations {
   /// **'Sync'**
   String get profileSyncSectionTitle;
 
-  /// No description provided for @aniListLoginTitle.
+  /// No description provided for @trackerLoginTitle.
   ///
   /// In en, this message translates to:
-  /// **'Connect AniList'**
-  String get aniListLoginTitle;
+  /// **'Connect {tracker}'**
+  String trackerLoginTitle(String tracker);
 
-  /// No description provided for @aniListLoginWaiting.
+  /// No description provided for @trackerLoginWaiting.
   ///
   /// In en, this message translates to:
-  /// **'Log in to AniList in the browser that just opened. This will finish automatically once you approve access.'**
-  String get aniListLoginWaiting;
+  /// **'Log in to {tracker} in the browser that just opened, then come back here. This finishes automatically once you approve access.'**
+  String trackerLoginWaiting(String tracker);
 
-  /// No description provided for @aniListNotConfigured.
+  /// No description provided for @trackerNotConfigured.
   ///
   /// In en, this message translates to:
-  /// **'Unavailable: this build has no AniList client secret (ANILIST_CLIENT_SECRET). See env.example.json.'**
-  String get aniListNotConfigured;
+  /// **'Unavailable: this build has no {tracker} client key. See env.example.json.'**
+  String trackerNotConfigured(String tracker);
+
+  /// No description provided for @entryDetailFromSource.
+  ///
+  /// In en, this message translates to:
+  /// **'From {source}'**
+  String entryDetailFromSource(String source);
 
   /// No description provided for @trackingTitle.
   ///
@@ -4219,26 +4753,26 @@ abstract class AppLocalizations {
   /// No description provided for @trackingConnectFirst.
   ///
   /// In en, this message translates to:
-  /// **'Connect AniList from your profile to track this title.'**
-  String get trackingConnectFirst;
+  /// **'Connect {tracker} from your profile to track this title.'**
+  String trackingConnectFirst(String tracker);
 
   /// No description provided for @trackingSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search AniList'**
-  String get trackingSearchHint;
+  /// **'Search {tracker}'**
+  String trackingSearchHint(String tracker);
 
   /// No description provided for @trackingNoResults.
   ///
   /// In en, this message translates to:
-  /// **'Nothing found on AniList.'**
-  String get trackingNoResults;
+  /// **'Nothing found on {tracker}.'**
+  String trackingNoResults(String tracker);
 
   /// No description provided for @trackingLinkedTo.
   ///
   /// In en, this message translates to:
-  /// **'Tracked on AniList as {title}'**
-  String trackingLinkedTo(String title);
+  /// **'Tracked on {tracker} as {title}'**
+  String trackingLinkedTo(String tracker, String title);
 
   /// No description provided for @trackingChange.
   ///
@@ -4261,8 +4795,8 @@ abstract class AppLocalizations {
   /// No description provided for @trackingQueued.
   ///
   /// In en, this message translates to:
-  /// **'Changes are waiting and will be sent to AniList shortly.'**
-  String get trackingQueued;
+  /// **'Changes are waiting and will be sent to {tracker} shortly.'**
+  String trackingQueued(String tracker);
 
   /// No description provided for @trackingUpToDate.
   ///
@@ -4273,20 +4807,26 @@ abstract class AppLocalizations {
   /// No description provided for @trackingSent.
   ///
   /// In en, this message translates to:
-  /// **'Sent to AniList.'**
-  String get trackingSent;
+  /// **'Sent to {tracker}.'**
+  String trackingSent(String tracker);
 
   /// No description provided for @trackingNotOnList.
   ///
   /// In en, this message translates to:
-  /// **'Not on your AniList yet. It is added when you read a chapter.'**
-  String get trackingNotOnList;
+  /// **'Not on your {tracker} yet. It is added when you read a chapter.'**
+  String trackingNotOnList(String tracker);
 
   /// No description provided for @trackingRemote.
   ///
   /// In en, this message translates to:
-  /// **'On AniList: {status}, chapter {progress}'**
-  String trackingRemote(String status, int progress);
+  /// **'On {tracker}: {status}, progress {progress}'**
+  String trackingRemote(String tracker, String status, int progress);
+
+  /// No description provided for @trackingFailedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} not saved by {tracker}.'**
+  String trackingFailedCount(int count, String tracker);
 
   /// No description provided for @trackingStatusCurrent.
   ///
@@ -4324,53 +4864,137 @@ abstract class AppLocalizations {
   /// **'Re-reading'**
   String get trackingStatusRepeating;
 
-  /// No description provided for @aniListLoginTimedOut.
+  /// No description provided for @trackerLoginTimedOut.
   ///
   /// In en, this message translates to:
-  /// **'Timed out waiting for AniList. Try again.'**
-  String get aniListLoginTimedOut;
+  /// **'Timed out waiting for {tracker}. Try again.'**
+  String trackerLoginTimedOut(String tracker);
 
-  /// No description provided for @aniListLoadFailed.
+  /// No description provided for @trackerLoadFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could not load AniList account, tap to try again'**
-  String get aniListLoadFailed;
+  /// **'Could not load {tracker} account, tap to try again'**
+  String trackerLoadFailed(String tracker);
 
-  /// No description provided for @aniListNotConnected.
+  /// No description provided for @trackerProblemNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect {tracker} first.'**
+  String trackerProblemNotConnected(String tracker);
+
+  /// No description provided for @trackerProblemLoginExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {tracker} login has expired. Connect again.'**
+  String trackerProblemLoginExpired(String tracker);
+
+  /// No description provided for @trackerProblemLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{tracker} login failed. Try again.'**
+  String trackerProblemLoginFailed(String tracker);
+
+  /// No description provided for @trackerProblemBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'{tracker} is busy. Try again in a minute.'**
+  String trackerProblemBusy(String tracker);
+
+  /// No description provided for @trackerProblemNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found on {tracker}.'**
+  String trackerProblemNotFound(String tracker);
+
+  /// No description provided for @trackerProblemTitleGone.
+  ///
+  /// In en, this message translates to:
+  /// **'This title no longer exists on {tracker}.'**
+  String trackerProblemTitleGone(String tracker);
+
+  /// No description provided for @trackerProblemNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach {tracker}. Check your connection.'**
+  String trackerProblemNetwork(String tracker);
+
+  /// No description provided for @trackerProblemRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'{tracker} refused the request.'**
+  String trackerProblemRefused(String tracker);
+
+  /// No description provided for @trackerProblemSearchTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{tracker} needs at least 3 letters to search.'**
+  String trackerProblemSearchTooShort(String tracker);
+
+  /// No description provided for @trackerProblemUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong talking to {tracker}.'**
+  String trackerProblemUnknown(String tracker);
+
+  /// No description provided for @trackerProblemRefusedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'{tracker} refused the request ({status}).'**
+  String trackerProblemRefusedStatus(String tracker, int status);
+
+  /// No description provided for @trackerOauthConnectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re connected.'**
+  String get trackerOauthConnectedTitle;
+
+  /// No description provided for @trackerOauthRefusedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was connected.'**
+  String get trackerOauthRefusedTitle;
+
+  /// No description provided for @trackerOauthCloseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can close this tab and go back to Sumizuri.'**
+  String get trackerOauthCloseHint;
+
+  /// No description provided for @trackerNotConnected.
   ///
   /// In en, this message translates to:
   /// **'Not connected'**
-  String get aniListNotConnected;
+  String get trackerNotConnected;
 
-  /// No description provided for @aniListConnect.
+  /// No description provided for @trackerConnect.
   ///
   /// In en, this message translates to:
   /// **'Connect'**
-  String get aniListConnect;
+  String get trackerConnect;
 
-  /// No description provided for @aniListConnectedAs.
+  /// No description provided for @trackerConnectedAs.
   ///
   /// In en, this message translates to:
   /// **'Connected as {name}'**
-  String aniListConnectedAs(String name);
+  String trackerConnectedAs(String name);
 
-  /// No description provided for @aniListDisconnectTitle.
+  /// No description provided for @trackerDisconnectTitle.
   ///
   /// In en, this message translates to:
-  /// **'Disconnect AniList?'**
-  String get aniListDisconnectTitle;
+  /// **'Disconnect {tracker}?'**
+  String trackerDisconnectTitle(String tracker);
 
-  /// No description provided for @aniListDisconnectMessage.
+  /// No description provided for @trackerDisconnectMessage.
   ///
   /// In en, this message translates to:
-  /// **'You\'ll need to log in again to reconnect this AniList account.'**
-  String get aniListDisconnectMessage;
+  /// **'You\'ll need to log in again to reconnect this {tracker} account.'**
+  String trackerDisconnectMessage(String tracker);
 
-  /// No description provided for @aniListDisconnectConfirm.
+  /// No description provided for @trackerDisconnectConfirm.
   ///
   /// In en, this message translates to:
   /// **'Disconnect'**
-  String get aniListDisconnectConfirm;
+  String get trackerDisconnectConfirm;
 
   /// No description provided for @entryDetailFurthestBadge.
   ///
@@ -4423,7 +5047,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search profiles...'**
+  /// **'Search profiles…'**
   String get profileSearchHint;
 
   /// No description provided for @profileNotFound.
@@ -4639,13 +5263,13 @@ abstract class AppLocalizations {
   /// No description provided for @translationEditorTitle.
   ///
   /// In en, this message translates to:
-  /// **'Translation Editor'**
+  /// **'Translation editor'**
   String get translationEditorTitle;
 
   /// No description provided for @translationEditorSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search by key, description, or text...'**
+  /// **'Search by key, description, or text…'**
   String get translationEditorSearchHint;
 
   /// No description provided for @translationEditorFilterAll.
@@ -4831,7 +5455,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileCalendarTitle.
   ///
   /// In en, this message translates to:
-  /// **'Updates Calendar'**
+  /// **'Updates calendar'**
   String get profileCalendarTitle;
 
   /// No description provided for @profileCalendarSubtitle.
@@ -4843,7 +5467,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileActivitySectionTitle.
   ///
   /// In en, this message translates to:
-  /// **'Activity & Insights'**
+  /// **'Activity & insights'**
   String get profileActivitySectionTitle;
 
   /// No description provided for @statsCurrentStreak.
@@ -5068,6 +5692,120 @@ abstract class AppLocalizations {
   /// **'Chapter {number}'**
   String calendarChapterNumber(String number);
 
+  /// No description provided for @randomizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Randomize'**
+  String get randomizeTitle;
+
+  /// No description provided for @randomizeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what to shuffle. Everything you leave off stays as it is.'**
+  String get randomizeHint;
+
+  /// No description provided for @randomizeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Randomize'**
+  String get randomizeAction;
+
+  /// No description provided for @randomizeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get randomizeAll;
+
+  /// No description provided for @randomizeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get randomizeNone;
+
+  /// No description provided for @randomizeColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors'**
+  String get randomizeColors;
+
+  /// No description provided for @randomizeColorsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A new palette for light and dark'**
+  String get randomizeColorsHint;
+
+  /// No description provided for @randomizeShapes.
+  ///
+  /// In en, this message translates to:
+  /// **'Shapes'**
+  String get randomizeShapes;
+
+  /// No description provided for @randomizeShapesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Corner rounding and border weight'**
+  String get randomizeShapesHint;
+
+  /// No description provided for @randomizeFonts.
+  ///
+  /// In en, this message translates to:
+  /// **'Fonts'**
+  String get randomizeFonts;
+
+  /// No description provided for @randomizeFontsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Title and body typefaces'**
+  String get randomizeFontsHint;
+
+  /// No description provided for @randomizeSpacing.
+  ///
+  /// In en, this message translates to:
+  /// **'Spacing'**
+  String get randomizeSpacing;
+
+  /// No description provided for @randomizeSpacingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Density and the room between things'**
+  String get randomizeSpacingHint;
+
+  /// No description provided for @randomizeEffects.
+  ///
+  /// In en, this message translates to:
+  /// **'Effects'**
+  String get randomizeEffects;
+
+  /// No description provided for @randomizeEffectsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand-drawn lines and cover shadows'**
+  String get randomizeEffectsHint;
+
+  /// No description provided for @randomizeComponents.
+  ///
+  /// In en, this message translates to:
+  /// **'Components'**
+  String get randomizeComponents;
+
+  /// No description provided for @randomizeComponentsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon tiles, arrows and how solid cards look'**
+  String get randomizeComponentsHint;
+
+  /// No description provided for @randomizeBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get randomizeBackground;
+
+  /// No description provided for @randomizeBackgroundHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Glow, tint and a gradient behind the app'**
+  String get randomizeBackgroundHint;
+
   /// No description provided for @themesNew.
   ///
   /// In en, this message translates to:
@@ -5115,6 +5853,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Duplicate'**
   String get themesDuplicate;
+
+  /// No description provided for @themesSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get themesSelect;
+
+  /// No description provided for @themesSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get themesSelectAll;
+
+  /// No description provided for @themesSelectDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get themesSelectDone;
+
+  /// No description provided for @themesSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String themesSelectedCount(int count);
+
+  /// No description provided for @themesDeleteManyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete 1 theme?} other{Delete {count} themes?}}'**
+  String themesDeleteManyTitle(int count);
+
+  /// No description provided for @themesDeleteManyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own themes are deleted for good. Built-in themes can\'t be deleted, so they\'re hidden; \"Show hidden\" brings them back. The theme in use is kept.'**
+  String get themesDeleteManyMessage;
 
   /// No description provided for @themesDelete.
   ///
@@ -5326,6 +6100,144 @@ abstract class AppLocalizations {
   /// **'Full-page preview'**
   String get themePreviewExpand;
 
+  /// No description provided for @themeEditorTabBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get themeEditorTabBackground;
+
+  /// No description provided for @themeEditorUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get themeEditorUndo;
+
+  /// No description provided for @themeEditorRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get themeEditorRedo;
+
+  /// No description provided for @themeDensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Density'**
+  String get themeDensity;
+
+  /// No description provided for @themeSpacingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How much room there is between things'**
+  String get themeSpacingHint;
+
+  /// No description provided for @themeBrushStrokesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand-drawn underlines and accents'**
+  String get themeBrushStrokesHint;
+
+  /// No description provided for @themeCoverShadowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A soft shadow under covers'**
+  String get themeCoverShadowHint;
+
+  /// No description provided for @themeHoverScaleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How much things grow when the pointer is over them'**
+  String get themeHoverScaleHint;
+
+  /// No description provided for @themePressScaleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How much things shrink when pressed'**
+  String get themePressScaleHint;
+
+  /// No description provided for @themeTransitionSpeedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How fast tabs and pages change'**
+  String get themeTransitionSpeedHint;
+
+  /// No description provided for @themeBloomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The soft colored glow behind everything'**
+  String get themeBloomHint;
+
+  /// No description provided for @themeBackgroundTintHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How much of the theme color tints the background'**
+  String get themeBackgroundTintHint;
+
+  /// No description provided for @themeShapeStartFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from'**
+  String get themeShapeStartFrom;
+
+  /// No description provided for @themeShapeCorners.
+  ///
+  /// In en, this message translates to:
+  /// **'Corners'**
+  String get themeShapeCorners;
+
+  /// No description provided for @themeShapeCharacterSharp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharp'**
+  String get themeShapeCharacterSharp;
+
+  /// No description provided for @themeShapeCharacterSoft.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft'**
+  String get themeShapeCharacterSoft;
+
+  /// No description provided for @themeShapeCharacterRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Round'**
+  String get themeShapeCharacterRound;
+
+  /// No description provided for @themeShapeCharacterLeaf.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaf'**
+  String get themeShapeCharacterLeaf;
+
+  /// No description provided for @themeGroupCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards'**
+  String get themeGroupCards;
+
+  /// No description provided for @themeCardOpacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Card opacity'**
+  String get themeCardOpacity;
+
+  /// No description provided for @themeCardOpacityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower lets the background show through'**
+  String get themeCardOpacityHint;
+
+  /// No description provided for @themeCardBorders.
+  ///
+  /// In en, this message translates to:
+  /// **'Card outlines'**
+  String get themeCardBorders;
+
+  /// No description provided for @backgroundGradientStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get backgroundGradientStyle;
+
   /// No description provided for @themeEditorTabColors.
   ///
   /// In en, this message translates to:
@@ -5335,7 +6247,7 @@ abstract class AppLocalizations {
   /// No description provided for @themeEditorTabShape.
   ///
   /// In en, this message translates to:
-  /// **'Components'**
+  /// **'Shape'**
   String get themeEditorTabShape;
 
   /// No description provided for @themeShapeCard.
@@ -5427,12 +6339,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Corner radius'**
   String get themeShapeRadius;
-
-  /// No description provided for @themeShapeReset.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset shapes'**
-  String get themeShapeReset;
 
   /// No description provided for @themePickerPresets.
   ///
@@ -5595,6 +6501,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Effects & motion'**
   String get themeEditorTabEffects;
+
+  /// No description provided for @themeEditorTabProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress bar'**
+  String get themeEditorTabProgress;
+
+  /// No description provided for @themeProgressPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get themeProgressPreview;
+
+  /// No description provided for @themeProgressNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn the bar on in Settings › Appearance › Library display. Here you choose how it looks.'**
+  String get themeProgressNote;
+
+  /// No description provided for @themeProgressLooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks'**
+  String get themeProgressLooks;
+
+  /// No description provided for @themeProgressLookThin.
+  ///
+  /// In en, this message translates to:
+  /// **'Thin line'**
+  String get themeProgressLookThin;
+
+  /// No description provided for @themeProgressLookNeon.
+  ///
+  /// In en, this message translates to:
+  /// **'Neon'**
+  String get themeProgressLookNeon;
+
+  /// No description provided for @themeProgressLookCandy.
+  ///
+  /// In en, this message translates to:
+  /// **'Candy'**
+  String get themeProgressLookCandy;
+
+  /// No description provided for @themeProgressLookSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Steps'**
+  String get themeProgressLookSteps;
+
+  /// No description provided for @themeProgressShape.
+  ///
+  /// In en, this message translates to:
+  /// **'Shape'**
+  String get themeProgressShape;
+
+  /// No description provided for @themeProgressStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get themeProgressStyle;
+
+  /// No description provided for @themeProgressStyleLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get themeProgressStyleLine;
+
+  /// No description provided for @themeProgressStyleGlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Glow'**
+  String get themeProgressStyleGlow;
+
+  /// No description provided for @themeProgressStyleStriped.
+  ///
+  /// In en, this message translates to:
+  /// **'Striped'**
+  String get themeProgressStyleStriped;
+
+  /// No description provided for @themeProgressStyleSegments.
+  ///
+  /// In en, this message translates to:
+  /// **'Steps'**
+  String get themeProgressStyleSegments;
+
+  /// No description provided for @themeProgressPlacement.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get themeProgressPlacement;
+
+  /// No description provided for @themeProgressOnCover.
+  ///
+  /// In en, this message translates to:
+  /// **'On the cover'**
+  String get themeProgressOnCover;
+
+  /// No description provided for @themeProgressBelowCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Under the cover'**
+  String get themeProgressBelowCover;
+
+  /// No description provided for @themeProgressThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness'**
+  String get themeProgressThickness;
+
+  /// No description provided for @themeProgressTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty part'**
+  String get themeProgressTrack;
+
+  /// No description provided for @themeProgressGlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Glow'**
+  String get themeProgressGlow;
+
+  /// No description provided for @themeProgressRounded.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounded ends'**
+  String get themeProgressRounded;
+
+  /// No description provided for @themeProgressAnimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Move the stripes'**
+  String get themeProgressAnimate;
+
+  /// No description provided for @themeProgressColorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get themeProgressColorTitle;
+
+  /// No description provided for @themeProgressColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Color of the bar'**
+  String get themeProgressColor;
+
+  /// No description provided for @themeProgressColorAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent'**
+  String get themeProgressColorAccent;
+
+  /// No description provided for @themeProgressColorGradient.
+  ///
+  /// In en, this message translates to:
+  /// **'Gradient'**
+  String get themeProgressColorGradient;
+
+  /// No description provided for @themeProgressColorCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get themeProgressColorCustom;
+
+  /// No description provided for @themeProgressCustomColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom color'**
+  String get themeProgressCustomColor;
+
+  /// No description provided for @themeProgressWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When to show it'**
+  String get themeProgressWhen;
+
+  /// No description provided for @themeProgressPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the percentage in lists'**
+  String get themeProgressPercent;
+
+  /// No description provided for @themeProgressHideEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide when nothing is read'**
+  String get themeProgressHideEmpty;
+
+  /// No description provided for @themeProgressHideComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide when finished'**
+  String get themeProgressHideComplete;
 
   /// No description provided for @themeEditorPreviewResize.
   ///
@@ -6075,6 +7173,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This release has no notes.'**
   String get changelogNoNotes;
+
+  /// No description provided for @changelogInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed'**
+  String get changelogInstalled;
+
+  /// No description provided for @changelogNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get changelogNew;
+
+  /// No description provided for @changelogPrerelease.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-release'**
+  String get changelogPrerelease;
+
+  /// No description provided for @changelogOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach GitHub. Showing the notes that came with this version.'**
+  String get changelogOffline;
+
+  /// No description provided for @changelogRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get changelogRetry;
+
+  /// No description provided for @changelogOlder.
+  ///
+  /// In en, this message translates to:
+  /// **'Show older releases'**
+  String get changelogOlder;
 
   /// No description provided for @changelogAllReleases.
   ///
@@ -6592,17 +7726,149 @@ abstract class AppLocalizations {
   /// **'Continuous'**
   String get readerControlsContinuous;
 
-  /// No description provided for @readerControlsTapNote.
-  ///
-  /// In en, this message translates to:
-  /// **'The reader is split into a 3 by 3 grid; each square does what you choose. “Invert tap zones” in Reader Settings still swaps left and right in paged readers.'**
-  String get readerControlsTapNote;
-
   /// No description provided for @readerControlsNothing.
   ///
   /// In en, this message translates to:
   /// **'Nothing'**
   String get readerControlsNothing;
+
+  /// No description provided for @controlsGroupTurning.
+  ///
+  /// In en, this message translates to:
+  /// **'Turning pages'**
+  String get controlsGroupTurning;
+
+  /// No description provided for @controlsGroupScrolling.
+  ///
+  /// In en, this message translates to:
+  /// **'Scrolling'**
+  String get controlsGroupScrolling;
+
+  /// No description provided for @controlsGroupChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get controlsGroupChapters;
+
+  /// No description provided for @controlsGroupReader.
+  ///
+  /// In en, this message translates to:
+  /// **'Reader'**
+  String get controlsGroupReader;
+
+  /// No description provided for @controlsGroupAutoScroll.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-scroll'**
+  String get controlsGroupAutoScroll;
+
+  /// No description provided for @tapPresetStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get tapPresetStandard;
+
+  /// No description provided for @tapPresetEdges.
+  ///
+  /// In en, this message translates to:
+  /// **'Edges only'**
+  String get tapPresetEdges;
+
+  /// No description provided for @tapPresetLShaped.
+  ///
+  /// In en, this message translates to:
+  /// **'L-shape'**
+  String get tapPresetLShaped;
+
+  /// No description provided for @tapPresetWideCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Wide center'**
+  String get tapPresetWideCenter;
+
+  /// No description provided for @tapPresetMenuOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu only'**
+  String get tapPresetMenuOnly;
+
+  /// No description provided for @controlsPresetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Layouts'**
+  String get controlsPresetsTitle;
+
+  /// No description provided for @controlsZoneSizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Zone size'**
+  String get controlsZoneSizeTitle;
+
+  /// No description provided for @controlsSideWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Side zones'**
+  String get controlsSideWidth;
+
+  /// No description provided for @controlsEdgeHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Top and bottom zones'**
+  String get controlsEdgeHeight;
+
+  /// No description provided for @controlsMirror.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap left and right'**
+  String get controlsMirror;
+
+  /// No description provided for @controlsTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a zone to choose what it does.'**
+  String get controlsTapHint;
+
+  /// No description provided for @controlsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search actions'**
+  String get controlsSearchHint;
+
+  /// No description provided for @controlsNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No action matches.'**
+  String get controlsNoMatch;
+
+  /// No description provided for @controlsKeyboardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap an action to add a key. A key can only do one thing.'**
+  String get controlsKeyboardHint;
+
+  /// No description provided for @controlsResetAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all controls'**
+  String get controlsResetAll;
+
+  /// No description provided for @controlsResetAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all controls?'**
+  String get controlsResetAllTitle;
+
+  /// No description provided for @controlsResetAllMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Keys, tap zones, scrolling and app gestures go back to the defaults.'**
+  String get controlsResetAllMessage;
+
+  /// No description provided for @controlsResetAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get controlsResetAllConfirm;
 
   /// No description provided for @readerControlsPickAction.
   ///
@@ -6973,7 +8239,7 @@ abstract class AppLocalizations {
   /// No description provided for @incognitoHint.
   ///
   /// In en, this message translates to:
-  /// **'Chapters you read are not added to history, progress or statistics.'**
+  /// **'What you read or watch is kept out of history, progress and statistics.'**
   String get incognitoHint;
 
   /// No description provided for @incognitoActive.
@@ -7081,8 +8347,86 @@ abstract class AppLocalizations {
   /// No description provided for @librarySearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search your library (try status:ongoing or naruto OR bleach)'**
+  /// **'Search your library'**
   String get librarySearchHint;
+
+  /// No description provided for @librarySearchHelpTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tips'**
+  String get librarySearchHelpTooltip;
+
+  /// No description provided for @librarySearchHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tips'**
+  String get librarySearchHelpTitle;
+
+  /// No description provided for @librarySearchHelpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Type words to match titles, or combine them with these.'**
+  String get librarySearchHelpSubtitle;
+
+  /// No description provided for @librarySearchHelpPhrase.
+  ///
+  /// In en, this message translates to:
+  /// **'An exact phrase'**
+  String get librarySearchHelpPhrase;
+
+  /// No description provided for @librarySearchHelpExclude.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave out a word'**
+  String get librarySearchHelpExclude;
+
+  /// No description provided for @librarySearchHelpOr.
+  ///
+  /// In en, this message translates to:
+  /// **'Either word'**
+  String get librarySearchHelpOr;
+
+  /// No description provided for @librarySearchHelpGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group with parentheses'**
+  String get librarySearchHelpGroup;
+
+  /// No description provided for @librarySearchHelpStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Ongoing, completed or hiatus'**
+  String get librarySearchHelpStatus;
+
+  /// No description provided for @librarySearchHelpSource.
+  ///
+  /// In en, this message translates to:
+  /// **'From a source'**
+  String get librarySearchHelpSource;
+
+  /// No description provided for @librarySearchHelpCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'In a category'**
+  String get librarySearchHelpCategory;
+
+  /// No description provided for @librarySearchHelpType.
+  ///
+  /// In en, this message translates to:
+  /// **'Manga, novel or anime'**
+  String get librarySearchHelpType;
+
+  /// No description provided for @librarySearchHelpFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites only'**
+  String get librarySearchHelpFavorite;
+
+  /// No description provided for @librarySearchHelpUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'By unread chapters'**
+  String get librarySearchHelpUnread;
 
   /// No description provided for @downloadsSkipDuplicateRead.
   ///
@@ -7198,6 +8542,114 @@ abstract class AppLocalizations {
   /// **'Apply'**
   String get scanlatorFilterApply;
 
+  /// No description provided for @migrationRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Match rules'**
+  String get migrationRules;
+
+  /// No description provided for @migrationRulesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'These apply to the next search. Titles already searched keep their result.'**
+  String get migrationRulesHint;
+
+  /// No description provided for @migrationRuleChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get migrationRuleChapters;
+
+  /// No description provided for @migrationRuleChaptersAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Any'**
+  String get migrationRuleChaptersAny;
+
+  /// No description provided for @migrationRuleChaptersAtLeastAsMany.
+  ///
+  /// In en, this message translates to:
+  /// **'At least as many as I have'**
+  String get migrationRuleChaptersAtLeastAsMany;
+
+  /// No description provided for @migrationRuleChaptersAtLeastAsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest chapter is the same or later'**
+  String get migrationRuleChaptersAtLeastAsNew;
+
+  /// No description provided for @migrationRuleChaptersCoversProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Has the chapter I\'m up to'**
+  String get migrationRuleChaptersCoversProgress;
+
+  /// No description provided for @migrationRuleStrictness.
+  ///
+  /// In en, this message translates to:
+  /// **'Title match'**
+  String get migrationRuleStrictness;
+
+  /// No description provided for @migrationRuleStrict.
+  ///
+  /// In en, this message translates to:
+  /// **'Strict'**
+  String get migrationRuleStrict;
+
+  /// No description provided for @migrationRuleBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get migrationRuleBalanced;
+
+  /// No description provided for @migrationRuleLoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Loose'**
+  String get migrationRuleLoose;
+
+  /// No description provided for @migrationRuleAutoAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick clear matches for me'**
+  String get migrationRuleAutoAccept;
+
+  /// No description provided for @migrationRuleAutoAcceptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Off sends every match to Review, so you confirm each one.'**
+  String get migrationRuleAutoAcceptHint;
+
+  /// No description provided for @migrationRulePreferMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefer the one with more chapters'**
+  String get migrationRulePreferMore;
+
+  /// No description provided for @migrationRulePreferMoreHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When several results match about equally well, choose the longest.'**
+  String get migrationRulePreferMoreHint;
+
+  /// No description provided for @migrationSkippedFewer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 match skipped: it has fewer chapters than you} other{{count} matches skipped: they have fewer chapters than you}}'**
+  String migrationSkippedFewer(int count);
+
+  /// No description provided for @migrationSkippedBehind.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 match skipped: its newest chapter is behind yours} other{{count} matches skipped: their newest chapters are behind yours}}'**
+  String migrationSkippedBehind(int count);
+
+  /// No description provided for @migrationSkippedProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 match skipped: it doesn\'t reach the chapter you\'re on} other{{count} matches skipped: they don\'t reach the chapter you\'re on}}'**
+  String migrationSkippedProgress(int count);
+
   /// No description provided for @migrationTitle.
   ///
   /// In en, this message translates to:
@@ -7221,6 +8673,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search'**
   String get migrationSearch;
+
+  /// No description provided for @migrationSearchAllSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Try all sources'**
+  String get migrationSearchAllSources;
 
   /// No description provided for @migrationCancel.
   ///
@@ -7257,6 +8715,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percent} match'**
   String migrationMatch(String percent);
+
+  /// No description provided for @migrationMatchOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} match on {source}'**
+  String migrationMatchOn(String percent, String source);
 
   /// No description provided for @migrationNotThisOne.
   ///
@@ -7330,10 +8794,34 @@ abstract class AppLocalizations {
   /// **'{count} {mediaType} titles need a source'**
   String libraryNeedsMigrationBanner(int count, String mediaType);
 
+  /// No description provided for @missingSourcesSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search these titles'**
+  String get missingSourcesSearchHint;
+
+  /// No description provided for @missingSourcesMigrateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a source and match them all in one go'**
+  String get missingSourcesMigrateHint;
+
+  /// No description provided for @missingSourcesMigrateOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Migrate this title'**
+  String get missingSourcesMigrateOne;
+
+  /// No description provided for @missingSourcesDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get missingSourcesDuplicate;
+
   /// No description provided for @missingSourcesTitle.
   ///
   /// In en, this message translates to:
-  /// **'Entries missing a source'**
+  /// **'Titles missing a source'**
   String get missingSourcesTitle;
 
   /// No description provided for @missingSourcesSettingsSubtitle.
@@ -7468,137 +8956,161 @@ abstract class AppLocalizations {
   /// **'Continue without syncing'**
   String get onboardingSyncContinueAnyway;
 
-  /// No description provided for @aniListAccountTitle.
+  /// No description provided for @trackerAccountTitle.
   ///
   /// In en, this message translates to:
-  /// **'AniList account'**
-  String get aniListAccountTitle;
+  /// **'{tracker} account'**
+  String trackerAccountTitle(String tracker);
 
-  /// No description provided for @aniListTabOverview.
+  /// No description provided for @trackerMetricEpisodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Episodes'**
+  String get trackerMetricEpisodes;
+
+  /// No description provided for @trackerMetricChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get trackerMetricChapters;
+
+  /// No description provided for @trackerMetricDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days watched'**
+  String get trackerMetricDays;
+
+  /// No description provided for @trackerMetricMean.
+  ///
+  /// In en, this message translates to:
+  /// **'Mean score'**
+  String get trackerMetricMean;
+
+  /// No description provided for @trackerMetricTitles.
+  ///
+  /// In en, this message translates to:
+  /// **'titles'**
+  String get trackerMetricTitles;
+
+  /// No description provided for @trackerSectionTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync and import'**
+  String get trackerSectionTools;
+
+  /// No description provided for @trackerMenuRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get trackerMenuRefresh;
+
+  /// No description provided for @trackerImportShown.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Import this title} other{Import these {count} titles}}'**
+  String trackerImportShown(int count);
+
+  /// No description provided for @trackerTabOverview.
   ///
   /// In en, this message translates to:
   /// **'Overview'**
-  String get aniListTabOverview;
+  String get trackerTabOverview;
 
-  /// No description provided for @aniListTabAnime.
+  /// No description provided for @trackerTabAnime.
   ///
   /// In en, this message translates to:
   /// **'Anime'**
-  String get aniListTabAnime;
+  String get trackerTabAnime;
 
-  /// No description provided for @aniListTabManga.
+  /// No description provided for @trackerTabManga.
   ///
   /// In en, this message translates to:
   /// **'Manga'**
-  String get aniListTabManga;
+  String get trackerTabManga;
 
-  /// No description provided for @aniListTabQueue.
+  /// No description provided for @trackerTabQueue.
   ///
   /// In en, this message translates to:
   /// **'Queue'**
-  String get aniListTabQueue;
+  String get trackerTabQueue;
 
-  /// No description provided for @aniListStatTitles.
+  /// No description provided for @trackerStatTitles.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 title} other{{count} titles}}'**
-  String aniListStatTitles(int count);
+  String trackerStatTitles(int count);
 
-  /// No description provided for @aniListStatWatched.
+  /// No description provided for @trackerOpenOnSite.
   ///
   /// In en, this message translates to:
-  /// **'{count} episodes watched'**
-  String aniListStatWatched(String count);
+  /// **'Open on {tracker}'**
+  String trackerOpenOnSite(String tracker);
 
-  /// No description provided for @aniListStatRead.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} chapters read'**
-  String aniListStatRead(String count);
-
-  /// No description provided for @aniListStatDays.
-  ///
-  /// In en, this message translates to:
-  /// **'{days} days of watching'**
-  String aniListStatDays(String days);
-
-  /// No description provided for @aniListStatMean.
-  ///
-  /// In en, this message translates to:
-  /// **'Mean score {score}'**
-  String aniListStatMean(String score);
-
-  /// No description provided for @aniListOpenOnSite.
-  ///
-  /// In en, this message translates to:
-  /// **'Open on AniList'**
-  String get aniListOpenOnSite;
-
-  /// No description provided for @aniListImportTitle.
+  /// No description provided for @trackerImportTitle.
   ///
   /// In en, this message translates to:
   /// **'Import to library'**
-  String get aniListImportTitle;
+  String get trackerImportTitle;
 
-  /// No description provided for @aniListImportHint.
+  /// No description provided for @trackerImportHint.
   ///
   /// In en, this message translates to:
-  /// **'Adds titles from your AniList lists to the library. Then you can move them to a source.'**
-  String get aniListImportHint;
+  /// **'Adds titles from your {tracker} lists to the library. Then you can move them to a source.'**
+  String trackerImportHint(String tracker);
 
-  /// No description provided for @aniListSyncTitle.
+  /// No description provided for @trackerSyncTitle.
   ///
   /// In en, this message translates to:
   /// **'Sync progress'**
-  String get aniListSyncTitle;
+  String get trackerSyncTitle;
 
-  /// No description provided for @aniListSyncHint.
+  /// No description provided for @trackerSyncHint.
   ///
   /// In en, this message translates to:
-  /// **'Marks what AniList says you have read or watched as read here, and sends anything you are further along in.'**
-  String get aniListSyncHint;
+  /// **'Marks what {tracker} says you have read or watched as read here, and sends anything you are further along in.'**
+  String trackerSyncHint(String tracker);
 
-  /// No description provided for @aniListSyncRunning.
+  /// No description provided for @trackerSyncRunning.
   ///
   /// In en, this message translates to:
-  /// **'Syncing...'**
-  String get aniListSyncRunning;
+  /// **'Syncing…'**
+  String get trackerSyncRunning;
 
-  /// No description provided for @aniListSyncDone.
+  /// No description provided for @trackerSyncDone.
   ///
   /// In en, this message translates to:
-  /// **'{pulled} updated here, {pushed} queued for AniList, {waiting} waiting for a source.'**
-  String aniListSyncDone(int pulled, int pushed, int waiting);
+  /// **'{pulled} updated here, {pushed} queued for {tracker}, {waiting} waiting for a source.'**
+  String trackerSyncDone(String tracker, int pulled, int pushed, int waiting);
 
-  /// No description provided for @aniListImportPickTitle.
+  /// No description provided for @trackerImportPickTitle.
   ///
   /// In en, this message translates to:
   /// **'Import which lists?'**
-  String get aniListImportPickTitle;
+  String get trackerImportPickTitle;
 
-  /// No description provided for @aniListImportAnime.
+  /// No description provided for @trackerImportAnime.
   ///
   /// In en, this message translates to:
   /// **'Anime ({count})'**
-  String aniListImportAnime(int count);
+  String trackerImportAnime(int count);
 
-  /// No description provided for @aniListImportManga.
+  /// No description provided for @trackerImportManga.
   ///
   /// In en, this message translates to:
   /// **'Manga and novels ({count})'**
-  String aniListImportManga(int count);
+  String trackerImportManga(int count);
 
-  /// No description provided for @aniListImportRunning.
+  /// No description provided for @trackerImportRunning.
   ///
   /// In en, this message translates to:
-  /// **'Importing...'**
-  String get aniListImportRunning;
+  /// **'Importing…'**
+  String get trackerImportRunning;
 
-  /// No description provided for @aniListImportDone.
+  /// No description provided for @trackerImportDone.
   ///
   /// In en, this message translates to:
   /// **'{added} added to the library, {skipped} already there, {failed} failed.'**
-  String aniListImportDone(int added, int skipped, int failed);
+  String trackerImportDone(int added, int skipped, int failed);
 
   /// No description provided for @migrationPromptAction.
   ///
@@ -7612,191 +9124,191 @@ abstract class AppLocalizations {
   /// **'Imported titles have no source yet. Select them in the library and choose Migrate, or migrate them now.'**
   String get migrationPromptHint;
 
-  /// No description provided for @aniListListEmpty.
+  /// No description provided for @trackerListEmpty.
   ///
   /// In en, this message translates to:
   /// **'Nothing here.'**
-  String get aniListListEmpty;
+  String get trackerListEmpty;
 
-  /// No description provided for @aniListListSearch.
+  /// No description provided for @trackerListSearch.
   ///
   /// In en, this message translates to:
   /// **'Search this list'**
-  String get aniListListSearch;
+  String get trackerListSearch;
 
-  /// No description provided for @aniListFilterAll.
+  /// No description provided for @trackerFilterAll.
   ///
   /// In en, this message translates to:
   /// **'All'**
-  String get aniListFilterAll;
+  String get trackerFilterAll;
 
-  /// No description provided for @aniListProgressOf.
+  /// No description provided for @trackerProgressOf.
   ///
   /// In en, this message translates to:
   /// **'{progress} of {total}'**
-  String aniListProgressOf(int progress, int total);
+  String trackerProgressOf(int progress, int total);
 
-  /// No description provided for @aniListProgressOnly.
+  /// No description provided for @trackerProgressOnly.
   ///
   /// In en, this message translates to:
   /// **'{progress}'**
-  String aniListProgressOnly(int progress);
+  String trackerProgressOnly(int progress);
 
-  /// No description provided for @aniListNoScore.
+  /// No description provided for @trackerNoScore.
   ///
   /// In en, this message translates to:
   /// **'No score'**
-  String get aniListNoScore;
+  String get trackerNoScore;
 
-  /// No description provided for @aniListAddToLibrary.
+  /// No description provided for @trackerAddToLibrary.
   ///
   /// In en, this message translates to:
   /// **'Add to library'**
-  String get aniListAddToLibrary;
+  String get trackerAddToLibrary;
 
-  /// No description provided for @aniListEditTitle.
+  /// No description provided for @trackerEditTitle.
   ///
   /// In en, this message translates to:
   /// **'Edit entry'**
-  String get aniListEditTitle;
+  String get trackerEditTitle;
 
-  /// No description provided for @aniListFieldStatus.
+  /// No description provided for @trackerFieldStatus.
   ///
   /// In en, this message translates to:
   /// **'Status'**
-  String get aniListFieldStatus;
+  String get trackerFieldStatus;
 
-  /// No description provided for @aniListFieldProgress.
+  /// No description provided for @trackerFieldProgress.
   ///
   /// In en, this message translates to:
   /// **'Progress'**
-  String get aniListFieldProgress;
+  String get trackerFieldProgress;
 
-  /// No description provided for @aniListFieldScore.
+  /// No description provided for @trackerFieldScore.
   ///
   /// In en, this message translates to:
-  /// **'Score (0 to 100)'**
-  String get aniListFieldScore;
+  /// **'Score (0 to 10)'**
+  String get trackerFieldScore;
 
-  /// No description provided for @aniListFieldStarted.
+  /// No description provided for @trackerFieldStarted.
   ///
   /// In en, this message translates to:
   /// **'Started'**
-  String get aniListFieldStarted;
+  String get trackerFieldStarted;
 
-  /// No description provided for @aniListFieldCompleted.
+  /// No description provided for @trackerFieldCompleted.
   ///
   /// In en, this message translates to:
   /// **'Completed'**
-  String get aniListFieldCompleted;
+  String get trackerFieldCompleted;
 
-  /// No description provided for @aniListDateNotSet.
+  /// No description provided for @trackerDateNotSet.
   ///
   /// In en, this message translates to:
   /// **'Not set'**
-  String get aniListDateNotSet;
+  String get trackerDateNotSet;
 
-  /// No description provided for @aniListSave.
+  /// No description provided for @trackerSave.
   ///
   /// In en, this message translates to:
-  /// **'Save to AniList'**
-  String get aniListSave;
+  /// **'Save to {tracker}'**
+  String trackerSave(String tracker);
 
-  /// No description provided for @aniListSaved.
+  /// No description provided for @trackerSaved.
   ///
   /// In en, this message translates to:
-  /// **'Saved to AniList.'**
-  String get aniListSaved;
+  /// **'Saved to {tracker}.'**
+  String trackerSaved(String tracker);
 
-  /// No description provided for @aniListSaveFailed.
+  /// No description provided for @trackerSaveFailed.
   ///
   /// In en, this message translates to:
   /// **'Could not save: {reason}'**
-  String aniListSaveFailed(String reason);
+  String trackerSaveFailed(String reason);
 
-  /// No description provided for @aniListRemoveEntry.
+  /// No description provided for @trackerRemoveEntry.
   ///
   /// In en, this message translates to:
-  /// **'Remove from AniList'**
-  String get aniListRemoveEntry;
+  /// **'Remove from {tracker}'**
+  String trackerRemoveEntry(String tracker);
 
-  /// No description provided for @aniListRemoveEntryTitle.
+  /// No description provided for @trackerRemoveEntryTitle.
   ///
   /// In en, this message translates to:
-  /// **'Remove from your AniList?'**
-  String get aniListRemoveEntryTitle;
+  /// **'Remove from your {tracker}?'**
+  String trackerRemoveEntryTitle(String tracker);
 
-  /// No description provided for @aniListRemoveEntryMessage.
+  /// No description provided for @trackerRemoveEntryMessage.
   ///
   /// In en, this message translates to:
-  /// **'\"{title}\" is deleted from your AniList list. Your library is not touched.'**
-  String aniListRemoveEntryMessage(String title);
+  /// **'\"{title}\" is deleted from your {tracker} list. Your library is not touched.'**
+  String trackerRemoveEntryMessage(String tracker, String title);
 
-  /// No description provided for @aniListLoadListFailed.
+  /// No description provided for @trackerLoadListFailed.
   ///
   /// In en, this message translates to:
   /// **'Could not load this list: {reason}'**
-  String aniListLoadListFailed(String reason);
+  String trackerLoadListFailed(String reason);
 
-  /// No description provided for @aniListQueueEmpty.
+  /// No description provided for @trackerQueueEmpty.
   ///
   /// In en, this message translates to:
   /// **'Nothing is waiting to be sent.'**
-  String get aniListQueueEmpty;
+  String get trackerQueueEmpty;
 
-  /// No description provided for @aniListQueueHint.
+  /// No description provided for @trackerQueueHint.
   ///
   /// In en, this message translates to:
   /// **'Progress is sent in a batch after a few minutes. You can send it now.'**
-  String get aniListQueueHint;
+  String get trackerQueueHint;
 
-  /// No description provided for @aniListSendNow.
+  /// No description provided for @trackerSendNow.
   ///
   /// In en, this message translates to:
   /// **'Send now'**
-  String get aniListSendNow;
+  String get trackerSendNow;
 
-  /// No description provided for @aniListSendResultSent.
+  /// No description provided for @trackerSendResultSent.
   ///
   /// In en, this message translates to:
   /// **'{sent} sent, {failed} refused.'**
-  String aniListSendResultSent(int sent, int failed);
+  String trackerSendResultSent(int sent, int failed);
 
-  /// No description provided for @aniListSendResultNothing.
+  /// No description provided for @trackerSendResultNothing.
   ///
   /// In en, this message translates to:
   /// **'Nothing to send.'**
-  String get aniListSendResultNothing;
+  String get trackerSendResultNothing;
 
-  /// No description provided for @aniListSendResultNoAccount.
+  /// No description provided for @trackerSendResultNoAccount.
   ///
   /// In en, this message translates to:
-  /// **'Log in to AniList first.'**
-  String get aniListSendResultNoAccount;
+  /// **'Log in to {tracker} first.'**
+  String trackerSendResultNoAccount(String tracker);
 
-  /// No description provided for @aniListSendResultExpired.
+  /// No description provided for @trackerSendResultExpired.
   ///
   /// In en, this message translates to:
-  /// **'Your AniList login expired. Connect again.'**
-  String get aniListSendResultExpired;
+  /// **'Your {tracker} login expired. Connect again.'**
+  String trackerSendResultExpired(String tracker);
 
-  /// No description provided for @aniListSendResultLater.
+  /// No description provided for @trackerSendResultLater.
   ///
   /// In en, this message translates to:
-  /// **'AniList is busy. It will be tried again later.'**
-  String get aniListSendResultLater;
+  /// **'{tracker} is busy. It will be tried again later.'**
+  String trackerSendResultLater(String tracker);
 
-  /// No description provided for @aniListQueueDiscard.
+  /// No description provided for @trackerQueueDiscard.
   ///
   /// In en, this message translates to:
   /// **'Remove from queue'**
-  String get aniListQueueDiscard;
+  String get trackerQueueDiscard;
 
-  /// No description provided for @aniListQueueTries.
+  /// No description provided for @trackerQueueTries.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{Tried once} other{Tried {count} times}}'**
-  String aniListQueueTries(int count);
+  String trackerQueueTries(int count);
 
   /// No description provided for @trackingStatusCurrentAnime.
   ///
@@ -7987,7 +9499,7 @@ abstract class AppLocalizations {
   /// No description provided for @readerNextChapter2.
   ///
   /// In en, this message translates to:
-  /// **'Next Chapter'**
+  /// **'Next chapter'**
   String get readerNextChapter2;
 
   /// No description provided for @settingNoSettingsMatch.
@@ -8245,7 +9757,7 @@ abstract class AppLocalizations {
   /// No description provided for @translationSearchLanguageOrCode.
   ///
   /// In en, this message translates to:
-  /// **'Search language or code...'**
+  /// **'Search language or code…'**
   String get translationSearchLanguageOrCode;
 
   /// No description provided for @translationUseCustomTag.
@@ -8263,7 +9775,7 @@ abstract class AppLocalizations {
   /// No description provided for @translationTranslationFor.
   ///
   /// In en, this message translates to:
-  /// **'Translation for \"{label}\"...'**
+  /// **'Translation for \"{label}\"…'**
   String translationTranslationFor(Object label);
 
   /// No description provided for @translationEGFemaleMaleOther.
@@ -8311,7 +9823,7 @@ abstract class AppLocalizations {
   /// No description provided for @translationSaveNext.
   ///
   /// In en, this message translates to:
-  /// **'Save & Next'**
+  /// **'Save & next'**
   String get translationSaveNext;
 
   /// No description provided for @translationTranslation.
@@ -8323,13 +9835,13 @@ abstract class AppLocalizations {
   /// No description provided for @translationEnterTranslation.
   ///
   /// In en, this message translates to:
-  /// **'Enter translation...'**
+  /// **'Enter translation…'**
   String get translationEnterTranslation;
 
   /// No description provided for @translationLivePluralPreview.
   ///
   /// In en, this message translates to:
-  /// **'Live Plural Preview'**
+  /// **'Live plural preview'**
   String get translationLivePluralPreview;
 
   /// No description provided for @translationCount.
@@ -8371,7 +9883,7 @@ abstract class AppLocalizations {
   /// No description provided for @chapterMenuSeriesDownloadSettings.
   ///
   /// In en, this message translates to:
-  /// **'Download settings for this series'**
+  /// **'Download settings for this title'**
   String get chapterMenuSeriesDownloadSettings;
 
   /// No description provided for @seriesDownloadSettingsTitle.
@@ -8395,7 +9907,7 @@ abstract class AppLocalizations {
   /// No description provided for @readerSettingsDefaultsHint.
   ///
   /// In en, this message translates to:
-  /// **'These are the defaults for every series. In the reader, choose This series to keep a setting for that series only.'**
+  /// **'These are the defaults for every title. In the reader, choose \"This title only\" to keep a setting for that title alone.'**
   String get readerSettingsDefaultsHint;
 
   /// No description provided for @advancedHighRefreshTitle.
@@ -8641,13 +10153,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsMihonImportSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Add the library, chapters and history from a Mihon .tachibk file'**
+  /// **'Add the library, categories, chapters and history from a Mihon .tachibk file'**
   String get settingsMihonImportSubtitle;
 
   /// No description provided for @settingsMihonImportWarning.
   ///
   /// In en, this message translates to:
-  /// **'This adds every favorited title from the Mihon backup to your library. Titles are not linked to a source yet: use Migrate afterward to attach an installed source to each one. Categories are not carried over.'**
+  /// **'This adds every favorited title from the Mihon backup to your library. Titles are not linked to a source yet: use Migrate afterward to attach an installed source to each one.'**
   String get settingsMihonImportWarning;
 
   /// No description provided for @settingsMihonImportDone.
@@ -8655,6 +10167,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Added {added} titles, {skipped} were already imported'**
   String settingsMihonImportDone(int added, int skipped);
+
+  /// No description provided for @backupImportProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing {completed} of {total}'**
+  String backupImportProgress(int completed, int total);
+
+  /// No description provided for @backupImportEta.
+  ///
+  /// In en, this message translates to:
+  /// **'About {eta} left'**
+  String backupImportEta(String eta);
+
+  /// No description provided for @backupImportCancelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Canceling…'**
+  String get backupImportCancelling;
+
+  /// No description provided for @backupImportCancelledDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Import canceled: added {added} titles, {skipped} were already imported'**
+  String backupImportCancelledDone(int added, int skipped);
 
   /// No description provided for @autoSourceMatchRunning.
   ///

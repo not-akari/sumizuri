@@ -58,7 +58,7 @@ class DashboardSectionOrderEditor extends ConsumerWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           l10n.homeScreenOrderHint,
@@ -73,18 +73,15 @@ class DashboardSectionOrderEditor extends ConsumerWidget {
           proxyDecorator: reorderableCardProxyDecorator,
           children: [
             for (final (index, kind) in visible.indexed)
-              Padding(
+              ReorderableCardRow(
                 key: ValueKey(kind),
-                padding: const EdgeInsets.only(bottom: 8),
-                child: ReorderableCardRow(
-                  dragIndex: index,
-                  icon: _dashboardSectionIcon(kind),
-                  title: Text(
-                    _dashboardSectionLabel(kind, l10n),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                dragIndex: index,
+                icon: _dashboardSectionIcon(kind),
+                title: Text(
+                  _dashboardSectionLabel(kind, l10n),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),

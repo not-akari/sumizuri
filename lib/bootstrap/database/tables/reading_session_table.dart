@@ -18,6 +18,11 @@ import 'package:sumizuri/bootstrap/database/tables/library_entry_table.dart';
   unique: true,
 )
 @TableIndex(name: 'idx_reading_sessions_updated_at', columns: {#updatedAt})
+@TableIndex(
+  name: 'idx_reading_sessions_content_unit',
+  columns: {#contentUnitId},
+)
+@TableIndex(name: 'idx_reading_sessions_branch', columns: {#branchId})
 class ReadingSessions extends Table {
   IntColumn get id => integer().autoIncrement()();
 

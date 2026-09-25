@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sumizuri/core/utils/formatting/media_type_label.dart';
+import 'package:sumizuri/core/utils/network/origin_headers.dart';
 import 'package:sumizuri/core/widgets/cards/app_card.dart';
 import 'package:sumizuri/core/widgets/navigation/squiggle_tab_bar.dart';
 import 'package:sumizuri/features/library/models/library_types.dart';
@@ -13,7 +14,9 @@ import 'package:sumizuri/core/widgets/feedback/error_view.dart';
 import 'package:sumizuri/features/extensions/models/installed_source.dart';
 import 'package:sumizuri/features/library/widgets/library_filter_chips.dart';
 import 'package:sumizuri/features/repos/models/repo.dart';
+import 'package:sumizuri/features/repos/data/repo_url.dart';
 import 'package:sumizuri/features/repos/models/repo_source.dart';
+import 'package:sumizuri/features/repos/providers/repo_presence.dart';
 import 'package:sumizuri/features/settings/providers/settings_providers.dart';
 import 'package:sumizuri/features/translations/models/canonical_locales.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
@@ -55,10 +58,15 @@ class _RepoBrowsePageState extends ConsumerState<RepoBrowsePage> {
         .fetchIndex(widget.repo.url);
     if (!mounted) return;
     result.when(
-      ok: (index) => setState(() {
-        _loading = false;
-        _sources = index.sources;
-      }),
+      ok: (index) {
+        ref
+            .read(repoPresenceProvider.notifier)
+            .record(widget.repo.url, index.sources);
+        setState(() {
+          _loading = false;
+          _sources = index.sources;
+        });
+      },
       err: (failure) => setState(() {
         _loading = false;
         _loadError = failure.displayMessage;
@@ -69,7 +77,9 @@ class _RepoBrowsePageState extends ConsumerState<RepoBrowsePage> {
   AppInstalledSource? _installedFor(RepoSource source) {
     final installed = ref.watch(installedSourcesProvider).value ?? const [];
     for (final candidate in installed) {
-      if (candidate.repoUrl == widget.repo.url &&
+      if (candidate.repoUrl != null &&
+          normalizeRepoUrl(candidate.repoUrl!) ==
+              normalizeRepoUrl(widget.repo.url) &&
           candidate.repoSourceId == source.id) {
         return candidate;
       }
@@ -115,6 +125,7 @@ class _RepoBrowsePageState extends ConsumerState<RepoBrowsePage> {
       repoUrl: widget.repo.url,
       repoSourceId: source.id,
       version: source.version,
+      nsfw: source.nsfw,
     );
 
     if (!mounted) return;
@@ -146,6 +157,44 @@ class _RepoBrowsePageState extends ConsumerState<RepoBrowsePage> {
     await ref.read(installedSourceRepositoryProvider).remove(existing.id);
   }
 
+  /// Row 0 of the tail is a heading; the rest are sources this repo removed.
+  Widget _obsoleteRow(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<AppInstalledSource> obsolete,
+    int tailIndex,
+  ) {
+    final cs = Theme.of(context).colorScheme;
+    if (tailIndex == 0) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+        child: Text(
+          l10n.repoObsoleteHeading,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      );
+    }
+    final source = obsolete[tailIndex - 1];
+    return AppCardRow(
+      dimmed: true,
+      icon: Icons.block_outlined,
+      title: source.name,
+      subtitle:
+          '${source.lang} · ${source.mediaType.name} · ${l10n.sourceObsoleteBadge}',
+      details: [
+        Text(
+          l10n.repoObsoleteHint,
+          style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant),
+        ),
+      ],
+      trailing: IconButton(
+        icon: const Icon(Icons.delete_outline, size: 20),
+        tooltip: l10n.repoSourceUninstall,
+        onPressed: () => _uninstall(source),
+      ),
+    );
+  }
+
   String _languageLabel(String code) =>
       lookupCanonicalLocale(code)?.englishName ?? code.toUpperCase();
 
@@ -169,6 +218,17 @@ class _RepoBrowsePageState extends ConsumerState<RepoBrowsePage> {
           ];
     final languages = {for (final s in byType) s.lang}.toList()..sort();
     final hasNsfw = byType.any((s) => s.nsfw);
+    final obsoleteIds = ref.watch(obsoleteSourceIdsProvider);
+    final obsolete = [
+      for (final installed
+          in ref.watch(installedSourcesProvider).value ??
+              const <AppInstalledSource>[])
+        if (obsoleteIds.contains(installed.id) &&
+            installed.repoUrl != null &&
+            normalizeRepoUrl(installed.repoUrl!) ==
+                normalizeRepoUrl(widget.repo.url))
+          installed,
+    ];
     final visible = [
       for (final s in byType)
         if ((_languageFilter == null || s.lang == _languageFilter) &&
@@ -251,8 +311,18 @@ class _RepoBrowsePageState extends ConsumerState<RepoBrowsePage> {
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
-                          itemCount: visible.length,
+                          itemCount:
+                              visible.length +
+                              (obsolete.isEmpty ? 0 : obsolete.length + 1),
                           itemBuilder: (context, index) {
+                            if (index >= visible.length) {
+                              return _obsoleteRow(
+                                context,
+                                l10n,
+                                obsolete,
+                                index - visible.length,
+                              );
+                            }
                             final source = visible[index];
                             final existing = _installedFor(source);
                             final isInstalling = _installing.contains(
@@ -280,7 +350,10 @@ class _RepoBrowsePageState extends ConsumerState<RepoBrowsePage> {
                                 backgroundColor: cs.surface,
                                 backgroundImage: source.iconUrl.isEmpty
                                     ? null
-                                    : NetworkImage(source.iconUrl),
+                                    : NetworkImage(
+                                        source.iconUrl,
+                                        headers: originHeaders(source.iconUrl),
+                                      ),
                                 onBackgroundImageError: source.iconUrl.isEmpty
                                     ? null
                                     : (_, _) {},

@@ -13,11 +13,14 @@ class LibraryHeader extends StatelessWidget {
     required this.onSmartRuleOrSort,
     required this.smartRuleTooltip,
     this.updateProgressLabel,
+    this.updateProgressValue,
     this.onCancelUpdate,
     required this.onRefresh,
     required this.refreshTooltip,
     required this.onRandom,
     required this.randomTooltip,
+    this.onDisplay,
+    this.displayTooltip,
   });
 
   final String title;
@@ -28,12 +31,19 @@ class LibraryHeader extends StatelessWidget {
 
   /// Non-null while a library update is running, shown instead of the refresh button.
   final String? updateProgressLabel;
+
+  /// 0..1 while a library update is running, or null for an indeterminate spinner.
+  final double? updateProgressValue;
   final VoidCallback? onCancelUpdate;
   final VoidCallback onRefresh;
   final String refreshTooltip;
 
   final VoidCallback onRandom;
   final String randomTooltip;
+
+  /// Opens the choice of grid or list.
+  final VoidCallback? onDisplay;
+  final String? displayTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +72,13 @@ class LibraryHeader extends StatelessWidget {
                 ),
               ),
               if (updateProgressLabel != null) ...[
-                const SizedBox(
+                SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    value: updateProgressValue,
+                  ),
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -81,6 +94,12 @@ class LibraryHeader extends StatelessWidget {
                 else
                   const SizedBox(width: 8),
               ] else ...[
+                if (onDisplay != null)
+                  IconButton(
+                    icon: const Icon(Icons.view_module_outlined),
+                    tooltip: displayTooltip,
+                    onPressed: onDisplay,
+                  ),
                 IconButton(
                   icon: const Icon(Icons.shuffle_rounded),
                   tooltip: randomTooltip,

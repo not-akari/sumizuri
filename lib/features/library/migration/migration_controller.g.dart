@@ -89,7 +89,7 @@ final class MigrationSessionProvider
   }
 }
 
-String _$migrationSessionHash() => r'1989305cb0e7734307bf6e982099436244d5b24b';
+String _$migrationSessionHash() => r'82da1d87210c16c662dadaa2a46c88689c1ac1ac';
 
 abstract class _$MigrationSession extends $Notifier<MigrationState> {
   MigrationState build();

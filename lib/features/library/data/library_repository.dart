@@ -69,6 +69,13 @@ abstract interface class LibraryRepository {
 
   Future<Result<void, AppFailure>> removeFromLibrary(int entryId);
 
+  /// Like [removeFromLibrary], for many entries at once in a single
+  /// transaction, so a large selection notifies watchers once instead of
+  /// once per entry.
+  Future<Result<void, AppFailure>> removeManyFromLibrary(
+    Iterable<int> entryIds,
+  );
+
   Future<Result<void, AppFailure>> syncChapters({
     required int libraryEntryId,
     required List<ChapterSyncItem> chapters,
@@ -185,6 +192,14 @@ abstract interface class LibraryRepository {
 
   Future<Result<void, AppFailure>> setEntryCategories({
     required int entryId,
+    required Set<int> categoryIds,
+  });
+
+  /// Like [setEntryCategories], for many entries at once in a single
+  /// transaction, so a large selection notifies watchers once instead of
+  /// once per entry.
+  Future<Result<void, AppFailure>> setCategoriesForManyEntries({
+    required Iterable<int> entryIds,
     required Set<int> categoryIds,
   });
 

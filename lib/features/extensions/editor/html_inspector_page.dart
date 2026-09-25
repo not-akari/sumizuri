@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_highlight/flutter_highlight.dart';
+import 'package:sumizuri/features/extensions/editor/code_syntax.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
 
 import 'package:sumizuri/features/extensions/editor/html_clean.dart';
@@ -244,14 +244,17 @@ class _HtmlInspectorPanelState extends State<HtmlInspectorPanel> {
                     )
                   : SelectionArea(
                       child: SingleChildScrollView(
-                        child: HighlightView(
-                          _displayedHtml,
-                          language: 'html',
-                          theme: atomOneDarkTheme,
+                        child: Padding(
                           padding: const EdgeInsets.all(8),
-                          textStyle: const TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 12,
+                          child: Text.rich(
+                            TextSpan(
+                              style: TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 12,
+                                color: atomOneDarkTheme['root']?.color,
+                              ),
+                              children: highlightSpans(_displayedHtml, 'xml'),
+                            ),
                           ),
                         ),
                       ),

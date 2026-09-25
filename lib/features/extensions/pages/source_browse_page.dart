@@ -8,6 +8,7 @@ import 'package:sumizuri/bootstrap/logging/logger_provider.dart';
 import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/feedback/error_view.dart';
 import 'package:sumizuri/features/extensions/data/extension_service.dart';
+import 'package:sumizuri/features/extensions/data/source_web_url.dart';
 import 'package:sumizuri/core/errors/app_failure.dart';
 import 'package:sumizuri/core/errors/result.dart';
 import 'package:sumizuri/features/extensions/models/filter_group.dart';
@@ -18,6 +19,7 @@ import 'package:sumizuri/l10n/generated/app_localizations.dart';
 import 'package:sumizuri/features/library/flows/add_to_library_flow.dart';
 import 'package:sumizuri/features/library/providers/library_providers.dart';
 import 'package:sumizuri/features/extensions/cloudflare/challenge_error_view.dart';
+import 'package:sumizuri/features/extensions/entry_detail/entry_detail_navigation.dart';
 import 'package:sumizuri/features/extensions/entry_detail/entry_detail_page.dart';
 import 'package:sumizuri/features/extensions/providers/extension_providers.dart';
 import 'package:sumizuri/features/extensions/widgets/source_browse_dialogs.dart';
@@ -300,12 +302,14 @@ class _SourceBrowsePageState extends ConsumerState<SourceBrowsePage> {
     if (_loadError != null) {
       return AmbientScaffold(
         title: Text(widget.source.name),
+        actions: [_webviewButton(l10n)],
         body: ErrorView(message: _loadError!.displayMessage),
       );
     }
     if (_service == null) {
       return AmbientScaffold(
         title: Text(widget.source.name),
+        actions: [_webviewButton(l10n)],
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -313,6 +317,7 @@ class _SourceBrowsePageState extends ConsumerState<SourceBrowsePage> {
     return AmbientScaffold(
       title: Text(widget.source.name),
       actions: [
+        _webviewButton(l10n),
         IconButton(
           icon: const Icon(Icons.search),
           tooltip: l10n.sourceEditorTestMethodSearch,
@@ -372,6 +377,21 @@ class _SourceBrowsePageState extends ConsumerState<SourceBrowsePage> {
       err: (_) {},
     );
   }
+
+  /// The source's own site, in the in-app browser: to look around it, or to
+  /// clear a bot check that is stopping the listing from loading.
+  Future<void> _openWebview() => openEntryWebview(
+    context: context,
+    url: sourceWebUrl(widget.source),
+    sourceId: widget.source.id.toString(),
+    onSolved: _reloadServiceAndRetry,
+  );
+
+  Widget _webviewButton(AppLocalizations l10n) => IconButton(
+    icon: const Icon(Icons.public),
+    tooltip: l10n.sourceBrowseWebview,
+    onPressed: widget.source.baseUrl.isEmpty ? null : _openWebview,
+  );
 
   Future<void> _reloadServiceAndRetry() async {
     await _service?.dispose();

@@ -57,6 +57,8 @@ class CalendarMonthView extends ConsumerWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
         child: AppCard(
+          flattenWhenCompact: true,
+          tone: AppCardTone.inset,
           child: Column(
             children: [
               if (releasesAsync.value == null)

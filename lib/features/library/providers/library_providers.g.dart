@@ -646,18 +646,12 @@ final class FurthestReadFamily extends $Family
   String toString() => r'furthestReadProvider';
 }
 
-/// The same data as [furthestReadProvider], for many entries at once, keyed by a sorted
-/// comma-joined id list rather than a raw `List<int>`: Riverpod caches a family by ==,
-/// and two lists with the same ids are never == to each other, so every build would
-/// otherwise count as a new family member and open a fresh query instead of reusing one.
+/// Batch furthestRead provider keyed by a comma-joined id list for caching.
 
 @ProviderFor(furthestReadMany)
 final furthestReadManyProvider = FurthestReadManyFamily._();
 
-/// The same data as [furthestReadProvider], for many entries at once, keyed by a sorted
-/// comma-joined id list rather than a raw `List<int>`: Riverpod caches a family by ==,
-/// and two lists with the same ids are never == to each other, so every build would
-/// otherwise count as a new family member and open a fresh query instead of reusing one.
+/// Batch furthestRead provider keyed by a comma-joined id list for caching.
 
 final class FurthestReadManyProvider
     extends
@@ -669,10 +663,7 @@ final class FurthestReadManyProvider
     with
         $FutureModifier<Map<int, double?>>,
         $StreamProvider<Map<int, double?>> {
-  /// The same data as [furthestReadProvider], for many entries at once, keyed by a sorted
-  /// comma-joined id list rather than a raw `List<int>`: Riverpod caches a family by ==,
-  /// and two lists with the same ids are never == to each other, so every build would
-  /// otherwise count as a new family member and open a fresh query instead of reusing one.
+  /// Batch furthestRead provider keyed by a comma-joined id list for caching.
   FurthestReadManyProvider._({
     required FurthestReadManyFamily super.from,
     required String super.argument,
@@ -719,10 +710,7 @@ final class FurthestReadManyProvider
 
 String _$furthestReadManyHash() => r'2c1046c5ffd285a1865c9340406ce95923e8603e';
 
-/// The same data as [furthestReadProvider], for many entries at once, keyed by a sorted
-/// comma-joined id list rather than a raw `List<int>`: Riverpod caches a family by ==,
-/// and two lists with the same ids are never == to each other, so every build would
-/// otherwise count as a new family member and open a fresh query instead of reusing one.
+/// Batch furthestRead provider keyed by a comma-joined id list for caching.
 
 final class FurthestReadManyFamily extends $Family
     with $FunctionalFamilyOverride<Stream<Map<int, double?>>, String> {
@@ -735,10 +723,7 @@ final class FurthestReadManyFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// The same data as [furthestReadProvider], for many entries at once, keyed by a sorted
-  /// comma-joined id list rather than a raw `List<int>`: Riverpod caches a family by ==,
-  /// and two lists with the same ids are never == to each other, so every build would
-  /// otherwise count as a new family member and open a fresh query instead of reusing one.
+  /// Batch furthestRead provider keyed by a comma-joined id list for caching.
 
   FurthestReadManyProvider call(String sortedIdsKey) =>
       FurthestReadManyProvider._(argument: sortedIdsKey, from: this);
@@ -1522,7 +1507,7 @@ final class LibraryUpdateProgressProvider
 }
 
 String _$libraryUpdateProgressHash() =>
-    r'439adfea494065afca60758d96b6936b7e069d69';
+    r'4d3cbc12a979fd9f23129946be4a1d681436f06c';
 
 abstract class _$LibraryUpdateProgress extends $Notifier<UpdateProgress?> {
   UpdateProgress? build();

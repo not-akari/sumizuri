@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import 'package:sumizuri/bootstrap/database/app_database.dart';
 import 'package:sumizuri/features/extensions/models/source_key.dart';
+import 'package:sumizuri/features/repos/data/repo_url.dart';
 
 /// Points every entry that lost its source at sourceRowId, when its remembered key is key.
 Future<int> relinkEntriesToSource(
@@ -37,3 +38,19 @@ String installedSourceKey(InstalledSource row) => sourceKeyOf(
   name: row.name,
   baseUrl: row.baseUrl,
 );
+
+/// Installed sources that came from the same repo source more than once,
+/// grouped, so each group is one source installed several times.
+List<List<InstalledSource>> duplicateSourceGroups(List<InstalledSource> rows) {
+  final byKey = <String, List<InstalledSource>>{};
+  for (final row in rows) {
+    final repoUrl = row.repoUrl;
+    final repoSourceId = row.repoSourceId;
+    if (repoUrl == null || repoSourceId == null) continue;
+    (byKey['${normalizeRepoUrl(repoUrl)}\n$repoSourceId'] ??= []).add(row);
+  }
+  return [
+    for (final group in byKey.values)
+      if (group.length > 1) group,
+  ];
+}

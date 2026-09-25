@@ -24,8 +24,14 @@ class ExtensionFailure extends AppFailure {
   const ExtensionFailure(super.message, {super.cause});
 
   @override
-  String get displayMessage =>
-      '$message\n\nThis comes from the source\'s own code, not Sumizuri.';
+  String get displayMessage {
+    // Failing to open a page is the built-in browser's doing, not the source's.
+    if (message.contains('The page could not be loaded')) {
+      return '$message\n\nSumizuri\'s built-in browser could not open this '
+          'site. It may be down, or blocking the app. Try again in a moment.';
+    }
+    return '$message\n\nThis comes from the source\'s own code, not Sumizuri.';
+  }
 }
 
 class NotImplementedFailure extends AppFailure {

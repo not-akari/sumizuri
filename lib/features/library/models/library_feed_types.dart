@@ -1,3 +1,5 @@
+import 'package:sumizuri/features/library/models/library_types.dart';
+
 class MoveOutcome {
   const MoveOutcome({
     required this.carried,
@@ -30,6 +32,7 @@ class ChapterSyncItem {
 class UpdateChapterSummary {
   const UpdateChapterSummary({
     required this.libraryEntryId,
+    required this.mediaType,
     required this.entryTitle,
     required this.entryCoverUrl,
     this.customCoverPath,
@@ -42,6 +45,7 @@ class UpdateChapterSummary {
   });
 
   final int libraryEntryId;
+  final MediaType mediaType;
   final String entryTitle;
   final String? entryCoverUrl;
   final String? customCoverPath;

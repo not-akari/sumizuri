@@ -16,6 +16,7 @@ import 'package:sumizuri/features/settings/pages/library_update_settings_page.da
 import 'package:sumizuri/features/settings/pages/missing_sources_page.dart';
 import 'package:sumizuri/features/settings/pages/notifications_settings_page.dart';
 import 'package:sumizuri/core/window/native_title_bar.dart';
+import 'package:sumizuri/features/profile/pages/profile_page.dart';
 import 'package:sumizuri/features/settings/pages/reader_controls_page.dart';
 import 'package:sumizuri/features/settings/pages/storage_page.dart';
 import 'package:sumizuri/features/settings/pages/reader_settings_page.dart';
@@ -47,6 +48,7 @@ List<SettingsSection> buildSettingsSections({
 }) => [
   SettingsSection(
     title: l10n.settingsSectionAppearance,
+    group: SettingsGroup.general,
     entries: [
       SettingsEntry(
         icon: Icons.palette_outlined,
@@ -68,6 +70,15 @@ List<SettingsSection> buildSettingsSections({
         ],
         onTap: (context, ref) =>
             _openAppearance(context, AppearanceSection.theme),
+      ),
+      SettingsEntry(
+        searchOnly: true,
+        icon: Icons.visibility_off_outlined,
+        title: l10n.incognitoTitle,
+        subtitle: l10n.incognitoHint,
+        keywords: const ['private', 'history', 'hide', 'tracking', 'reading'],
+        onTap: (context, ref) => Navigator.of(context)
+            .push(MaterialPageRoute<void>(builder: (_) => const ProfilePage())),
       ),
       SettingsEntry(
         searchOnly: true,
@@ -128,10 +139,11 @@ List<SettingsSection> buildSettingsSections({
   ),
   SettingsSection(
     title: l10n.settingsSectionLibrary,
+    group: SettingsGroup.content,
     entries: [
       SettingsEntry(
         icon: Icons.auto_stories_outlined,
-        title: l10n.settingsLibrarySettingsTile,
+        title: l10n.settingsSectionLibrary,
         subtitle: l10n.settingsLibrarySettingsSubtitle,
         keywords: const ['manga', 'novel', 'anime', 'unified', 'split'],
         onTap: (context, ref) => Navigator.of(
@@ -139,6 +151,7 @@ List<SettingsSection> buildSettingsSections({
         ).push(MaterialPageRoute(builder: (_) => const LibrarySettingsPage())),
       ),
       SettingsEntry(
+        searchOnly: true,
         icon: Icons.label_outlined,
         title: l10n.libraryManageCategories,
         keywords: const ['categories', 'update', 'exclude'],
@@ -147,6 +160,7 @@ List<SettingsSection> buildSettingsSections({
         ),
       ),
       SettingsEntry(
+        searchOnly: true,
         icon: Icons.update_outlined,
         title: l10n.libraryAutoUpdateTitle,
         keywords: const [
@@ -161,6 +175,7 @@ List<SettingsSection> buildSettingsSections({
         ),
       ),
       SettingsEntry(
+        searchOnly: true,
         icon: Icons.link_off,
         title: l10n.missingSourcesTitle,
         subtitle: _missingSourcesSubtitle(ref, l10n),
@@ -171,14 +186,15 @@ List<SettingsSection> buildSettingsSections({
           'missing',
           'imported',
         ],
-        onTap: (context, ref) => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const MissingSourcesPage()),
-        ),
+        onTap: (context, ref) => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const MissingSourcesPage())),
       ),
     ],
   ),
   SettingsSection(
     title: l10n.settingsSectionReader,
+    group: SettingsGroup.content,
     entries: [
       SettingsEntry(
         icon: Icons.chrome_reader_mode_outlined,
@@ -204,6 +220,7 @@ List<SettingsSection> buildSettingsSections({
         ).push(MaterialPageRoute(builder: (_) => const PlayerSettingsPage())),
       ),
       SettingsEntry(
+        searchOnly: true,
         icon: Icons.subtitles_outlined,
         title: l10n.playerSectionSubtitles,
         keywords: const [
@@ -220,6 +237,7 @@ List<SettingsSection> buildSettingsSections({
         ).push(MaterialPageRoute(builder: (_) => const SubtitleSettingsPage())),
       ),
       SettingsEntry(
+        searchOnly: true,
         icon: Icons.keyboard_outlined,
         title: isDesktopWindowPlatform
             ? l10n.readerControlsTitle
@@ -244,10 +262,11 @@ List<SettingsSection> buildSettingsSections({
   ),
   SettingsSection(
     title: l10n.settingsSectionDownloads,
+    group: SettingsGroup.data,
     entries: [
       SettingsEntry(
         icon: Icons.download_outlined,
-        title: l10n.downloadsTitle,
+        title: l10n.settingsDownloadsAndStorage,
         subtitle: l10n.downloadsSubtitle,
         keywords: const [
           'downloads',
@@ -263,6 +282,7 @@ List<SettingsSection> buildSettingsSections({
                 .push(MaterialPageRoute(builder: (_) => const DownloadsPage())),
       ),
       SettingsEntry(
+        searchOnly: true,
         icon: Icons.pie_chart_outline,
         title: l10n.storagePageTitle,
         subtitle: l10n.storagePageSubtitle,
@@ -275,6 +295,7 @@ List<SettingsSection> buildSettingsSections({
   ),
   SettingsSection(
     title: l10n.settingsSectionNotifications,
+    group: SettingsGroup.general,
     entries: [
       SettingsEntry(
         icon: Icons.notifications_outlined,
@@ -289,6 +310,7 @@ List<SettingsSection> buildSettingsSections({
   ),
   SettingsSection(
     title: l10n.settingsSectionBackup,
+    group: SettingsGroup.data,
     entries: [
       SettingsEntry(
         icon: Icons.backup_outlined,
@@ -313,6 +335,7 @@ List<SettingsSection> buildSettingsSections({
   ),
   SettingsSection(
     title: l10n.settingsSectionSecurity,
+    group: SettingsGroup.general,
     entries: [
       SettingsEntry(
         icon: Icons.lock_outline,
@@ -334,6 +357,7 @@ List<SettingsSection> buildSettingsSections({
   ),
   SettingsSection(
     title: l10n.settingsSectionAdvanced,
+    group: SettingsGroup.help,
     entries: [
       SettingsEntry(
         icon: Icons.speed_outlined,

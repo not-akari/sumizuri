@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:sumizuri/core/theming/app_layout.dart';
 import 'package:sumizuri/core/utils/formatting/media_type_label.dart';
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/core/widgets/cards/reorderable_card_row.dart'
     show reorderableCardProxyDecorator;
@@ -146,28 +145,17 @@ class _CategoriesSettingsPageState
       proxyDecorator: reorderableCardProxyDecorator,
       itemBuilder: (context, index) {
         final category = categories[index];
-        return Padding(
+        return CategoryRow(
           key: ValueKey(category.id),
-          padding: EdgeInsets.fromLTRB(
-            context.layout.gutter,
-            0,
-            context.layout.gutter,
-            8,
-          ),
-          child: CategoryRow(
-            dragIndex: index,
-            category: category,
-            onRename: () => renameCategory(context, ref, category),
-            onDelete: () => deleteCategory(context, ref, category),
-            onToggleExcludeFromUpdate: (exclude) => ref
-                .read(libraryRepositoryProvider)
-                .setCategoryExcludeFromUpdate(
-                  id: category.id,
-                  exclude: exclude,
-                ),
-            onOpenSmartRule: () =>
-                showCategorySmartRuleEditor(context, ref, category),
-          ),
+          dragIndex: index,
+          category: category,
+          onRename: () => renameCategory(context, ref, category),
+          onDelete: () => deleteCategory(context, ref, category),
+          onToggleExcludeFromUpdate: (exclude) => ref
+              .read(libraryRepositoryProvider)
+              .setCategoryExcludeFromUpdate(id: category.id, exclude: exclude),
+          onOpenSmartRule: () =>
+              showCategorySmartRuleEditor(context, ref, category),
         );
       },
     );
@@ -185,8 +173,7 @@ class _CategoriesSettingsPageState
     final index = types.isEmpty ? 0 : _typeIndex.clamp(0, types.length - 1);
     final type = types.isEmpty ? null : types[index];
 
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    return SettingsScaffold(
       title: Text(l10n.categoriesTitle),
       actions: [
         if (enabled && type != null)

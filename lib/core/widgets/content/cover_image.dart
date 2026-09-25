@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:sumizuri/core/utils/files/local_path.dart';
+import 'package:sumizuri/core/utils/network/origin_headers.dart';
 
 class CoverImage extends StatelessWidget {
   const CoverImage({
@@ -89,15 +91,17 @@ class CoverImage extends StatelessWidget {
             errorBuilder: failed,
           );
         }
-        return Image.network(
-          url!,
+        return CachedNetworkImage(
+          imageUrl: url!,
+          httpHeaders: originHeaders(url!),
           fit: fit,
-          alignment: alignment,
-          cacheWidth: cacheWidth,
-          frameBuilder: _fadeInFrameBuilder,
-          excludeFromSemantics: semanticLabel == null,
-          semanticLabel: semanticLabel,
-          errorBuilder: failed,
+          // CachedNetworkImage only takes a resolved Alignment, unlike
+          // Image.file above, which accepts the wider AlignmentGeometry.
+          alignment: alignment.resolve(Directionality.of(context)),
+          memCacheWidth: cacheWidth,
+          fadeInDuration: const Duration(milliseconds: 200),
+          fadeInCurve: Curves.easeOutCubic,
+          errorWidget: (context, url, error) => failed(context, error, null),
         );
       },
     );

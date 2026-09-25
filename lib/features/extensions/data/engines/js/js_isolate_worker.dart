@@ -160,26 +160,42 @@ Future<JavascriptRuntime> _initRuntime(
     final method = (options['method'] as String?) ?? 'GET';
     final watch = Stopwatch()..start();
     try {
-      final result = useBrowserFetch
-          ? (await _fetchUrlViaBrowser(
-              renderPort: renderPort,
-              url: map['url'] as String,
-              method: method,
-              headers: (options['headers'] as Map?)?.cast<String, String>(),
-              body: options['body'] as String?,
-              timeout: timeout,
-              userAgent: userAgent,
-            ))
-          : await fetchUrl(
-              url: map['url'] as String,
-              method: method,
-              headers: (options['headers'] as Map?)?.cast<String, String>(),
-              body: options['body'] as String?,
-              client: httpClient,
-              cookieJar: cookieJar,
-              timeout: timeout,
-              defaultUserAgent: userAgent,
-            );
+      Map<String, Object?> result;
+      if (useBrowserFetch) {
+        try {
+          result = await _fetchUrlViaBrowser(
+            renderPort: renderPort,
+            url: map['url'] as String,
+            method: method,
+            headers: (options['headers'] as Map?)?.cast<String, String>(),
+            body: options['body'] as String?,
+            timeout: timeout,
+            userAgent: userAgent,
+          );
+        } catch (_) {
+          result = await fetchUrl(
+            url: map['url'] as String,
+            method: method,
+            headers: (options['headers'] as Map?)?.cast<String, String>(),
+            body: options['body'] as String?,
+            client: httpClient,
+            cookieJar: cookieJar,
+            timeout: timeout,
+            defaultUserAgent: userAgent,
+          );
+        }
+      } else {
+        result = await fetchUrl(
+          url: map['url'] as String,
+          method: method,
+          headers: (options['headers'] as Map?)?.cast<String, String>(),
+          body: options['body'] as String?,
+          client: httpClient,
+          cookieJar: cookieJar,
+          timeout: timeout,
+          defaultUserAgent: userAgent,
+        );
+      }
       trace?.addFetch(
         method: method,
         url: map['url'] as String,
@@ -469,9 +485,9 @@ Future<Map<String, Object?>> _fetchUrlViaBrowser({
   );
   final reply = ReceivePort();
   port.send((request.toJson(), reply.sendPort));
-  final (bool ok, Object? payload) = await reply.first
-          .timeout(request.timeout + const Duration(seconds: 30))
-      as (bool, Object?);
+  final (bool ok, Object? payload) = await reply.first.timeout(
+    request.timeout + const Duration(seconds: 30),
+  ) as (bool, Object?);
   reply.close();
   if (!ok) throw StateError(payload as String);
   final result = BrowserFetchResult.fromJson(

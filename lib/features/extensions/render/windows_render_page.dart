@@ -6,14 +6,42 @@ import 'package:webview_windows/webview_windows.dart';
 import 'package:sumizuri/features/extensions/render/render_runner.dart';
 
 class WindowsRenderPage implements RenderPage {
-  WindowsRenderPage._(this._controller);
+  WindowsRenderPage._(this._controller) {
+    _done = _controller.loadingState.listen((state) {
+      final loading = _loading;
+      if (state == LoadingState.navigationCompleted &&
+          loading != null &&
+          !loading.isCompleted) {
+        loading.complete();
+      }
+    });
+    _failed = _controller.onLoadError.listen((status) {
+      final loading = _loading;
+      if (loading != null && !loading.isCompleted) {
+        final url = _currentUrl;
+        loading.completeError(
+          StateError(
+            'The page could not be loaded ($status) at ${url != null ? (Uri.tryParse(url)?.host ?? url) : 'unknown'}',
+          ),
+        );
+      }
+    });
+  }
 
   final WebviewController _controller;
+  late final StreamSubscription<LoadingState> _done;
+  late final StreamSubscription<WebErrorStatus> _failed;
+  Completer<void>? _loading;
+  String? _currentUrl;
 
   static Future<WindowsRenderPage> open(String? userAgent) async {
     final controller = WebviewController();
     try {
       await controller.initialize();
+      // This page is never shown, so a popup window has no way to be
+      // dismissed. Only popups are refused here: rewriting the page's own
+      // scripts risks breaking the sites this exists to read.
+      await controller.setPopupWindowPolicy(WebviewPopupWindowPolicy.deny);
       if (userAgent != null) await controller.setUserAgent(userAgent);
     } catch (error) {
       await controller.dispose();
@@ -38,25 +66,14 @@ class WindowsRenderPage implements RenderPage {
 
   @override
   Future<void> load(String url) async {
-    final finished = Completer<void>();
-    final done = _controller.loadingState.listen((state) {
-      if (state == LoadingState.navigationCompleted && !finished.isCompleted) {
-        finished.complete();
-      }
-    });
-    final failed = _controller.onLoadError.listen((status) {
-      if (!finished.isCompleted) {
-        finished.completeError(
-          StateError('The page could not be loaded ($status)'),
-        );
-      }
-    });
+    final loading = Completer<void>();
+    _loading = loading;
+    _currentUrl = url;
     try {
       await _controller.loadUrl(url);
-      await finished.future;
+      await loading.future;
     } finally {
-      await done.cancel();
-      await failed.cancel();
+      if (identical(_loading, loading)) _loading = null;
     }
   }
 
@@ -67,5 +84,9 @@ class WindowsRenderPage implements RenderPage {
   }
 
   @override
-  Future<void> close() => _controller.dispose();
+  Future<void> close() async {
+    await _done.cancel();
+    await _failed.cancel();
+    await _controller.dispose();
+  }
 }

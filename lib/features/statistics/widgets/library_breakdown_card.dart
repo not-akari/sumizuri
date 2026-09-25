@@ -15,6 +15,8 @@ class LibraryBreakdownCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return AppCard(
+      flattenWhenCompact: true,
+      tone: AppCardTone.inset,
       title: l10n.statsLibraryBreakdown,
       trailing: Text(
         AppLocalizations.of(context)!.statisticTotal(stats.totalLibraryEntries),

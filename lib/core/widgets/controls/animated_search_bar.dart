@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:sumizuri/core/theming/app_motion.dart';
+import 'package:sumizuri/core/theming/theme_shapes.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 
+/// The search field used across the app: one soft surface in the same style
+/// as the cards, that lights up its outline while you type in it.
 class AnimatedSearchBar extends StatefulWidget {
   const AnimatedSearchBar({
     super.key,
@@ -11,6 +14,7 @@ class AnimatedSearchBar extends StatefulWidget {
     this.onChanged,
     this.onClear,
     this.focusNode,
+    this.trailing,
   });
 
   final TextEditingController controller;
@@ -18,6 +22,9 @@ class AnimatedSearchBar extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
   final FocusNode? focusNode;
+
+  /// Something at the end of the bar, such as a filter button.
+  final Widget? trailing;
 
   @override
   State<AnimatedSearchBar> createState() => _AnimatedSearchBarState();
@@ -56,59 +63,90 @@ class _AnimatedSearchBarState extends State<AnimatedSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final cs = Theme.of(context).colorScheme;
+    final components = context.options.components;
+    final radius = context.shapes.item.radius;
     final hasText = widget.controller.text.isNotEmpty;
-    final isFocused = _focusNode.hasFocus;
+    final focused = _focusNode.hasFocus;
+    final active = focused || hasText;
+
+    // The same fill the cards have, so the bar belongs with what is under it.
+    final rest = cs.surfaceContainerHighest.withValues(
+      alpha: (0.4 * components.cardOpacity).clamp(0.0, 1.0),
+    );
+    final lifted = cs.surfaceContainerHighest.withValues(
+      alpha: (0.7 * components.cardOpacity).clamp(0.0, 1.0),
+    );
+    final outline = focused
+        ? cs.primary.withValues(alpha: 0.75)
+        : hasText
+        ? cs.primary.withValues(alpha: 0.35)
+        : components.cardBorders
+        ? cs.outlineVariant
+        : Colors.transparent;
 
     return AnimatedContainer(
       duration: AppMotion.fast,
       curve: AppMotion.curveInteractive,
+      height: 48,
       decoration: BoxDecoration(
-        color: isFocused
-            ? theme.colorScheme.surfaceContainerHighest
-            : theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isFocused
-              ? theme.colorScheme.primary.withValues(alpha: 0.6)
-              : hasText
-              ? theme.colorScheme.primary.withValues(alpha: 0.25)
-              : Colors.transparent,
-          width: 1.5,
-        ),
-        boxShadow: isFocused
+        color: focused ? lifted : rest,
+        borderRadius: radius,
+        border: Border.all(color: outline, width: focused ? 1.5 : 1),
+        boxShadow: focused
             ? [
                 BoxShadow(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
-                  blurRadius: 14,
-                  spreadRadius: 1,
-                  offset: const Offset(0, 2),
+                  color: cs.primary.withValues(alpha: 0.14),
+                  blurRadius: 16,
+                  spreadRadius: 0.5,
                 ),
               ]
             : null,
       ),
-      child: TextField(
-        controller: widget.controller,
-        focusNode: _focusNode,
-        onChanged: widget.onChanged,
-        style: theme.textTheme.bodyMedium,
-        decoration: InputDecoration(
-          hintText: widget.hintText,
-          hintStyle: TextStyle(
-            color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.65),
-          ),
-          prefixIcon: AnimatedScale(
-            scale: isFocused || hasText ? 1.08 : 1.0,
-            duration: AppMotion.fast,
-            curve: AppMotion.curveSpring,
-            child: Icon(
-              Icons.search_rounded,
-              color: isFocused || hasText
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurfaceVariant,
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 14, right: 10),
+            child: AnimatedScale(
+              scale: active ? 1.06 : 1.0,
+              duration: AppMotion.fast,
+              curve: AppMotion.curveSpring,
+              child: Icon(
+                Icons.search_rounded,
+                size: 22,
+                color: active ? cs.primary : cs.onSurfaceVariant,
+              ),
             ),
           ),
-          suffixIcon: AnimatedSwitcher(
+          Expanded(
+            child: TextField(
+              controller: widget.controller,
+              focusNode: _focusNode,
+              onChanged: widget.onChanged,
+              textInputAction: TextInputAction.search,
+              style: TextStyle(fontSize: 14.5, color: cs.onSurface),
+              cursorColor: cs.primary,
+              // The bar draws its own surface, so the app-wide field styling
+              // (fill and outline) is switched off here.
+              decoration: InputDecoration(
+                hintText: widget.hintText,
+                hintStyle: TextStyle(
+                  fontSize: 14.5,
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                ),
+                isDense: true,
+                filled: false,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+            ),
+          ),
+          AnimatedSwitcher(
             duration: AppMotion.fast,
             switchInCurve: AppMotion.curveSpring,
             switchOutCurve: AppMotion.curveSnappy,
@@ -119,21 +157,28 @@ class _AnimatedSearchBarState extends State<AnimatedSearchBar> {
             child: hasText
                 ? IconButton(
                     key: const ValueKey('clear_search_button'),
-                    icon: const Icon(Icons.clear_rounded, size: 20),
+                    icon: const Icon(Icons.close_rounded, size: 19),
+                    color: cs.onSurfaceVariant,
                     tooltip: AppLocalizations.of(context)!.searchClear,
                     onPressed: () {
                       widget.controller.clear();
                       widget.onClear?.call();
                     },
                   )
-                : const SizedBox.shrink(key: ValueKey('empty_search_suffix')),
+                : const SizedBox(
+                    key: ValueKey('empty_search_suffix'),
+                    width: 8,
+                  ),
           ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-        ),
+          if (widget.trailing != null) ...[
+            Container(
+              width: 1,
+              height: 22,
+              color: cs.outlineVariant.withValues(alpha: 0.7),
+            ),
+            widget.trailing!,
+          ],
+        ],
       ),
     );
   }

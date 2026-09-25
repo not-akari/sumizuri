@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:sumizuri/core/constants/app_links.dart';
+import 'package:sumizuri/features/translations/pages/translation_editor_page.dart';
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/core/widgets/overlays/confirm_dialog.dart';
 import 'package:sumizuri/core/widgets/controls/settings_controls.dart';
@@ -15,8 +17,6 @@ import 'package:sumizuri/features/settings/widgets/update_prompt.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 import 'package:sumizuri/features/settings/providers/settings_providers.dart';
 import 'package:sumizuri/features/settings/providers/update_providers.dart';
-
-const _discordInviteUrl = '';
 
 class AboutPage extends ConsumerStatefulWidget {
   const AboutPage({super.key});
@@ -81,8 +81,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
     final checkOnStartup =
         ref.watch(checkForUpdatesOnStartupProvider).value ?? true;
 
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    return SettingsScaffold(
       title: Text(l10n.settingsAboutTitle),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(0, 24, 0, 96),
@@ -110,7 +109,8 @@ class _AboutPageState extends ConsumerState<AboutPage> {
               ],
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 12),
+          AppSectionLabel(label: l10n.aboutSectionUpdates),
           AppListRow(
             icon: Icons.system_update_outlined,
             title: l10n.aboutCheckForUpdates,
@@ -122,14 +122,6 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                   )
                 : null,
             onTap: _checking ? null : _checkForUpdate,
-          ),
-          AppListRow(
-            icon: Icons.menu_book_outlined,
-            title: l10n.docsTitle,
-            subtitle: l10n.docsSubtitle,
-            onTap: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute<void>(builder: (_) => const DocsPage())),
           ),
           AppListRow(
             icon: Icons.new_releases_outlined,
@@ -146,13 +138,36 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                 .read(settingsRepositoryProvider)
                 .setCheckForUpdatesOnStartup(value),
           ),
-          const SizedBox(height: 8),
-          if (_discordInviteUrl.isNotEmpty)
-            AppListRow(
-              icon: Icons.forum_outlined,
-              title: l10n.aboutJoinDiscord,
-              onTap: () => launchUrl(Uri.parse(_discordInviteUrl)),
+          AppSectionLabel(label: l10n.aboutSectionHelp),
+          AppListRow(
+            icon: Icons.menu_book_outlined,
+            title: l10n.docsTitle,
+            subtitle: l10n.docsSubtitle,
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute<void>(builder: (_) => const DocsPage())),
+          ),
+          AppListRow(
+            icon: Icons.translate_outlined,
+            title: l10n.settingsHelpTranslateTitle,
+            subtitle: l10n.settingsHelpTranslateSubtitle,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const TranslationEditorPage(),
+              ),
             ),
+          ),
+          AppListRow(
+            icon: Icons.forum_outlined,
+            title: l10n.aboutJoinDiscord,
+            subtitle: l10n.aboutJoinDiscordSubtitle,
+            trailing: const Icon(Icons.open_in_new, size: 18),
+            onTap: () => launchUrl(
+              Uri.parse(discordInviteUrl),
+              mode: LaunchMode.externalApplication,
+            ),
+          ),
+          AppSectionLabel(label: l10n.aboutSectionMore),
           AppListRow(
             icon: Icons.description_outlined,
             title: l10n.aboutLicenses,

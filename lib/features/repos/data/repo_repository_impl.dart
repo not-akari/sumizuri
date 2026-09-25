@@ -11,6 +11,7 @@ import 'package:sumizuri/features/repos/data/repo_repository.dart';
 import 'package:sumizuri/features/repos/models/repo_source.dart';
 import 'package:sumizuri/core/errors/guard_failure.dart';
 import 'package:sumizuri/features/repos/data/repo_codec.dart';
+import 'package:sumizuri/features/repos/data/repo_url.dart';
 
 class DriftRepoRepository implements RepoRepository {
   DriftRepoRepository(this._db, this._logger);
@@ -57,8 +58,21 @@ class DriftRepoRepository implements RepoRepository {
   }
 
   @override
-  Future<Result<Repo, AppFailure>> addRepo(String url) {
+  Future<Result<Repo, AppFailure>> addRepo(String rawUrl) {
     return guardFailure(_logger, _tag, () async {
+      final url = normalizeRepoUrl(rawUrl);
+      // Already added, possibly written differently: hand back that repo
+      // rather than saving a second copy of it.
+      for (final row in await _db.select(_db.repos).get()) {
+        if (normalizeRepoUrl(row.url) == url) {
+          return Repo(
+            id: row.id,
+            url: row.url,
+            name: row.name,
+            addedAt: row.addedAt,
+          );
+        }
+      }
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) {
         throw Exception('HTTP ${response.statusCode} fetching repo index');

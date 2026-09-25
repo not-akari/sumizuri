@@ -14,7 +14,11 @@ import 'package:sumizuri/features/extensions/providers/extension_providers.dart'
 import 'package:sumizuri/features/extensions/flows/global_search.dart';
 
 class GlobalSearchPage extends ConsumerStatefulWidget {
-  const GlobalSearchPage({super.key, required this.mediaType, this.initialQuery});
+  const GlobalSearchPage({
+    super.key,
+    required this.mediaType,
+    this.initialQuery,
+  });
 
   final MediaType mediaType;
 
@@ -31,6 +35,12 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
   );
   bool _searching = false;
   List<SourceResults>? _results;
+  int _sourcesDone = 0;
+  int _sourcesTotal = 0;
+
+  /// Bumped by every search, so a slower earlier one cannot land on top of a
+  /// newer one.
+  int _searchId = 0;
 
   @override
   void initState() {
@@ -49,27 +59,50 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
 
   Future<void> _search(String query) async {
     if (query.trim().isEmpty) return;
+    final id = ++_searchId;
     final container = ProviderScope.containerOf(context, listen: false);
     final logger = ref.read(appLoggerProvider);
-    final sources =
-        ref
-            .read(installedSourcesProvider)
-            .value
-            ?.where((s) => s.enabled && s.mediaType == widget.mediaType)
-            .toList() ??
-        const [];
-
     setState(() {
       _searching = true;
-      _results = null;
+      _results = const [];
+      _sourcesDone = 0;
+      _sourcesTotal = 0;
     });
 
-    final results = await searchSources(container, logger, sources, query);
-    if (!mounted) return;
-    setState(() {
-      _searching = false;
-      _results = results;
-    });
+    try {
+      // Opened straight from a recommendation, the source list may not have
+      // loaded yet, and reading it early would search nothing.
+      final all = await ref.read(installedSourcesProvider.future);
+      if (!mounted || id != _searchId) return;
+      final sources = [
+        for (final s in all)
+          if (s.enabled && s.mediaType == widget.mediaType) s,
+      ];
+      await searchSourcesStreaming(
+        container,
+        logger,
+        sources,
+        query,
+        isCancelled: () => !mounted || id != _searchId,
+        onProgress: (done, total) {
+          if (!mounted || id != _searchId) return;
+          setState(() {
+            _sourcesDone = done;
+            _sourcesTotal = total;
+          });
+        },
+        onResults: (result) {
+          if (!mounted || id != _searchId) return;
+          setState(() {
+            _results = [...?_results, result]
+              ..sort((a, b) => a.source.name.compareTo(b.source.name));
+          });
+        },
+      );
+    } finally {
+      // Always clear, so a failure can never leave the spinner up for good.
+      if (mounted && id == _searchId) setState(() => _searching = false);
+    }
   }
 
   @override
@@ -102,9 +135,6 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
       ],
       body: Builder(
         builder: (context) {
-          if (_searching) {
-            return const Center(child: CircularProgressIndicator());
-          }
           if (sourceCount == 0) {
             return Center(
               child: Padding(
@@ -119,6 +149,9 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
           }
           final results = _results;
           if (results == null) return const SizedBox.shrink();
+          if (results.isEmpty && _searching) {
+            return _progressBar();
+          }
           if (results.isEmpty) {
             return Center(
               child: Text(
@@ -127,7 +160,7 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
               ),
             );
           }
-          return ListView.builder(
+          final list = ListView.builder(
             itemCount: results.length,
             itemBuilder: (context, index) {
               final group = results[index];
@@ -192,8 +225,22 @@ class _GlobalSearchPageState extends ConsumerState<GlobalSearchPage> {
               );
             },
           );
+          return Column(
+            children: [
+              if (_searching) _progressBar(),
+              Expanded(child: list),
+            ],
+          );
         },
       ),
     );
   }
+
+  /// A thin bar that fills as sources answer, over any results already in.
+  Widget _progressBar() => Align(
+    alignment: Alignment.topCenter,
+    child: LinearProgressIndicator(
+      value: _sourcesTotal == 0 ? null : _sourcesDone / _sourcesTotal,
+    ),
+  );
 }

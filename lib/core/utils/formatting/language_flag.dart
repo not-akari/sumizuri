@@ -1,0 +1,77 @@
+// Maps a source's language code to the ISO country code for its flag, the
+// way Tachiyomi-style readers show it: a quick visual language cue in place
+// of a text code. Language and country aren't the same thing, so this is a
+// convention, not a fact - the closest well-known flag for each code in
+// kCanonicalLocales. Rendered as an image (see CountryFlag in browse_screen),
+// not emoji text: Windows' emoji font falls back to literal letters ("GB")
+// for flag sequences instead of drawing the flag glyph.
+const Map<String, String> _languageFlagCountryCodes = {
+  'en': 'GB',
+  'ja': 'JP',
+  'zh': 'CN',
+  'zh-hans': 'CN',
+  'zh-hant': 'TW',
+  'ko': 'KR',
+  'es': 'ES',
+  'fr': 'FR',
+  'de': 'DE',
+  'pt': 'PT',
+  'pt-br': 'BR',
+  'ru': 'RU',
+  'it': 'IT',
+  'ar': 'SA',
+  'hi': 'IN',
+  'id': 'ID',
+  'vi': 'VN',
+  'th': 'TH',
+  'tr': 'TR',
+  'pl': 'PL',
+  'uk': 'UA',
+  'nl': 'NL',
+  'cs': 'CZ',
+  'sv': 'SE',
+  'el': 'GR',
+  'he': 'IL',
+  'ro': 'RO',
+  'hu': 'HU',
+  'fi': 'FI',
+  'da': 'DK',
+  'no': 'NO',
+  'ms': 'MY',
+  'fil': 'PH',
+  'fa': 'IR',
+  'ur': 'PK',
+  'bn': 'BD',
+  'ta': 'IN',
+  'te': 'IN',
+  'mr': 'IN',
+  'gu': 'IN',
+  'kn': 'IN',
+  'ml': 'IN',
+  'my': 'MM',
+  'km': 'KH',
+  'lo': 'LA',
+  'ka': 'GE',
+  'hy': 'AM',
+  'sr': 'RS',
+  'hr': 'HR',
+  'sk': 'SK',
+  'bg': 'BG',
+  'lt': 'LT',
+  'lv': 'LV',
+  'et': 'EE',
+  'sl': 'SI',
+  'ca': 'ES',
+  'gl': 'ES',
+  'eu': 'ES',
+  'is': 'IS',
+  'ga': 'IE',
+  'cy': 'GB',
+};
+
+/// The ISO country code for a source language code's flag (e.g. `ja` →
+/// `JP`), or null for a code with no obvious single flag (`all`, `eo`,
+/// `la`, an unknown code) and for `local` folder sources, which have no
+/// language at all. Null means: don't show a flag for this one.
+String? languageFlagCountryCode(String code) =>
+    _languageFlagCountryCodes[code.trim().toLowerCase()];

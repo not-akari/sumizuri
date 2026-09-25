@@ -48,7 +48,11 @@ MEntry entryFromJson(Map<String, dynamic> json) => MEntry(
   description: stripHtml(json['description'] as String?),
   rating: (json['rating'] as num?)?.toDouble(),
   status: json['status'] as String?,
-  genres: (json['genres'] as List?)?.cast<String>(),
+  genres: json['genres'] is List
+      ? (json['genres'] as List).cast<String>()
+      : (json['genres'] is String && (json['genres'] as String).isNotEmpty
+            ? [json['genres'] as String]
+            : null),
 );
 
 String? stripHtml(String? value) {

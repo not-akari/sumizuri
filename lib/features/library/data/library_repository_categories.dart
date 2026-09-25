@@ -187,6 +187,35 @@ mixin DriftLibraryCategoryMethods {
     });
   }
 
+  Future<Result<void, AppFailure>> setCategoriesForManyEntries({
+    required Iterable<int> entryIds,
+    required Set<int> categoryIds,
+  }) {
+    return guardFailure(_logger, DriftLibraryRepository._tag, () async {
+      // One transaction for the whole selection, same reasoning as
+      // removeManyFromLibrary: avoids a separate watcher notification and
+      // grid rebuild per entry.
+      await _db.transaction(() async {
+        for (final entryId in entryIds) {
+          await (_db.delete(
+            _db.entryCategories,
+          )..where((t) => t.libraryEntryId.equals(entryId))).go();
+        }
+        if (categoryIds.isEmpty) return;
+        await _db.batch((batch) {
+          batch.insertAll(_db.entryCategories, [
+            for (final entryId in entryIds)
+              for (final categoryId in categoryIds)
+                EntryCategoriesCompanion.insert(
+                  libraryEntryId: entryId,
+                  categoryId: categoryId,
+                ),
+          ]);
+        });
+      });
+    });
+  }
+
   Future<Result<List<LibraryEntrySummary>, AppFailure>>
   entriesEligibleForUpdate({int skip = 0}) {
     return guardFailure(_logger, DriftLibraryRepository._tag, () async {

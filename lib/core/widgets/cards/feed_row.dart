@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sumizuri/core/theming/ambient_scope.dart';
 import 'package:sumizuri/core/widgets/cards/app_card.dart';
 import 'package:sumizuri/core/theming/app_layout.dart';
 
@@ -22,6 +23,51 @@ class FeedRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final content = Row(
+      children: [
+        leading,
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                ),
+              ),
+              if (subtitle != null)
+                DefaultTextStyle(
+                  style: TextStyle(fontSize: 12.5, color: cs.outline),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 3),
+                    child: subtitle!,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        if (trailing != null) ...[const SizedBox(width: 8), trailing!],
+      ],
+    );
+    // Dense form: no box around the row, so the list is more rows and less frame.
+    if (AmbientScope.compactListsOf(context)) {
+      return InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: context.layout.gutter,
+            vertical: 6,
+          ),
+          child: content,
+        ),
+      );
+    }
     return AppCard(
       tone: AppCardTone.inset,
       margin: EdgeInsets.symmetric(

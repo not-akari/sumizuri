@@ -23,6 +23,7 @@ Future<Result<void, AppFailure>> saveInstalledSource(
   String? repoUrl,
   String? repoSourceId,
   int? version,
+  bool? nsfw,
 }) async {
   if (existing == null) {
     final added = await repository.add(
@@ -36,6 +37,7 @@ Future<Result<void, AppFailure>> saveInstalledSource(
       repoUrl: repoUrl,
       repoSourceId: repoSourceId,
       version: version ?? 1,
+      nsfw: nsfw ?? false,
     );
     return added.when(ok: (_) => const Ok(null), err: Err.new);
   }
@@ -51,6 +53,7 @@ Future<Result<void, AppFailure>> saveInstalledSource(
     repoUrl: repoUrl ?? existing.repoUrl,
     repoSourceId: repoSourceId ?? existing.repoSourceId,
     version: version ?? existing.version,
+    nsfw: nsfw ?? existing.nsfw,
   );
 }
 

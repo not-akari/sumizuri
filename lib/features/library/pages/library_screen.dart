@@ -1,14 +1,20 @@
+import 'package:sumizuri/core/theming/theme_shapes.dart';
+import 'package:sumizuri/core/widgets/cards/app_card.dart';
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:sumizuri/core/utils/formatting/eta.dart';
 import 'package:sumizuri/core/utils/formatting/media_type_label.dart';
 import 'package:sumizuri/core/widgets/ambient/ambient_bloom_background.dart';
 import 'package:sumizuri/core/widgets/controls/animated_search_bar.dart';
 import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/features/library/widgets/library_continue_reading.dart';
+import 'package:sumizuri/features/library/widgets/library_display_sheet.dart';
 import 'package:sumizuri/features/library/widgets/library_header.dart';
+import 'package:sumizuri/features/library/widgets/library_search_help.dart';
 import 'package:sumizuri/features/library/models/category.dart';
 import 'package:sumizuri/features/library/models/library_entry_summary.dart';
 import 'package:sumizuri/features/library/flows/open_library_entry.dart';
@@ -230,6 +236,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                 ),
                 SliverToBoxAdapter(
                   child: LibraryHeader(
+                    onDisplay: () => showLibraryDisplaySheet(context),
+                    displayTooltip: l10n.libraryDisplayButtonTooltip,
                     title: widget.title ?? l10n.libraryTitle,
                     subtitle: l10n.libraryTagline,
                     smartRuleActive: activeCategory?.useSmartRule ?? false,
@@ -246,7 +254,11 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                         ? null
                         : (updateProgress.cancelRequested
                               ? l10n.libraryUpdateCancelling
-                              : '${updateProgress.processed}/${updateProgress.total}'),
+                              : _updateLabel(updateProgress)),
+                    updateProgressValue:
+                        updateProgress == null || updateProgress.total == 0
+                        ? null
+                        : updateProgress.processed / updateProgress.total,
                     onCancelUpdate: updateProgress == null
                         ? null
                         : (updateProgress.cancelRequested
@@ -285,7 +297,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                         onMigrate: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
                             builder: (_) => MigrationPage(
-                              entryIds: {for (final e in migrationEntries) e.id},
+                              entryIds: {
+                                for (final e in migrationEntries) e.id,
+                              },
                               mediaType: migrationType,
                             ),
                           ),
@@ -299,6 +313,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     child: AnimatedSearchBar(
                       controller: _searchController,
                       hintText: l10n.librarySearchHint,
+                      trailing: const LibrarySearchHelpButton(),
                       onChanged: (value) => setState(() => _query = value),
                       onClear: () => setState(() => _query = ''),
                     ),
@@ -370,23 +385,33 @@ class _NeedsMigrationBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-      ),
+    // The same soft card the settings rows are, with a hint of accent so it is noticed.
+    return AppCard(
+      tone: AppCardTone.inset,
+      borderColor: cs.primary.withValues(alpha: 0.45),
+      padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
       child: Row(
         children: [
-          Icon(Icons.link_off, size: 20, color: cs.onSurfaceVariant),
-          const SizedBox(width: 12),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.14),
+              border: Border.all(color: cs.primary.withValues(alpha: 0.4)),
+              borderRadius: context.shapes.iconTile.radius,
+            ),
+            alignment: Alignment.center,
+            child: Icon(Icons.link_off, size: 19, color: cs.primary),
+          ),
+          const SizedBox(width: 14),
           Expanded(
             child: Text(
               l10n.libraryNeedsMigrationBanner(count, mediaTypeLabel),
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ),
-          TextButton(
+          const SizedBox(width: 8),
+          FilledButton.tonal(
             onPressed: onMigrate,
             child: Text(l10n.migrationPromptAction),
           ),
@@ -394,4 +419,16 @@ class _NeedsMigrationBanner extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "processed/total", plus a rough time left once a few entries are done.
+String _updateLabel(UpdateProgress progress) {
+  final count = '${progress.processed}/${progress.total}';
+  if (progress.processed == 0 || progress.processed >= progress.total) {
+    return count;
+  }
+  final perEntry =
+      DateTime.now().difference(progress.startedAt) ~/ progress.processed;
+  final left = perEntry * (progress.total - progress.processed);
+  return '$count · ${formatEta(left)}';
 }

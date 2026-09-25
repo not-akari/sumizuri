@@ -19,6 +19,7 @@ import 'package:sumizuri/features/trackers/data/anilist/anilist_request_queue.da
 import 'package:sumizuri/features/trackers/data/tracker_client_config.dart';
 import 'package:sumizuri/features/trackers/models/anilist_media.dart';
 import 'package:sumizuri/features/trackers/models/anilist_stats.dart';
+import 'package:sumizuri/features/trackers/models/tracker_exception.dart';
 
 const _authorizeUrl = 'https://anilist.co/api/v2/oauth/authorize';
 const _tokenUrl = 'https://anilist.co/api/v2/oauth/token';
@@ -188,8 +189,7 @@ class AniListApiClient {
     );
     final media = data['Media'] as Map<String, dynamic>?;
     final nodes =
-        (media?['recommendations']
-                as Map<String, dynamic>?)?['nodes']
+        (media?['recommendations'] as Map<String, dynamic>?)?['nodes']
             as List? ??
         const [];
     return [
@@ -316,7 +316,8 @@ class AniListApiClient {
         if (json is Map<String, dynamic>) {
           saved[chunk[i].mediaId] = AniListListEntry.fromJson(json);
         } else {
-          failed[chunk[i].mediaId] = batch.failures['e$i'] ?? 'Not saved.';
+          failed[chunk[i].mediaId] =
+              batch.failures['e$i'] ?? TrackerProblem.refused.name;
         }
       }
     }

@@ -44,8 +44,9 @@ String? _hostOf(String url) {
   return uri != null && uri.hasScheme && uri.host.isNotEmpty ? uri.host : null;
 }
 
-String _withoutWww(String host) =>
-    host.toLowerCase().startsWith('www.') ? host.substring(4) : host.toLowerCase();
+String _withoutWww(String host) => host.toLowerCase().startsWith('www.')
+    ? host.substring(4)
+    : host.toLowerCase();
 
 /// Returns installed sources matching candidate by host domain or source name.
 List<AppInstalledSource> _sourcesToTry(
@@ -58,7 +59,9 @@ List<AppInstalledSource> _sourcesToTry(
   for (final source in installed) {
     if (!source.enabled || source.mediaType != candidate.mediaType) continue;
     final sourceHost = _hostOf(source.baseUrl);
-    if (host != null && sourceHost != null && _withoutWww(host) == _withoutWww(sourceHost)) {
+    if (host != null &&
+        sourceHost != null &&
+        _withoutWww(host) == _withoutWww(sourceHost)) {
       byHost.add(source);
     } else if (candidate.sourceName != null &&
         source.name.toLowerCase() == candidate.sourceName!.toLowerCase()) {
@@ -87,8 +90,9 @@ Future<AutoSourceMatchResult> autoMatchInstalledSources({
     for (var i = 0; i < candidates.length; i++) {
       final candidate = candidates[i];
       for (final source in _sourcesToTry(candidate, installedSources)) {
-        final service =
-            services.containsKey(source.id) ? services[source.id] : null;
+        final service = services.containsKey(source.id)
+            ? services[source.id]
+            : null;
         final loaded = service ?? await loadSource(source);
         services[source.id] = loaded;
         if (loaded == null) continue;
@@ -120,5 +124,8 @@ Future<AutoSourceMatchResult> autoMatchInstalledSources({
       await service?.dispose();
     }
   }
-  return AutoSourceMatchResult(matched: matched, left: candidates.length - matched);
+  return AutoSourceMatchResult(
+    matched: matched,
+    left: candidates.length - matched,
+  );
 }

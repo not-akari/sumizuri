@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_windows/webview_windows.dart';
 
+import 'package:sumizuri/features/extensions/cloudflare/ad_block.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 
 /// The embedded browser behind the solver page. Each platform has its own web view.
@@ -37,7 +38,20 @@ class _MobileSolverBrowser extends SolverBrowser {
     // Both must be set before the page loads, or a challenge page runs without scripts.
     await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
     await controller.setNavigationDelegate(
-      NavigationDelegate(onPageFinished: (_) => onLoaded()),
+      NavigationDelegate(
+        // Ad frames and ad redirects are refused outright.
+        onNavigationRequest: (request) => isAdUrl(request.url)
+            ? NavigationDecision.prevent
+            : NavigationDecision.navigate,
+        // webview_flutter cannot inject before the document exists, so the
+        // blocker goes in as soon as the page starts and again once it is
+        // done, for anything a redirect replaced.
+        onPageStarted: (_) => controller.runJavaScript(adBlockScript()),
+        onPageFinished: (_) {
+          controller.runJavaScript(adBlockScript());
+          onLoaded();
+        },
+      ),
     );
     await controller.loadRequest(Uri.parse(url));
     _controller = controller;
@@ -73,6 +87,9 @@ class _WindowsSolverBrowser extends SolverBrowser {
   @override
   Future<void> open(String url, VoidCallback onLoaded) async {
     await _controller.initialize();
+    // Runs in every page before its own scripts do, and no popup windows.
+    await _controller.addScriptToExecuteOnDocumentCreated(adBlockScript());
+    await _controller.setPopupWindowPolicy(WebviewPopupWindowPolicy.deny);
     await _controller.loadUrl(url);
   }
 

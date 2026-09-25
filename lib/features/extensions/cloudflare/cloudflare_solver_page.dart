@@ -88,7 +88,9 @@ class _CloudflareSolverPageState extends State<CloudflareSolverPage> {
         documentCookie: await _browser.readCookies(),
         url: widget.url,
       );
-      await markSourceUsesBrowserFetchFor(widget.sourceId);
+      if (widget.showChallengeHint) {
+        await markSourceUsesBrowserFetchFor(widget.sourceId);
+      }
     } catch (error) {
       if (!mounted) return;
       setState(() => _saving = false);

@@ -117,11 +117,65 @@ class ScrollSteps {
   }
 }
 
+/// How wide the side bands of the tap grid are and how tall the top and
+/// bottom ones are, as a fraction of the screen. What is left is the centre.
+class TapGeometry {
+  const TapGeometry({this.edgeX = 0.3, this.edgeY = 0.3});
+
+  final double edgeX;
+  final double edgeY;
+
+  static const range = (min: 0.15, max: 0.45);
+
+  TapGeometry copyWith({double? edgeX, double? edgeY}) =>
+      TapGeometry(edgeX: edgeX ?? this.edgeX, edgeY: edgeY ?? this.edgeY);
+
+  @override
+  bool operator ==(Object other) =>
+      other is TapGeometry && other.edgeX == edgeX && other.edgeY == edgeY;
+
+  @override
+  int get hashCode => Object.hash(edgeX, edgeY);
+
+  Map<String, Object?> toJson() => {'x': edgeX, 'y': edgeY};
+
+  static TapGeometry fromJson(Object? raw) {
+    if (raw is! Map) return const TapGeometry();
+    double read(String key) {
+      final v = raw[key];
+      return v is num
+          ? v.toDouble().clamp(range.min, range.max)
+          : const TapGeometry().edgeX;
+    }
+
+    return TapGeometry(edgeX: read('x'), edgeY: read('y'));
+  }
+}
+
+/// Ready-made tap layouts, so a good arrangement is one tap away.
+enum TapPreset {
+  /// Sides turn the page, the middle shows the controls.
+  standard,
+
+  /// Only the left and right strips turn the page.
+  edges,
+
+  /// Back on the left and top, forward on the right and bottom.
+  lShaped,
+
+  /// A big middle, so a stray tap rarely turns the page.
+  wideCenter,
+
+  /// Nothing turns the page; swipes and keys do, the middle shows the controls.
+  menuOnly,
+}
+
 class ReaderControls {
   const ReaderControls({
     required this.keys,
     required this.tapZones,
     this.scroll = const ScrollSteps(),
+    this.geometry = const {},
   });
 
   final Map<ReaderAction, List<KeyChord>> keys;
@@ -129,6 +183,9 @@ class ReaderControls {
   final Map<TapLayout, List<ReaderAction?>> tapZones;
 
   final ScrollSteps scroll;
+
+  /// The size of the tap bands, per layout. A layout with none has the usual.
+  final Map<TapLayout, TapGeometry> geometry;
 
   static const zoneCount = 9;
 
@@ -176,6 +233,9 @@ class ReaderControls {
     },
   );
 
+  TapGeometry geometryOf(TapLayout layout) =>
+      geometry[layout] ?? const TapGeometry();
+
   ReaderAction? actionForKey(KeyChord pressed) {
     for (final entry in keys.entries) {
       if (entry.value.contains(pressed)) return entry.key;
@@ -183,10 +243,24 @@ class ReaderControls {
     return null;
   }
 
+  /// The action of the zone under a tap at [x], [y] (both 0 to 1).
   ReaderAction? actionForTap(TapLayout layout, double x, double y) {
-    int band(double v) => v < 0.3 ? 0 : (v > 0.7 ? 2 : 1);
-    return tapZones[layout]![band(y) * 3 + band(x)];
+    final g = geometryOf(layout);
+    int band(double v, double edge) => v < edge ? 0 : (v > 1 - edge ? 2 : 1);
+    return tapZones[layout]![band(y, g.edgeY) * 3 + band(x, g.edgeX)];
   }
+
+  ReaderControls _copy({
+    Map<ReaderAction, List<KeyChord>>? keys,
+    Map<TapLayout, List<ReaderAction?>>? tapZones,
+    ScrollSteps? scroll,
+    Map<TapLayout, TapGeometry>? geometry,
+  }) => ReaderControls(
+    keys: keys ?? this.keys,
+    tapZones: tapZones ?? this.tapZones,
+    scroll: scroll ?? this.scroll,
+    geometry: geometry ?? this.geometry,
+  );
 
   /// Chord on action, removing it from any other action so a key never does two things.
   ReaderControls withKey(ReaderAction action, KeyChord chord) {
@@ -198,7 +272,7 @@ class ReaderControls {
         ],
     };
     next[action] = [...next[action]!, chord];
-    return ReaderControls(keys: next, tapZones: tapZones, scroll: scroll);
+    return _copy(keys: next);
   }
 
   ReaderControls withoutKey(ReaderAction action, KeyChord chord) {
@@ -209,7 +283,7 @@ class ReaderControls {
             if (entry.key != action || existing != chord) existing,
         ],
     };
-    return ReaderControls(keys: next, tapZones: tapZones, scroll: scroll);
+    return _copy(keys: next);
   }
 
   ReaderControls withKeysReset(ReaderAction action) {
@@ -222,30 +296,87 @@ class ReaderControls {
       for (final chord in defaults.keys[action]!)
         if (!taken.contains(chord)) chord,
     ];
-    return ReaderControls(keys: next, tapZones: tapZones, scroll: scroll);
+    return _copy(keys: next);
   }
 
   ReaderControls withTapZone(TapLayout layout, int zone, ReaderAction? action) {
     final list = [...tapZones[layout]!];
     list[zone] = action;
-    return ReaderControls(
-      keys: keys,
-      tapZones: {...tapZones, layout: list},
-      scroll: scroll,
+    return _copy(tapZones: {...tapZones, layout: list});
+  }
+
+  /// The zones and the band sizes of [layout] back to the usual.
+  ReaderControls withTapLayoutReset(TapLayout layout) => _copy(
+    tapZones: {...tapZones, layout: defaults.tapZones[layout]!},
+    geometry: {...geometry}..remove(layout),
+  );
+
+  /// The left and right of [layout] swapped, for the other hand. A zone that
+  /// turns to the left is then on the right, and the other way round.
+  ReaderControls withTapMirrored(TapLayout layout) {
+    final zones = tapZones[layout]!;
+    return _copy(
+      tapZones: {
+        ...tapZones,
+        layout: [
+          for (var row = 0; row < 3; row++)
+            for (var col = 0; col < 3; col++) zones[row * 3 + (2 - col)],
+        ],
+      },
     );
   }
 
-  ReaderControls withTapLayoutReset(TapLayout layout) => ReaderControls(
-    keys: keys,
-    tapZones: {...tapZones, layout: defaults.tapZones[layout]!},
-    scroll: scroll,
-  );
+  /// The size of the tap bands of [layout].
+  ReaderControls withGeometry(TapLayout layout, TapGeometry value) =>
+      _copy(geometry: {...geometry, layout: value});
 
-  ReaderControls withKeysAllReset() =>
-      ReaderControls(keys: defaults.keys, tapZones: tapZones, scroll: scroll);
+  /// [layout] laid out as [preset] says.
+  ReaderControls withPreset(TapLayout layout, TapPreset preset) {
+    const p = ReaderAction.previousPage;
+    const n = ReaderAction.nextPage;
+    const o = ReaderAction.toggleOverlays;
+    final paged = layout == TapLayout.paged;
+    final zones = switch (preset) {
+      TapPreset.standard || TapPreset.wideCenter => defaults.tapZones[layout]!,
+      TapPreset.edges =>
+        paged
+            ? const [
+                ReaderAction.pageLeft,
+                o,
+                ReaderAction.pageRight,
+                ReaderAction.pageLeft,
+                o,
+                ReaderAction.pageRight,
+                ReaderAction.pageLeft,
+                o,
+                ReaderAction.pageRight,
+              ]
+            : const [p, o, p, null, o, null, n, o, n],
+      TapPreset.lShaped => const [p, p, p, p, o, n, n, n, n],
+      TapPreset.menuOnly => const [
+        null,
+        null,
+        null,
+        null,
+        o,
+        null,
+        null,
+        null,
+        null,
+      ],
+    };
+    final geo = preset == TapPreset.wideCenter
+        ? const TapGeometry(edgeX: 0.2, edgeY: 0.2)
+        : const TapGeometry();
+    return _copy(
+      tapZones: {...tapZones, layout: zones},
+      geometry: {...geometry, layout: geo},
+    );
+  }
 
-  ReaderControls withScroll(ScrollSteps steps) =>
-      ReaderControls(keys: keys, tapZones: tapZones, scroll: steps);
+  ReaderControls withKeysAllReset() => _copy(keys: defaults.keys);
+
+  ReaderControls withScroll(ScrollSteps steps) => _copy(scroll: steps);
 
   bool get isDefault => toJsonString() == defaults.toJsonString();
 
@@ -260,6 +391,13 @@ class ReaderControls {
         entry.key.name: [for (final action in entry.value) action?.name],
     },
     'scroll': scroll.toJson(),
+    // Only what was changed, so a file from before this still reads the same.
+    if (geometry.values.any((g) => g != const TapGeometry()))
+      'geometry': {
+        for (final entry in geometry.entries)
+          if (entry.value != const TapGeometry())
+            entry.key.name: entry.value.toJson(),
+      },
   };
 
   String toJsonString() => jsonEncode(toJson());
@@ -303,10 +441,20 @@ class ReaderControls {
         ];
       }
     }
+
+    final geometry = <TapLayout, TapGeometry>{};
+    final rawGeometry = json['geometry'];
+    if (rawGeometry is Map) {
+      for (final layout in TapLayout.values) {
+        final value = rawGeometry[layout.name];
+        if (value != null) geometry[layout] = TapGeometry.fromJson(value);
+      }
+    }
     return ReaderControls(
       keys: keys,
       tapZones: zones,
       scroll: ScrollSteps.fromJson(json['scroll']),
+      geometry: geometry,
     );
   }
 }

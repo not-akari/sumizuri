@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sumizuri/core/platform/picture_in_picture.dart';
 import 'package:sumizuri/core/widgets/controls/app_choice.dart';
 import 'package:sumizuri/core/theming/app_layout.dart';
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/controls/settings_controls.dart';
 import 'package:sumizuri/features/player/models/player_preferences.dart';
 import 'package:sumizuri/features/settings/registry/setting_def.dart';
@@ -41,8 +42,9 @@ class PlayerSettingsPage extends ConsumerWidget {
     );
     final skip = watchInt(Settings.playerSkipSeconds);
 
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    // The list pads its own sides, so the cards take no margin of their own.
+    return SettingsScaffold(
+      rowMargin: 0,
       title: Text(l10n.playerSettingsTitle),
       body: ListView(
         padding: EdgeInsets.fromLTRB(
@@ -52,6 +54,15 @@ class PlayerSettingsPage extends ConsumerWidget {
           96,
         ),
         children: [
+          AppListRow(
+            icon: Icons.subtitles_outlined,
+            title: l10n.playerSectionSubtitles,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const SubtitleSettingsPage(),
+              ),
+            ),
+          ),
           AppSwitchRow(
             icon: Icons.skip_next_outlined,
             title: l10n.playerAutoPlayNext,

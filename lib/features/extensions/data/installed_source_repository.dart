@@ -18,6 +18,7 @@ abstract interface class InstalledSourceRepository {
     String? repoUrl,
     String? repoSourceId,
     int version = 1,
+    bool nsfw = false,
   });
 
   Future<Result<void, AppFailure>> update({
@@ -32,7 +33,13 @@ abstract interface class InstalledSourceRepository {
     String? repoUrl,
     String? repoSourceId,
     int? version,
+    bool? nsfw,
   });
+
+  /// Folds sources installed twice from the same repo into one, moving the
+  /// library titles onto the copy that is kept. Returns how many copies
+  /// were removed.
+  Future<Result<int, AppFailure>> mergeDuplicates();
 
   Future<Result<void, AppFailure>> remove(int id);
 

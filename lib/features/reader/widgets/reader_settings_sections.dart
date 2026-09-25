@@ -234,20 +234,6 @@ List<Widget> chapterListLayoutSection(
   );
 }
 
-Widget chapterSortAscendingSwitch(
-  BuildContext context, {
-  required bool value,
-  required ValueChanged<bool> onChanged,
-}) {
-  final l10n = AppLocalizations.of(context)!;
-  return _CompactSwitch(
-    title: l10n.chapterSortAscending,
-    subtitle: l10n.chapterSortAscendingDescription,
-    value: value,
-    onChanged: onChanged,
-  );
-}
-
 Widget readerSectionHeading(BuildContext context, String label) {
   return Text(
     label.toUpperCase(),

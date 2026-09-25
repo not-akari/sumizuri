@@ -39,10 +39,20 @@ mixin _EntryDetailLoading on ConsumerState<EntryDetailPage> {
   }
 
   void _init() {
-    _loadChapters();
     _loadDetails();
     _loadCapabilities();
-    if (_libraryEntryId == null) _loadLibraryMembership();
+    if (_libraryEntryId == null) {
+      // Opened from search/browse: the library id isn't known yet, so
+      // loading chapters right away would always take the slow live-network
+      // branch even when this title is already in the library with chapters
+      // cached locally. Wait for the (now O(1)) membership check first, so a
+      // cache hit actually gets to use the cache.
+      _loadLibraryMembership().then((_) {
+        if (_isLive) _loadChapters();
+      });
+    } else {
+      _loadChapters();
+    }
   }
 
   Future<void> _loadLibraryMembership() async {

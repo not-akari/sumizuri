@@ -13,6 +13,7 @@ import 'package:sumizuri/features/extensions/entry_detail/chapter_list_skeleton.
 import 'package:sumizuri/features/extensions/entry_detail/chapter_list_tile.dart';
 import 'package:sumizuri/features/extensions/entry_detail/entry_detail_widgets.dart';
 
+export 'package:sumizuri/features/extensions/entry_detail/chapter_duplicates.dart';
 export 'package:sumizuri/features/extensions/entry_detail/chapter_gap_indicator.dart';
 export 'package:sumizuri/features/extensions/entry_detail/chapter_grid_cell.dart'
     show ChapterGridCell, formatChapterDateLine;
@@ -37,6 +38,9 @@ List<Widget> buildChapterSlivers({
   String? seasonHeading,
   VoidCallback? onLeaveSeason,
   required VoidCallback? onRefresh,
+  int duplicateCount = 0,
+  bool hidingDuplicates = false,
+  VoidCallback? onToggleDuplicates,
   bool sortAscending = false,
   VoidCallback? onToggleSort,
   Widget? overflowMenu,
@@ -49,9 +53,15 @@ List<Widget> buildChapterSlivers({
   void Function(MChapter, ChapterRowAction)? onChapterAction,
 }) {
   final isSelectionMode = selectedChapterUrls.isNotEmpty;
-  final missingChaptersSummary = chapters == null
+  // The list layout marks each break inline, between the chapters it falls
+  // between; the grid has no such spot, so it keeps one summary line on top.
+  final missingChaptersSummary =
+      chapters == null || layout != ChapterListLayout.grid
       ? null
       : missingChaptersSummarySliver(context, l10n, chapters);
+  final gaps = chapters == null || layout == ChapterListLayout.grid
+      ? (after: const <List<int>>[], before: const <int>[])
+      : chapterGaps(chapters);
 
   return [
     if (branchSelector != null) SliverToBoxAdapter(child: branchSelector),
@@ -99,6 +109,36 @@ List<Widget> buildChapterSlivers({
         ),
       ),
     ),
+    if (duplicateCount > 0 || hidingDuplicates)
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 12, 4),
+          child: Row(
+            children: [
+              Icon(
+                Icons.copy_all_outlined,
+                size: 16,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.chapterListDuplicates(duplicateCount),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              TextButton(
+                onPressed: onToggleDuplicates,
+                child: Text(
+                  hidingDuplicates
+                      ? l10n.chapterListShowDuplicates
+                      : l10n.chapterListHideDuplicates,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     ?missingChaptersSummary,
     if (chapters == null)
       const SliverToBoxAdapter(
@@ -186,7 +226,7 @@ List<Widget> buildChapterSlivers({
         itemCount: chapters.length,
         itemBuilder: (context, index) {
           final chapter = chapters[index];
-          return ChapterListTile(
+          final tile = ChapterListTile(
             chapter: chapter,
             isSelected: selectedChapterUrls.contains(chapter.url),
             isSelectionMode: isSelectionMode,
@@ -202,6 +242,16 @@ List<Widget> buildChapterSlivers({
             swipeRight: gestures.chapterSwipeRight,
             swipeLeft: gestures.chapterSwipeLeft,
             onSwipe: onChapterAction,
+          );
+          final gap = gaps.after[index];
+          final head = index == 0 ? gaps.before : const <int>[];
+          if (gap.isEmpty && head.isEmpty) return tile;
+          return Column(
+            children: [
+              if (head.isNotEmpty) ChapterGapMarker(missing: head),
+              tile,
+              if (gap.isNotEmpty) ChapterGapMarker(missing: gap),
+            ],
           );
         },
       ),

@@ -13,6 +13,7 @@ import 'package:sumizuri/bootstrap/database/tables/profile_table.dart';
   unique: true,
 )
 @TableIndex(name: 'idx_categories_updated_at', columns: {#updatedAt})
+@TableIndex(name: 'idx_categories_profile', columns: {#profileId})
 class Categories extends Table {
   IntColumn get id => integer().autoIncrement()();
 

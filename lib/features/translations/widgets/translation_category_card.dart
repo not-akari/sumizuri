@@ -60,6 +60,7 @@ class TranslationCategoryCard extends StatelessWidget {
     final hint = _categoryHint(label);
 
     return AppCard(
+      flattenWhenCompact: true,
       tone: AppCardTone.inset,
       color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
       borderColor: cs.outlineVariant.withValues(alpha: 0.5),

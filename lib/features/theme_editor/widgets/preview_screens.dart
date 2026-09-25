@@ -126,8 +126,10 @@ class _LibrarySample extends ConsumerWidget {
               crossAxisSpacing: 10,
               childAspectRatio: 0.55,
               children: [
-                for (final sample in samples)
+                for (final (i, sample) in samples.indexed)
                   MangaCoverTile(
+                    // Shown whatever the setting is, so the look can be judged here.
+                    progress: [0.62, 0.18, 1.0][i % 3],
                     title: sample.title,
                     coverUrl: sample.coverUrl,
                     customCoverPath: sample.customCoverPath,

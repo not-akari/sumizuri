@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:webview_flutter/webview_flutter.dart';
 
+import 'package:sumizuri/features/extensions/cloudflare/ad_block.dart';
 import 'package:sumizuri/features/extensions/render/render_runner.dart';
 
 class MobileRenderPage implements RenderPage {
@@ -18,7 +19,13 @@ class MobileRenderPage implements RenderPage {
     if (userAgent != null) await controller.setUserAgent(userAgent);
     await controller.setNavigationDelegate(
       NavigationDelegate(
+        // The page is hidden, so an ad redirect could not be dismissed.
+        onNavigationRequest: (request) => isAdUrl(request.url)
+            ? NavigationDecision.prevent
+            : NavigationDecision.navigate,
+        onPageStarted: (_) => controller.runJavaScript(adBlockScript()),
         onPageFinished: (_) {
+          controller.runJavaScript(adBlockScript());
           final loading = page._loading;
           if (loading != null && !loading.isCompleted) loading.complete();
         },

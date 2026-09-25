@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sumizuri/core/utils/files/local_path.dart';
+import 'package:sumizuri/core/utils/network/origin_headers.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 import 'package:sumizuri/features/library/flows/library_cover_flow.dart';
 import 'package:sumizuri/features/library/providers/library_providers.dart';
@@ -35,9 +37,34 @@ class ImagePreviewPage extends ConsumerWidget {
               initialCustomCoverPath);
 
     final localPath = customCoverPath ?? localFilePathOf(coverUrl);
+    // Decoded at no more than two screens' worth of pixels: enough to zoom
+    // into, but a 4000 pixel poster no longer costs about 60 MB every time
+    // it is opened.
+    final media = MediaQuery.of(context);
+    final decodeWidth = (media.size.width * media.devicePixelRatio * 2)
+        .round()
+        .clamp(800, 3200);
     final imageWidget = localPath != null
-        ? Image.file(File(localPath), fit: BoxFit.contain)
-        : Image.network(coverUrl, fit: BoxFit.contain);
+        ? Image.file(
+            File(localPath),
+            fit: BoxFit.contain,
+            cacheWidth: decodeWidth,
+          )
+        // Cached, sent with the site's own headers, and a dead address shows
+        // a placeholder instead of throwing (a 404 poster used to).
+        : CachedNetworkImage(
+            imageUrl: coverUrl,
+            httpHeaders: originHeaders(coverUrl),
+            memCacheWidth: decodeWidth,
+            fit: BoxFit.contain,
+            placeholder: (_, _) =>
+                const Center(child: CircularProgressIndicator()),
+            errorWidget: (_, _, _) => const Icon(
+              Icons.broken_image_outlined,
+              color: Colors.white54,
+              size: 64,
+            ),
+          );
 
     return Scaffold(
       backgroundColor: Colors.black,

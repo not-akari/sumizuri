@@ -9,7 +9,7 @@ import 'package:sumizuri/features/extensions/models/m_entry.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 import 'package:sumizuri/features/library/flows/add_to_library_flow.dart';
 import 'package:sumizuri/features/extensions/entry_detail/entry_detail_widgets.dart';
-import 'package:sumizuri/features/trackers/widgets/anilist_tracking_sheet.dart';
+import 'package:sumizuri/features/trackers/widgets/tracker_tracking_sheet.dart';
 
 enum ChapterMenuAction {
   downloadAll,
@@ -69,7 +69,7 @@ List<Widget> buildPosterActions({
       PosterAction(
         icon: Icons.auto_awesome_outlined,
         label: l10n.trackingTitle,
-        onTap: () => showAniListTrackingSheet(
+        onTap: () => showTrackingSheet(
           context,
           libraryEntryId: libraryEntryId,
           title: entry.title,
@@ -93,6 +93,9 @@ List<Widget> buildPosterActions({
 
 const _backdropFade = 60.0;
 
+// How far the wide layout scrolls before its heading is out of sight.
+const _wideTitleAfter = 70.0;
+
 double detailBarBackdropOpacity({
   required double offset,
   required double barBottom,
@@ -104,7 +107,24 @@ PreferredSizeWidget buildEntryDetailAppBar({
   required String title,
   required ValueNotifier<double> scrollOffset,
 }) {
-  if (isWide) return AppBar(title: Text(title));
+  if (isWide) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      // The heading is right below, so the title only shows once it has scrolled away.
+      title: ValueListenableBuilder<double>(
+        valueListenable: scrollOffset,
+        builder: (context, offset, child) => AnimatedOpacity(
+          opacity: offset > _wideTitleAfter ? 1 : 0,
+          duration: const Duration(milliseconds: 150),
+          child: child,
+        ),
+        child: Text(title),
+      ),
+    );
+  }
   return AppBar(
     backgroundColor: Colors.transparent,
     surfaceTintColor: Colors.transparent,

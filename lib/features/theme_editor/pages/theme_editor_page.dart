@@ -3,16 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sumizuri/core/widgets/controls/app_choice.dart';
 import 'package:sumizuri/core/widgets/cards/app_card.dart';
+import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/core/theming/app_layout.dart';
 import 'package:sumizuri/core/theming/app_theme.dart';
 import 'package:sumizuri/core/theming/custom_theme.dart';
+import 'package:sumizuri/core/theming/theme_options.dart';
+import 'package:sumizuri/core/theming/theme_randomizer.dart';
 import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/controls/toggle_pill.dart';
 import 'package:sumizuri/features/theme_editor/data/theme_editor_providers.dart';
 import 'package:sumizuri/features/theme_editor/widgets/color_picker_dialog.dart';
-import 'package:sumizuri/features/theme_editor/widgets/option_controls.dart';
+import 'package:sumizuri/features/theme_editor/widgets/background_editor.dart';
+import 'package:sumizuri/features/theme_editor/widgets/editor_kit.dart';
 import 'package:sumizuri/features/theme_editor/widgets/preview_screens.dart';
+import 'package:sumizuri/features/theme_editor/widgets/randomize_sheet.dart';
 import 'package:sumizuri/features/theme_editor/widgets/shape_controls.dart';
+import 'package:sumizuri/features/theme_editor/widgets/type_effects_controls.dart';
+import 'package:sumizuri/features/theme_editor/widgets/progress_controls.dart';
 import 'package:sumizuri/features/theme_editor/widgets/theme_preview.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 
@@ -20,7 +27,7 @@ part 'theme_editor_controls.dart';
 
 enum _Mode { light, dark, oled }
 
-enum _EditorTab { colors, components, type, effects }
+enum _EditorTab { colors, background, shape, type, effects, progress }
 
 class ThemeEditorPage extends ConsumerStatefulWidget {
   const ThemeEditorPage({super.key, required this.theme});
@@ -38,6 +45,12 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage>
 
   @override
   late CustomTheme _draft = widget.theme;
+
+  // Every change is kept, so it can be taken back. Changes made in quick
+  // succession, such as dragging a slider, count as one.
+  late final List<CustomTheme> _history = [widget.theme];
+  int _cursor = 0;
+  DateTime _lastEdit = DateTime.fromMillisecondsSinceEpoch(0);
   @override
   late final _name = TextEditingController(text: widget.theme.name);
   // Starts in dark so the editor does not open blindingly bright.
@@ -80,7 +93,35 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage>
 
   @override
   void _update(CustomTheme theme) => setState(() {
+    final now = DateTime.now();
+    final quick = now.difference(_lastEdit) < const Duration(milliseconds: 600);
+    _lastEdit = now;
+    _history.removeRange(_cursor + 1, _history.length);
+    if (quick && _cursor > 0) {
+      _history[_cursor] = theme;
+    } else {
+      _history.add(theme);
+      _cursor++;
+      if (_history.length > 80) {
+        _history.removeAt(0);
+        _cursor--;
+      }
+    }
     _draft = theme;
+    _dirty = true;
+  });
+
+  void _undo() => setState(() {
+    if (_cursor == 0) return;
+    _cursor--;
+    _draft = _history[_cursor];
+    _dirty = _cursor != 0;
+  });
+
+  void _redo() => setState(() {
+    if (_cursor >= _history.length - 1) return;
+    _cursor++;
+    _draft = _history[_cursor];
     _dirty = true;
   });
 
@@ -105,6 +146,13 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage>
       ],
     );
     if (picked != null) _setColor(role, picked);
+  }
+
+  /// Shuffles the parts of the draft that were chosen, and leaves the rest.
+  Future<void> _randomize() async {
+    final aspects = await showRandomizeSheet(context);
+    if (aspects == null || !mounted) return;
+    _update(ThemeRandomizer().apply(_draft, aspects));
   }
 
   Future<void> _save() async {
@@ -159,17 +207,21 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage>
   @override
   IconData _tabIcon(_EditorTab tab) => switch (tab) {
     _EditorTab.colors => Icons.palette_outlined,
-    _EditorTab.components => Icons.widgets_outlined,
+    _EditorTab.background => Icons.blur_on_outlined,
+    _EditorTab.shape => Icons.rounded_corner,
     _EditorTab.type => Icons.text_fields_rounded,
     _EditorTab.effects => Icons.auto_awesome_outlined,
+    _EditorTab.progress => Icons.linear_scale_rounded,
   };
 
   @override
   String _tabLabel(AppLocalizations l10n, _EditorTab tab) => switch (tab) {
     _EditorTab.colors => l10n.themeEditorTabColors,
-    _EditorTab.components => l10n.themeEditorTabShape,
+    _EditorTab.background => l10n.themeEditorTabBackground,
+    _EditorTab.shape => l10n.themeEditorTabShape,
     _EditorTab.type => l10n.themeEditorTabType,
     _EditorTab.effects => l10n.themeEditorTabEffects,
+    _EditorTab.progress => l10n.themeEditorTabProgress,
   };
 
   void _expandPreview(ThemeData preview) {
@@ -212,6 +264,21 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage>
       child: AmbientScaffold(
         title: Text(l10n.themeEditorTitle),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.undo),
+            tooltip: l10n.themeEditorUndo,
+            onPressed: _cursor > 0 ? _undo : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.redo),
+            tooltip: l10n.themeEditorRedo,
+            onPressed: _cursor < _history.length - 1 ? _redo : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.casino_outlined),
+            tooltip: l10n.randomizeTitle,
+            onPressed: _randomize,
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: FilledButton.icon(

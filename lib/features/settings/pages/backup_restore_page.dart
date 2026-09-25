@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:sumizuri/features/library/migration/migration_prompt.dart';
 import 'package:sumizuri/features/settings/flows/mangayomi_import_flow.dart';
 import 'package:sumizuri/features/settings/flows/mihon_import_flow.dart';
@@ -12,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/core/widgets/overlays/confirm_dialog.dart';
 import 'package:sumizuri/core/widgets/controls/settings_controls.dart';
@@ -48,7 +48,9 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
     final l10n = AppLocalizations.of(context)!;
     showMigratePrompt(
       context,
-      l10n.settingsMangayomiImportDone(result.added, result.skipped),
+      result.cancelled
+          ? l10n.backupImportCancelledDone(result.added, result.skipped)
+          : l10n.settingsMangayomiImportDone(result.added, result.skipped),
       result.addedIds,
     );
   }
@@ -58,7 +60,9 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
     final l10n = AppLocalizations.of(context)!;
     showMigratePrompt(
       context,
-      l10n.settingsMihonImportDone(result.added, result.skipped),
+      result.cancelled
+          ? l10n.backupImportCancelledDone(result.added, result.skipped)
+          : l10n.settingsMihonImportDone(result.added, result.skipped),
       result.addedIds,
     );
   }
@@ -270,8 +274,7 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
     final prefs =
         ref.watch(backupPreferencesProvider).value ?? const BackupPreferences();
 
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    return SettingsScaffold(
       title: Text(l10n.settingsSectionBackup),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),

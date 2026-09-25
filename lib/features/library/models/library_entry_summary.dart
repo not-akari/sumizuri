@@ -9,6 +9,7 @@ class LibraryEntrySummary {
     required this.mediaType,
     required this.favorite,
     required this.unreadCount,
+    this.totalCount = 0,
     required this.sourceId,
     required this.externalId,
     required this.status,
@@ -24,6 +25,14 @@ class LibraryEntrySummary {
   final MediaType mediaType;
   final bool favorite;
   final int unreadCount;
+
+  /// Every chapter or episode the title has, read or not.
+  final int totalCount;
+
+  /// How much of it is read, from 0 to 1.
+  double get readFraction => totalCount == 0
+      ? 0
+      : ((totalCount - unreadCount) / totalCount).clamp(0.0, 1.0);
 
   final String sourceId;
   final String externalId;

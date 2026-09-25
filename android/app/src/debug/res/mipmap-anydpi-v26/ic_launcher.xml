@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug build variant: shows the plain debug-badged icon directly instead
+     of the release adaptive-icon (foreground/background split), so a debug
+     build is visually obvious at a glance instead of getting mask-cropped
+     the way a foreground layer without adaptive-icon safe-zone padding
+     would be. -->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@mipmap/ic_launcher" />

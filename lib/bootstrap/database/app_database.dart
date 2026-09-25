@@ -1,10 +1,12 @@
 // Defines the Drift database, its tables and schema migrations for the whole app.
+import 'dart:io' show File;
 import 'dart:math';
 
 import 'package:sumizuri/bootstrap/startup/startup_timer.dart';
 import 'package:sumizuri/bootstrap/database/slow_query_interceptor.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:sqlite3/sqlite3.dart' show SqliteException, sqlite3;
 // ignore: depend_on_referenced_packages
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter/foundation.dart';
@@ -35,7 +37,7 @@ import 'package:sumizuri/bootstrap/storage/app_paths.dart';
 
 part 'app_database.g.dart';
 
-const appDatabaseSchemaVersion = 63;
+const appDatabaseSchemaVersion = 65;
 
 // Databases older than this cannot be upgraded.
 const oldestUpgradableSchemaVersion = 46;
@@ -203,9 +205,8 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 63) {
         // Re-creates column with CHECK constraint if needed.
-        final columns = await customSelect(
-          'PRAGMA table_info(library_entries)',
-        ).get();
+        final columns = await customSelect('PRAGMA table_info(library_entries)')
+            .get();
         if (columns.any(
           (row) => row.read<String>('name') == 'reader_mode_checked',
         )) {
@@ -214,6 +215,21 @@ class AppDatabase extends _$AppDatabase {
           );
         }
         await m.addColumn(libraryEntries, libraryEntries.readerModeChecked);
+      }
+      if (from < 64) {
+        await m.addColumn(installedSources, installedSources.nsfw);
+      }
+      if (from < 65) {
+        // Without these, deleting a profile or a title looked for its children by
+        // reading a whole table for every row it removed: minutes for a big library.
+        for (final statement in const [
+          'CREATE INDEX IF NOT EXISTS idx_reading_sessions_content_unit ON reading_sessions (content_unit_id)',
+          'CREATE INDEX IF NOT EXISTS idx_reading_sessions_branch ON reading_sessions (branch_id)',
+          'CREATE INDEX IF NOT EXISTS idx_library_entries_active_branch ON library_entries (active_branch_id)',
+          'CREATE INDEX IF NOT EXISTS idx_categories_profile ON categories (profile_id)',
+        ]) {
+          await customStatement(statement);
+        }
       }
     },
     beforeOpen: (details) async {
@@ -242,10 +258,41 @@ class AppDatabase extends _$AppDatabase {
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {
-      return NativeDatabase.createInBackground(await databaseFile())
+      final file = await databaseFile();
+      await _openWhenWritable(file);
+      return NativeDatabase.createInBackground(file)
           .interceptWith(SlowQueryInterceptor());
     });
   }
+
+  /// A crash can leave a journal that the next open has to roll back. If
+  /// something else has the file for a moment (the process that was just closed,
+  /// a backup or sync program, an antivirus scan), the system opens it
+  /// read-only and SQLite refuses with "attempt to write a readonly database".
+  /// That passes, so this waits and tries again before the app gives up.
+  static Future<void> _openWhenWritable(File file) async {
+    const attempts = 8;
+    for (var attempt = 1; ; attempt++) {
+      try {
+        final probe = sqlite3.open(file.path);
+        try {
+          // The first read is what rolls a left-over journal back.
+          probe.select('PRAGMA user_version');
+        } finally {
+          probe.close();
+        }
+        return;
+      } on SqliteException catch (error) {
+        if (!_isReadOnly(error) || attempt >= attempts) rethrow;
+        await Future<void>.delayed(Duration(milliseconds: 300 * attempt));
+      }
+    }
+  }
+
+  /// SQLITE_READONLY and the ways it is refined (a journal to roll back, a
+  /// lock that could not be taken, a file that moved).
+  static bool _isReadOnly(SqliteException error) =>
+      error.resultCode == 8 || error.extendedResultCode & 0xff == 8;
 }
 
 String _newInstallId() {

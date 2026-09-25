@@ -34,7 +34,10 @@ void openLibraryEntry(
   // Fall back to migration when an entry has no source or its source is uninstalled.
   Future<void> failNeedsMigration(String message, {Object? error}) async {
     logger.warning(message, tag: 'library', error: error);
-    final entries = await ref.read(libraryRepositoryProvider).watchLibrary().first;
+    final entries = await ref
+        .read(libraryRepositoryProvider)
+        .watchLibrary()
+        .first;
     final mediaType = entries
         .where((e) => e.id == libraryEntryId)
         .firstOrNull
@@ -52,8 +55,10 @@ void openLibraryEntry(
           label: l10n.migrationPromptAction,
           onPressed: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
-              builder: (_) =>
-                  MigrationPage(entryIds: {libraryEntryId}, mediaType: mediaType),
+              builder: (_) => MigrationPage(
+                entryIds: {libraryEntryId},
+                mediaType: mediaType,
+              ),
             ),
           ),
         ),

@@ -12,6 +12,7 @@ class ThemeCard extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.menu,
+    this.marked,
   });
 
   final ColorScheme colors;
@@ -21,6 +22,9 @@ class ThemeCard extends StatelessWidget {
   final VoidCallback onTap;
 
   final Widget? menu;
+
+  /// While themes are being chosen: whether this one is. Null the rest of the time.
+  final bool? marked;
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +54,12 @@ class ThemeCard extends StatelessWidget {
                       color: cs.surface,
                       borderRadius: cardRadius,
                       border: Border.all(
-                        color: selected ? cs.primary : outline,
-                        width: selected ? 2 : 1,
+                        color: marked == true
+                            ? Theme.of(context).colorScheme.error
+                            : selected
+                            ? cs.primary
+                            : outline,
+                        width: selected || marked == true ? 2 : 1,
                       ),
                     ),
                     child: Column(
@@ -105,6 +113,24 @@ class ThemeCard extends StatelessWidget {
                     radius: 10,
                     backgroundColor: cs.primary,
                     child: Icon(Icons.check, size: 13, color: cs.onPrimary),
+                  ),
+                ),
+              if (marked != null)
+                Positioned(
+                  top: -6,
+                  right: -6,
+                  child: CircleAvatar(
+                    radius: 11,
+                    backgroundColor: marked!
+                        ? Theme.of(context).colorScheme.error
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    child: Icon(
+                      marked! ? Icons.check : Icons.circle_outlined,
+                      size: 14,
+                      color: marked!
+                          ? Theme.of(context).colorScheme.onError
+                          : Theme.of(context).colorScheme.outline,
+                    ),
                   ),
                 ),
               if (menu != null) Positioned(top: 22, right: 0, child: menu!),

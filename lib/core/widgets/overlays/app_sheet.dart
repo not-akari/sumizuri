@@ -10,10 +10,14 @@ class AppSheetHeader extends StatelessWidget {
   const AppSheetHeader({
     super.key,
     required this.title,
+    this.subtitle,
     this.actions = const [],
   });
 
   final String title;
+
+  /// A line of explanation under the title.
+  final String? subtitle;
   final List<Widget> actions;
 
   @override
@@ -57,6 +61,55 @@ class AppSheetHeader extends StatelessWidget {
                 color: cs.primary.withValues(alpha: 0.6),
               ),
             ),
+          ),
+        ),
+        if (subtitle != null)
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              context.layout.gutter,
+              0,
+              context.layout.gutter,
+              8,
+            ),
+            child: Text(
+              subtitle!,
+              style: TextStyle(fontSize: 13, height: 1.4, color: cs.outline),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// A sheet that is exactly as tall as its content, up to the screen, for a
+/// short form or list of choices. Use [AppListSheet] for a long list instead,
+/// which opens tall and can be dragged.
+class AppSheet extends StatelessWidget {
+  const AppSheet({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.actions = const [],
+    required this.children,
+  });
+
+  final String title;
+  final String? subtitle;
+  final List<Widget> actions;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AppSheetHeader(title: title, subtitle: subtitle, actions: actions),
+        Flexible(
+          child: ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.only(bottom: 24),
+            children: children,
           ),
         ),
       ],

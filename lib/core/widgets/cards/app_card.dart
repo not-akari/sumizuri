@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:sumizuri/core/theming/ambient_scope.dart';
 import 'package:sumizuri/core/theming/theme_shapes.dart';
+import 'package:sumizuri/core/widgets/cards/app_list_row.dart' show AppRowStyle;
 import 'package:sumizuri/core/widgets/controls/pressable_scale.dart';
 
 /// How a card looks: a bordered panel, a soft row fill, or a light inset.
@@ -20,6 +22,7 @@ class AppCard extends StatelessWidget {
     this.color,
     this.borderColor,
     this.onTap,
+    this.flattenWhenCompact = false,
   });
 
   final Widget child;
@@ -41,13 +44,20 @@ class AppCard extends StatelessWidget {
   final Color? borderColor;
   final VoidCallback? onTap;
 
+  /// When lists are set to compact, draws the content with no box: no fill, no
+  /// border and less padding, only a hairline under it. For cards that hold
+  /// content and are not a notice, so a phone screen fits more of them.
+  final bool flattenWhenCompact;
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final shapes = context.shapes;
+    final flat = flattenWhenCompact && AmbientScope.compactListsOf(context);
     final solid = tone == AppCardTone.solid;
-    final bordered = tone != AppCardTone.soft;
-    final fill =
+    final components = context.options.components;
+    final bordered = tone != AppCardTone.soft && components.cardBorders;
+    final baseFill =
         color ??
         switch (tone) {
           AppCardTone.solid => cs.surfaceContainerHighest,
@@ -56,13 +66,20 @@ class AppCard extends StatelessWidget {
             alpha: 0.4,
           ),
         };
+    // The theme can make every card more see-through or more solid.
+    final fill = color != null || components.cardOpacity == 1
+        ? baseFill
+        : baseFill.withValues(
+            alpha: (baseFill.a * components.cardOpacity).clamp(0.0, 1.0),
+          );
 
     Widget content = Padding(
-      padding:
-          padding ??
-          (solid
-              ? EdgeInsets.all(16 * context.options.layout.spacing)
-              : const EdgeInsets.symmetric(horizontal: 14, vertical: 10)),
+      padding: flat
+          ? const EdgeInsets.symmetric(horizontal: 2, vertical: 10)
+          : padding ??
+                (solid
+                    ? EdgeInsets.all(16 * context.options.layout.spacing)
+                    : const EdgeInsets.symmetric(horizontal: 14, vertical: 10)),
       child: title == null && trailing == null
           ? child
           : Column(
@@ -92,6 +109,24 @@ class AppCard extends StatelessWidget {
             ),
     );
     if (onTap != null) content = InkWell(onTap: onTap, child: content);
+
+    if (flat) {
+      final side = margin?.resolve(Directionality.of(context));
+      return Padding(
+        padding: EdgeInsets.fromLTRB(side?.left ?? 0, 0, side?.right ?? 0, 0),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: cs.outlineVariant.withValues(alpha: 0.5),
+                width: shapes.borderWidth,
+              ),
+            ),
+          ),
+          child: SizedBox(width: double.infinity, child: content),
+        ),
+      );
+    }
 
     Widget card = Material(
       color: fill,
@@ -126,7 +161,7 @@ class AppCardRow extends StatelessWidget {
     this.details = const [],
     this.trailing,
     this.onTap,
-    this.margin = const EdgeInsets.only(bottom: 10),
+    this.margin = const EdgeInsets.symmetric(vertical: 4),
     this.dimmed = false,
     this.titleLines = 1,
   });
@@ -168,6 +203,7 @@ class AppCardRow extends StatelessWidget {
                 child: Icon(icon, size: 19, color: cs.onSurfaceVariant),
               ));
 
+    final compact = AmbientScope.compactListsOf(context);
     final row = Row(
       children: [
         if (leading != null) ...[
@@ -204,11 +240,70 @@ class AppCardRow extends StatelessWidget {
       ],
     );
 
+    // Dense form: the same row without the box around it.
+    if (compact) {
+      return InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: AppRowStyle.marginOf(context),
+            vertical: 6,
+          ),
+          child: row,
+        ),
+      );
+    }
     return AppCard(
-      tone: AppCardTone.soft,
+      tone: AppCardTone.inset,
       margin: margin,
+      padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
       onTap: onTap,
       child: row,
+    );
+  }
+}
+
+/// A row that is a soft card, or, when lists are set to compact, the same
+/// content flat with no box around it. For rows made of more than an icon and
+/// two lines of text, which cannot use [AppListRow].
+class AdaptiveRowCard extends StatelessWidget {
+  const AdaptiveRowCard({
+    super.key,
+    required this.child,
+    this.margin,
+    this.padding = const EdgeInsets.fromLTRB(12, 8, 4, 8),
+    this.onTap,
+    this.borderColor,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry padding;
+  final VoidCallback? onTap;
+  final Color? borderColor;
+
+  @override
+  Widget build(BuildContext context) {
+    if (AmbientScope.compactListsOf(context)) {
+      final side = AppRowStyle.marginOf(context);
+      return InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: side == 0 ? 2 : side,
+            vertical: 6,
+          ),
+          child: child,
+        ),
+      );
+    }
+    return AppCard(
+      tone: AppCardTone.inset,
+      borderColor: borderColor,
+      margin: margin,
+      padding: padding,
+      onTap: onTap,
+      child: child,
     );
   }
 }

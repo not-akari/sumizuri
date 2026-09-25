@@ -68,7 +68,7 @@ class _TranslationEditorPageState extends ConsumerState<TranslationEditorPage> {
       setState(() => _selectedLocale = code);
       ref.read(activeDraftLocaleProvider.notifier).selectLocale(code);
       await ref.read(translationDraftProvider(code).notifier).flushSave();
-      ref.invalidate(draftLocalesProvider);
+      if (mounted) ref.invalidate(draftLocalesProvider);
     }
   }
 
@@ -293,14 +293,14 @@ class _TranslationEditorPageState extends ConsumerState<TranslationEditorPage> {
                           AppLocalizations.of(context)!.translationUseInApp,
                         ),
                         onPressed: () async {
-                          await ref
-                              .read(
-                                translationDraftProvider(activeLocale).notifier,
-                              )
-                              .flushSave();
-                          await ref
-                              .read(appLocaleProvider.notifier)
-                              .setLocale(activeLocale);
+                          // Both taken now: the page may be closed before the first finishes.
+                          final draft = ref.read(
+                            translationDraftProvider(activeLocale).notifier,
+                          );
+                          final locale = ref.read(appLocaleProvider.notifier);
+                          await draft.flushSave();
+                          await locale.setLocale(activeLocale);
+                          if (!mounted) return;
                           ref.invalidate(draftLocalesProvider);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(

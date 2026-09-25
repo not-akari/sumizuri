@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:sumizuri/core/widgets/controls/app_choice.dart';
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
 import 'package:sumizuri/core/widgets/overlays/dialog_with_controller.dart';
 import 'package:sumizuri/core/widgets/controls/settings_controls.dart';
@@ -41,8 +41,7 @@ class SyncSettingsPage extends ConsumerWidget {
       );
     }
 
-    return AmbientScaffold(
-      maxContentWidth: 720,
+    return SettingsScaffold(
       title: Text(l10n.syncTitle),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),

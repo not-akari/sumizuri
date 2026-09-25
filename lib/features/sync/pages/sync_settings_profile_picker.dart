@@ -97,7 +97,9 @@ class _ProfilePickerState extends ConsumerState<_ProfilePicker> {
                           final result = await repository.createAndLinkProfile(
                             name,
                           );
-                          ref.invalidate(syncServerProfilesProvider);
+                          if (mounted) {
+                            ref.invalidate(syncServerProfilesProvider);
+                          }
                           return result.errorOrNull?.displayMessage;
                         });
                       },
@@ -121,6 +123,7 @@ class _ProfilePickerState extends ConsumerState<_ProfilePicker> {
               : () async {
                   await repository.signOut();
                   await reconcileBackgroundSync(repository);
+                  if (!mounted) return;
                   ref.invalidate(syncAccountProvider);
                   ref.invalidate(syncLinkedProfileProvider);
                 },

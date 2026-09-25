@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sumizuri/core/utils/network/origin_headers.dart';
 import 'package:sumizuri/core/widgets/controls/app_choice.dart';
 import 'package:sumizuri/features/extensions/models/engine_kind.dart';
 import 'package:sumizuri/features/library/models/library_types.dart';
@@ -67,7 +68,9 @@ class SourceEditorInfoPanel extends StatelessWidget {
                   final url = iconUrlController.text.trim();
                   return CircleAvatar(
                     radius: 24,
-                    backgroundImage: url.isEmpty ? null : NetworkImage(url),
+                    backgroundImage: url.isEmpty
+                        ? null
+                        : NetworkImage(url, headers: originHeaders(url)),
                     onBackgroundImageError: url.isEmpty ? null : (_, _) {},
                     child: url.isEmpty
                         ? const Icon(Icons.image_outlined)

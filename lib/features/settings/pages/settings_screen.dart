@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import 'package:sumizuri/core/widgets/ambient/ambient_scaffold.dart';
 import 'package:sumizuri/core/theming/app_layout.dart';
 import 'package:sumizuri/core/theming/app_motion.dart';
 import 'package:sumizuri/core/widgets/controls/animated_search_bar.dart';
 import 'package:sumizuri/core/widgets/cards/app_list_row.dart';
-import 'package:sumizuri/core/widgets/controls/pressable_scale.dart';
 import 'package:sumizuri/features/settings/models/app_settings_types.dart';
 import 'package:sumizuri/l10n/generated/app_localizations.dart';
 import 'package:sumizuri/features/settings/models/settings_models.dart';
 import 'package:sumizuri/features/settings/providers/settings_providers.dart';
 import 'package:sumizuri/features/settings/pages/settings_sections.dart';
+import 'package:sumizuri/features/settings/widgets/settings_scaffold.dart';
+
+/// Wide enough that the groups are laid out in two columns.
+const _twoColumnWidth = 900.0;
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -103,147 +105,159 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  String _groupLabel(AppLocalizations l10n, SettingsGroup group) =>
+      switch (group) {
+        SettingsGroup.general => l10n.settingsGroupGeneral,
+        SettingsGroup.content => l10n.settingsGroupContent,
+        SettingsGroup.data => l10n.settingsGroupData,
+        SettingsGroup.help => l10n.settingsGroupHelp,
+      };
+
+  Widget _row(SettingsEntry entry, ThemeData theme) => AppListRow(
+    icon: entry.icon,
+    title: entry.title,
+    subtitle: entry.subtitle,
+    titleWidget: _highlightMatch(
+      entry.title,
+      _query,
+      TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: theme.colorScheme.onSurface,
+      ),
+      theme.colorScheme.primary,
+    ),
+    subtitleWidget: entry.subtitle == null
+        ? null
+        : _highlightMatch(
+            entry.subtitle!,
+            _query,
+            TextStyle(fontSize: 12, color: theme.colorScheme.outline),
+            theme.colorScheme.primary,
+          ),
+    trailing: Icon(
+      Icons.chevron_right_rounded,
+      color: theme.colorScheme.outline,
+      size: 20,
+    ),
+    onTap: () => entry.onTap(context, ref),
+  );
+
+  /// The groups of [byGroup] as cards: in one column, or dealt into two
+  /// columns on a wide window so the page is not one long scroll.
+  Widget _groups(
+    AppLocalizations l10n,
+    ThemeData theme,
+    Map<SettingsGroup, List<SettingsEntry>> byGroup,
+    bool twoColumns,
+  ) {
+    Widget card(SettingsGroup group) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AppSectionLabel(label: _groupLabel(l10n, group)),
+        for (final entry in byGroup[group]!) _row(entry, theme),
+      ],
+    );
+    final groups = byGroup.keys.toList();
+    if (!twoColumns) {
+      return Column(children: [for (final group in groups) card(group)]);
+    }
+    // Each group goes to whichever column is shorter so far.
+    final left = <SettingsGroup>[];
+    final right = <SettingsGroup>[];
+    var leftRows = 0;
+    var rightRows = 0;
+    for (final group in groups) {
+      final rows = byGroup[group]!.length;
+      if (leftRows <= rightRows) {
+        left.add(group);
+        leftRows += rows;
+      } else {
+        right.add(group);
+        rightRows += rows;
+      }
+    }
+    Widget column(List<SettingsGroup> list) =>
+        Column(children: [for (final group in list) card(group)]);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: column(left)),
+        const SizedBox(width: 20),
+        Expanded(child: column(right)),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final mode = ref.watch(libraryModeProvider).value ?? AppLibraryMode.unified;
     final searching = _query.isNotEmpty;
-    final visibleSections = [
-      for (final section in buildSettingsSections(
-        ref: ref,
-        l10n: l10n,
-        mode: mode,
-        appVersion: _appVersion,
-      ))
-        SettingsSection(
-          title: section.title,
-          entries: section.entries
-              .where(
-                (e) =>
-                    !e.hidden &&
-                    (searching || !e.searchOnly) &&
-                    e.matches(_query),
-              )
-              .toList(),
-        ),
-    ].where((section) => section.entries.isNotEmpty).toList();
 
-    return AmbientScaffold(
+    final byGroup = <SettingsGroup, List<SettingsEntry>>{};
+    for (final section in buildSettingsSections(
+      ref: ref,
+      l10n: l10n,
+      mode: mode,
+      appVersion: _appVersion,
+    )) {
+      for (final entry in section.entries) {
+        if (entry.hidden || (!searching && entry.searchOnly)) continue;
+        if (!entry.matches(_query)) continue;
+        (byGroup[entry.group ?? section.group] ??= []).add(entry);
+      }
+    }
+    final ordered = {
+      for (final group in SettingsGroup.values) group: ?byGroup[group],
+    };
+
+    // The cards carry no side margin of their own: the list's padding and the
+    // columns' spacing place them.
+    return SettingsScaffold(
+      maxContentWidth: double.infinity,
+      rowMargin: 0,
       title: Text(l10n.settingsTitle),
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          8,
-          16,
-          context.layout.scrollBottomOf(context),
-        ),
-        children: [
-          AnimatedSearchBar(
-            controller: _searchController,
-            hintText: l10n.settingsSearchHint,
-          ),
-          const SizedBox(height: 4),
-          AnimatedSize(
-            duration: AppMotion.medium,
-            curve: AppMotion.curveLiquid,
-            alignment: Alignment.topCenter,
-            child: searching && visibleSections.isEmpty
-                ? _buildNoResultsState(theme)
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      body: LayoutBuilder(
+        builder: (context, box) {
+          final twoColumns = box.maxWidth >= _twoColumnWidth;
+          return ListView(
+            padding: EdgeInsets.fromLTRB(
+              context.layout.gutter,
+              8,
+              context.layout.gutter,
+              context.layout.scrollBottomOf(context),
+            ),
+            children: [
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: twoColumns ? 1040 : 720,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (final section in visibleSections) ...[
-                        AppSectionLabel(label: section.title),
-                        for (final entry in section.entries)
-                          _SettingsRow(
-                            icon: entry.icon,
-                            title: _highlightMatch(
-                              entry.title,
-                              _query,
-                              theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                              theme.colorScheme.primary,
-                            ),
-                            subtitle: entry.subtitle == null
-                                ? null
-                                : _highlightMatch(
-                                    entry.subtitle!,
-                                    _query,
-                                    theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
-                                    ),
-                                    theme.colorScheme.primary,
-                                  ),
-                            onTap: () => entry.onTap(context, ref),
-                          ),
-                      ],
+                      AnimatedSearchBar(
+                        controller: _searchController,
+                        hintText: l10n.settingsSearchHint,
+                      ),
+                      const SizedBox(height: 4),
+                      AnimatedSize(
+                        duration: AppMotion.medium,
+                        curve: AppMotion.curveLiquid,
+                        alignment: Alignment.topCenter,
+                        child: searching && ordered.isEmpty
+                            ? _buildNoResultsState(theme)
+                            : _groups(l10n, theme, ordered, twoColumns),
+                      ),
                     ],
                   ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SettingsRow extends StatelessWidget {
-  const _SettingsRow({
-    required this.icon,
-    required this.title,
-    this.subtitle,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final Widget title;
-  final Widget? subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return PressableScale(
-      onTap: onTap,
-      hoverScale: 1.01,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: context.layout.gutter,
-            vertical: 12,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest,
-                  border: Border.all(color: cs.outlineVariant),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                alignment: Alignment.center,
-                child: Icon(icon, size: 19, color: cs.onSurfaceVariant),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    title,
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      subtitle!,
-                    ],
-                  ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: cs.outline, size: 20),
             ],
-          ),
-        ),
+          );
+        },
       ),
     );
   }

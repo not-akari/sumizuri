@@ -17,50 +17,27 @@ mixin _ThemeEditorControls on ConsumerState<ThemeEditorPage> {
   IconData _tabIcon(_EditorTab tab);
   String _tabLabel(AppLocalizations l10n, _EditorTab tab);
 
-  Widget _controls(AppLocalizations l10n, ThemeData preview) {
+  void _setOptions(ThemeOptions options) =>
+      _update(_draft.copyWith(options: options));
+
+  /// The colours tab: which palette is being edited, then each colour.
+  List<Widget> _colorsTab(AppLocalizations l10n, ThemeData preview) {
     final cs = Theme.of(context).colorScheme;
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            context.layout.gutter,
-            4,
-            context.layout.gutter,
-            12,
-          ),
-          child: TextField(
-            controller: _name,
-            onChanged: (_) => setState(() => _dirty = true),
-            decoration: InputDecoration(
-              labelText: l10n.themeEditorName,
-              isDense: true,
-            ),
-          ),
+    return [
+      EditorSection(
+        title: l10n.themeEditorTabColors,
+        onReset: () => _update(
+          _editingDarkPalette
+              ? _draft.copyWith(dark: const ThemeColors())
+              : _draft.copyWith(light: const ThemeColors()),
         ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: context.layout.gutter),
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final tab in _EditorTab.values)
-                TogglePill(
-                  icon: _tabIcon(tab),
-                  label: _tabLabel(l10n, tab),
-                  selected: tab == _tab,
-                  onTap: () => setState(() => _tab = tab),
-                ),
-            ],
-          ),
-        ),
-        if (_tab == _EditorTab.colors)
+        children: [
           Padding(
             padding: EdgeInsets.fromLTRB(
-              context.layout.gutter,
-              14,
-              context.layout.gutter,
+              AppRowStyle.marginOf(context),
               0,
+              AppRowStyle.marginOf(context),
+              6,
             ),
             child: Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
@@ -97,43 +74,13 @@ mixin _ThemeEditorControls on ConsumerState<ThemeEditorPage> {
               ],
             ),
           ),
-        const SizedBox(height: 8),
-        if (_tab == _EditorTab.components) ...[
-          ShapeControls(
-            shapes: _draft.shapes,
-            onChanged: (s) => _update(_draft.copyWith(shapes: s)),
-          ),
-          ComponentToggles(
-            options: _draft.options,
-            onChanged: (o) => _update(_draft.copyWith(options: o)),
-          ),
-        ] else if (_tab == _EditorTab.type)
-          TypeLayoutControls(
-            options: _draft.options,
-            onChanged: (o) => _update(_draft.copyWith(options: o)),
-          )
-        else if (_tab == _EditorTab.effects)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              BackgroundControls(
-                options: _draft.options,
-                onChanged: (o) => _update(_draft.copyWith(options: o)),
-              ),
-              EffectsMotionControls(
-                options: _draft.options,
-                onChanged: (o) => _update(_draft.copyWith(options: o)),
-              ),
-            ],
-          )
-        else ...[
           for (final role in ThemeColors.roles)
             _colorRow(l10n, role, preview.colorScheme),
           Padding(
             padding: EdgeInsets.fromLTRB(
-              context.layout.gutter,
-              12,
-              context.layout.gutter,
+              AppRowStyle.marginOf(context),
+              8,
+              AppRowStyle.marginOf(context),
               0,
             ),
             child: Text(
@@ -142,7 +89,77 @@ mixin _ThemeEditorControls on ConsumerState<ThemeEditorPage> {
             ),
           ),
         ],
+      ),
+    ];
+  }
+
+  bool get _editingDarkPalette => _mode != _Mode.light;
+
+  Widget _controls(AppLocalizations l10n, ThemeData preview) {
+    final margin = AppRowStyle.marginOf(context);
+    final body = switch (_tab) {
+      _EditorTab.colors => _colorsTab(l10n, preview),
+      _EditorTab.background => [
+        BackgroundEditor(
+          options: _draft.options,
+          onChanged: _setOptions,
+          primary: preview.colorScheme.primary,
+          secondary: preview.colorScheme.secondary,
+          tertiary: preview.colorScheme.tertiary,
+        ),
       ],
+      _EditorTab.shape => [
+        ShapeControls(
+          shapes: _draft.shapes,
+          options: _draft.options,
+          onShapesChanged: (s) => _update(_draft.copyWith(shapes: s)),
+          onOptionsChanged: _setOptions,
+        ),
+      ],
+      _EditorTab.type => [
+        TypeControls(options: _draft.options, onChanged: _setOptions),
+      ],
+      _EditorTab.effects => [
+        EffectsControls(options: _draft.options, onChanged: _setOptions),
+      ],
+      _EditorTab.progress => [
+        ProgressControls(options: _draft.options, onChanged: _setOptions),
+      ],
+    };
+    return AppRowStyle(
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: 32),
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(margin, 4, margin, 12),
+            child: TextField(
+              controller: _name,
+              onChanged: (_) => setState(() => _dirty = true),
+              decoration: InputDecoration(
+                labelText: l10n.themeEditorName,
+                isDense: true,
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: margin),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final tab in _EditorTab.values)
+                  TogglePill(
+                    icon: _tabIcon(tab),
+                    label: _tabLabel(l10n, tab),
+                    selected: tab == _tab,
+                    onTap: () => setState(() => _tab = tab),
+                  ),
+              ],
+            ),
+          ),
+          ...body,
+        ],
+      ),
     );
   }
 

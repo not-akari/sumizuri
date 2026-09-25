@@ -50,6 +50,13 @@ android {
         }
     }
 
+    // A release APK normally stores its native libraries uncompressed, so Android can read them straight from the file. Compressing them makes the download about half the size, and the phone then unpacks them into its own storage on install. CI turns this on for the APKs it publishes; a local build keeps the default.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = System.getenv("COMPRESS_NATIVE_LIBS") == "true"
+        }
+    }
+
     buildTypes {
         // A debug build is a different app to Android: its own id, name and data, so running it never replaces or touches the installed release.
         debug {

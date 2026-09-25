@@ -14,21 +14,31 @@ abstract class RenderPage {
 
 const _pollInterval = Duration(milliseconds: 250);
 
+/// Opens [url], and tries once more if the page failed to load. A navigation
+/// that is cut off (a redirect, a dropped connection, a busy site) often
+/// works the second time, and one flaky load should not fail the request.
+Future<void> loadWithRetry(RenderPage page, String url) async {
+  try {
+    await page.load(url);
+  } on StateError {
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+    await page.load(url);
+  }
+}
+
 Future<RenderResult> renderWith(
   RenderPage page,
   RenderRequest request, {
   Future<void> Function(Duration) delay = _realDelay,
 }) async {
   final clock = Stopwatch()..start();
-  await page
-      .load(request.url)
-      .timeout(
-        request.timeout,
-        onTimeout: () => throw TimeoutException(
-          'The page did not finish loading',
-          request.timeout,
-        ),
-      );
+  await loadWithRetry(page, request.url).timeout(
+    request.timeout,
+    onTimeout: () => throw TimeoutException(
+      'The page did not finish loading',
+      request.timeout,
+    ),
+  );
 
   final waitPattern = request.waitForResource == null
       ? null
@@ -88,26 +98,72 @@ Future<RenderResult> _read(
   bool timedOut,
 ) async {
   final user = request.script;
-  final script =
-      '''
+  String? scriptResult;
+  if (user != null) {
+    final execScript =
+        '''
 (function () {
-  var result = null;
-  ${user == null ? '' : '''
+  window.__sumizuriDone = false;
+  window.__sumizuriResult = null;
+  window.__sumizuriError = null;
   try {
-    var value = (0, eval)(${jsonEncode(user)});
-    result = value === undefined || value === null ? null : String(value);
-  } catch (e) { result = 'ERROR: ' + e.message; }
-  '''}
+    var val = (0, eval)(${jsonEncode(user)});
+    if (val && typeof val.then === 'function') {
+      val.then(function (res) {
+        window.__sumizuriResult = res === undefined || res === null ? null : String(res);
+        window.__sumizuriDone = true;
+      }).catch(function (err) {
+        window.__sumizuriError = 'ERROR: ' + (err && err.message ? err.message : String(err));
+        window.__sumizuriDone = true;
+      });
+    } else {
+      window.__sumizuriResult = val === undefined || val === null ? null : String(val);
+      window.__sumizuriDone = true;
+    }
+  } catch (e) {
+    window.__sumizuriError = 'ERROR: ' + (e && e.message ? e.message : String(e));
+    window.__sumizuriDone = true;
+  }
+})()
+''';
+    await page.eval(execScript);
+
+    final clock = Stopwatch()..start();
+    while (true) {
+      final pollScript = '''
+(function () {
   var payload = JSON.stringify({
-    html: document.documentElement.outerHTML,
-    url: location.href,
-    resources: performance.getEntriesByType('resource').map(function (e) { return e.name; }),
-    result: result
+    done: window.__sumizuriDone === true,
+    result: window.__sumizuriResult,
+    error: window.__sumizuriError
   });
   return btoa(unescape(encodeURIComponent(payload)));
 })()
 ''';
-  final json = _decode(await page.eval(script));
+      final poll = _decode(await page.eval(pollScript));
+      if (poll['done'] == true) {
+        scriptResult = poll['error'] as String? ?? poll['result'] as String?;
+        break;
+      }
+      if (clock.elapsed >= const Duration(seconds: 30)) {
+        scriptResult = 'ERROR: script timed out';
+        break;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+  }
+
+  final captureScript = '''
+(function () {
+  var payload = JSON.stringify({
+    html: document.documentElement.outerHTML,
+    url: location.href,
+    resources: performance.getEntriesByType('resource').map(function (e) { return e.name; })
+  });
+  return btoa(unescape(encodeURIComponent(payload)));
+})()
+''';
+  final json = _decode(await page.eval(captureScript));
   final capture = request.capture == null ? null : RegExp(request.capture!);
   final seen = <String>{};
   return RenderResult(
@@ -119,7 +175,7 @@ Future<RenderResult> _read(
             in (json['resources'] as List? ?? const []).cast<String>())
           if (capture.hasMatch(name) && seen.add(name)) name,
     ],
-    result: json['result'] as String?,
+    result: scriptResult,
     timedOut: timedOut,
   );
 }
@@ -133,15 +189,13 @@ Future<BrowserFetchResult> fetchWith(
   // Navigates to origin first to bypass CORS restrictions.
   final uri = Uri.parse(request.url);
   final origin = '${uri.scheme}://${uri.authority}/';
-  await page
-      .load(origin)
-      .timeout(
-        request.timeout,
-        onTimeout: () => throw TimeoutException(
-          'The site did not finish loading',
-          request.timeout,
-        ),
-      );
+  await loadWithRetry(page, origin).timeout(
+    request.timeout,
+    onTimeout: () => throw TimeoutException(
+      'The site did not finish loading',
+      request.timeout,
+    ),
+  );
 
   // Starts fetch script and polls for completion across platforms.
   await page.eval(_startFetchScript(request));

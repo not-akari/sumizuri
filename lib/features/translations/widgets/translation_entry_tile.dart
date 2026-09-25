@@ -31,6 +31,7 @@ class TranslationEntryTile extends StatelessWidget {
         entry.description != null && entry.description!.trim().isNotEmpty;
 
     return AppCard(
+      flattenWhenCompact: true,
       tone: AppCardTone.inset,
       margin: EdgeInsets.fromLTRB(
         context.layout.gutter,

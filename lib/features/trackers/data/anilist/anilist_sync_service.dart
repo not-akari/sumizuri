@@ -4,6 +4,7 @@ import 'package:sumizuri/features/trackers/data/anilist/anilist_graphql.dart';
 import 'package:sumizuri/features/trackers/data/anilist/anilist_tracking_policy.dart';
 import 'package:sumizuri/features/trackers/data/tracker_store.dart';
 import 'package:sumizuri/features/trackers/models/anilist_media.dart';
+import 'package:sumizuri/features/trackers/models/tracker_exception.dart';
 
 const _tag = 'anilist';
 
@@ -97,7 +98,7 @@ class AniListSyncService {
           await _store.markFailed(
             title.linkId,
             maxSendAttempts,
-            'This title no longer exists on AniList.',
+            TrackerProblem.titleGone.name,
           );
           continue;
         }

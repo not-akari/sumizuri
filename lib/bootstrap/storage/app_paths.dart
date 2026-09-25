@@ -172,6 +172,17 @@ Future<Directory> fontsDirectory() async {
   return dir;
 }
 
+/// Where the fonts fetched from Google Fonts are kept, apart from the ones
+/// the person imported.
+Future<Directory> googleFontsDirectory() async {
+  final appDir = await appDataDirectory();
+  final dir = Directory(p.join(appDir.path, 'google_fonts'));
+  if (!await dir.exists()) {
+    await dir.create(recursive: true);
+  }
+  return dir;
+}
+
 Future<File> runStateFile() async {
   final appDir = await appDataDirectory();
   return File(p.join(appDir.path, 'run_state.json'));

@@ -27,7 +27,7 @@ extension on _ThemeAction {
 
 enum _ThemeAction { edit, duplicate, export, delete, hide }
 
-class ThemeGallery extends ConsumerWidget {
+class ThemeGallery extends ConsumerStatefulWidget {
   const ThemeGallery({
     super.key,
     required this.wantsDark,
@@ -41,6 +41,74 @@ class ThemeGallery extends ConsumerWidget {
   final ColorIntensity intensity;
 
   final bool manage;
+
+  @override
+  ConsumerState<ThemeGallery> createState() => _ThemeGalleryState();
+}
+
+class _ThemeGalleryState extends ConsumerState<ThemeGallery> {
+  bool get wantsDark => widget.wantsDark;
+  bool get amoled => widget.amoled;
+  ColorIntensity get intensity => widget.intensity;
+  bool get manage => widget.manage;
+
+  // Choosing several themes to delete: "b:<preset>" and "c:<custom id>".
+  bool _selecting = false;
+  final _marked = <String>{};
+
+  void _toggle(String key) => setState(() {
+    if (!_marked.remove(key)) _marked.add(key);
+  });
+
+  void _stopSelecting() => setState(() {
+    _selecting = false;
+    _marked.clear();
+  });
+
+  /// Deletes the chosen custom themes and hides the chosen presets, which
+  /// cannot be deleted. The theme in use is never left pointing at one that
+  /// is gone, and a preset in use is never hidden.
+  Future<void> _deleteMarked(
+    BuildContext context,
+    String? active,
+    List<CustomTheme> customs,
+    Set<AppColorScheme> hidden,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    final chosenCustoms = [
+      for (final t in customs)
+        if (_marked.contains('c:${t.id}')) t,
+    ];
+    final chosenPresets = {
+      for (final s in AppColorScheme.values)
+        if (_marked.contains('b:${s.name}')) s,
+    };
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      title: l10n.themesDeleteManyTitle(_marked.length),
+      message: l10n.themesDeleteManyMessage,
+      confirmLabel: l10n.themesDelete,
+      isDestructive: true,
+    );
+    if (!confirmed || !mounted) return;
+
+    final repo = ref.read(settingsRepositoryProvider);
+    final activeIsDeleted = chosenCustoms.any((t) => t.settingValue == active);
+    if (activeIsDeleted) {
+      // Fall back to the default preset first, and keep it visible.
+      await repo.setThemeScheme(AppColorScheme.sumizuriInk.name);
+      chosenPresets.remove(AppColorScheme.sumizuriInk);
+    }
+    // A preset that is in use stays.
+    chosenPresets.removeWhere((s) => s.name == active);
+    for (final theme in chosenCustoms) {
+      await ref.read(customThemesProvider.notifier).delete(theme.id);
+    }
+    if (chosenPresets.isNotEmpty) {
+      await repo.setHiddenThemePresets({...hidden, ...chosenPresets});
+    }
+    if (mounted) _stopSelecting();
+  }
 
   ColorScheme _builtInColors(AppColorScheme scheme) => wantsDark
       ? AppTheme.dark(
@@ -192,7 +260,7 @@ class ThemeGallery extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final active = ref.watch(themeSchemeProvider).value;
     final customs = ref.watch(customThemesProvider).value ?? const [];
@@ -214,8 +282,13 @@ class ThemeGallery extends ConsumerWidget {
                   shapes: const ThemeShapes(),
                   label: scheme.label,
                   selected: active == scheme.name,
-                  onTap: () => repo.setThemeScheme(scheme.name),
-                  menu: manage
+                  marked: _selecting
+                      ? _marked.contains('b:${scheme.name}')
+                      : null,
+                  onTap: _selecting
+                      ? () => _toggle('b:${scheme.name}')
+                      : () => repo.setThemeScheme(scheme.name),
+                  menu: manage && !_selecting
                       ? _menu(
                           context,
                           ref,
@@ -231,8 +304,11 @@ class ThemeGallery extends ConsumerWidget {
                 shapes: theme.shapes,
                 label: theme.name,
                 selected: active == theme.settingValue,
-                onTap: () => repo.setThemeScheme(theme.settingValue),
-                menu: manage
+                marked: _selecting ? _marked.contains('c:${theme.id}') : null,
+                onTap: _selecting
+                    ? () => _toggle('c:${theme.id}')
+                    : () => repo.setThemeScheme(theme.settingValue),
+                menu: manage && !_selecting
                     ? _menu(
                         context,
                         ref,
@@ -248,28 +324,74 @@ class ThemeGallery extends ConsumerWidget {
           const SizedBox(height: 14),
           Wrap(
             alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 8,
             runSpacing: 8,
-            children: [
-              FilledButton.tonalIcon(
-                onPressed: () => _edit(
-                  context,
-                  _startingTheme(active, customs, l10n.themesNewName),
-                ),
-                icon: const Icon(Icons.add, size: 18),
-                label: Text(l10n.themesNew),
-              ),
-              if (hidden.isNotEmpty)
-                TextButton(
-                  onPressed: () => repo.setHiddenThemePresets({}),
-                  child: Text(l10n.themesShowHidden(hidden.length)),
-                ),
-              OutlinedButton.icon(
-                onPressed: () => _import(context, ref),
-                icon: const Icon(Icons.file_open_outlined, size: 18),
-                label: Text(l10n.themesImport),
-              ),
-            ],
+            children: _selecting
+                ? [
+                    Text(
+                      l10n.themesSelectedCount(_marked.length),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    TextButton(
+                      onPressed: () => setState(() {
+                        final all = {
+                          for (final scheme in AppColorScheme.values)
+                            if (!hidden.contains(scheme) ||
+                                active == scheme.name)
+                              'b:${scheme.name}',
+                          for (final theme in customs) 'c:${theme.id}',
+                        };
+                        if (_marked.length == all.length) {
+                          _marked.clear();
+                        } else {
+                          _marked.addAll(all);
+                        }
+                      }),
+                      child: Text(l10n.themesSelectAll),
+                    ),
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                        foregroundColor: Theme.of(context).colorScheme.onError,
+                      ),
+                      onPressed: _marked.isEmpty
+                          ? null
+                          : () =>
+                                _deleteMarked(context, active, customs, hidden),
+                      icon: const Icon(Icons.delete_outline, size: 18),
+                      label: Text(l10n.themesDelete),
+                    ),
+                    OutlinedButton(
+                      onPressed: _stopSelecting,
+                      child: Text(l10n.themesSelectDone),
+                    ),
+                  ]
+                : [
+                    FilledButton.tonalIcon(
+                      onPressed: () => _edit(
+                        context,
+                        _startingTheme(active, customs, l10n.themesNewName),
+                      ),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: Text(l10n.themesNew),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () => setState(() => _selecting = true),
+                      icon: const Icon(Icons.checklist, size: 18),
+                      label: Text(l10n.themesSelect),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () => _import(context, ref),
+                      icon: const Icon(Icons.file_open_outlined, size: 18),
+                      label: Text(l10n.themesImport),
+                    ),
+                    if (hidden.isNotEmpty)
+                      TextButton(
+                        onPressed: () => repo.setHiddenThemePresets({}),
+                        child: Text(l10n.themesShowHidden(hidden.length)),
+                      ),
+                  ],
           ),
         ],
       ],

@@ -1,3 +1,6 @@
+import 'dart:ui' show ImageFilter;
+
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 
 import 'package:sumizuri/core/theming/theme_shapes.dart';
@@ -56,6 +59,134 @@ Widget posterActionsLayout(List<Widget> actions) => Row(
 Widget _maybeHero(String? tag, Widget child) =>
     tag == null ? child : Hero(tag: tag, child: child);
 
+// How far the cover lags behind the scroll, and the most it can lag: the
+// picture is drawn this much taller than the hero so the lag never shows a gap.
+const _parallaxFactor = 0.3;
+const _parallaxReach = 80.0;
+
+const _titleShadows = [Shadow(blurRadius: 8, color: Colors.black54)];
+
+/// Moves [child] slower than the page scrolls, and stretches it when the page
+/// is pulled past the top, so the cover feels like a backdrop, not a sticker.
+class _ParallaxCover extends StatelessWidget {
+  const _ParallaxCover({required this.scrollOffset, required this.child});
+
+  final ValueListenable<double>? scrollOffset;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final listenable = scrollOffset;
+    if (listenable == null) return child;
+    return ValueListenableBuilder<double>(
+      valueListenable: listenable,
+      child: child,
+      builder: (context, offset, child) {
+        if (offset < 0) {
+          final stretch = 1 + (-offset / mobileHeroHeight).clamp(0.0, 0.6);
+          return Transform.scale(
+            scale: stretch,
+            alignment: Alignment.bottomCenter,
+            child: child,
+          );
+        }
+        final lag = (offset * _parallaxFactor).clamp(0.0, _parallaxReach);
+        return Transform.translate(offset: Offset(0, lag), child: child);
+      },
+    );
+  }
+}
+
+/// A blurred, faded copy of the cover behind the desktop layout, so the wide
+/// page has the same cover-as-backdrop feel the phone layout has.
+class DetailCoverBackdrop extends StatelessWidget {
+  const DetailCoverBackdrop({super.key, this.url, this.filePath});
+
+  final String? url;
+  final String? filePath;
+
+  static const _height = 380.0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (url == null && filePath == null) return const SizedBox.shrink();
+    return IgnorePointer(
+      child: RepaintBoundary(
+        child: SizedBox(
+          height: _height,
+          width: double.infinity,
+          // One mask does both the dimming and the fade, and the blur uses the
+          // plain edge mode: a separate opacity layer and a mirrored edge drew
+          // a bright band across the page on Windows.
+          child: ClipRect(
+            child: ShaderMask(
+              blendMode: BlendMode.dstIn,
+              shaderCallback: (rect) => LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: const [0, 1],
+                colors: [
+                  Colors.white.withValues(alpha: 0.4),
+                  Colors.white.withValues(alpha: 0),
+                ],
+              ).createShader(rect),
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(
+                  sigmaX: 24,
+                  sigmaY: 24,
+                  tileMode: TileMode.clamp,
+                ),
+                child: coverImageWidget(
+                  context,
+                  url,
+                  filePath: filePath,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Which source the title comes from, so it is never a guess.
+class EntrySourceLabel extends StatelessWidget {
+  const EntrySourceLabel({super.key, required this.name, this.onDark = false});
+
+  final String name;
+
+  /// Drawn over the cover, in light text with a shadow.
+  final bool onDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = onDark ? Colors.white70 : theme.colorScheme.onSurfaceVariant;
+    final style = theme.textTheme.bodySmall?.copyWith(
+      color: color,
+      shadows: onDark ? _titleShadows : null,
+    );
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.extension_outlined, size: 14, color: color),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            AppLocalizations.of(context)!.entryDetailFromSource(name),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: style,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class MobileHeroHeader extends StatelessWidget {
   const MobileHeroHeader({
     super.key,
@@ -65,15 +196,23 @@ class MobileHeroHeader extends StatelessWidget {
     this.libraryEntryId,
     this.customCoverPath,
     this.heroTag,
+    this.scrollOffset,
+    this.sourceName,
   });
 
   final MEntry entry;
+
+  /// The name of the source the title is read from.
+  final String? sourceName;
   final List<Widget> actions;
   final Widget? continueButton;
   final int? libraryEntryId;
   final String? customCoverPath;
 
   final String? heroTag;
+
+  /// The page's scroll position; without it the cover simply stays put.
+  final ValueListenable<double>? scrollOffset;
 
   @override
   Widget build(BuildContext context) {
@@ -93,76 +232,100 @@ class MobileHeroHeader extends StatelessWidget {
                 ),
           child: SizedBox(
             height: mobileHeroHeight,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                customCoverPath != null
-                    ? coverImageWidget(
-                        context,
-                        null,
-                        filePath: customCoverPath,
-                        fit: BoxFit.cover,
-                        alignment: Alignment.topCenter,
-                      )
-                    : _maybeHero(
-                        heroTag,
-                        coverImageWidget(
-                          context,
-                          entry.coverUrl,
-                          fit: BoxFit.cover,
-                          alignment: Alignment.topCenter,
-                        ),
-                      ),
-                const DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0, 0.15],
-                      colors: [Colors.black38, Colors.transparent],
+            child: ClipRect(
+              child: Stack(
+                fit: StackFit.expand,
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    top: -_parallaxReach,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: _ParallaxCover(
+                      scrollOffset: scrollOffset,
+                      child: customCoverPath != null
+                          ? coverImageWidget(
+                              context,
+                              null,
+                              filePath: customCoverPath,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.topCenter,
+                            )
+                          : _maybeHero(
+                              heroTag,
+                              coverImageWidget(
+                                context,
+                                entry.coverUrl,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.topCenter,
+                              ),
+                            ),
                     ),
                   ),
-                ),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: const [0, 0.55, 1],
-                      colors: [
-                        Colors.transparent,
-                        Colors.transparent,
-                        theme.scaffoldBackgroundColor,
-                      ],
+                  // Darkens the top so the back button and title bar stay legible.
+                  const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: [0, 0.18],
+                        colors: [Colors.black45, Colors.transparent],
+                      ),
                     ),
                   ),
-                ),
-                Positioned(
-                  left: 16,
-                  right: 16,
-                  bottom: 16,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        entry.title,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                        ),
+                  // Melts the cover into the page in several steps, not one
+                  // straight ramp, so there is no visible edge where it ends.
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: const [0, 0.4, 0.62, 0.8, 0.93, 1],
+                        colors: [
+                          theme.scaffoldBackgroundColor.withValues(alpha: 0),
+                          theme.scaffoldBackgroundColor.withValues(alpha: 0),
+                          theme.scaffoldBackgroundColor.withValues(alpha: 0.35),
+                          theme.scaffoldBackgroundColor.withValues(alpha: 0.72),
+                          theme.scaffoldBackgroundColor.withValues(alpha: 0.94),
+                          theme.scaffoldBackgroundColor,
+                        ],
                       ),
-                      if (entry.author != null) ...[
-                        const SizedBox(height: 4),
+                    ),
+                  ),
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          entry.author!,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.white70,
+                          entry.title,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            shadows: _titleShadows,
                           ),
                         ),
+                        if (entry.author != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            entry.author!,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.white70,
+                              shadows: _titleShadows,
+                            ),
+                          ),
+                        ],
+                        if (sourceName != null) ...[
+                          const SizedBox(height: 4),
+                          EntrySourceLabel(name: sourceName!, onDark: true),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -201,6 +364,7 @@ class DesktopSidebar extends StatelessWidget {
     this.libraryEntryId,
     this.customCoverPath,
     this.furthestChapter,
+    this.heroTag,
   });
 
   final MEntry entry;
@@ -210,6 +374,7 @@ class DesktopSidebar extends StatelessWidget {
   final int? libraryEntryId;
   final String? customCoverPath;
   final double? furthestChapter;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -229,6 +394,7 @@ class DesktopSidebar extends StatelessWidget {
                   entry,
                   libraryEntryId: libraryEntryId,
                   customCoverPath: customCoverPath,
+                  heroTag: heroTag,
                 ),
           child: AspectRatio(
             aspectRatio: 2 / 3,
@@ -239,11 +405,14 @@ class DesktopSidebar extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: context.shapes.cover.radius,
-                child: coverImageWidget(
-                  context,
-                  entry.coverUrl,
-                  filePath: customCoverPath,
-                  fit: BoxFit.cover,
+                child: _maybeHero(
+                  customCoverPath == null ? heroTag : null,
+                  coverImageWidget(
+                    context,
+                    entry.coverUrl,
+                    filePath: customCoverPath,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
@@ -281,9 +450,12 @@ class DesktopSidebar extends StatelessWidget {
 }
 
 class DesktopMainHeader extends StatelessWidget {
-  const DesktopMainHeader({super.key, required this.entry});
+  const DesktopMainHeader({super.key, required this.entry, this.sourceName});
 
   final MEntry entry;
+
+  /// The name of the source the title is read from.
+  final String? sourceName;
 
   @override
   Widget build(BuildContext context) {
@@ -302,6 +474,10 @@ class DesktopMainHeader extends StatelessWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
+          ],
+          if (sourceName != null) ...[
+            const SizedBox(height: 6),
+            EntrySourceLabel(name: sourceName!),
           ],
           if (entry.description != null) ...[
             const SizedBox(height: 12),

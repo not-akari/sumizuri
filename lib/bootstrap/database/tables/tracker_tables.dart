@@ -10,7 +10,7 @@ class TrackerLinks extends Table {
   IntColumn get libraryEntryId =>
       integer().references(LibraryEntries, #id, onDelete: KeyAction.cascade)();
 
-  // Only 'anilist' for now. A column so a second tracker needs no new table.
+  // 'anilist' or 'mal'. A column so another tracker needs no new table.
   TextColumn get tracker => text().withDefault(const Constant('anilist'))();
 
   IntColumn get remoteMediaId => integer()();

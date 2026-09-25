@@ -16,6 +16,7 @@ class AppInstalledSource {
     this.repoUrl,
     this.repoSourceId,
     this.version = 1,
+    this.nsfw = false,
   });
 
   final int id;
@@ -33,4 +34,5 @@ class AppInstalledSource {
   final String? repoUrl;
   final String? repoSourceId;
   final int version;
+  final bool nsfw;
 }
