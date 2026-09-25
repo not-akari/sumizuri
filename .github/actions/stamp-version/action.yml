@@ -1,0 +1,13 @@
+name: Stamp version from tag
+description: Sets the pubspec.yaml version to the pushed tag, so the tag is the only place a release version is written.
+runs:
+  using: composite
+  steps:
+    - name: Set pubspec version
+      if: startsWith(github.ref, 'refs/tags/')
+      shell: bash
+      run: |
+        version="${GITHUB_REF_NAME#v}"
+        awk -v v="$version" '!done && /^version:/ { print "version: " v; done = 1; next } { print }' pubspec.yaml > pubspec.stamped
+        mv pubspec.stamped pubspec.yaml
+        grep -m1 '^version:' pubspec.yaml
