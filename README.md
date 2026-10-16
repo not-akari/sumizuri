@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/banner-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset=".github/readme/banner-light.svg">
-    <img alt="Sumizuri, a media viewer for manga, comics, novels and anime" src=".github/readme/banner-dark.svg" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="readme/banner-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="readme/banner-light.svg">
+    <img alt="Sumizuri, a media viewer for manga, comics, novels and anime" src="readme/banner-dark.svg" width="100%">
   </picture>
 </p>
 
@@ -21,9 +21,9 @@ Sumizuri is one app for the things you read and watch. Open files from your devi
 > Sumizuri comes with no content and lists no sources by default. You choose what to add, and you are responsible for it.
 
 <p align="center">
-  <img src=".github/readme/screenshot-profile.jpg" alt="The profile page" width="32%">
+  <img src="readme/screenshot-profile.jpg" alt="The profile page" width="32%">
   &nbsp;
-  <img src=".github/readme/screenshot-settings.jpg" alt="The settings page" width="32%">
+  <img src="readme/screenshot-settings.jpg" alt="The settings page" width="32%">
 </p>
 
 ## Features
