@@ -47,9 +47,15 @@ enum class EngineKind(val key: String) {
     }
 }
 
+// What a browser says about a picture it asks for. A few sites, and the CDN in front of them, answer a picture
+// asked for without it with a bot check instead of the picture.
+val BrowserPictureHeaders = mapOf(
+    "Sec-Fetch-Dest" to "image",
+    "Sec-Fetch-Mode" to "no-cors",
+)
+
 // The headers pictures of a source are loaded with, its site as the referrer. The reader and the saving of chapters both use them, so a saved page comes as the reader would have it.
-fun pictureHeaders(installed: InstalledSource): Map<String, String> = if (installed.baseUrl.isBlank()) {
-    emptyMap()
-} else {
-    mapOf("Referer" to installed.baseUrl.trimEnd('/') + "/")
+fun pictureHeaders(installed: InstalledSource): Map<String, String> = buildMap {
+    putAll(BrowserPictureHeaders)
+    if (installed.baseUrl.isNotBlank()) put("Referer", installed.baseUrl.trimEnd('/') + "/")
 }

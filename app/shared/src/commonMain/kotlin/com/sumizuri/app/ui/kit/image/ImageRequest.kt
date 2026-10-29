@@ -17,6 +17,7 @@ import coil3.size.Dimension
 import coil3.size.Precision
 import coil3.size.Size
 import com.sumizuri.app.data.net.SiteKinds
+import com.sumizuri.app.source.repo.BrowserPictureHeaders
 
 // The start of an address up to its host, made once.
 private val OriginPattern = Regex("^(https?://[^/]+)")
@@ -63,6 +64,7 @@ fun buildImageRequest(
         .Builder()
         .apply {
             if (origin != null) add("Referer", "$origin/")
+            BrowserPictureHeaders.forEach { (name, value) -> set(name, value) }
             // What the source asks for wins, including its own referrer.
             extra.forEach { (name, value) -> set(name, value) }
         }.build()
