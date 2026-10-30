@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Text of the Suki patch that tries the next server, kept apart so it never meets the files Weblate writes. -->
+<resources>
+    <string name="player_set_auto_server">Probar el siguiente servidor solo</string>
+    <string name="player_set_auto_server_hint">Cuando un video no carga, se prueba el siguiente servidor sin preguntar, hasta que uno funcione.</string>
+    <string name="player_dont_ask_again">No volver a preguntar, probar el siguiente solo</string>
+</resources>
