@@ -4,6 +4,7 @@ import com.fleeksoft.ksoup.nodes.Entities
 import com.sumizuri.app.source.model.Descramble
 import com.sumizuri.app.source.model.SourceChapter
 import com.sumizuri.app.source.model.SourceEntry
+import com.sumizuri.app.source.model.SourceBook
 import com.sumizuri.app.source.model.SourcePage
 import com.sumizuri.app.source.model.SourceTrack
 import com.sumizuri.app.source.model.SourceVideo
@@ -72,6 +73,12 @@ internal object ResultParser {
             seasonName = text(item, "seasonName"),
             seasonCoverUrl = text(item, "seasonCover"),
         )
+    }
+
+    // The file a chapter points at instead of giving its pages, a PDF or an EPUB, an addition of the Suki build.
+    fun book(details: JsonObject): SourceBook? {
+        val book = details["book"] as? JsonObject ?: return null
+        return text(book, "url")?.let { SourceBook(it, strings(book["headers"])) }
     }
 
     // The pages of a chapter: picture addresses, given as text or as an object, or the text of a novel chapter as one string or a list of paragraphs.

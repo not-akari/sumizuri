@@ -3,6 +3,7 @@ package com.sumizuri.app.source.engine
 import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.core.perf.Perf
 import com.sumizuri.app.source.Source
+import com.sumizuri.app.data.local.bookPages
 import com.sumizuri.app.source.SourceError
 import com.sumizuri.app.source.SourceResult
 import com.sumizuri.app.source.host.StandardHost
@@ -157,6 +158,13 @@ class ExtensionSource private constructor(
                 ?: throw ParseException("The chapter details are not an object")
         }
         val reply = (details as? SourceResult.Ok)?.value ?: return details.map { emptyList() }
+        // A chapter that is a whole book, as a PDF or an EPUB the source points at, is read into words here.
+        ResultParser.book(reply)?.let { book ->
+            return runCatching { SourceResult.Ok(bookPages(book.url, book.headers)) }.getOrElse { problem ->
+                if (problem is CancellationException) throw problem
+                SourceResult.Err(SourceError.Parse(problem.message ?: "The book could not be read"))
+            }
+        }
         val given = (reply["pages"] as? JsonArray).orEmpty()
         val lazy = "getPageData" in methods && given.any(ResultParser::needsData)
         val resolved = if (!lazy) null else resolvePages(titleId, chapterId, given.size)

@@ -22,6 +22,9 @@ data class SourcePage(
     val descramble: Descramble? = null,
 )
 
+// A PDF or an EPUB a chapter points at, with the headers its address wants.
+data class SourceBook(val url: String, val headers: Map<String, String> = emptyMap())
+
 // An image cut into cols by rows tiles that must be put back in this order.
 @Serializable
 data class Descramble(val cols: Int, val rows: Int, val order: List<Int>)

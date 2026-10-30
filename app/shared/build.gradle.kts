@@ -73,6 +73,7 @@ kotlin {
             implementation(libs.androidx.webkit)
             implementation(libs.androidx.work)
             implementation(libs.media3.exoplayer)
+            implementation(libs.pdfbox.android)
             implementation(libs.media3.hls)
             implementation(libs.media3.okhttp)
             implementation(libs.media3.ui)
@@ -110,6 +111,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.kcef)
+            implementation(libs.pdfbox)
             // Plays video through libmpv, which comes with the app on Windows and is the one the system has elsewhere, called through JNA.
             implementation(libs.jna)
             // The embedded browser draws off screen through these native libraries, one set for each desktop system.

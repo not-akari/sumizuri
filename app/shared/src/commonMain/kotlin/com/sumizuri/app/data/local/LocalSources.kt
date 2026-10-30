@@ -8,7 +8,7 @@ import okio.Path
 import okio.Path.Companion.toPath
 
 private val ComicFiles = setOf("cbz", "zip", "epub")
-private val NovelFiles = setOf("epub", "txt")
+private val NovelFiles = setOf("epub", "txt", "pdf")
 
 // The two sources built into the app that show files on the device: one for comics in folders, CBZ, ZIP and EPUB files, and one for novels in EPUB and TXT files. They are always there, need no code and no connection, and keep their files in folders of their own. Their names here are the English ones, and screens show them in the language of the app.
 object LocalSources {

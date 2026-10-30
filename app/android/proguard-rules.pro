@@ -13,3 +13,7 @@
 -dontwarn com.sun.jna.**
 -dontwarn org.apache.logging.log4j.**
 -dontwarn org.slf4j.**
+
+# PdfBox, which reads the words of PDF books, finds its font and filter classes by name and leaves out the JPEG 2000 reader on purpose.
+-keep class com.tom_roush.** { *; }
+-dontwarn com.gemalto.jp2.**

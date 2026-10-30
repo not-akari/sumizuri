@@ -263,6 +263,7 @@ class LocalSource(
             }
         }
         if (path.ext() == "txt") return listOf(SourcePage(0, text = fs.read(path) { readUtf8() }))
+        if (path.ext() == "pdf") return listOf(SourcePage(0, text = pdfText(path.toString())))
         return picturesOf(path).mapIndexed { i, address -> SourcePage(i, imageUrl = address) }
     }
 
