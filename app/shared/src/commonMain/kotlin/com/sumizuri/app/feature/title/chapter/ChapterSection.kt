@@ -108,6 +108,7 @@ internal fun LazyListScope.chapterSection(
                         chapter.id in state.selected,
                         calls.chapters,
                         Modifier.weight(1f),
+                        calls.downloads?.let { RowDownload(state.downloads[chapter.id], it) },
                     )
                 }
                 repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }

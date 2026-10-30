@@ -33,7 +33,7 @@ import com.sumizuri.app.ui.kit.cover.rememberMarkColors
 import com.sumizuri.app.ui.text.agoText
 import com.sumizuri.app.ui.text.numberedUnit
 
-// One chapter as a cell of the grid. The number is big, with the name under it, when it came out at the bottom and a bar for how far it was read.
+// One chapter as a cell of the grid. The number is big, with the name under it, when it came out at the bottom and a bar for how far it was read, and the button that saves it in the corner as in a row.
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ChapterGridCell(
@@ -44,6 +44,7 @@ internal fun ChapterGridCell(
     selected: Boolean,
     calls: ChapterCallbacks,
     modifier: Modifier = Modifier,
+    download: RowDownload? = null,
 ) {
     val colors = MaterialTheme.colorScheme
     val marks = rememberMarkColors()
@@ -93,6 +94,9 @@ internal fun ChapterGridCell(
                 PickMark(selected, Modifier.align(Alignment.TopEnd).size(20.dp))
             } else if (chapter.bookmarked) {
                 Icon(Icons.Filled.Bookmark, null, Modifier.align(Alignment.TopEnd).size(18.dp), tint = marks.bookmark)
+            }
+            if (!selecting && !preview && download != null) {
+                Box(Modifier.align(Alignment.BottomEnd)) { ChapterDownloadButton(chapter.id, download) }
             }
         }
     }
