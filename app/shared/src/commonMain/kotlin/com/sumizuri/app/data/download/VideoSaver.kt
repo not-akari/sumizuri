@@ -10,6 +10,7 @@ import io.ktor.client.request.header
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.contentLength
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
@@ -220,6 +221,8 @@ private suspend fun stream(url: String, headers: Map<String, String>, file: Path
                 // A server that sends the whole file again instead of the rest has it written from the start.
                 val resumed = done > 0 && response.status == HttpStatusCode.PartialContent
                 if (!resumed) done = 0
+                // The size the server says it sends, to tell a file it closed early from one that is whole.
+                val expected = response.contentLength()?.let { it + done }
                 val channel = response.bodyAsChannel()
                 val buffer = ByteArray(64 * 1024)
                 var shown = done
@@ -239,6 +242,8 @@ private suspend fun stream(url: String, headers: Map<String, String>, file: Path
                         }
                     }
                 }
+                // Some servers end a file early as if it were whole, so a short one is taken as cut.
+                if (expected != null && done < expected) error("the server sent ${done / 1024 / 1024} of ${expected / 1024 / 1024} MB")
             }
             told(done)
             return
