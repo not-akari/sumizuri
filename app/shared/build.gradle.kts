@@ -107,6 +107,9 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
+        jvmTest.dependencies {
+            implementation(kotlin("test"))
+        }
         jvmMain.dependencies {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.kcef)

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Text of the Suki patch that saves episodes, kept apart so it never meets the files Weblate writes. -->
+<resources>
+    <string name="download_err_no_video">La fuente no dio ningún video para este episodio</string>
+</resources>

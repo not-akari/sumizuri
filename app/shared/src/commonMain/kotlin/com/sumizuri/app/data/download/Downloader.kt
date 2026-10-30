@@ -9,7 +9,9 @@ import com.sumizuri.app.data.db.download.DownloadState
 import com.sumizuri.app.data.db.download.status
 import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.local.LocalSources
+import com.sumizuri.app.data.model.ChapterPlace
 import com.sumizuri.app.data.model.Kind
+import com.sumizuri.app.data.settings.PlayerPrefsRepository
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.settings.SettingsRepository
 import com.sumizuri.app.data.sources.SourceRepository
@@ -20,13 +22,18 @@ import com.sumizuri.app.data.work.BusyWork
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.download_err_kind
 import com.sumizuri.app.shared.resources.download_err_no_pages
+import com.sumizuri.app.shared.resources.download_err_no_video
 import com.sumizuri.app.shared.resources.download_err_page
 import com.sumizuri.app.shared.resources.download_err_source
 import com.sumizuri.app.shared.resources.download_save_failed
+import com.sumizuri.app.feature.player.VideoChoice
+import com.sumizuri.app.playback.hls.expandHlsMasters
+import com.sumizuri.app.source.Source
 import com.sumizuri.app.source.SourceManager
 import com.sumizuri.app.source.SourceResult
 import com.sumizuri.app.source.model.SourceChapter
 import com.sumizuri.app.source.model.SourcePage
+import com.sumizuri.app.source.model.SourceVideo
 import com.sumizuri.app.source.repo.pictureHeaders
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -69,8 +76,8 @@ private const val ProgressEveryMs = 500L
 // Why a chapter could not be saved, in words for the page of downloads.
 class DownloadProblem(message: String) : Exception(message)
 
-// Whether the chapters of a title can be saved to the device. Episodes cannot be yet, and files that are on the device already need no saving.
-fun canBeSaved(kind: Kind, sourceId: String?): Boolean = kind != Kind.Anime && !LocalSources.isLocal(sourceId)
+// Whether the chapters of a title can be saved to the device. Files that are on the device already need no saving.
+fun canBeSaved(kind: Kind, sourceId: String?): Boolean = !LocalSources.isLocal(sourceId)
 
 // Saves chapters to the device so they can be read with no connection. Chapters wait in a queue and are saved one at a time, a few pages at once. The queue is kept in the database, so it goes on after the app is opened again, and a chapter that was being saved when it closed starts over.
 class Downloader(
@@ -81,6 +88,7 @@ class Downloader(
     private val settings: SettingsRepository,
     private val files: DownloadFiles,
     private val scope: CoroutineScope,
+    private val playerPrefs: PlayerPrefsRepository,
 ) {
     private val wake = Channel<Unit>(Channel.CONFLATED)
     private val lock = Mutex()
@@ -181,6 +189,12 @@ class Downloader(
         return withContext(Dispatchers.IO) { files.read(titleId, chapterId) }
     }
 
+    // The saved video of an episode, played from the device, or null when it is not saved.
+    suspend fun savedVideo(titleId: Long, chapterId: Long): SourceVideo? {
+        if (db.downloads().get(chapterId)?.status != DownloadState.Done) return null
+        return withContext(Dispatchers.IO) { files.readVideo(titleId, chapterId) }
+    }
+
     // While chapters are being saved the app stays awake in the background, with a notice of how many are done out of the ones in the queue. Its stop button pauses the queue.
     private var busy: BusyHandle? = null
     private var savedThisRun = 0
@@ -248,6 +262,7 @@ class Downloader(
                 is SourceResult.Err -> throw DownloadProblem(opened.error.message)
                 is SourceResult.Ok -> opened.value
             }
+            if (place.kind == Kind.Anime) return saveEpisode(item, place, source)
             val pages = when (val got = source.pages(SourceChapter(url = place.url, title = ""))) {
                 is SourceResult.Err -> throw DownloadProblem(got.error.message)
                 is SourceResult.Ok -> got.value
@@ -306,6 +321,34 @@ class Downloader(
             AppLog.warn(Tag, "could not save ${place.titleName} ${place.number}, $message")
             db.downloads().setState(item.chapterId, DownloadState.Failed.code, message)
         }
+    }
+
+    // Saves the video of an episode that the player would pick, with the quality and sound the person likes.
+    private suspend fun saveEpisode(item: DownloadEntity, place: ChapterPlace, source: Source) {
+        val listed = when (val got = source.videos(SourceChapter(url = place.url, title = ""))) {
+            is SourceResult.Err -> throw DownloadProblem(got.error.message)
+            is SourceResult.Ok -> got.value
+        }
+        val liked = playerPrefs.prefs.first()
+        val video = VideoChoice.pick(expandHlsMasters(listed), liked.preferredQuality, liked.qualityMode, liked.audioPreference)
+            ?: throw DownloadProblem(getString(Res.string.download_err_no_video))
+        val part = withContext(Dispatchers.IO) { files.begin(place.titleId, place.id) }
+        val clock = TimeSource.Monotonic.markNow()
+        var written = Duration.ZERO
+        var parts = 1
+        var size = 0L
+        val saved = saveVideo(video, part, prefs.first().pagesAtOnce) { done, total, bytes ->
+            parts = total
+            size = bytes
+            val now = clock.elapsedNow()
+            if (now - written >= ProgressEveryMs.milliseconds) {
+                written = now
+                db.downloads().setProgress(item.chapterId, total, done, bytes)
+            }
+        }
+        withContext(Dispatchers.IO) { files.finish(place.titleId, place.id, part, SavedChapter(video = saved)) }
+        db.downloads().setDone(item.chapterId, parts, size, nowMillis())
+        AppLog.info(Tag, "saved ${place.titleName} ${place.number}, ${video.quality ?: "video"}, ${size / 1024 / 1024} MB")
     }
 
     // A page, asked for again a few times, as a site may drop one now and then.

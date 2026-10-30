@@ -105,7 +105,7 @@ class AppContainer(
 
     // Saved chapters are kept next to the database of the profile, in a folder of their own for each profile.
     val downloads =
-        Downloader(database, library, sources, manager, settings, DownloadFiles(downloadFolder(databasePath)), work)
+        Downloader(database, library, sources, manager, settings, DownloadFiles(downloadFolder(databasePath)), work, PlayerPrefsRepository(database))
     val categories = CategoryRepository(database)
     val autoDownloads = AutoDownloads(library, categories, downloads, settings, work)
     val lock = AppLock(settings, shared)

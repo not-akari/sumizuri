@@ -4,6 +4,7 @@ import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.data.library.CategoryRepository
 import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.model.Chapter
+import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.settings.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -103,6 +104,7 @@ class AutoDownloads(
 
     private suspend fun inLibrary(titleId: Long): Boolean {
         val title = library.title(titleId).first() ?: return false
-        return title.inLibrary && canBeSaved(title.kind, title.sourceId)
+        // ponytail: episodes are only saved when asked, as one takes hundreds of megabytes; a choice of their own if wanted.
+        return title.inLibrary && title.kind != Kind.Anime && canBeSaved(title.kind, title.sourceId)
     }
 }

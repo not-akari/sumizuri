@@ -3,6 +3,8 @@ package com.sumizuri.app.data.download
 import com.sumizuri.app.data.local.localFileAddress
 import com.sumizuri.app.source.model.Descramble
 import com.sumizuri.app.source.model.SourcePage
+import com.sumizuri.app.source.model.SourceTrack
+import com.sumizuri.app.source.model.SourceVideo
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okio.FileSystem
@@ -14,7 +16,14 @@ import okio.Path.Companion.toPath
 data class SavedPage(val file: String? = null, val text: String? = null, val descramble: Descramble? = null)
 
 @Serializable
-data class SavedChapter(val pages: List<SavedPage>)
+data class SavedChapter(val pages: List<SavedPage> = emptyList(), val video: SavedVideo? = null)
+
+// A saved episode: its video or playlist, its separate sound when it has one, and its subtitles, all as files in the folder of the episode.
+@Serializable
+data class SavedVideo(val file: String, val subtitles: List<SavedTrack> = emptyList(), val audio: String? = null)
+
+@Serializable
+data class SavedTrack(val file: String, val label: String, val language: String? = null)
 
 private val Format = Json { ignoreUnknownKeys = true }
 
@@ -76,6 +85,22 @@ class DownloadFiles(private val root: Path, private val fs: FileSystem = FileSys
                 descramble = page.descramble,
             )
         }
+    }
+
+    // The saved video of an episode, as a video the players open from the device, or null when it is not saved or its file is gone.
+    fun readVideo(titleId: Long, chapterId: Long): SourceVideo? {
+        val folder = folderOf(titleId, chapterId)
+        val manifest = folder / Manifest
+        if (!fs.exists(manifest)) return null
+        val video = runCatching { Format.decodeFromString(SavedChapter.serializer(), fs.read(manifest) { readUtf8() }) }
+            .getOrNull()?.video ?: return null
+        if (!fs.exists(folder / video.file)) return null
+        return SourceVideo(
+            url = fileAddress((folder / video.file).toString()),
+            quality = "Saved",
+            subtitles = video.subtitles.map { SourceTrack(fileAddress((folder / it.file).toString()), it.label, it.language) },
+            pairedAudio = video.audio?.let { SourceTrack(fileAddress((folder / it).toString()), "Saved sound") },
+        )
     }
 
     // The folders of saved chapters on the device, by title and chapter, for clearing those the library no longer has.

@@ -1,6 +1,7 @@
 package com.sumizuri.app.feature.player
 
 import com.sumizuri.app.core.log.AppLog
+import com.sumizuri.app.data.download.Downloader
 import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.model.ChapterPlace
 import com.sumizuri.app.data.model.player.AudioPreference
@@ -62,6 +63,7 @@ internal class PlayerSession(
     private val solver: ChallengeSolver,
     private val prefsRepository: PlayerPrefsRepository,
     private val reading: ReaderSettingsRepository,
+    private val downloads: Downloader,
 ) {
     private val mutable = MutableStateFlow(SessionState())
     val state: StateFlow<SessionState> = mutable
@@ -185,6 +187,12 @@ internal class PlayerSession(
         refreshEpisodes(here.titleId)
         val now = mutable.value
         log.add("Episode ${now.index + 1} of ${now.episodes.size}: ${here.name ?: here.number}\n    ${here.url}")
+        // A saved episode plays from the device, with no source and no connection.
+        downloads.savedVideo(here.titleId, id)?.let { saved ->
+            log.add("Playing the saved copy")
+            mutable.update { it.copy(videos = listOf(saved)) }
+            return play(saved, mine)
+        }
         val found = sources.find(here.sourceId) ?: return failSource(Res.string.reader_source_missing)
         if (!found.enabled) return failSource(Res.string.reader_source_off)
         log.add("Asking ${found.name} for the videos...")

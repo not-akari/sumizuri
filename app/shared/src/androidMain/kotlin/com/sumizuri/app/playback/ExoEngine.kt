@@ -11,6 +11,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.common.VideoSize
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
@@ -89,7 +90,8 @@ class ExoEngine(context: Context) : PlayerEngine {
     }
 
     override fun open(media: PlayerMedia, startMs: Long, play: Boolean) {
-        val factory = OkHttpDataSource.Factory(OkHttpClient()).setDefaultRequestProperties(media.headers)
+        // Sites go through OkHttp with their headers, and a saved episode is read from its files.
+        val factory = DefaultDataSource.Factory(appContext, OkHttpDataSource.Factory(OkHttpClient()).setDefaultRequestProperties(media.headers))
         val subtitles = media.subtitles.mapNotNull { track ->
             val address = track.url ?: return@mapNotNull null
             MediaItem.SubtitleConfiguration
