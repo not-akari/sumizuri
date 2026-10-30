@@ -218,6 +218,8 @@ internal class SetupModel(val mode: SetupMode, private val scope: CoroutineScope
                 dataFolder.mkdirs()
                 WindowsSetup.writeSettings(appFolder, dataFolder)
                 WindowsSetup.register(appFolder, version, size)
+                // The first start shows the light or dark picture to match Windows, as later starts do.
+                LaunchSplash.follow(File(appFolder, "app/resources"))
             }
         }
     }

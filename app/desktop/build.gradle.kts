@@ -24,6 +24,9 @@ dependencies {
     implementation(libs.compose.uiToolingPreview)
 }
 
+apply(from = "signatures.gradle.kts")
+apply(from = "natives.gradle.kts")
+
 // Where the files that go with the app are put, by system, as the installers want them.
 val mpvRoot = layout.buildDirectory.dir("app-resources")
 
@@ -128,8 +131,18 @@ val fetchWireproxy = tasks.register("fetchWireproxy") {
     }
 }
 
-// The installers take the files of the app once libmpv and wireproxy are there.
-tasks.matching { it.name == "prepareAppResources" }.configureEach { dependsOn(fetchLibmpv, fetchWireproxy) }
+// The picture the launcher shows while the app starts, in light and dark and in each size Java picks by the scale of the screen. The dark one is in place at first, and the app swaps in the one that matches Windows.
+val copySplash = tasks.register<Copy>("copySplash") {
+    from("splash")
+    from("splash") {
+        include("splash-dark*.png")
+        rename { it.replace("splash-dark", "splash") }
+    }
+    into(mpvRoot.map { it.dir("common") })
+}
+
+// The installers take the files of the app once libmpv, wireproxy and the picture are there.
+tasks.matching { it.name == "prepareAppResources" }.configureEach { dependsOn(fetchLibmpv, fetchWireproxy, copySplash) }
 
 compose.desktop {
     application {
@@ -143,8 +156,13 @@ compose.desktop {
         // Memory for a desktop app: a heap that starts small and stops at 1 GB, and the usual collector of Java, which clears old objects alongside the app instead of stopping it for each full pass, with two threads for its work and the memory it no longer needs given back after a minute of quiet. Text that repeats, such as the names and addresses of titles and chapters, is kept once. The simple collector used before, squeezed down to the memory in use, stopped the app for a full pass every few seconds, which showed as a stutter.
         jvmArgs("-Xms64m", "-Xmx1g", "-XX:+UseG1GC", "-XX:ParallelGCThreads=2", "-XX:ConcGCThreads=1", "-XX:G1PeriodicGCInterval=60000", "-XX:+UseStringDeduplication")
 
-        // The release is not shrunk. The libraries of the app reach much of their code by name, the database, the network, the browser and the script engine among them, so shrinking breaks them, and on a desktop the smaller size is worth little.
-        buildTypes.release.proguard { isEnabled.set(false) }
+        // The release drops the code of its libraries that nothing calls, which makes the installer, the first start and the archive of classes smaller. Names are never changed, and the libraries that reach their code by name are kept whole, as the rules list.
+        buildTypes.release.proguard {
+            isEnabled.set(true)
+            obfuscate.set(false)
+            optimize.set(false)
+            configurationFiles.from(project.file("proguard-rules.pro"))
+        }
 
         nativeDistributions {
             // The files that go with the app. On Windows that is libmpv, which plays the video.
@@ -223,7 +241,7 @@ compose.desktop {
     }
 }
 
-// A full Java comes with an archive of its own classes, which lets them start without being read and checked one by one, but jlink leaves it out and cannot make one for a runtime without its java command. The java command of the same Java is put in for a moment to make it.
+// A full Java comes with an archive of its own classes, which lets them start without being read and checked one by one, but jlink leaves it out. The java command of the same Java is put in to make it, and stays, since the installed app uses it to make the archive of its own classes.
 tasks.withType<AbstractJLinkTask>().configureEach {
     val image = destinationDir
     val jdk = javaHome
@@ -233,26 +251,26 @@ tasks.withType<AbstractJLinkTask>().configureEach {
         val added = image.get().asFile.resolve("bin/$launcher")
         File(jdk.get(), "bin/$launcher").copyTo(added, overwrite = true)
         added.setExecutable(true)
-        try {
-            val run = ProcessBuilder(added.absolutePath, "-Xshare:dump").redirectErrorStream(true).start()
-            val said = run.inputStream.bufferedReader().readText()
-            if (run.waitFor() != 0) throw GradleException("The class archive of the runtime could not be made: $said")
-        } finally {
-            added.delete()
-        }
+        val run = ProcessBuilder(added.absolutePath, "-Xshare:dump").redirectErrorStream(true).start()
+        val said = run.inputStream.bufferedReader().readText()
+        if (run.waitFor() != 0) throw GradleException("The class archive of the runtime could not be made: $said")
         // Java makes the archive read only, which on Windows stops the next build and the installer from replacing it.
         image.get().asFile.walk().filter { it.name.endsWith(".jsa") }.forEach { it.setWritable(true) }
     }
 }
 
-// The installed app also keeps an archive of its own classes, made when it is first closed and made again after an update, so a page opens without its code being read and checked first. It sits next to the files of the app. Only the installed app gets it, not a run from the build, and it is added once Compose has set the options of the app, which would replace it otherwise.
+// The installed app reads the archive of its own classes from next to its files once the app has made it in the background. Java is never asked to make one while the app runs, as that made the whole first run after an update many times slower. It is added once Compose has set the options of the app, which would replace it otherwise.
 afterEvaluate {
     tasks.withType<AbstractJPackageTask>().configureEach {
-        launcherJvmArgs.addAll("-XX:SharedArchiveFile=\$APPDIR/sumizuri.jsa", "-XX:+AutoCreateSharedArchive")
+        launcherJvmArgs.addAll("-XX:SharedArchiveFile=\$APPDIR/sumizuri.jsa", "-splash:\$APPDIR/resources/splash.png")
+        // A Linux package installs where only root can write, so its own install script makes the archive, and its removal script takes it away. The folder of the scripts is named after the one Compose gives, and the packager takes the last.
+        if (System.getProperty("os.name").lowercase().contains("linux")) {
+            freeArgs.addAll("--resource-dir", file("packaging/linux").absolutePath)
+        }
     }
 }
 
-// Makes the release folder smaller before it goes into the Windows installer, keeping only the native libraries of Windows and the Material icons the code names.
+// Makes the release folder smaller before it goes into the Windows installer, keeping only the Material icons the code names.
 val shrinkReleaseImage = tasks.register("shrinkReleaseImage") {
     dependsOn("createReleaseDistributable")
     val folder = layout.buildDirectory.dir("compose/binaries/main-release/app/Sumizuri/app")
@@ -276,19 +294,8 @@ val shrinkReleaseImage = tasks.register("shrinkReleaseImage") {
             kept.renameTo(jar)
         }
         val before = dir.walkTopDown().filter { it.isFile }.sumOf { it.length() }
-        // The jars that only hold the libraries of Linux and macOS go, with their lines in the list of jars the launcher reads.
-        val others = dir.listFiles { file -> file.name.endsWith(".jar") && Regex("natives-(linux|macosx)").containsMatchIn(file.name) }.orEmpty()
-        others.forEach { it.delete() }
-        val config = File(dir, "Sumizuri.cfg")
-        val newline = if (config.readText().contains("\r\n")) "\r\n" else "\n"
-        config.writeText(config.readLines().filterNot { line -> others.any { line.endsWith(it.name) } }.joinToString(newline, postfix = newline))
+        // The native files of other systems already left the jars right after the shrinking.
         val jars = dir.listFiles { file -> file.name.endsWith(".jar") }.orEmpty().toList()
-        // The libraries of other systems inside the jars that hold one for each, such as those of the database and the script engine. Windows ones end in .dll.
-        val foreign = Regex("\\.(so|dylib|jnilib)$")
-        for (jar in jars) {
-            val has = ZipFile(jar).use { zip -> zip.entries().asSequence().any { foreign.containsMatchIn(it.name) } }
-            if (has) rewrite(jar) { !foreign.containsMatchIn(it) }
-        }
         // The icons the code of the app and of its libraries names, as classes such as androidx/compose/material/icons/outlined/PaletteKt.
         val icons = jars.firstOrNull { it.name.startsWith("material-icons-extended") }
         if (icons != null) {

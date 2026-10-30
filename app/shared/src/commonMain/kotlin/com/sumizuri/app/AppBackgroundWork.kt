@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import coil3.ImageLoader
+import com.sumizuri.app.core.perf.FrameActivity
 import com.sumizuri.app.core.perf.Perf
 import com.sumizuri.app.core.perf.PerfWatch
 import com.sumizuri.app.core.perf.StartMark
@@ -21,6 +22,7 @@ import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.sync.UpdatePlan
 import com.sumizuri.app.data.sync.UpdatePlatform
 import com.sumizuri.app.data.sync.rememberNoticePermission
+import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.feature.sync.account.DefaultSyncMinutes
 import com.sumizuri.app.ui.kit.cover.CoverMemo
 import kotlinx.coroutines.delay
@@ -37,6 +39,20 @@ private const val ChangeLookEveryMs = 60_000L
 // The checks that use the network wait this long after the app opens, so the first screen and its covers load first.
 internal const val StartQuietMs = 10_000L
 
+// How long the app must be left alone before a check starts, how often that is looked at, and the longest a check waits for it.
+private const val QuietForMs = 2_000L
+private const val QuietLookMs = 500L
+private const val QuietMostMs = 60_000L
+
+// How far apart the checks that start with the app begin.
+private const val StaggerMs = 5_000L
+
+// Waits until the app has been left alone for a moment, so a check that uses the network and the processor never starts while the person scrolls or opens pages. It waits a minute at most, so a busy person still gets the checks.
+private suspend fun awaitQuiet() {
+    val until = nowMillis() + QuietMostMs
+    while (nowMillis() < until && nowMillis() - FrameActivity.last.value < QuietForMs) delay(QuietLookMs)
+}
+
 // What the app does on its own while it is open: the checks for new chapters and new versions of sources, the plan of the check while it is closed, the question about notices, and the watch over its speed.
 @Composable
 internal fun AppBackgroundWork(container: AppContainer, loader: ImageLoader) {
@@ -44,6 +60,7 @@ internal fun AppBackgroundWork(container: AppContainer, loader: ImageLoader) {
     LaunchedEffect(container) {
         delay(StartQuietMs)
         while (true) {
+            awaitQuiet()
             val ran = container.sync.refreshLibraryIfDue()
             if (ran && UpdatePlatform.noticeFromApp &&
                 container.settings.flag(SettingKey.UpdateNotify, true).first()
@@ -65,7 +82,9 @@ internal fun AppBackgroundWork(container: AppContainer, loader: ImageLoader) {
     // Keeps this profile in step with its sync server: once after the app opens when asked, then as often as chosen while the app stays open.
     LaunchedEffect(container) {
         val settings = container.settings
-        delay(StartQuietMs)
+        // A little after the library check, so the two do not start together.
+        delay(StartQuietMs + StaggerMs)
+        awaitQuiet()
         if (settings.flag(SettingKey.SyncOnOpen, true).first()) container.librarySync.syncAuto()
         while (true) {
             val minutes = settings.number(SettingKey.SyncEveryMinutes, DefaultSyncMinutes).first()
@@ -123,8 +142,9 @@ internal fun AppBackgroundWork(container: AppContainer, loader: ImageLoader) {
     }
     // And for newer versions of the sources that are installed, which the repos they came from may have. It is looked at as often as the check of the library, so a check that could not reach a repo is tried again.
     LaunchedEffect(container) {
-        delay(StartQuietMs)
+        delay(StartQuietMs + StaggerMs * 2)
         while (true) {
+            awaitQuiet()
             container.updates.checkIfDue()
             delay(DueLookEveryMs)
         }

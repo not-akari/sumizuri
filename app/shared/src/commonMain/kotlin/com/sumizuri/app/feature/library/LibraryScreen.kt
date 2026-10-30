@@ -71,6 +71,7 @@ import com.sumizuri.app.feature.library.top.ShelvesDialog
 import com.sumizuri.app.feature.library.top.UpdateFailuresSheet
 import com.sumizuri.app.feature.library.top.shelfOrder
 import com.sumizuri.app.feature.library.top.swipeShelves
+import com.sumizuri.app.navigation.LocalTabShown
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.library_empty
 import com.sumizuri.app.shared.resources.library_nothing_matches
@@ -130,9 +131,14 @@ internal fun LibraryScreen(state: LibraryState, calls: LibraryCalls) {
     }
     // The bar of actions on picked titles takes the place of the tabs at the bottom while titles are picked.
     val hideBottomBar = LocalHideBottomBar.current
-    LaunchedEffect(state.selecting) { hideBottomBar(state.selecting) }
+    val inSight = LocalTabShown.current
+    LaunchedEffect(state.selecting, inSight) { hideBottomBar(state.selecting && inSight) }
     // Back while titles are picked ends the picking instead of leaving the tab.
-    NavigationBackHandler(rememberNavigationEventState(NavigationEventInfo.None), isBackEnabled = state.selecting) {
+    NavigationBackHandler(
+        rememberNavigationEventState(NavigationEventInfo.None),
+        isBackEnabled =
+        state.selecting && inSight,
+    ) {
         calls.onClearSelection()
     }
     DisposableEffect(Unit) { onDispose { hideBottomBar(false) } }

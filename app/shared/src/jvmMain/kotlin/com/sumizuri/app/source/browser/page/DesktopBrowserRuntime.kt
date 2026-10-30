@@ -3,6 +3,7 @@ package com.sumizuri.app.source.browser.page
 import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.data.net.Network
 import dev.datlag.kcef.KCEF
+import dev.datlag.kcef.KCEFBuilder
 import dev.datlag.kcef.KCEFClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -44,12 +45,15 @@ class DesktopBrowserRuntime(
             )}, ${System.getProperty("java.vendor")}",
         )
         clearBrokenInstall()
+        trimBrowserFolder(cacheDir)
         var lastTen = -1
         try {
             KCEF.init(
                 builder = {
                     // The browser goes through the router of the app too, which picks the way for each site. It is told once as it starts, so turning the router on or off takes a restart of the app.
-                    Network.routerPort?.let { addArgs("--proxy-server=socks5://127.0.0.1:$it") }
+                    val proxy = Network.routerPort?.let { listOf("--proxy-server=socks5://127.0.0.1:$it") }.orEmpty()
+                    // Chromium only reads its switches from the app handler, the list given to the start is dropped on Windows and Linux.
+                    appHandler(KCEF.AppHandler((proxy + TrimmedSwitches).toTypedArray()))
                     installDir(installDir)
                     progress {
                         onDownloading { percent ->
@@ -72,6 +76,8 @@ class DesktopBrowserRuntime(
                     }
                     settings {
                         locale = "en-US"
+                        // Only errors go to the log file of Chromium, which kept growing in the cache folder.
+                        logSeverity = KCEFBuilder.Settings.LogSeverity.Error
                         // Chromium cannot find these from where the Java runtime is on Windows and Linux, so they are named here. On a Mac they sit inside the framework of Chromium, which the browser finds on its own, and naming other folders made it start on a null pointer.
                         if (!isMac) {
                             localesDirPath = File(installDir, "locales").absolutePath

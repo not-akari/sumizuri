@@ -1,2 +1,5 @@
 # Shell scripts keep Unix line endings on every computer, Windows too, as bash stops at the extra character Windows puts at the end of each line.
 *.sh text eol=lf
+
+# The install scripts of the Linux package are shell scripts too, with no ending to their names.
+app/desktop/packaging/linux/* text eol=lf

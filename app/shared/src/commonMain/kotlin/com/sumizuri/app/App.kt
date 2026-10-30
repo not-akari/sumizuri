@@ -1,6 +1,5 @@
 package com.sumizuri.app
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -67,6 +66,7 @@ import com.sumizuri.app.feature.theme.ThemeViewModel
 import com.sumizuri.app.feature.theme.ThemeLinkDialog
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.navigation.Destination
+import com.sumizuri.app.navigation.KeptTabs
 import com.sumizuri.app.navigation.MainScaffold
 import com.sumizuri.app.navigation.NavigationViewModel
 import com.sumizuri.app.navigation.Page
@@ -91,7 +91,6 @@ import com.sumizuri.app.ui.language.applyAppLanguage
 import com.sumizuri.app.ui.motion.LocalPageMotion
 import com.sumizuri.app.ui.motion.LocalStagger
 import com.sumizuri.app.ui.motion.rememberMotionShift
-import com.sumizuri.app.ui.motion.tabTransform
 import com.sumizuri.app.ui.security.AppGuard
 import com.sumizuri.app.ui.kit.cover.CoverFlight
 import com.sumizuri.app.ui.kit.cover.CoverFlightLayer
@@ -303,12 +302,8 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                                         // The tabs are the page under the first one, so they give way to it and come back in the same motion.
                                         PageStack(place, navigation, backState, pageBack) {
                                             MainScaffold(tabs, navStyle, navLabels, navSwipe, place.tab, navAvatar, badges, onSelect = onSelectTab) {
-                                                AnimatedContent(
-                                                    place.tab,
-                                                    // The next tab moves in from the side it sits on, quicker than a page, in the style the person chose.
-                                                    transitionSpec = { tabTransform(pageMotion, tabMs, tabs.indexOf(targetState) > tabs.indexOf(initialState), shift) using null },
-                                                    label = "tab",
-                                                ) { tab ->
+                                                // The next tab moves in from the side it sits on, quicker than a page, in the style the person chose, and each tab is kept once made.
+                                                KeptTabs(place.tab, tabs, pageMotion, tabMs, shift) { tab ->
                                                     AppTab(tab, tabs, navigation)
                                                 }
                                             }

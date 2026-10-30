@@ -33,9 +33,12 @@ import com.sumizuri.app.data.sync.DesktopFront
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.playback.LocalFullscreen
 import com.sumizuri.app.playback.LocalMiniPlayer
+import com.sumizuri.app.setup.ClassArchive
+import com.sumizuri.app.setup.LaunchSplash
 import com.sumizuri.app.setup.SetupMode
 import com.sumizuri.app.setup.refreshAppLinks
 import com.sumizuri.app.setup.runSetup
+import com.sumizuri.app.setup.warmUp
 import com.sumizuri.app.source.browser.page.DesktopBrowserRuntime
 import com.sumizuri.app.source.browser.page.DesktopChallengeSolver
 import com.sumizuri.app.source.browser.page.DesktopRenderPageFactory
@@ -79,8 +82,18 @@ fun main(args: Array<String>) {
     Graphics.fontCacheLimit = SkiaLetterBytes
     // The installer starts the app with --setup to show its own setup, and Windows starts it with --uninstall to take it away. Neither opens the library. The setup file of Windows passes the window it shows while it unpacks, which the setup hides once its own is up.
     val splash = args.firstOrNull { it.startsWith("--splash=") }?.substringAfter('=')?.toLongOrNull()
+    // The launcher shows the picture of the app starting before this runs, which only a normal start keeps.
+    val quiet = "--setup" in args || "--uninstall" in args || "--warm" in args || "--class-archive" in args
+    if (quiet) LaunchSplash.close() else LaunchSplash.animate()
+    // The install script of the Linux package makes the archive of classes this way, as root, with no window.
+    if ("--class-archive" in args) {
+        ClassArchive.makeNow()
+        exitProcess(0)
+    }
     if ("--setup" in args) runSetup(SetupMode.Install, splash)
     if ("--uninstall" in args) runSetup(SetupMode.Uninstall)
+    // A hidden run that only loads the code of the app and ends, which the archive of classes is made from.
+    if ("--warm" in args) warmUp()
     val folder = InstallSettings.dataFolder()
     // A sumizuri link the app was opened with, such as from an Open in Sumizuri button. When a copy already runs on this library, it gets the link and comes forward, and this start ends. A run from the build always opens its own window.
     val link = args.firstOrNull { it.startsWith("${AppLinks.Scheme}:", ignoreCase = true) }
@@ -105,6 +118,10 @@ fun main(args: Array<String>) {
             Forward.value++
         }
         thread(isDaemon = true, name = "app-links") { refreshAppLinks() }
+        ClassArchive.makeLater()
+        System.getProperty("compose.application.resources.dir")?.let { resources ->
+            thread(isDaemon = true, name = "splash-look") { LaunchSplash.follow(File(resources)) }
+        }
     }
     // The app does not end the process itself, so the browser can be shut down first, away from the window thread it needs.
     application(exitProcessOnExit = false) {

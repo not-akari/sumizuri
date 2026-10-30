@@ -52,6 +52,10 @@ android {
         versionCode = providers.gradleProperty("app.versionCode").get().toInt()
         versionName = providers.gradleProperty("app.version").get()
     }
+    // The texts of the app sit in one file that each text is read from at its own place, which a packed file has to unpack from the start for every text, on the thread that draws.
+    androidResources {
+        noCompress += "cvr"
+    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"

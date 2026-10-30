@@ -125,8 +125,11 @@ internal object WindowsSetup {
     // Copies the app into its folder. An update first takes out the old app and runtime, whose files are named after their contents and would pile up. A folder that holds something else is never cleared.
     fun copy(from: File, to: File, progress: (done: Long, total: Long) -> Unit) {
         if (File(to, Exe).isFile) {
-            File(to, "app").deleteRecursively()
-            File(to, "runtime").deleteRecursively()
+            // Java leaves its class archives read only, which Windows will not delete.
+            for (old in listOf(File(to, "app"), File(to, "runtime"))) {
+                old.walkTopDown().filter { it.isFile && !it.canWrite() }.forEach { it.setWritable(true) }
+                old.deleteRecursively()
+            }
         }
         val files = from.walkTopDown().filter { it.isFile }.toList()
         val total = files.sumOf { it.length() }.coerceAtLeast(1)

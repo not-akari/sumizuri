@@ -250,75 +250,136 @@ import com.sumizuri.app.shared.resources.updates_swipe_marks_read
 import com.sumizuri.app.shared.resources.web_in_app
 import org.jetbrains.compose.resources.StringResource
 
-// The icons of the reader, the display of the library, the updates and the gestures, which join the others in SettingIcons.
-internal val MoreSettingIcons: Map<StringResource, ImageVector> by lazy {
-    mapOf(
-        // Reader
-        Res.string.reader_default_mode to Icons.Outlined.AutoStories,
-        Res.string.reader_scale to Icons.Outlined.ZoomOutMap,
-        Res.string.reader_dual to Icons.Outlined.ImportContacts,
-        Res.string.reader_gap to Icons.Outlined.Height,
-        Res.string.reader_width to Icons.Outlined.WidthNormal,
-        Res.string.reader_background to Icons.Outlined.Wallpaper,
-        Res.string.reader_quality to Icons.Outlined.HighQuality,
-        Res.string.reader_font to Icons.Outlined.FontDownload,
-        Res.string.reader_text_align to Icons.Outlined.FormatAlignJustify,
-        Res.string.reader_text_size to Icons.Outlined.FormatSize,
-        Res.string.reader_lookup to Icons.AutoMirrored.Outlined.ManageSearch,
-        Res.string.reader_line_height to Icons.Outlined.FormatLineSpacing,
-        Res.string.reader_paragraph_gap to Icons.AutoMirrored.Outlined.WrapText,
-        Res.string.reader_keep_on to Icons.Outlined.LightMode,
-        Res.string.reader_hide_bars to Icons.Outlined.Fullscreen,
-        Res.string.reader_brightness to Icons.Outlined.Brightness6,
-        Res.string.reader_warmth to Icons.Outlined.WbTwilight,
-        Res.string.reader_progress_bar to Icons.Outlined.LinearScale,
-        Res.string.reader_inline_next to Icons.Outlined.LowPriority,
-        Res.string.reader_invert_taps to Icons.Outlined.SwapHoriz,
-        Res.string.reader_auto_speed to Icons.Outlined.Speed,
-        Res.string.reader_wpm to Icons.Outlined.AvTimer,
-        // Advanced and updates of the app
-        Res.string.perf_overlay to Icons.Outlined.QueryStats,
-        Res.string.appupdate_auto_check to Icons.Outlined.Update,
-        Res.string.appupdate_prerelease to Icons.Outlined.Science,
-        Res.string.appupdate_skip to Icons.Outlined.NotificationsOff,
-        // Library display and order
-        Res.string.display_style to Icons.AutoMirrored.Outlined.ViewQuilt,
-        Res.string.display_cover_size to Icons.Outlined.PhotoSizeSelectLarge,
-        Res.string.display_gap to Icons.Outlined.SpaceBar,
-        Res.string.display_panorama to Icons.Outlined.Panorama,
-        Res.string.display_list_cover to Icons.AutoMirrored.Outlined.ViewList,
-        Res.string.display_name_size to Icons.Outlined.TextFields,
-        Res.string.display_progress to Icons.Outlined.DonutLarge,
-        Res.string.display_favorites to Icons.Outlined.StarOutline,
-        Res.string.badge_unread to Icons.Outlined.FiberNew,
-        Res.string.badge_status to Icons.Outlined.Flag,
-        Res.string.badge_source to Icons.Outlined.Extension,
-        Res.string.badge_language to Icons.Outlined.Translate,
-        Res.string.badge_favorite to Icons.Outlined.StarOutline,
-        Res.string.display_home_cover to Icons.Outlined.Photo,
-        Res.string.display_hide_all_tab to Icons.Outlined.Tab,
-        Res.string.display_hide_no_shelf_tab to Icons.AutoMirrored.Outlined.LabelOff,
-        Res.string.display_collapsible_search to Icons.Outlined.UnfoldLess,
-        Res.string.display_part_count to Icons.Outlined.Numbers,
-        Res.string.rule_own_order to Icons.Outlined.Tune,
-        Res.string.sort_by to Icons.AutoMirrored.Outlined.Sort,
-        Res.string.sort_direction to Icons.Outlined.SwapVert,
-        Res.string.sort_then to Icons.Outlined.FilterList,
-        Res.string.sort_then_direction to Icons.Outlined.SwapVert,
-        Res.string.rule_status to Icons.Outlined.Flag,
-        Res.string.sort_pin_favorites to Icons.Outlined.PushPin,
-        Res.string.sort_pin_unread to Icons.Outlined.FiberNew,
-        // Updates and the reader sheet
-        Res.string.display_row_style to Icons.Outlined.ViewAgenda,
-        Res.string.updates_swipe_marks_read to Icons.Outlined.Swipe,
-        Res.string.reader_incognito_switch to Icons.Outlined.PrivacyTip,
-        // Gestures
-        Res.string.gesture_library_tap to Icons.Outlined.TouchApp,
-        Res.string.gesture_library_long_press to Icons.Outlined.PanTool,
-        Res.string.gesture_library_double_tap to Icons.Outlined.AdsClick,
-        Res.string.gesture_swipe_right to Icons.Outlined.SwipeRight,
-        Res.string.gesture_swipe_left to Icons.Outlined.SwipeLeft,
-        Res.string.gesture_long_press to Icons.Outlined.PanTool,
-        Res.string.gesture_nav_double to Icons.Outlined.Tab,
-    )
+// The icons of the reader, the display of the library, the updates and the gestures, which join the others in settingIconOf.
+internal fun moreSettingIconOf(title: StringResource): ImageVector? = when (title) {
+    // Reader
+    Res.string.reader_default_mode -> Icons.Outlined.AutoStories
+
+    Res.string.reader_scale -> Icons.Outlined.ZoomOutMap
+
+    Res.string.reader_dual -> Icons.Outlined.ImportContacts
+
+    Res.string.reader_gap -> Icons.Outlined.Height
+
+    Res.string.reader_width -> Icons.Outlined.WidthNormal
+
+    Res.string.reader_background -> Icons.Outlined.Wallpaper
+
+    Res.string.reader_quality -> Icons.Outlined.HighQuality
+
+    Res.string.reader_font -> Icons.Outlined.FontDownload
+
+    Res.string.reader_text_align -> Icons.Outlined.FormatAlignJustify
+
+    Res.string.reader_text_size -> Icons.Outlined.FormatSize
+
+    Res.string.reader_lookup -> Icons.AutoMirrored.Outlined.ManageSearch
+
+    Res.string.reader_line_height -> Icons.Outlined.FormatLineSpacing
+
+    Res.string.reader_paragraph_gap -> Icons.AutoMirrored.Outlined.WrapText
+
+    Res.string.reader_keep_on -> Icons.Outlined.LightMode
+
+    Res.string.reader_hide_bars -> Icons.Outlined.Fullscreen
+
+    Res.string.reader_brightness -> Icons.Outlined.Brightness6
+
+    Res.string.reader_warmth -> Icons.Outlined.WbTwilight
+
+    Res.string.reader_progress_bar -> Icons.Outlined.LinearScale
+
+    Res.string.reader_inline_next -> Icons.Outlined.LowPriority
+
+    Res.string.reader_invert_taps -> Icons.Outlined.SwapHoriz
+
+    Res.string.reader_auto_speed -> Icons.Outlined.Speed
+
+    Res.string.reader_wpm -> Icons.Outlined.AvTimer
+
+    // Advanced and updates of the app
+    Res.string.perf_overlay -> Icons.Outlined.QueryStats
+
+    Res.string.appupdate_auto_check -> Icons.Outlined.Update
+
+    Res.string.appupdate_prerelease -> Icons.Outlined.Science
+
+    Res.string.appupdate_skip -> Icons.Outlined.NotificationsOff
+
+    // Library display and order
+    Res.string.display_style -> Icons.AutoMirrored.Outlined.ViewQuilt
+
+    Res.string.display_cover_size -> Icons.Outlined.PhotoSizeSelectLarge
+
+    Res.string.display_gap -> Icons.Outlined.SpaceBar
+
+    Res.string.display_panorama -> Icons.Outlined.Panorama
+
+    Res.string.display_list_cover -> Icons.AutoMirrored.Outlined.ViewList
+
+    Res.string.display_name_size -> Icons.Outlined.TextFields
+
+    Res.string.display_progress -> Icons.Outlined.DonutLarge
+
+    Res.string.display_favorites -> Icons.Outlined.StarOutline
+
+    Res.string.badge_unread -> Icons.Outlined.FiberNew
+
+    Res.string.badge_status -> Icons.Outlined.Flag
+
+    Res.string.badge_source -> Icons.Outlined.Extension
+
+    Res.string.badge_language -> Icons.Outlined.Translate
+
+    Res.string.badge_favorite -> Icons.Outlined.StarOutline
+
+    Res.string.display_home_cover -> Icons.Outlined.Photo
+
+    Res.string.display_hide_all_tab -> Icons.Outlined.Tab
+
+    Res.string.display_hide_no_shelf_tab -> Icons.AutoMirrored.Outlined.LabelOff
+
+    Res.string.display_collapsible_search -> Icons.Outlined.UnfoldLess
+
+    Res.string.display_part_count -> Icons.Outlined.Numbers
+
+    Res.string.rule_own_order -> Icons.Outlined.Tune
+
+    Res.string.sort_by -> Icons.AutoMirrored.Outlined.Sort
+
+    Res.string.sort_direction -> Icons.Outlined.SwapVert
+
+    Res.string.sort_then -> Icons.Outlined.FilterList
+
+    Res.string.sort_then_direction -> Icons.Outlined.SwapVert
+
+    Res.string.rule_status -> Icons.Outlined.Flag
+
+    Res.string.sort_pin_favorites -> Icons.Outlined.PushPin
+
+    Res.string.sort_pin_unread -> Icons.Outlined.FiberNew
+
+    // Updates and the reader sheet
+    Res.string.display_row_style -> Icons.Outlined.ViewAgenda
+
+    Res.string.updates_swipe_marks_read -> Icons.Outlined.Swipe
+
+    Res.string.reader_incognito_switch -> Icons.Outlined.PrivacyTip
+
+    // Gestures
+    Res.string.gesture_library_tap -> Icons.Outlined.TouchApp
+
+    Res.string.gesture_library_long_press -> Icons.Outlined.PanTool
+
+    Res.string.gesture_library_double_tap -> Icons.Outlined.AdsClick
+
+    Res.string.gesture_swipe_right -> Icons.Outlined.SwipeRight
+
+    Res.string.gesture_swipe_left -> Icons.Outlined.SwipeLeft
+
+    Res.string.gesture_long_press -> Icons.Outlined.PanTool
+
+    Res.string.gesture_nav_double -> Icons.Outlined.Tab
+
+    else -> null
 }

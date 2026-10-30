@@ -68,10 +68,6 @@ private const val StartAt = 0.50f
 // Where the tabs are in the list, after the room for the cover and the banner.
 private const val TabsAt = 2
 
-// A little longer than the glide, so the chapters start after it has come to rest, and the room kept for them until then.
-private const val SettleExtraMs = 60L
-private val WaitHeight = 320.dp
-
 // A cell of the chapter grid is about this wide.
 private val CellWidth = 150.dp
 
@@ -87,15 +83,7 @@ internal fun PhoneTitle(
 ) {
     val list = rememberLazyListState()
     var tab by rememberSaveable { mutableStateOf(TitleTab.Chapters) }
-    // The chapters are a lot to put on the screen, so they wait until the page has glided in, and are not made in the middle of the motion.
-    var settled by rememberSaveable { mutableStateOf(false) }
-    val glideMs = LocalPageMotion.current.pageMs()
-    LaunchedEffect(Unit) {
-        if (!settled) {
-            delay(glideMs + SettleExtraMs)
-            settled = true
-        }
-    }
+    val settled = rememberSettled()
     var openSeason by rememberOpenSeason()
     val model = rememberChapterListModel(state, openSeason)
     val reach = height * Reach
@@ -186,7 +174,7 @@ internal fun PhoneTitle(
                             it
                     })
                 } else {
-                    item(key = "chapters-wait") { Spacer(Modifier.fillMaxWidth().height(WaitHeight)) }
+                    chaptersWait()
                 }
 
                 TitleTab.About -> item(key = "about") { AboutPanel(state, title, panel = false) }

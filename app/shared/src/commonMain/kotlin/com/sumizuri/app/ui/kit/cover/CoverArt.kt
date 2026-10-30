@@ -23,6 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.sumizuri.app.data.model.Title
 import com.sumizuri.app.ui.kit.image.ImageFilter
 import com.sumizuri.app.ui.kit.image.imageRequest
@@ -80,7 +82,7 @@ fun CoverArt(
         }
         if (behind != null && !shown) {
             AsyncImage(
-                model = imageRequest(behind, sourceId = standIn.sourceId),
+                model = noFade(imageRequest(behind, sourceId = standIn.sourceId)),
                 contentDescription = null,
                 modifier = Modifier.matchParentSize(),
                 contentScale = ContentScale.Crop,
@@ -91,7 +93,7 @@ fun CoverArt(
         }
         if (!url.isNullOrBlank()) {
             AsyncImage(
-                model = imageRequest(url, sourceId = title.sourceId),
+                model = noFade(imageRequest(url, sourceId = title.sourceId)),
                 contentDescription = title.name,
                 modifier = Modifier.matchParentSize(),
                 contentScale = ContentScale.Crop,
@@ -103,3 +105,8 @@ fun CoverArt(
         }
     }
 }
+
+// The same request with no fade, so a cover that comes in while a grid scrolls is drawn once and not on every frame of a fade. It is kept, so the request is not made again on each drawing.
+@Composable
+private fun noFade(request: ImageRequest): ImageRequest =
+    remember(request) { request.newBuilder().crossfade(false).build() }

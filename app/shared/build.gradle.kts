@@ -182,6 +182,11 @@ kotlin.sourceSets.commonMain {
     kotlin.srcDir(generateLanguages)
 }
 
+// The desktop jar is kept unpacked. Each text of the app is read from its place in one file, and in a packed jar that meant unpacking the file from the start for every text, with the window waiting. Unpacked classes also load quicker, and the installers pack everything anyway.
+tasks.named<Jar>("jvmJar") {
+    entryCompression = ZipEntryCompression.STORED
+}
+
 compose.resources {
     packageOfResClass = "com.sumizuri.app.shared.resources"
     publicResClass = false

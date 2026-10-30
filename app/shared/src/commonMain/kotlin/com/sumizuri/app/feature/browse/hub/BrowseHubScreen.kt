@@ -24,7 +24,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -44,6 +46,7 @@ import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.page.PageTopBar
 import com.sumizuri.app.ui.kit.page.ReadableColumn
 import com.sumizuri.app.ui.kit.setting.PartTabs
+import kotlinx.coroutines.flow.drop
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -61,7 +64,11 @@ fun BrowseHubScreen(state: BrowseHubState, actions: BrowseHubActions) {
             pager.animateScrollToPage(state.tab.ordinal)
         }
     }
-    LaunchedEffect(pager.settledPage) { actions.onTab(tabs[pager.settledPage]) }
+    // The page the pager starts on is the tab already, so only a page it later settles on is told, which keeps a tab picked meanwhile, such as by a link that adds a repo.
+    val latest by rememberUpdatedState(actions)
+    LaunchedEffect(pager) {
+        snapshotFlow { pager.settledPage }.drop(1).collect { latest.onTab(tabs[it]) }
+    }
     ReadableColumn {
         Column(Modifier.fillMaxSize()) {
             PageTopBar(

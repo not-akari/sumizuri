@@ -78,6 +78,7 @@ internal fun SplitTitle(
     val list = rememberLazyListState()
     var openSeason by rememberOpenSeason()
     val model = rememberChapterListModel(state, openSeason)
+    val settled = rememberSettled()
     val density = LocalDensity.current
     var aspect by remember(title.coverUrl) {
         mutableFloatStateOf(title.coverUrl?.let { KnownAspects[it] } ?: LikelyAspect)
@@ -139,7 +140,11 @@ internal fun SplitTitle(
                             )
                         }
                     }
-                    chapterSection(state, calls, model, columns, onSeason = { openSeason = it }, wideRows = true)
+                    if (settled) {
+                        chapterSection(state, calls, model, columns, onSeason = { openSeason = it }, wideRows = true)
+                    } else {
+                        chaptersWait()
+                    }
                 }
             }
             if (state.selecting) {

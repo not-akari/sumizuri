@@ -74,6 +74,7 @@ internal fun WideTitle(
     val list = rememberLazyListState()
     var openSeason by rememberOpenSeason()
     val model = rememberChapterListModel(state, openSeason)
+    val settled = rememberSettled()
     val bar = titleBarRoom()
     val density = LocalDensity.current
     val barPx = with(density) { bar.roundToPx() }
@@ -138,14 +139,18 @@ internal fun WideTitle(
                         )
                     }
                 }
-                chapterSection(
-                    state,
-                    calls,
-                    model,
-                    columns,
-                    endInset = inset - PageGutter,
-                    onSeason = { openSeason = it },
-                )
+                if (settled) {
+                    chapterSection(
+                        state,
+                        calls,
+                        model,
+                        columns,
+                        endInset = inset - PageGutter,
+                        onSeason = { openSeason = it },
+                    )
+                } else {
+                    chaptersWait()
+                }
             }
             val panelTopDp = with(density) { panelTop.toDp() }
             Box(
@@ -157,7 +162,7 @@ internal fun WideTitle(
                     .verticalScroll(rememberScrollState())
                     .padding(end = PageGutter),
             ) {
-                AboutPanel(state, title, panel = true)
+                if (settled) AboutPanel(state, title, panel = true)
             }
         }
         if (state.selecting) {

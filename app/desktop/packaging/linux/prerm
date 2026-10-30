@@ -1,0 +1,30 @@
+#!/bin/sh
+# prerm script for APPLICATION_PACKAGE
+
+set -e
+
+# The folder a package of this name installs into.
+dir=/opt/APPLICATION_PACKAGE
+
+package_type=deb
+DESKTOP_SCRIPTS
+LAUNCHER_AS_SERVICE_SCRIPTS
+
+case "$1" in
+    remove|upgrade|deconfigure)
+DESKTOP_COMMANDS_UNINSTALL
+LAUNCHER_AS_SERVICE_COMMANDS_UNINSTALL
+        # The archive of the classes is not part of the package, so it is taken away here, and the folder can go.
+        rm -f "$dir/lib/app/sumizuri.jsa" "$dir/lib/app/sumizuri.jsa.version" "$dir/lib/app/sumizuri.jsa.part"
+    ;;
+
+    failed-upgrade)
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0

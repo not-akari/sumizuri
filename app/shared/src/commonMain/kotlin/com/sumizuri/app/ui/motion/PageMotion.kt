@@ -144,40 +144,54 @@ fun pageTransform(style: PageMotion, ms: Int, forward: Boolean, shift: MotionShi
     }
 }
 
-// One tab giving way to another, moving towards the side the new tab is on. Tabs are close at hand, so they change quicker than pages and only ever nudge.
-fun tabTransform(style: PageMotion, ms: Int, toRight: Boolean, shift: MotionShift): ContentTransform {
-    val quick = ms * 3 / 4
-    if (quick == 0) return EnterTransition.None togetherWith ExitTransition.None
+private fun part(t: Float, from: Float, to: Float): Float = ((t - from) / (to - from)).coerceIn(0f, 1f)
+
+// A tab coming in or going out, moved by hand the same way the change of tabs above moves it, for tabs that stay composed. The time is how far the change has gone, from 0 to 1.
+fun GraphicsLayerScope.tabMotion(
+    style: PageMotion,
+    time: Float,
+    leaving: Boolean,
+    toRight: Boolean,
+    shift: MotionShift,
+) {
     val sign = if (toRight) 1 else -1
-    val far = if (style == PageMotion.Slide) shift.tab * 3 else shift.tab
-    return when (style) {
-        // The calm reveal, quicker: the tab that comes fades in from the start as it glides and settles, and the one it leaves fades out first.
-        PageMotion.Smooth ->
-            (
-                slideInHorizontally(timed<IntOffset>(quick)) { sign * far } +
-                    fadeIn(timed(quick, 0f, CalmFade)) +
-                    scaleIn(timed(quick), initialScale = CalmScale)
-                ) togetherWith
-                (
-                    slideOutHorizontally(timed<IntOffset>(quick)) { -sign * far / 2 } +
-                        fadeOut(timed(quick, 0f, 0.35f, GoOut))
-                    )
+    val far = (if (style == PageMotion.Slide) shift.tab * 3 else shift.tab).toFloat()
+    val moved = ComeIn.transform(time)
+    when (style) {
+        PageMotion.Smooth -> if (leaving) {
+            alpha = 1f - GoOut.transform(part(time, 0f, 0.35f))
+            translationX = -sign * far / 2f * moved
+        } else {
+            alpha = ComeIn.transform(part(time, 0f, CalmFade))
+            translationX = sign * far * (1f - moved)
+            scaleX = CalmScale + (1f - CalmScale) * moved
+            scaleY = scaleX
+        }
 
-        PageMotion.Slide ->
-            (slideInHorizontally(timed<IntOffset>(quick)) { sign * far } + fadeIn(timed(quick, 0.3f, 1f))) togetherWith
-                (slideOutHorizontally(timed<IntOffset>(quick)) { -sign * far } + fadeOut(timed(quick, 0f, 0.3f, GoOut)))
+        PageMotion.Slide -> if (leaving) {
+            alpha = 1f - GoOut.transform(part(time, 0f, 0.3f))
+            translationX = -sign * far * moved
+        } else {
+            alpha = ComeIn.transform(part(time, 0.3f, 1f))
+            translationX = sign * far * (1f - moved)
+        }
 
-        PageMotion.Zoom ->
-            (scaleIn(timed(quick, 0.3f, 1f), initialScale = 0.96f) + fadeIn(timed(quick, 0.3f, 1f))) togetherWith
-                fadeOut(timed(quick, 0f, 0.3f, GoOut))
+        PageMotion.Zoom -> if (leaving) {
+            alpha = 1f - GoOut.transform(part(time, 0f, 0.3f))
+        } else {
+            val shown = ComeIn.transform(part(time, 0.3f, 1f))
+            alpha = shown
+            scaleX = 0.96f + 0.04f * shown
+            scaleY = scaleX
+        }
 
-        PageMotion.Fade -> fadeIn(timed(quick, 0.35f, 1f)) togetherWith fadeOut(timed(quick, 0f, 0.35f, GoOut))
+        PageMotion.Fade ->
+            alpha =
+                if (leaving) 1f - GoOut.transform(part(time, 0f, 0.35f)) else ComeIn.transform(part(time, 0.35f, 1f))
 
-        PageMotion.None -> EnterTransition.None togetherWith ExitTransition.None
+        PageMotion.None -> Unit
     }
 }
-
-private fun part(t: Float, from: Float, to: Float): Float = ((t - from) / (to - from)).coerceIn(0f, 1f)
 
 // The page under a page that opens or closes, moved by hand the same way a page that gives way moves, for a layer that stays composed. The time is how far the change has gone, from 0 to 1, and leaving is true while the page on top comes in.
 fun GraphicsLayerScope.underMotion(style: PageMotion, time: Float, leaving: Boolean, shift: MotionShift) {

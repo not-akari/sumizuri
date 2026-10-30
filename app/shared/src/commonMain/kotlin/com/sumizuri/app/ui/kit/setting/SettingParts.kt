@@ -50,7 +50,7 @@ fun SwitchSetting(
     checked: Boolean,
     onChange: (Boolean) -> Unit,
     hint: StringResource? = null,
-    icon: ImageVector? = SettingIcons[title],
+    icon: ImageVector? = settingIconOf(title),
     enabled: Boolean = true,
 ) = SwitchSetting(stringResource(title), checked, onChange, hint?.let { stringResource(it) }, icon, enabled)
 

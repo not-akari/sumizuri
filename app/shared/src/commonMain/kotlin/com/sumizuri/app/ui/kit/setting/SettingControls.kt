@@ -62,7 +62,7 @@ fun <T> ChoiceSetting(
     label: @Composable (T) -> String,
     modifier: Modifier = Modifier,
     hint: StringResource? = null,
-    icon: ImageVector? = SettingIcons[title],
+    icon: ImageVector? = settingIconOf(title),
     optionIcon: ((T) -> ImageVector)? = null,
     onSelect: (T) -> Unit,
 ) = ChoiceSetting(stringResource(title), options, selected, label, modifier, hint?.let { stringResource(it) }, icon, optionIcon, onSelect)
@@ -144,7 +144,7 @@ fun SliderSetting(
     text: @Composable (Float) -> String,
     modifier: Modifier = Modifier,
     hint: StringResource? = null,
-    icon: ImageVector? = SettingIcons[title],
+    icon: ImageVector? = settingIconOf(title),
     steps: Int = 0,
     // Called as the slider moves, for a choice that shows its effect at once, such as the brightness of the reader.
     onMove: ((Float) -> Unit)? = null,
