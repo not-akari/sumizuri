@@ -28,6 +28,7 @@ import com.sumizuri.app.shared.resources.download_err_source
 import com.sumizuri.app.shared.resources.download_save_failed
 import com.sumizuri.app.feature.player.VideoChoice
 import com.sumizuri.app.playback.hls.expandHlsMasters
+import com.sumizuri.app.playback.hls.isHls
 import com.sumizuri.app.source.Source
 import com.sumizuri.app.source.SourceManager
 import com.sumizuri.app.source.SourceResult
@@ -330,25 +331,46 @@ class Downloader(
             is SourceResult.Ok -> got.value
         }
         val liked = playerPrefs.prefs.first()
-        val video = VideoChoice.pick(expandHlsMasters(listed), liked.preferredQuality, liked.qualityMode, liked.audioPreference)
+        val videos = expandHlsMasters(listed)
+        val first = VideoChoice.pick(videos, liked.preferredQuality, liked.qualityMode, liked.audioPreference)
             ?: throw DownloadProblem(getString(Res.string.download_err_no_video))
-        val part = withContext(Dispatchers.IO) { files.begin(place.titleId, place.id) }
-        val clock = TimeSource.Monotonic.markNow()
-        var written = Duration.ZERO
-        var parts = 1
-        var size = 0L
-        val saved = saveVideo(video, part, prefs.first().pagesAtOnce) { done, total, bytes ->
-            parts = total
-            size = bytes
-            val now = clock.elapsedNow()
-            if (now - written >= ProgressEveryMs.milliseconds) {
-                written = now
-                db.downloads().setProgress(item.chapterId, total, done, bytes)
+        // The pick of the player first, then the rest, with the HLS streams ahead: they come in small parts a few at once, while a plain file is often sent slowly or cut.
+        val tries = (listOf(first) + (videos - first)).sortedBy { !it.isHls }
+        val failedHosts = mutableSetOf<String>()
+        var last: Throwable? = null
+        val atOnce = prefs.first().pagesAtOnce
+        for (video in tries) {
+            // Another quality of a server that failed fails the same way, so the next server is tried.
+            if (hostOf(video.url) in failedHosts) continue
+            val part = withContext(Dispatchers.IO) { files.begin(place.titleId, place.id) }
+            val clock = TimeSource.Monotonic.markNow()
+            var written = Duration.ZERO
+            var parts = 1
+            var size = 0L
+            val saved = try {
+                saveVideo(video, part, atOnce) { done, total, bytes ->
+                    parts = total
+                    size = bytes
+                    val now = clock.elapsedNow()
+                    if (now - written >= ProgressEveryMs.milliseconds) {
+                        written = now
+                        db.downloads().setProgress(item.chapterId, total, done, bytes)
+                    }
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Throwable) {
+                last = error
+                failedHosts += hostOf(video.url)
+                AppLog.warn(Tag, "could not save ${place.titleName} ${place.number} from ${hostOf(video.url)}, ${error.message}; trying the next server")
+                continue
             }
+            withContext(Dispatchers.IO) { files.finish(place.titleId, place.id, part, SavedChapter(video = saved)) }
+            db.downloads().setDone(item.chapterId, parts, size, nowMillis())
+            AppLog.info(Tag, "saved ${place.titleName} ${place.number} from ${hostOf(video.url)}, ${video.quality ?: "video"}, ${size / 1024 / 1024} MB")
+            return
         }
-        withContext(Dispatchers.IO) { files.finish(place.titleId, place.id, part, SavedChapter(video = saved)) }
-        db.downloads().setDone(item.chapterId, parts, size, nowMillis())
-        AppLog.info(Tag, "saved ${place.titleName} ${place.number}, ${video.quality ?: "video"}, ${size / 1024 / 1024} MB")
+        throw DownloadProblem(last?.message ?: getString(Res.string.download_err_no_video))
     }
 
     // A page, asked for again a few times, as a site may drop one now and then.
