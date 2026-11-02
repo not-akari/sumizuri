@@ -38,7 +38,7 @@ Sumizuri is one app for the things you read and watch. Open files from your devi
 
 ## Download
 
-Android 7.0 and newer, iPhone and iPad (iOS 16 and newer, installed with a sideloading tool), Windows, Mac (Apple silicon) and Linux. Get the newest version from the [download page](https://sumizuri.notakari.com/download) or the [releases](https://github.com/not-akari/sumizuri/releases/latest). If you are not sure which Android file to take, take **Universal**.
+Android 7.0 and newer, iPhone and iPad (iOS 15 and newer, installed with a sideloading tool), Windows, Mac (Apple silicon) and Linux. Get the newest version from the [download page](https://sumizuri.notakari.com/download) or the [releases](https://github.com/not-akari/sumizuri/releases/latest). If you are not sure which Android file to take, take **Universal**.
 
 ## Install
 
