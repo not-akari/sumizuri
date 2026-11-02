@@ -22,8 +22,6 @@ import com.sumizuri.app.data.settings.SettingKey
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-private const val FeedLimit = 40
-
 // Finds a chapter with its title, the place the reader left it, and the chapters before and after it in the order the title page lists them.
 internal class ChapterPlaces(private val db: AppDatabase) {
     // A chapter with its title, its neighbours and the place the reader left it, or null when it is gone.
@@ -41,6 +39,7 @@ internal class ChapterPlaces(private val db: AppDatabase) {
             titleName = title.name,
             kind = Kind.fromCode(title.kind),
             sourceId = origin.sourceId,
+            coverUrl = title.coverUrl,
             previousId = previousId,
             nextId = nextId,
             position = db.progress().position(ref.id),

@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import coil3.compose.LocalPlatformContext
+import com.sumizuri.app.data.model.ChapterPlace
 import com.sumizuri.app.data.model.controls.ReaderAction
 import com.sumizuri.app.data.model.reader.ReaderLookup
 import com.sumizuri.app.data.model.reader.ReaderMode
@@ -36,6 +37,7 @@ import com.sumizuri.app.feature.reader.lookup.WordLookupPanel
 import com.sumizuri.app.feature.reader.lookup.webSearchFor
 import com.sumizuri.app.feature.reader.novel.NovelPagedReader
 import com.sumizuri.app.feature.reader.view.ContinuousReader
+import com.sumizuri.app.feature.reader.view.LocalPageShown
 import com.sumizuri.app.feature.reader.view.PagedReader
 import com.sumizuri.app.feature.reader.view.ProbeAspect
 import com.sumizuri.app.feature.reader.view.ReaderView
@@ -44,24 +46,32 @@ import com.sumizuri.app.ui.kit.image.LocalPageFilter
 import com.sumizuri.app.ui.kit.image.PageSnapshots
 import com.sumizuri.app.ui.kit.image.pageFilterOf
 import com.sumizuri.app.ui.kit.input.pinchZoom
-import com.sumizuri.app.ui.kit.page.ReadableColumn
 import com.sumizuri.app.ui.kit.web.LocalOpenSite
 import kotlinx.coroutines.delay
 
 // A chapter in the mode that was chosen. A tap in the middle shows the bars, the page slider, the chapter list and the options.
 @Composable
-fun ReaderScreen(state: ReaderState, actions: ReaderActions) {
-    if (state.loading || state.message != null || state.pages.isEmpty() || !state.modeKnown) {
-        ReadableColumn { ReaderStatus(state, actions.onRetry, actions.onSolve, actions.onBack) }
-        if (!state.loading &&
-            !state.modeKnown
-        ) {
-            ProbeAspect(sampleUrls(state.pages), state.imageHeaders, actions.onAspects)
-        }
-    } else {
-        Reader(state, actions)
+fun ReaderScreen(state: ReaderState, actions: ReaderActions, opening: ChapterPlace? = null) {
+    val ready = !(state.loading || state.message != null || state.pages.isEmpty() || !state.modeKnown)
+    // The reader is made under the opening card and stays clear until its first page has drawn, so the black of pages still loading never shows. A chapter of words has nothing to wait for, and a slow first page is given up on after a while.
+    var drawn by remember(state.chapterId) { mutableStateOf(false) }
+    LaunchedEffect(ready, state.chapterId) {
+        if (!ready) return@LaunchedEffect
+        if (state.isText) drawn = true
+        delay(FirstPageWaitMs)
+        drawn = true
     }
+    OpeningLayer(
+        done = ready && drawn,
+        opening = { ReaderStatus(state, actions.onRetry, actions.onSolve, actions.onBack, opening) },
+    ) {
+        if (ready) CompositionLocalProvider(LocalPageShown provides { drawn = true }) { Reader(state, actions) }
+    }
+    if (!state.loading && !state.modeKnown) ProbeAspect(sampleUrls(state.pages), state.imageHeaders, actions.onAspects)
 }
+
+// The longest the opening card waits for the first page before the reader shows anyway.
+private const val FirstPageWaitMs = 4000L
 
 // How much a key changes the speed of the auto scroll, and the slowest and the fastest it goes.
 private const val AutoStep = 20

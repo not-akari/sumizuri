@@ -1394,6 +1394,9 @@
     <string name="player_episode_watched">Watched</string>
     <string name="player_loading_finding">Finding videos</string>
     <string name="player_loading_opening">Opening the video</string>
+    <string name="player_loading_opening_quality">Opening %1$s</string>
+    <string name="player_loading_starting">Starting the video</string>
+    <string name="player_loading_resuming">Picking up at %1$s</string>
     <string name="player_loading_buffering">Loading more of the video</string>
     <string name="player_settings_title">Player settings</string>
     <string name="player_fit">Fit</string>

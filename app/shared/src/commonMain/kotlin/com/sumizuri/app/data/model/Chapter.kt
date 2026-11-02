@@ -34,6 +34,8 @@ data class ChapterPlace(
     val titleName: String,
     val kind: Kind,
     val sourceId: String,
+    // The cover of the title, which the reader shows while the chapter comes in.
+    val coverUrl: String? = null,
     val previousId: Long?,
     val nextId: Long?,
     // How far the reader got, from 0 to 1, or null when the chapter was not opened before.

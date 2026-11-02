@@ -967,6 +967,9 @@
     <string name="player_episode_watched">Visto</string>
     <string name="player_loading_finding">Buscando videos</string>
     <string name="player_loading_opening">Abriendo el video</string>
+    <string name="player_loading_opening_quality">Abriendo %1$s</string>
+    <string name="player_loading_starting">Iniciando el video</string>
+    <string name="player_loading_resuming">Continuando desde %1$s</string>
     <string name="player_loading_buffering">Cargando más del video</string>
     <string name="player_settings_title">Ajustes del reproductor</string>
     <string name="player_fit">Ajustar</string>
