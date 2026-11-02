@@ -45,6 +45,7 @@ import com.sumizuri.app.data.profile.ProfileHost
 import com.sumizuri.app.feature.profile.ProfileAvatar
 import com.sumizuri.app.feature.settings.SettingsViewModel
 import com.sumizuri.app.feature.settings.look.AppIconSection
+import com.sumizuri.app.feature.settings.look.AppIconsReady
 import com.sumizuri.app.feature.settings.look.modeIcon
 import com.sumizuri.app.feature.theme.ThemePresetGrid
 import com.sumizuri.app.shared.resources.Res
@@ -132,8 +133,8 @@ internal fun LookStep() {
             }
         }
     }
-    // The icon in the launcher, where the system lets the app change it.
-    Box(Modifier.rise(3)) { AppIconSection() }
+    // The icon in the launcher, where the system lets the app change it, once the icons are ready.
+    if (AppIconsReady) Box(Modifier.rise(3)) { AppIconSection() }
     Column(Modifier.rise(4)) {
         AppSectionLabel(Res.string.settings_theme)
         ThemePresetGrid()
