@@ -31,6 +31,7 @@ import com.sumizuri.app.ui.kit.page.PageTopBar
 import com.sumizuri.app.ui.kit.page.ReadableColumn
 import com.sumizuri.app.ui.kit.page.ReadableWidth
 import com.sumizuri.app.ui.kit.page.pageScroll
+import com.sumizuri.app.ui.kit.scroll.PullRefresh
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -44,6 +45,8 @@ internal fun SettingsPageFrame(
     onReset: (suspend () -> Unit)? = null,
     // How wide the page may get on a wide window.
     maxWidth: Dp = ReadableWidth,
+    // A page that can be pulled down to load again, such as the server tabs of sync, gives what is running and what to do.
+    refresh: PageRefresh? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -74,11 +77,18 @@ internal fun SettingsPageFrame(
                     }
                 },
             )
-            Column(
-                Modifier.weight(1f).pageScroll().padding(horizontal = PageGutter, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-            ) {
-                content()
+            val list: @Composable (Modifier) -> Unit = { outer ->
+                Column(
+                    outer.pageScroll().padding(horizontal = PageGutter, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    content()
+                }
+            }
+            if (refresh == null) {
+                list(Modifier.weight(1f))
+            } else {
+                PullRefresh(refresh.running, refresh.onRefresh, Modifier.weight(1f)) { list(Modifier.fillMaxSize()) }
             }
         }
     }
@@ -95,6 +105,9 @@ internal fun SettingsPageFrame(
         )
     }
 }
+
+// What a page that can be pulled down to load again is doing, and what a pull asks for.
+internal class PageRefresh(val running: Boolean, val onRefresh: () -> Unit)
 
 // Whether the page stands beside the list of the settings on a wide window.
 internal val LocalSettingsBeside = compositionLocalOf { false }

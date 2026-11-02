@@ -500,10 +500,8 @@
     <string name="sync_recovery_file_saved">Guardado. Ten el archivo en un lugar privado.</string>
     <string name="sync_recovery_file_failed">No se pudo guardar el archivo.</string>
     <string name="sync_recovery_file_text">Clave de recuperación de la sincronización de Sumizuri\n\nServidor: %1$s\nUsuario: %2$s\nClave de recuperación: %3$s\n\nGuárdala en un lugar seguro y privado. Con esta clave y tu nombre de usuario, cualquiera puede poner una contraseña nueva en tu cuenta.\n</string>
-    <string name="sync_profile_signed_in">Sesión iniciada como %1$s en %2$s</string>
     <string name="sync_show_password">Mostrar contraseña</string>
     <string name="sync_hide_password">Ocultar contraseña</string>
-    <string name="sync_status_title">Servidor</string>
     <string name="sync_status_checking">Revisando el servidor</string>
     <string name="sync_status_online">En línea · versión %1$s</string>
     <string name="sync_status_offline">No se puede conectar con el servidor en este momento. Toca para intentar otra vez.</string>
@@ -535,7 +533,6 @@
     <string name="sync_conflict_setting">Ajuste %1$s: cambió en los dos, se quedó el valor de este dispositivo</string>
     <string name="sync_conflict_source">Fuente %1$s: cambió en los dos, se quedó la versión más nueva</string>
     <string name="sync_on_device">En este dispositivo</string>
-    <string name="sync_not_on_device">Solo en el servidor</string>
     <string name="sync_tab_account">Cuenta</string>
     <string name="sync_tab_library">Biblioteca</string>
     <string name="sync_tab_updates">Novedades</string>
@@ -627,7 +624,10 @@
     <string name="sync_when_conditions">Al sincronizar por su cuenta</string>
     <string name="sync_background_short">en segundo plano</string>
     <string name="sync_devices_hint">Todos los dispositivos con sesión iniciada en tu cuenta. Cierra la sesión de uno que perdiste o que ya no usas.</string>
-    <string name="sync_devices_count">%1$d dispositivos</string>
+    <plurals name="sync_devices_count">
+        <item quantity="one">%1$d dispositivo</item>
+        <item quantity="other">%1$d dispositivos</item>
+    </plurals>
     <string name="sync_signed_out_note">Primero inicia sesión para sincronizar.</string>
     <string name="sync_choose_title">Sincronizar este perfil con</string>
     <string name="sync_choose_hint">Tu cuenta ya tiene perfiles en el servidor. Elige con cuál debe coincidir este perfil, o crea uno nuevo abajo.</string>
@@ -636,13 +636,19 @@
     <string name="sync_choose_later">Elegir después</string>
     <string name="sync_admin_overview">Resumen</string>
     <string name="sync_admin_server_line">Versión %1$s · %2$s · iniciado %3$s</string>
-    <string name="sync_admin_people">%1$d personas</string>
+    <plurals name="sync_admin_people">
+        <item quantity="one">%1$d persona</item>
+        <item quantity="other">%1$d personas</item>
+    </plurals>
     <string name="sync_admin_people_line">administradores: %1$d · desactivados: %2$d · activos hoy: %3$d</string>
     <string name="sync_admin_signup">Registro: %1$s</string>
     <string name="sync_signup_open">abierto a todos</string>
     <string name="sync_signup_invite">se necesita código de invitación</string>
     <string name="sync_signup_closed">cerrado</string>
-    <string name="sync_admin_profiles">%1$d perfiles</string>
+    <plurals name="sync_admin_profiles">
+        <item quantity="one">%1$d perfil</item>
+        <item quantity="other">%1$d perfiles</item>
+    </plurals>
     <string name="sync_admin_stored">%1$s guardados</string>
     <string name="sync_admin_manage">Administrar</string>
     <string name="sync_admin_open_invites">%1$d disponibles</string>

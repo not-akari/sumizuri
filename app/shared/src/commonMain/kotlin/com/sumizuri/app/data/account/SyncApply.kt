@@ -73,6 +73,8 @@ class SyncApply(
             }
         }
         for (key in merged.settings.keys + local.settings.keys) {
+            // A setting of this device is never changed by a sync.
+            if (!syncsAcrossDevices(key)) continue
             val want = merged.settings[key]
             if (want == local.settings[key]) continue
             if (want == null) db.settings().delete(key) else db.settings().put(SettingEntity(key, want))

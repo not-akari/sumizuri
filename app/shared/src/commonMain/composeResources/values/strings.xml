@@ -2184,7 +2184,7 @@
     <string name="sync_server_line">%1$s · version %2$s</string>
     <string name="sync_change_server">Use another server</string>
     <string name="sync_setup_section">Set up this server</string>
-    <string name="sync_setup_help">This server has no owner yet. Enter the setup code from the server\'s log to become its owner.</string>
+    <string name="sync_setup_help">This server has no owner yet. Enter the setup code from the server's log to become its owner.</string>
     <string name="sync_setup_code">Setup code</string>
     <string name="sync_username">Username</string>
     <string name="sync_password">Password</string>
@@ -2223,7 +2223,7 @@
     <string name="sync_error_bad_address">That is not a server address.</string>
     <string name="sync_error_needs_https">This server needs an https address. Only a server on your home network can use http.</string>
     <string name="sync_error_too_new">This server is newer than the app. Update the app to use it.</string>
-    <string name="sync_error_wrong_code">That setup code is wrong. Check the server\'s log for the newest one.</string>
+    <string name="sync_error_wrong_code">That setup code is wrong. Check the server's log for the newest one.</string>
     <string name="sync_error_setup_done">This server already has an owner. Sign in instead.</string>
     <string name="sync_error_username_taken">That username is taken.</string>
     <string name="sync_error_signup_closed">This server does not take new accounts. Ask its owner to make one for you.</string>
@@ -2232,15 +2232,13 @@
     <string name="sync_error_wrong_recovery">The username or recovery key is wrong.</string>
     <string name="sync_error_bad_recovery_key">That is not a recovery key. It has 32 letters and digits.</string>
     <string name="sync_error_key_mismatch">Your account key could not be opened. Try signing in again.</string>
-    <string name="sync_error_disabled">This account was turned off by the server\'s owner.</string>
+    <string name="sync_error_disabled">This account was turned off by the server's owner.</string>
     <string name="sync_recovery_save">Save as a file</string>
     <string name="sync_recovery_file_saved">Saved. Keep the file somewhere private.</string>
     <string name="sync_recovery_file_failed">The file could not be saved.</string>
     <string name="sync_recovery_file_text">Sumizuri sync recovery key\n\nServer: %1$s\nUsername: %2$s\nRecovery key: %3$s\n\nKeep this somewhere safe and private. With this key and your username, anyone can set a new password for your account.\n</string>
-    <string name="sync_profile_signed_in">Signed in as %1$s on %2$s</string>
     <string name="sync_show_password">Show password</string>
     <string name="sync_hide_password">Hide password</string>
-    <string name="sync_status_title">Server</string>
     <string name="sync_status_checking">Checking the server</string>
     <string name="sync_status_online">Online · version %1$s</string>
     <string name="sync_status_offline">Cannot reach the server right now. Tap to try again.</string>
@@ -2249,10 +2247,19 @@
     <string name="sync_offline_retry">Try now</string>
     <string name="sync_now">Sync now</string>
     <string name="sync_running">Syncing now</string>
-    <string name="sync_last_at">Last synced %1$s</string>
-    <string name="sync_last_changes">Synced %1$s, %2$d titles changed here</string>
+    <string name="sync_last_at">Last sync: %1$s</string>
+    <string name="sync_last_changes">Last sync: %1$s · %2$d titles changed here</string>
     <string name="sync_last_never">Not synced yet</string>
     <string name="sync_last_failed">The last sync did not finish: %1$s</string>
+    <string name="sync_state_ok">Up to date</string>
+    <string name="sync_state_running">Syncing</string>
+    <string name="sync_state_failed">Sync did not finish</string>
+    <string name="sync_state_never">Not synced yet</string>
+    <string name="sync_state_unlinked">Pick a profile on the server to start syncing</string>
+    <string name="sync_notice_offline">The server could not be reached for a day. Your changes are kept and sync when it is back.</string>
+    <string name="sync_notice_channel">Sync problems</string>
+    <string name="sync_bring">Add here</string>
+    <string name="sync_tab_server">On the server</string>
     <string name="sync_details">Sync details</string>
     <string name="sync_details_hint">Past syncs, and starting over</string>
     <string name="sync_history_section">Past syncs</string>
@@ -2272,7 +2279,6 @@
     <string name="sync_conflict_setting">Setting %1$s: changed on both, kept this device's value</string>
     <string name="sync_conflict_source">Source %1$s: changed on both, kept the newer version</string>
     <string name="sync_on_device">On this device</string>
-    <string name="sync_not_on_device">Server only</string>
     <string name="sync_tab_account">Account</string>
     <string name="sync_tab_library">Library</string>
     <string name="sync_tab_updates">Updates</string>
@@ -2300,8 +2306,8 @@
     <string name="sync_what_shelves_hint">Shelves, which title is on which, and their order</string>
     <string name="sync_what_sources">Sources</string>
     <string name="sync_what_sources_hint">Installed sources, repos and their settings</string>
-    <string name="sync_what_settings">Settings and themes</string>
-    <string name="sync_what_settings_hint">Reader and app settings, looks and custom themes</string>
+    <string name="sync_what_settings">Reading settings</string>
+    <string name="sync_what_settings_hint">How you read and watch, and which titles the update check skips. The look, layout, theme, downloads and screen settings stay on each device.</string>
     <string name="sync_every">Sync</string>
     <string name="sync_every_manual">Only when I ask</string>
     <string name="sync_every_minutes">Every %1$d minutes</string>
@@ -2339,14 +2345,14 @@
     <string name="sync_copy_section">On the server</string>
     <string name="sync_copy_none">Nothing is on the server for this library yet. Send it from here.</string>
     <string name="sync_copy_no_library">This profile does not sync with a profile on the server yet. Pick or make one in Account.</string>
-    <string name="sync_copy_line">%1$d titles · changed %2$s</string>
+    <string name="sync_copy_line">%1$d titles · last change: %2$s</string>
     <string name="sync_copy_upload">Sync now</string>
     <string name="sync_copy_refresh">Fetch again</string>
     <string name="sync_copy_packing">Packing %1$d of %2$d titles</string>
     <string name="sync_library_title_line">%1$s · read %2$d of %3$d</string>
     <string name="sync_library_more">Showing %1$d of %2$d. Search to find the rest.</string>
-    <string name="sync_updates_none">No unread new chapters in the server\'s copy.</string>
-    <string name="sync_history_none">No reading history in the server\'s copy.</string>
+    <string name="sync_updates_none">No unread new chapters in the server's copy.</string>
+    <string name="sync_history_none">No reading history in the server's copy.</string>
     <string name="sync_chapter_line">%1$s · %2$s</string>
     <string name="sync_chapter_number">Chapter %1$s</string>
     <string name="sync_error_no_library">Pick or make a profile on the server in Account first.</string>
@@ -2364,7 +2370,10 @@
     <string name="sync_when_conditions">When syncing on its own</string>
     <string name="sync_background_short">in the background</string>
     <string name="sync_devices_hint">Every device signed in to your account. Sign out one you lost or no longer use.</string>
-    <string name="sync_devices_count">%1$d devices</string>
+    <plurals name="sync_devices_count">
+        <item quantity="one">%1$d device</item>
+        <item quantity="other">%1$d devices</item>
+    </plurals>
     <string name="sync_signed_out_note">Sign in to sync first.</string>
     <string name="sync_choose_title">Sync this profile with</string>
     <string name="sync_choose_hint">Your account already has profiles on the server. Pick the one this profile should match, or make a new one below.</string>
@@ -2373,13 +2382,19 @@
     <string name="sync_choose_later">Choose later</string>
     <string name="sync_admin_overview">Overview</string>
     <string name="sync_admin_server_line">Version %1$s · %2$s · started %3$s</string>
-    <string name="sync_admin_people">%1$d people</string>
+    <plurals name="sync_admin_people">
+        <item quantity="one">%1$d person</item>
+        <item quantity="other">%1$d people</item>
+    </plurals>
     <string name="sync_admin_people_line">admins: %1$d · turned off: %2$d · active today: %3$d</string>
     <string name="sync_admin_signup">Sign up: %1$s</string>
     <string name="sync_signup_open">open to anyone</string>
     <string name="sync_signup_invite">invite code needed</string>
     <string name="sync_signup_closed">closed</string>
-    <string name="sync_admin_profiles">%1$d profiles</string>
+    <plurals name="sync_admin_profiles">
+        <item quantity="one">%1$d profile</item>
+        <item quantity="other">%1$d profiles</item>
+    </plurals>
     <string name="sync_admin_stored">%1$s stored</string>
     <string name="sync_admin_manage">Manage</string>
     <string name="sync_admin_open_invites">%1$d open</string>
@@ -2400,7 +2415,7 @@
     <string name="sync_invites_none">No invite codes yet.</string>
     <string name="sync_error_bad_answer">The server sent an answer the app did not understand. The app and the server may be different versions.</string>
     <string name="sync_server_settings">Server settings</string>
-    <string name="sync_server_settings_hint">Change how this server works. Settings given in the server\'s .env are locked here.</string>
+    <string name="sync_server_settings_hint">Change how this server works. Settings given in the server's .env are locked here.</string>
     <string name="sync_setting_pinned">Set in the server file, so it cannot be changed here.</string>
     <string name="sync_setting_save">Save</string>
     <string name="sync_setting_range">From %1$d to %2$d. Default %3$s.</string>

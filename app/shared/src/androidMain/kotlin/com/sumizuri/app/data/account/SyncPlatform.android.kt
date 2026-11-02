@@ -59,6 +59,10 @@ actual object SyncPlatform {
         work.enqueueUniquePeriodicWork(WorkName, ExistingPeriodicWorkPolicy.UPDATE, request)
         AppLog.info("sync", "sync while the app is closed every $minutes minutes")
     }
+
+    actual suspend fun showFailure(title: String, text: String) = showSyncFailure(title, text)
+
+    actual fun clearFailure() = clearSyncFailure()
 }
 
 // Syncs the open profile while the app is closed, as planned. A sync that goes on, such as a first one of a big library, shows a quiet notice with how far it got, which Android needs to let long work finish.

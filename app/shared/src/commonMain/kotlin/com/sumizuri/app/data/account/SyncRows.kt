@@ -7,11 +7,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlin.time.Instant
 
 // The kinds of row a library is split into.
 internal object RowKind {
@@ -154,7 +156,8 @@ internal object SyncRowCodec {
                 RowKind.Source -> row.name?.let { id -> row.version?.let { sources[id] = it } ?: sources.remove(id) }
             }
         }
-        return SyncState(titles, settings, sources)
+        // Settings of a device that an older version sent are left out, so they never reach this one.
+        return SyncState(titles, settings.filterKeys(::syncsAcrossDevices), sources)
     }
 
     // The rows to send so the server holds what this device wants: the ones that differ, in the parts that sync. A part that does not sync is never sent, and a title row then keeps the shelves the server has.
@@ -225,9 +228,7 @@ internal object SyncRowCodec {
                         "chapters" to
                             JsonArray(
                                 chapters[row.titleKey].orEmpty().map {
-                                    JsonObject(
-                                        it.entry!! + ("url" to JsonPrimitive(it.url)),
-                                    )
+                                    JsonObject(it.entry!! + ("url" to JsonPrimitive(it.url)) + markFields(it.mark))
                                 },
                             )
                         ),
@@ -248,5 +249,16 @@ internal object SyncRowCodec {
             },
         )
         return readSumizuriBackup(root.toString())
+    }
+
+    // The read state of a chapter, kept in its mark and not in its entry, in the words of a backup, so the copy shows what was read.
+    private fun markFields(mark: ChapterMark?): Map<String, JsonElement> {
+        if (mark == null) return emptyMap()
+        return buildMap {
+            put("consumed", JsonPrimitive(mark.read))
+            mark.readAt?.let { put("consumedAt", JsonPrimitive(Instant.fromEpochMilliseconds(it).toString())) }
+            mark.position?.takeIf { !mark.read }?.let { put("progressPosition", JsonPrimitive(it)) }
+            put("bookmarked", JsonPrimitive(mark.bookmarked))
+        }
     }
 }

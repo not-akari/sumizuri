@@ -62,6 +62,7 @@ import com.sumizuri.app.ui.text.agoText
 import com.sumizuri.sync.core.Role
 import com.sumizuri.sync.core.UserChange
 import com.sumizuri.sync.core.UserEntry
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 // Everyone on the server. Tapping a person opens their page.
@@ -111,10 +112,7 @@ internal fun SyncAdminUserRoute(onBack: () -> Unit) {
                 }
                 row {
                     SettingRow(
-                        stringResource(
-                            Res.string.sync_admin_profiles,
-                            detail.profiles,
-                        ),
+                        pluralStringResource(Res.plurals.sync_admin_profiles, detail.profiles, detail.profiles),
                         subtitle = stringResource(
                             Res.string.sync_admin_stored,
                             sizeText(detail.storedBytes),

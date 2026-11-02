@@ -16,8 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.feature.sync.Field
@@ -307,12 +305,7 @@ internal fun RecoverySection(step: SyncStep.SaveRecovery, onSaved: () -> Unit) {
     SettingsSection(Res.string.sync_recovery_title, Res.string.sync_recovery_body) {
         padded {
             Form {
-                Text(
-                    step.recoveryKey,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                KeyGroups(step.recoveryKey)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     InkOutlinedButton(
                         { copy(step.recoveryKey) },

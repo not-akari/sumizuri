@@ -116,10 +116,11 @@ class LibrarySyncer(
         if (settings.flag(SettingKey.SyncWifiOnly, false).first() && canTellNetwork && !onUnmeteredNetwork()) return
         try {
             sync()
+            SyncNotices.worked(settings)
         } catch (error: CancellationException) {
             throw error
-        } catch (_: SyncProblem) {
-            // The page shows how the last sync went, so a sync the app started by itself fails quietly.
+        } catch (problem: SyncProblem) {
+            SyncNotices.failed(settings, problem)
         }
     }
 

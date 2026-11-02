@@ -22,32 +22,37 @@ actual object UpdatePlatform {
 
     actual fun plan(plan: UpdatePlan) = Unit
 
-    // Shows the notice with an icon put in the tray of the system for a short while, since that is how Java shows one.
     actual suspend fun showNews(news: List<ChapterNews>) {
-        if (news.isEmpty() || !SystemTray.isSupported()) return
+        if (news.isEmpty()) return
         val (head, lines) = newsWords(news, lines = 3)
-        val image =
-            runCatching { ImageIO.read(Res.readBytes("drawable/app_icon.png").inputStream()) }.getOrNull()
-                ?: BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)
-        withContext(Dispatchers.IO) {
-            val tray = SystemTray.getSystemTray()
-            val icon = TrayIcon(image, "Sumizuri").apply {
-                isImageAutoSize = true
-                // A click on the notice opens the updates in the window, brought to the front.
-                addActionListener {
-                    AppLinks.open("${AppLinks.Scheme}://updates")
-                    DesktopFront.bring()
-                }
+        // A click on the notice opens the updates in the window, brought to the front.
+        showTrayNotice(head, lines.joinToString("\n")) { AppLinks.open("${AppLinks.Scheme}://updates") }
+    }
+}
+
+// Shows a notice with an icon put in the tray of the system for a short while, since that is how Java shows one. A click brings the window to the front after doing what it is given.
+internal suspend fun showTrayNotice(head: String, text: String, onClick: () -> Unit = {}) {
+    if (!SystemTray.isSupported()) return
+    val image =
+        runCatching { ImageIO.read(Res.readBytes("drawable/app_icon.png").inputStream()) }.getOrNull()
+            ?: BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)
+    withContext(Dispatchers.IO) {
+        val tray = SystemTray.getSystemTray()
+        val icon = TrayIcon(image, "Sumizuri").apply {
+            isImageAutoSize = true
+            addActionListener {
+                onClick()
+                DesktopFront.bring()
             }
-            try {
-                tray.add(icon)
-                icon.displayMessage(head, lines.joinToString("\n"), TrayIcon.MessageType.INFO)
-                delay(TrayMs)
-            } catch (error: Exception) {
-                AppLog.warn("updates", "the notice could not be shown, ${error.message}")
-            } finally {
-                runCatching { tray.remove(icon) }
-            }
+        }
+        try {
+            tray.add(icon)
+            icon.displayMessage(head, text, TrayIcon.MessageType.INFO)
+            delay(TrayMs)
+        } catch (error: Exception) {
+            AppLog.warn("updates", "the notice could not be shown, ${error.message}")
+        } finally {
+            runCatching { tray.remove(icon) }
         }
     }
 }

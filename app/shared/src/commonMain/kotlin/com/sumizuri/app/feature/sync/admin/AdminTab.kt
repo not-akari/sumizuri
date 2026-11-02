@@ -45,6 +45,7 @@ import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.text.agoText
 import com.sumizuri.sync.core.Role
 import com.sumizuri.sync.core.SignupMode
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 // The Admin tab: the server at a glance, then rows that open the pages where the people and the invite codes are managed.
@@ -69,10 +70,7 @@ internal fun AdminTab(home: SyncHome, onOpen: (SettingsTarget) -> Unit) {
             }
             row {
                 SettingRow(
-                    stringResource(
-                        Res.string.sync_admin_people,
-                        overview.users,
-                    ),
+                    pluralStringResource(Res.plurals.sync_admin_people, overview.users, overview.users),
                     subtitle = stringResource(
                         Res.string.sync_admin_people_line,
                         overview.admins,
@@ -86,10 +84,7 @@ internal fun AdminTab(home: SyncHome, onOpen: (SettingsTarget) -> Unit) {
             }
             row {
                 SettingRow(
-                    stringResource(
-                        Res.string.sync_devices_count,
-                        overview.devices,
-                    ),
+                    pluralStringResource(Res.plurals.sync_devices_count, overview.devices, overview.devices),
                     subtitle = stringResource(
                         Res.string.sync_admin_signup,
                         stringResource(signupLabel(overview.signupMode)),
@@ -101,10 +96,7 @@ internal fun AdminTab(home: SyncHome, onOpen: (SettingsTarget) -> Unit) {
             }
             row {
                 SettingRow(
-                    stringResource(
-                        Res.string.sync_admin_profiles,
-                        overview.profiles,
-                    ),
+                    pluralStringResource(Res.plurals.sync_admin_profiles, overview.profiles, overview.profiles),
                     subtitle = stringResource(Res.string.sync_admin_stored, sizeText(overview.storedBytes)),
                     leading = {
                         SettingIcon(Icons.Outlined.Inventory2)
@@ -120,7 +112,7 @@ internal fun AdminTab(home: SyncHome, onOpen: (SettingsTarget) -> Unit) {
                 stringResource(Res.string.sync_people_section),
                 overview
                     ?.let {
-                        stringResource(Res.string.sync_admin_people, it.users)
+                        pluralStringResource(Res.plurals.sync_admin_people, it.users, it.users)
                     }.orEmpty(),
                 { onOpen(SettingsTarget.SyncAdminPeople) },
             )

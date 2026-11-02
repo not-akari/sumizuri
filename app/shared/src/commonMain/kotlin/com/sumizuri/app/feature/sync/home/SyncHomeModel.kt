@@ -12,25 +12,19 @@ import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.settings.SettingsRepository
 import com.sumizuri.app.feature.sync.data.ServerCopy
 import com.sumizuri.app.feature.sync.signin.SyncViewModel
-import com.sumizuri.sync.core.AccountDelete
-import com.sumizuri.sync.core.AccountKeys
 import com.sumizuri.sync.core.ErrorCodes
 import com.sumizuri.sync.core.LibraryKeys
 import com.sumizuri.sync.core.OpenLibrary
-import com.sumizuri.sync.core.PasswordChange
 import com.sumizuri.sync.core.Role
 import com.sumizuri.sync.core.SyncCrypto
-import com.sumizuri.sync.core.TwoStepConfirm
-import com.sumizuri.sync.core.TwoStepOff
-import com.sumizuri.sync.core.TwoStepSecret
-import com.sumizuri.sync.core.TwoStepStart
 import com.sumizuri.sync.core.UserChange
-import com.sumizuri.sync.core.UsernameChange
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,6 +59,19 @@ class SyncHomeModel(
     init {
         checkServer()
         load(SyncTab.Account)
+    }
+
+    // Any sync that ends, by the button, the timer or the first one after signing in, makes the copy the tabs show old, so the list of the server is read again, and the copy too where a data tab is open.
+    init {
+        viewModelScope.launch {
+            syncer.run.drop(1).filterIsInstance<SyncRun.Done>().collect {
+                mutable.update { state -> state.copy(copy = null, copyChecked = false) }
+                work(quiet = true) {
+                    fetchLibraries()
+                    if (mutable.value.tab != SyncTab.Account && mutable.value.tab != SyncTab.Admin) loadCopy()
+                }
+            }
+        }
     }
 
     fun open(tab: SyncTab) {
@@ -153,12 +160,10 @@ class SyncHomeModel(
         fetchLibraries()
     }
 
-    // Syncs this profile with its copy on the server now, by the same merge the app runs by itself, then shows the copy as it is after.
+    // Syncs this profile with its copy on the server now, by the same merge the app runs by itself. The copy the tabs show is fetched again when the sync ends.
     fun syncNow() = work {
         syncer.sync()
-        mutable.update { it.copy(copy = null, copyChecked = false) }
         fetchLibraries()
-        if (mutable.value.tab != SyncTab.Account && mutable.value.tab != SyncTab.Admin) loadCopy()
     }
 
     // Fetches the server's copy again, such as after another device sent a newer one.
@@ -297,9 +302,9 @@ class SyncHomeModel(
                 fetchLibraries()
             }
 
-            // The three tabs of data share one copy, fetched once and kept while the page is open.
+            // The three tabs of data share one copy, fetched once and kept while the page is open. The list of the server is read again first, as a sync since may have changed it.
             SyncTab.Library, SyncTab.Updates, SyncTab.History -> if (!mutable.value.copyChecked) {
-                if (mutable.value.libraries == null) fetchLibraries()
+                fetchLibraries()
                 loadCopy()
             }
 
