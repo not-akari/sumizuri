@@ -8,14 +8,21 @@ import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.settings.ThemeRepository
 import com.sumizuri.app.ui.theme.spec.AppThemeSpec
 import com.sumizuri.app.ui.theme.spec.ThemePresets
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 // The theme in use and the themes a person made, with the ways to choose, keep, copy and remove them.
 class ThemeViewModel(private val repository: ThemeRepository) : ViewModel() {
-    val active: StateFlow<AppThemeSpec> = repository.active.stateIn(
+    // Whether the theme in use has been read, so the first screen never shows the default theme first.
+    private val activeRead = MutableStateFlow(false)
+    val read: StateFlow<Boolean> = activeRead.asStateFlow()
+
+    val active: StateFlow<AppThemeSpec> = repository.active.onEach { activeRead.value = true }.stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
         ThemePresets.first(),

@@ -45,7 +45,8 @@ private const val TitleLimit = 300
 // What the server holds of this profile's library and when it came, with the buttons to send it again or fetch it again.
 @Composable
 private fun CopyHeader(home: SyncHome, onUpload: () -> Unit, onRefresh: () -> Unit) {
-    SettingsSection(Res.string.sync_copy_section) {
+    // The tab above already says this is the server, so the card has no heading of its own.
+    SettingsSection {
         val linked = home.libraries != null
         val copy = home.copy
         row {

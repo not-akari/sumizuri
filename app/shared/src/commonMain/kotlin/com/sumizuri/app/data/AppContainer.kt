@@ -5,6 +5,7 @@ import androidx.room3.RoomDatabase
 import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.data.account.LibrarySyncer
 import com.sumizuri.app.data.account.SyncApply
+import com.sumizuri.app.data.account.TitleFromServer
 import com.sumizuri.app.data.appupdate.AppUpdater
 import com.sumizuri.app.data.backup.AutoBackups
 import com.sumizuri.app.data.backup.BackupRestorer
@@ -141,6 +142,9 @@ class AppContainer(
             databasePath,
             work,
         )
+
+    // Puts a title the server has into the library of this device, from the pages of the sync.
+    val titleFromServer = TitleFromServer(database, restorer, librarySync)
 
     init {
         // Reading asks for a sync a little later, which waits while the reading goes on.

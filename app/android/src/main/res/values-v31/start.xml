@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From Android 12 the system draws the splash screen, with the icon the person picked for the launcher, so only its background is set here. -->
+    <style name="Theme.Sumizuri.Start" parent="Theme.Sumizuri">
+        <item name="android:windowSplashScreenBackground">@color/start_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.Sumizuri</item>
+    </style>
+    <!-- The splash screen Android 13 and newer keeps for the next start, when the app is darker or lighter than the system. -->
+    <style name="Theme.Sumizuri.Start.Light">
+        <item name="android:windowSplashScreenBackground">@color/start_light</item>
+    </style>
+    <style name="Theme.Sumizuri.Start.Dark">
+        <item name="android:windowSplashScreenBackground">@color/start_dark</item>
+    </style>
+</resources>

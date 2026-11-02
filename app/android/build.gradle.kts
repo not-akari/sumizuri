@@ -17,6 +17,8 @@ dependencies {
     implementation(project(":app:shared"))
 
     implementation(libs.androidx.activity.compose)
+    // The splash screen of Android, kept up until the first page has drawn in the colors of the person.
+    implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)

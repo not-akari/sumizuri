@@ -2,8 +2,9 @@
 name: Sumizuri
 options:
   bundleIdPrefix: com.sumizuri
+  # The oldest iOS the app runs on, which is the oldest the Kotlin code is built for.
   deploymentTarget:
-    iOS: "16.0"
+    iOS: "15.0"
   createIntermediateGroups: true
 settings:
   base:

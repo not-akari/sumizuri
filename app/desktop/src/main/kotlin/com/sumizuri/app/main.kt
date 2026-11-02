@@ -112,6 +112,7 @@ fun main(args: Array<String>) {
     val runtime = DesktopBrowserRuntime(File(folder, "browser"))
     // The pages that show a site inside the app use the same browser, and so the same cookies, as the sources.
     DesktopWeb.runtime = runtime
+    StartColor.load(folder)
     if (!AppBuild.isDebug) {
         SingleInstance.listen(folder) { later ->
             AppLinks.open(later)
@@ -152,6 +153,7 @@ fun main(args: Array<String>) {
             val forward by Forward.collectAsState()
             LaunchedEffect(forward) { if (forward > 0) toFront(window, state) }
             LaunchedEffect(window) { DesktopFront.bring = { toFront(window, state) } }
+            LaunchedEffect(Unit) { StartColor.keep(folder) }
             // A window put away lets go of the work Skia keeps for drawing, which it makes again when the window comes back.
             LaunchedEffect(state.isMinimized) { if (state.isMinimized) Graphics.purgeAllCaches() }
             val maximized = state.placement == WindowPlacement.Maximized

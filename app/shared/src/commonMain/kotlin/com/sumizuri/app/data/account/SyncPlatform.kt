@@ -7,4 +7,9 @@ data class SyncPlan(val minutes: Int, val inBackground: Boolean, val wifiOnly: B
 expect object SyncPlatform {
     // Plans the sync for while the app is closed, or stops it when it is off or the minutes are zero.
     fun plan(plan: SyncPlan)
+
+    // Shows a notice that a sync did not finish, which opens the app when tapped, and takes it away again.
+    suspend fun showFailure(title: String, text: String)
+
+    fun clearFailure()
 }

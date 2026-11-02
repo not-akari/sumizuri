@@ -26,6 +26,7 @@
                 android:launchMode="singleTop"
                 android:supportsPictureInPicture="true"
                 android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|keyboard|navigation"
+                android:theme="@style/Theme.Sumizuri.Start"
                 android:name=".MainActivity">
             <!-- An Open in Sumizuri button on the page of a repo, which asks to add that repo. -->
             <intent-filter>

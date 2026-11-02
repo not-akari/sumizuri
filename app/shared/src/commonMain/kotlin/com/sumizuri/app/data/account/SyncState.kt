@@ -72,7 +72,11 @@ fun stateOf(backup: ImportedBackup): SyncState = SyncState(
                     }.toMap(),
             )
         }.toMap(),
-    backup.extras?.settings.orEmpty(),
+    // Only the settings that go across devices take part, so the look and the screen of each device stay its own.
+    backup.extras
+        ?.settings
+        .orEmpty()
+        .filterKeys(::syncsAcrossDevices),
     backup.extras
         ?.sources
         .orEmpty()

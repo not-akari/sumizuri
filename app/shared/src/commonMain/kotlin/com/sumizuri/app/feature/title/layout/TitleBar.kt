@@ -24,16 +24,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.back
 import com.sumizuri.app.ui.kit.page.PageGutter
@@ -59,7 +61,7 @@ internal fun titleListPadding(): PaddingValues {
     )
 }
 
-// The back arrow over the top of the page. Over the cover it sits on a round shade, and as the page scrolls up the bar turns into a plain strip and the name of the title shows in it. Progress from 0 to 1 tells how far.
+// The back arrow over the top of the page. Over the cover it sits on a round shade, and as the page scrolls up the bar turns into a plain strip and the name of the title shows in it. A soft bar has no strip, as the list fades out under it. Progress from 0 to 1 tells how far.
 @Composable
 internal fun TitleBar(
     title: String,
@@ -79,7 +81,7 @@ internal fun TitleBar(
     Row(
         modifier
             .fillMaxWidth()
-            .then(if (soft) Modifier.softStrip(page, progress) else Modifier.background(page.copy(alpha = progress)))
+            .then(if (soft) Modifier else Modifier.background(page.copy(alpha = progress)))
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -99,31 +101,25 @@ internal fun TitleBar(
     }
 }
 
-// How far below the bar a soft strip fades out.
-private val SoftReach = 28.dp
+// How far above the bottom of the bar the list starts to fade and how far below it the list is whole again, at rest and once scrolled.
+private val FadeAbove = 28.dp
+private val FadeBelow = 4.dp
+private val ScrolledAbove = 0.dp
+private val ScrolledBelow = 28.dp
 
-// A strip behind the bar that fades out at both ends and below it, so it lies over art without a hard edge.
-private fun Modifier.softStrip(page: Color, progress: Float): Modifier = drawBehind {
-    if (progress <= 0f) return@drawBehind
-    val reach = SoftReach.toPx()
-    val tall = size.height + reach
-    val shown = page.copy(alpha = 0.92f * progress)
-    val clear = page.copy(alpha = 0f)
-    // Rows down the strip, each faded toward both ends, and fainter the further below the bar.
-    val rows = 8
-    for (row in 0 until rows) {
-        val top = tall * row / rows
-        val below = ((top - size.height) / reach).coerceIn(0f, 1f)
-        val strength = 1f - below * below * (3f - 2f * below)
+// Fades a list out as it slides up under a soft bar, so the art behind the page shows through and the bar needs no strip of its own. Once scrolled, the list is clear under the whole bar, and at rest the heading stays sharp.
+internal fun Modifier.fadeUnderBar(room: Dp, progress: () -> Float): Modifier = this
+    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+    .drawWithContent {
+        drawContent()
         drawRect(
-            Brush.horizontalGradient(
-                0f to clear,
-                0.08f to shown.copy(alpha = shown.alpha * strength),
-                0.75f to shown.copy(alpha = shown.alpha * strength),
-                1f to clear,
+            Brush.verticalGradient(
+                0f to Color.Transparent,
+                0.5f to Color.Black.copy(alpha = 0.4f),
+                1f to Color.Black,
+                startY = (room - lerp(FadeAbove, ScrolledAbove, progress())).toPx(),
+                endY = (room + lerp(FadeBelow, ScrolledBelow, progress())).toPx(),
             ),
-            topLeft = Offset(0f, top),
-            size = Size(size.width, tall / rows + 1f),
+            blendMode = BlendMode.DstIn,
         )
     }
-}

@@ -8,10 +8,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.profile.LocalProfiles
+import com.sumizuri.app.feature.settings.PageRefresh
 import com.sumizuri.app.feature.settings.SettingsPageFrame
 import com.sumizuri.app.feature.settings.SettingsTarget
+import com.sumizuri.app.feature.sync.account.rememberSyncHome
 import com.sumizuri.app.feature.sync.home.SyncHomeView
 import com.sumizuri.app.feature.sync.home.SyncPageWidth
+import com.sumizuri.app.feature.sync.home.SyncTab
 import com.sumizuri.app.feature.sync.signin.AddressSection
 import com.sumizuri.app.feature.sync.signin.ChooseProfileSection
 import com.sumizuri.app.feature.sync.signin.CreateSection
@@ -36,12 +39,19 @@ fun SyncRoute(onBack: () -> Unit, onOpen: (SettingsTarget) -> Unit) {
     val profileName = remember(profiles) { profiles.registry.state.value.active.name }
     val model = viewModel { SyncViewModel(profiles.syncAccounts, container.settings, profileName) }
     val ui by model.ui.collectAsStateWithLifecycle()
-    // Signed in, the page uses more of a wide window for its tabs.
+    // Signed in, the page uses more of a wide window for its tabs, and the tabs of what is on the server can be pulled down to fetch it again.
+    val connected = ui.step as? SyncStep.Connected
+    val refresh = connected?.let { step ->
+        val home = rememberSyncHome(step.account)
+        val state by home.home.collectAsStateWithLifecycle()
+        PageRefresh(state.busy, home::refreshCopy).takeIf { state.tab != SyncTab.Account && state.tab != SyncTab.Admin }
+    }
     SettingsPageFrame(
         Res.string.sync_title,
         onBack,
         subtitle = Res.string.sync_hint,
-        maxWidth = if (ui.step is SyncStep.Connected) SyncPageWidth else ReadableWidth,
+        maxWidth = if (connected != null) SyncPageWidth else ReadableWidth,
+        refresh = refresh,
     ) {
         when (val step = ui.step) {
             SyncStep.Address -> AddressSection(ui.busy, model::connect)

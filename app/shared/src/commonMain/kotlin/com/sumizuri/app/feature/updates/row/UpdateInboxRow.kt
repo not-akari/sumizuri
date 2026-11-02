@@ -50,15 +50,24 @@ internal fun UpdateInboxRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text(
-                below,
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            // The time sits after the line under the name, so a narrow phone keeps the room for the name.
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    below,
+                    Modifier.weight(1f, fill = false),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    "  ·  " + agoText(item.at),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = colors.outline,
+                    maxLines = 1,
+                )
+            }
         }
-        Text(agoText(item.at), style = MaterialTheme.typography.labelMedium, color = colors.outline)
         FeedActionButton(action, onAction)
     }
 }

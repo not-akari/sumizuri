@@ -64,15 +64,22 @@ internal fun UpdateTimelineRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            // The time goes with the chips under the name, so a narrow phone keeps the room for the name.
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
+                itemVerticalAlignment = Alignment.CenterVertically,
             ) {
                 FeedChip(feedSpanText(item.title.kind, item.numbers, null))
                 if (item.count > 1) FeedChip(unitCount(item.title.kind, item.count), quiet = true)
+                Text(
+                    agoText(item.at),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = colors.outline,
+                    maxLines = 1,
+                )
             }
         }
-        Text(agoText(item.at), style = MaterialTheme.typography.labelMedium, color = colors.outline)
         FeedActionButton(action, onAction)
     }
 }

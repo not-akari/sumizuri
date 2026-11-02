@@ -44,6 +44,7 @@ import coil3.annotation.DelicateCoilApi
 import coil3.compose.LocalPlatformContext
 import com.sumizuri.app.core.perf.PerfOverlay
 import com.sumizuri.app.core.perf.PerfWatch
+import com.sumizuri.app.core.perf.reportActivity
 import com.sumizuri.app.data.AppContainer
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.model.controls.AppShortcut
@@ -54,16 +55,16 @@ import com.sumizuri.app.data.profile.ProfileHost
 import com.sumizuri.app.data.profile.ProfileStoreOwner
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.text.nowMillis
-import com.sumizuri.app.feature.library.continueChapterOf
-import com.sumizuri.app.feature.sync.HandoffNotice
 import com.sumizuri.app.feature.appupdate.AppUpdateNotices
+import com.sumizuri.app.feature.library.continueChapterOf
 import com.sumizuri.app.feature.onboarding.OnboardingScreen
 import com.sumizuri.app.feature.settings.SettingsTarget
 import com.sumizuri.app.feature.settings.SettingsViewModel
 import com.sumizuri.app.feature.settings.controls.ControlsViewModel
 import com.sumizuri.app.feature.settings.system.perfDetails
-import com.sumizuri.app.feature.theme.ThemeViewModel
+import com.sumizuri.app.feature.sync.HandoffNotice
 import com.sumizuri.app.feature.theme.ThemeLinkDialog
+import com.sumizuri.app.feature.theme.ThemeViewModel
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.navigation.Destination
 import com.sumizuri.app.navigation.KeptTabs
@@ -80,6 +81,9 @@ import com.sumizuri.app.ui.UiRefreshRate
 import com.sumizuri.app.ui.controls.LocalAppGestures
 import com.sumizuri.app.ui.controls.LocalReaderControls
 import com.sumizuri.app.ui.controls.appShortcuts
+import com.sumizuri.app.ui.kit.cover.CoverFlight
+import com.sumizuri.app.ui.kit.cover.CoverFlightLayer
+import com.sumizuri.app.ui.kit.cover.LocalCoverFlight
 import com.sumizuri.app.ui.kit.image.PageCache
 import com.sumizuri.app.ui.kit.image.PageImages
 import com.sumizuri.app.ui.kit.image.coverImageLoader
@@ -92,18 +96,14 @@ import com.sumizuri.app.ui.motion.LocalPageMotion
 import com.sumizuri.app.ui.motion.LocalStagger
 import com.sumizuri.app.ui.motion.rememberMotionShift
 import com.sumizuri.app.ui.security.AppGuard
-import com.sumizuri.app.ui.kit.cover.CoverFlight
-import com.sumizuri.app.ui.kit.cover.CoverFlightLayer
-import com.sumizuri.app.ui.kit.cover.LocalCoverFlight
-import com.sumizuri.app.ui.theme.background.LocalBackdropCovers
-import com.sumizuri.app.ui.theme.spec.BackgroundStyle
 import com.sumizuri.app.ui.theme.LocalCompactLists
 import com.sumizuri.app.ui.theme.LocalReduceMotion
 import com.sumizuri.app.ui.theme.SumizuriTheme
-import com.sumizuri.app.core.perf.reportActivity
 import com.sumizuri.app.ui.theme.background.BackdropSlot
+import com.sumizuri.app.ui.theme.background.LocalBackdropCovers
 import com.sumizuri.app.ui.theme.background.LocalBackdropSlot
 import com.sumizuri.app.ui.theme.background.ambientBackground
+import com.sumizuri.app.ui.theme.spec.BackgroundStyle
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -161,10 +161,13 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
     val themeMode by settings.themeMode.collectAsStateWithLifecycle()
     val themes = viewModel { ThemeViewModel(container.themes) }
     val theme by themes.active.collectAsStateWithLifecycle()
+    val themeRead by themes.read.collectAsStateWithLifecycle()
     val compactLists by settings.compactLists.collectAsStateWithLifecycle()
     val reduceMotion by settings.reduceMotion.collectAsStateWithLifecycle()
     val oled by settings.oled.collectAsStateWithLifecycle()
     val oledGlow by settings.oledGlow.collectAsStateWithLifecycle()
+    // The theme starts once the look of the person is read, so the default colors never show and fade into theirs.
+    val lookRead by settings.lookRead.collectAsStateWithLifecycle()
     val navStyle by settings.navStyle.collectAsStateWithLifecycle()
     val navLabels by settings.navLabels.collectAsStateWithLifecycle()
     val navSwipe by settings.navSwipe.collectAsStateWithLifecycle()
@@ -285,10 +288,13 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
             // A cover tapped in the library flies to its place on the page of the title.
             val flight = remember { CoverFlight() }
             CompositionLocalProvider(LocalOpenSite provides openSite, LocalPageMotion provides pageMotion, LocalStagger provides stagger, LocalCoverFlight provides flight) {
-                SumizuriTheme(themeMode, theme, oled, oledGlow) {
+                if (!lookRead || !themeRead) StartBackdrop()
+                if (lookRead && themeRead) SumizuriTheme(themeMode, theme, oled, oledGlow) {
                     val tabMs = pageMotion.pageMs()
                     val shift = rememberMotionShift()
                     val locked by container.lock.locked.collectAsStateWithLifecycle()
+                    // The splash screen of the phone stays until the lock or the first page has drawn.
+                    StartShown(locked == true || (locked == false && place.restored && onboardingDone != null))
                     // The background under the tabs, which a page hides once it covers the whole window.
                     val rootSlot = remember { BackdropSlot() }
                     CompositionLocalProvider(LocalBackdropSlot provides rootSlot) {

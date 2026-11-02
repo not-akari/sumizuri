@@ -179,7 +179,7 @@ internal fun PageRow(
 
 // A small rounded square with an icon in it, as the rows of the Flutter settings have, or only the icon when the theme has no tiles.
 @Composable
-private fun IconTile(icon: ImageVector) {
+internal fun IconTile(icon: ImageVector) {
     val colors = MaterialTheme.colorScheme
     val theme = LocalThemeSpec.current
     if (!theme.options.components.listIconTiles) {

@@ -25,8 +25,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sumizuri.app.data.LocalAppContainer
+import com.sumizuri.app.data.account.LibrarySyncer
+import com.sumizuri.app.data.account.SyncRun
 import com.sumizuri.app.data.profile.LocalProfiles
 import com.sumizuri.app.data.profile.Profile
+import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.feature.profile.blocks.BlockEnv
 import com.sumizuri.app.feature.profile.blocks.BlockGrid
 import com.sumizuri.app.feature.profile.blocks.LayoutsDialog
@@ -38,13 +42,19 @@ import com.sumizuri.app.shared.resources.nav_settings
 import com.sumizuri.app.shared.resources.profile_title
 import com.sumizuri.app.shared.resources.settings_missing_sources
 import com.sumizuri.app.shared.resources.sync_hint
-import com.sumizuri.app.shared.resources.sync_profile_signed_in
+import com.sumizuri.app.shared.resources.sync_last_at
+import com.sumizuri.app.shared.resources.sync_state_failed
+import com.sumizuri.app.shared.resources.sync_state_never
+import com.sumizuri.app.shared.resources.sync_state_ok
+import com.sumizuri.app.shared.resources.sync_state_running
+import com.sumizuri.app.shared.resources.sync_state_unlinked
 import com.sumizuri.app.shared.resources.sync_title
 import com.sumizuri.app.shared.resources.titles_count
 import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.page.PageTopBar
 import com.sumizuri.app.ui.kit.page.pageScroll
 import com.sumizuri.app.ui.kit.setting.SettingsSection
+import com.sumizuri.app.ui.text.agoText
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -125,14 +135,41 @@ internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
     }
 }
 
-// The way to sync, saying who is signed in and where, or what sync is while it is not set up.
+// The way to sync, saying how the sync of this profile stands, or what sync is while it is not set up.
 @Composable
 private fun SyncEntry(onOpen: () -> Unit) {
     val account by LocalProfiles.current.syncAccounts.account
         .collectAsStateWithLifecycle()
-    val summary =
-        account?.let { stringResource(Res.string.sync_profile_signed_in, it.username, it.serverName) }
-            ?: stringResource(Res.string.sync_hint)
+    // Once signed in the row says how the sync stands, so a sync that did not finish shows without opening the page.
+    val container = LocalAppContainer.current
+    val run by container.librarySync.run.collectAsStateWithLifecycle()
+    val lastAt by remember(
+        container,
+    ) { container.settings.text(LibrarySyncer.LastAtKey) }.collectAsStateWithLifecycle(null)
+    val linked by remember(container) {
+        container.settings.text(SettingKey.SyncLibraryId)
+    }.collectAsStateWithLifecycle(null)
+    val summary = when {
+        account == null -> stringResource(Res.string.sync_hint)
+
+        linked == null -> stringResource(Res.string.sync_state_unlinked)
+
+        run == SyncRun.Running -> stringResource(Res.string.sync_state_running)
+
+        run is SyncRun.Failed -> stringResource(Res.string.sync_state_failed)
+
+        else -> {
+            val at = (run as? SyncRun.Done)?.at ?: lastAt?.toLongOrNull()
+            if (at ==
+                null
+            ) {
+                stringResource(Res.string.sync_state_never)
+            } else {
+                stringResource(Res.string.sync_state_ok) + " · " +
+                    stringResource(Res.string.sync_last_at, agoText(at))
+            }
+        }
+    }
     SettingsSection {
         row { PageRow(Icons.Outlined.Sync, stringResource(Res.string.sync_title), summary, onOpen) }
     }

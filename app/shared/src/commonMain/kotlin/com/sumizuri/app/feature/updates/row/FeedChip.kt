@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.text.numberText
@@ -30,6 +31,9 @@ internal fun FeedChip(label: String, quiet: Boolean = false) {
         style = MaterialTheme.typography.labelMedium,
         fontWeight = FontWeight.SemiBold,
         color = if (quiet) colors.onSurfaceVariant else colors.primary,
+        // A chip stays one line, so a narrow row never breaks its word in half.
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
     )
 }
 

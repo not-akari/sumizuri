@@ -21,7 +21,6 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,10 +53,8 @@ import com.sumizuri.app.shared.resources.title_continue_next
 import com.sumizuri.app.ui.kit.page.LoadStatus
 import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.scroll.mouseDragScroll
-import com.sumizuri.app.ui.motion.LocalPageMotion
 import com.sumizuri.app.ui.motion.Rise
 import com.sumizuri.app.ui.text.displayName
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
@@ -141,6 +138,14 @@ internal fun PhoneTitle(
                 Column(Modifier.padding(bottom = ItemGap), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     // The name sits over the cover, so a tap on it opens the cover in full.
                     TitleHeading(state, title, wide = false, onClick = onPreview)
+                    // The story comes right under the name, and its More opens About with the creators and the rest.
+                    if (title.summary.isNotBlank()) {
+                        TitleSummary(
+                            title.summary,
+                            onMore = { tab = TitleTab.About },
+                            overCover = true,
+                        )
+                    }
                     if (state.readable) {
                         ContinueButton(
                             state.target,
@@ -151,7 +156,6 @@ internal fun PhoneTitle(
                         UnreachableActions(state, title, calls)
                     }
                     PosterActions(state, title, calls, onBackground)
-                    if (title.summary.isNotBlank()) TitleSummary(title.summary, onMore = { tab = TitleTab.About })
                     SourceNotice(state, calls)
                     LoadStatus(
                         false,

@@ -35,8 +35,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sumizuri.app.ui.kit.input.InkSlider
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
+import com.sumizuri.app.ui.kit.input.InkSlider
 import com.sumizuri.app.ui.theme.LocalCompactLists
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -52,6 +52,9 @@ private val OptionIconSpace = 24.dp
 
 // How far the words of a setting sit from its start when it has an icon: the icon and the gap after it.
 private val IconSpace = 34.dp
+
+// What a menu button adds to the width of its word: its padding, its arrow and the gap before it.
+private val MenuButtonExtra = 60.dp
 
 // A choice of a few options whose words fit side by side shows them all as buttons under its name, so one tap picks one. Any other choice shows the one picked on a button that opens a menu of the others. The icon comes from the list of icons of the settings unless one is given.
 @Composable
@@ -87,10 +90,18 @@ fun <T> ChoiceSetting(
         val room = with(LocalDensity.current) { (maxWidth / options.size.coerceAtLeast(1) - SegmentPadding - if (optionIcon != null) OptionIconSpace else 0.dp).toPx() }
         // Side by side only when every option fits its share of the width on one line.
         val side = options.size in 2..MostSegments && words.all { measurer.measure(it, style, maxLines = 1).size.width <= room }
+        // The menu button goes under the name when the two do not fit on one line, so a narrow phone never breaks the name in the middle of a word.
+        val named = with(LocalDensity.current) {
+            measurer.measure(title, MaterialTheme.typography.bodyLarge, maxLines = 1).size.width + (if (icon != null) IconSpace else 0.dp).roundToPx()
+        }
+        val button = with(LocalDensity.current) {
+            measurer.measure(words.getOrElse(options.indexOf(selected)) { "" }, style, maxLines = 1).size.width + MenuButtonExtra.roundToPx()
+        }
+        val stacked = named + button > constraints.maxWidth
         if (side) {
             ButtonsChoice(title, options, selected, words, hint, icon, optionIcon, onSelect)
         } else {
-            MenuChoice(title, options, selected, words, hint, icon, onSelect)
+            MenuChoice(title, options, selected, words, hint, icon, stacked, onSelect)
         }
     }
 }
@@ -104,12 +115,24 @@ private fun <T> ButtonsChoice(title: String, options: List<T>, selected: T, word
 }
 
 @Composable
-private fun <T> MenuChoice(title: String, options: List<T>, selected: T, words: List<String>, hint: String?, icon: ImageVector?, onSelect: (T) -> Unit) {
+private fun <T> MenuChoice(title: String, options: List<T>, selected: T, words: List<String>, hint: String?, icon: ImageVector?, stacked: Boolean, onSelect: (T) -> Unit) {
     var open by remember { mutableStateOf(false) }
     // The line that explains the choice runs under the whole row, so the button does not squeeze it.
     Column(Modifier.fillMaxWidth().padding(vertical = if (LocalCompactLists.current) 0.dp else 4.dp)) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SettingName(title, null, icon, Modifier.weight(1f))
+        val line: @Composable (@Composable () -> Unit) -> Unit = { button ->
+            if (stacked) {
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    SettingName(title, null, icon, Modifier.fillMaxWidth().heightIn(min = 32.dp))
+                    Box(Modifier.align(Alignment.End)) { button() }
+                }
+            } else {
+                Row(Modifier.fillMaxWidth().heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    SettingName(title, null, icon, Modifier.weight(1f))
+                    button()
+                }
+            }
+        }
+        line {
             // The menu opens under the button, so the two are together in one box.
             Box {
                 InkOutlinedButton({ open = true }, contentPadding = PaddingValues(start = 14.dp, end = 6.dp)) {

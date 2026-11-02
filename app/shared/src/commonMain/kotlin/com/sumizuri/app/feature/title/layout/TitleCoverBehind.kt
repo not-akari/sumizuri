@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,6 +35,7 @@ internal fun TitleCoverBehind(title: Title, height: Dp, picked: Pair<Float, Floa
         listOf(Color.hsv(title.hue, 0.42f, 0.62f), Color.hsv((title.hue + 28f) % 360f, 0.55f, 0.30f)),
     )
     val focus = rememberTitleFocus(title.coverUrl, picked)
+    val page = MaterialTheme.colorScheme.background
     val settle = rememberPageFade()
     BoxWithConstraints(
         Modifier
@@ -70,12 +72,13 @@ internal fun TitleCoverBehind(title: Title, height: Dp, picked: Pair<Float, Floa
                 alignment = focusAlignment(focus, maxWidth.value, height.value, fallbackY = -1f),
                 filterQuality = ImageFilter,
             )
-            // A dark layer where the name, the facts and the buttons go, so the small grey lines can be read over a bright cover too.
+            // A layer of the page colour where the name, the story and the buttons go, so the text can be read over a bright cover too. It is the page colour and not black, so the dark text of a light theme stays clear.
             Box(
                 Modifier.matchParentSize().background(
                     Brush.verticalGradient(
-                        0.25f to Color.Transparent,
-                        0.75f to Color.Black.copy(alpha = 0.72f),
+                        0.2f to Color.Transparent,
+                        0.55f to page.copy(alpha = 0.6f),
+                        0.8f to page.copy(alpha = 0.86f),
                     ),
                 ),
             )

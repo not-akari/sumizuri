@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Rational
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,6 +14,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.navigation.Destination
 import com.sumizuri.app.navigation.requestedTabOf
@@ -20,6 +23,7 @@ import com.sumizuri.app.playback.LocalMiniPlayer
 import com.sumizuri.app.playback.MiniPlayerControl
 import com.sumizuri.app.playback.PlayingNow
 import com.sumizuri.app.ui.requestMaxRefreshRate
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     // The tab a shortcut of the launcher asked for, until the app has opened it.
@@ -29,6 +33,13 @@ class MainActivity : ComponentActivity() {
     private var inPicture by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // The splash screen stays until the first page has drawn in the colors of the person, or a few seconds at most.
+        val opened = SystemClock.uptimeMillis()
+        installSplashScreen().setKeepOnScreenCondition {
+            !AppStart.drawn.value &&
+                SystemClock.uptimeMillis() - opened < SplashMostMs
+        }
+        StartLook.load(this)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val profiles = (application as SumizuriApplication).profiles
@@ -42,6 +53,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         requestMaxRefreshRate()
+        lifecycleScope.launch { StartLook.keep(this@MainActivity) }
     }
 
     override fun onResume() {
@@ -95,3 +107,6 @@ private fun MainActivity.pictureParams(aspect: Float): PictureInPictureParams? {
     val shape = aspect.coerceIn(0.42f, 2.39f)
     return PictureInPictureParams.Builder().setAspectRatio(Rational((shape * 1000).toInt(), 1000)).build()
 }
+
+// The longest the splash screen waits for the first page, so a slow start still opens.
+private const val SplashMostMs = 3000L
