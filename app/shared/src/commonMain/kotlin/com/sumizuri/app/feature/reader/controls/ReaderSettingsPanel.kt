@@ -24,7 +24,6 @@ import com.sumizuri.app.data.model.reader.ReaderDual
 import com.sumizuri.app.data.model.reader.ReaderFont
 import com.sumizuri.app.data.model.reader.ReaderGap
 import com.sumizuri.app.data.model.reader.ReaderLookup
-import com.sumizuri.app.data.model.reader.ReaderMode
 import com.sumizuri.app.data.model.reader.ReaderQuality
 import com.sumizuri.app.data.model.reader.ReaderScale
 import com.sumizuri.app.data.model.reader.ReaderSettings
@@ -73,7 +72,7 @@ internal enum class SheetPart { Layout, Look, Controls }
 // The part that was open last, so the settings open where they were left.
 private var lastPart = SheetPart.Layout
 
-// Every choice of the reader that fits what is open, the pictures of a manga or the words of a novel, split in three parts behind tabs, as a panel the dock grows to hold. It scrolls within the room the dock gives it.
+// Every choice of the reader that fits what is open, the pictures of a manga or the words of a novel, split in three parts behind tabs, as a panel the dock grows to hold. The head and the tabs stay put and the choices under them scroll within the room it is given.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderSettingsPanel(
@@ -84,7 +83,7 @@ fun ReaderSettingsPanel(
 ) {
     var part by remember { mutableStateOf(lastPart) }
     // Whether the choices are kept for this title alone sits by the title of the panel, since it decides where every layout choice below goes.
-    Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
     PanelHead(stringResource(Res.string.reader_settings), onDismiss, trailing = {
         FilterChip(
             settings.override,
@@ -105,6 +104,7 @@ fun ReaderSettingsPanel(
             part = it
             lastPart = it
         }
+        Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         if (settings.override && part == SheetPart.Layout) {
             Text(
                 stringResource(Res.string.reader_only_title_hint),
@@ -122,6 +122,7 @@ fun ReaderSettingsPanel(
             SheetPart.Look -> LookPart(settings, textual, onSettings)
 
             SheetPart.Controls -> ControlsPart(settings, onSettings)
+        }
         }
     }
 }

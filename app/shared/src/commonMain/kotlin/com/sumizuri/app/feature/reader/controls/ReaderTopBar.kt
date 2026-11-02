@@ -14,19 +14,14 @@ import androidx.compose.material.icons.automirrored.outlined.Comment
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +34,6 @@ import com.sumizuri.app.shared.resources.bookmark_add
 import com.sumizuri.app.shared.resources.bookmark_remove
 import com.sumizuri.app.shared.resources.comments_chapter_title
 import com.sumizuri.app.shared.resources.more
-import com.sumizuri.app.shared.resources.reader_action_page_menu
 import com.sumizuri.app.shared.resources.reader_incognito
 import com.sumizuri.app.shared.resources.reader_open_browser
 import com.sumizuri.app.ui.kit.input.BackButton

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -49,6 +50,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.reader_jump
+import com.sumizuri.app.shared.resources.reader_page_of
 import com.sumizuri.app.ui.kit.image.PageImages
 import com.sumizuri.app.ui.kit.image.buildImageRequest
 import org.jetbrains.compose.resources.stringResource
@@ -80,6 +82,8 @@ fun PageTrack(
     preview: (Int) -> PagePreview?,
     onJump: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    // The thumb is a small tag with the page and the count in it, so the number rides along the track.
+    tagged: Boolean = false,
 ) {
     var held by remember { mutableStateOf<Float?>(null) }
     val last = (total - 1).coerceAtLeast(1)
@@ -145,9 +149,14 @@ fun PageTrack(
                     drawCircle(shade, dot, point(share))
                 }
             }
-            val knob = (Thumb + (ThumbHeld - Thumb) * grip).toPx()
-            drawCircle(colors.surface, knob + 2.dp.toPx(), point(fraction))
-            drawCircle(colors.primary, knob, point(fraction))
+            if (!tagged || held != null) {
+                val knob = (Thumb + (ThumbHeld - Thumb) * grip).toPx()
+                drawCircle(colors.surface, knob + 2.dp.toPx(), point(fraction))
+                drawCircle(colors.primary, knob, point(fraction))
+            }
+        }
+        if (tagged && held == null) {
+            Box(Modifier.centerOn(fraction, length, EndRoom)) { PageTag(page, total) }
         }
         val at = held?.let { (it * last).roundToInt() }
         AnimatedVisibility(
@@ -185,6 +194,35 @@ private fun Modifier.floatBeside(fraction: Float, length: Float, vertical: Boole
             }
         }
     }
+
+// Puts a tag on a track along the bottom with its middle at the thumb, kept inside the track at both ends. It takes no room.
+private fun Modifier.centerOn(fraction: Float, length: Float, endRoom: Dp): Modifier =
+    layout { measurable, constraints ->
+        val tag = measurable.measure(Constraints())
+        layout(0, 0) {
+            val room = endRoom.toPx()
+            val along = room + fraction * (length - room * 2)
+            val x = (along - tag.width / 2f).roundToInt().coerceIn(
+                0,
+                (length - tag.width).roundToInt().coerceAtLeast(0),
+            )
+            tag.place(x, (constraints.maxHeight - tag.height) / 2)
+        }
+    }
+
+// The page and the count in a small filled tag, which stands for the thumb of a tagged track.
+@Composable
+private fun PageTag(page: Int, total: Int) {
+    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary, shadowElevation = 2.dp) {
+        Text(
+            stringResource(Res.string.reader_page_of, page + 1, total),
+            Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onPrimary,
+        )
+    }
+}
 
 @Composable
 private fun Bubble(page: Int, preview: PagePreview?) {

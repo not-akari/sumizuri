@@ -478,7 +478,7 @@
     <string name="reader_action_page_menu">Page menu</string>
     <string name="reader_page_menu_title">Page %1$d</string>
     <string name="reader_page_save">Save image</string>
-    <string name="reader_page_copy_link">Copy image address</string>
+    <string name="reader_page_copy_link">Copy link</string>
     <string name="reader_page_share">Share image</string>
     <string name="reader_page_set_cover">Use as cover</string>
     <string name="long_tap_menu">Page menu on long press</string>

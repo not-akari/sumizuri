@@ -2,6 +2,7 @@ package com.sumizuri.app.feature.reader
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -26,9 +27,11 @@ import com.sumizuri.app.feature.reader.controls.ChaptersPanel
 import com.sumizuri.app.feature.reader.controls.DockPanel
 import com.sumizuri.app.feature.reader.controls.PageMenuPanel
 import com.sumizuri.app.feature.reader.controls.PagePreview
+import com.sumizuri.app.feature.reader.controls.ReaderAside
 import com.sumizuri.app.feature.reader.controls.ReaderLight
 import com.sumizuri.app.feature.reader.controls.ReaderSettingsPanel
 import com.sumizuri.app.feature.reader.controls.fill
+import com.sumizuri.app.feature.reader.controls.goesAside
 import com.sumizuri.app.feature.reader.controls.rememberBedtime
 import com.sumizuri.app.feature.reader.lookup.DictionaryClient
 import com.sumizuri.app.feature.reader.lookup.LocalWordLookup
@@ -42,6 +45,8 @@ import com.sumizuri.app.feature.reader.view.PagedReader
 import com.sumizuri.app.feature.reader.view.ProbeAspect
 import com.sumizuri.app.feature.reader.view.ReaderView
 import com.sumizuri.app.feature.reader.view.sampleUrls
+import com.sumizuri.app.ui.kit.dock.AsideCard
+import com.sumizuri.app.ui.kit.dock.isWideWindow
 import com.sumizuri.app.ui.kit.image.LocalPageFilter
 import com.sumizuri.app.ui.kit.image.PageSnapshots
 import com.sumizuri.app.ui.kit.image.pageFilterOf
@@ -206,107 +211,128 @@ private fun Reader(state: ReaderState, actions: ReaderActions) {
             pageFilterOf(settings.grayscale, settings.invertColors, settings.sepia, settings.contrast)
         }
     CompositionLocalProvider(LocalWordLookup provides lookup, LocalPageFilter provides pageFilter) {
-        Box(Modifier.fillMaxSize().background(settings.background.fill())) {
-            // A new chapter, mode, or page pairing starts the viewer at the right place and takes the zoom off.
-            key(rootChapterId, state.mode, settings.dual) {
-                Box(Modifier.fillMaxSize().pinchZoom()) {
-                    when {
-                        state.mode == ReaderMode.Continuous -> ContinuousReader(state, view, actions.onOpenChapter)
-                        state.isText -> NovelPagedReader(state, view, actions.onOpenChapter)
-                        else -> PagedReader(state, view, actions.onOpenChapter)
+        // What each panel of the dock shows. Closing one, or picking a chapter in it, folds the dock back.
+        val close = { panel = DockPanel.None }
+        val panelView: @Composable (DockPanel) -> Unit = { shown ->
+            when (shown) {
+                DockPanel.Settings -> ReaderSettingsPanel(
+                    settings,
+                    state.isText,
+                    actions.onSettings,
+                    onDismiss = close,
+                )
+
+                DockPanel.Chapters -> ChaptersPanel(
+                    state.chapters,
+                    state.kind,
+                    state.chapterId,
+                    actions.onOpenChapter,
+                    onDismiss = close,
+                )
+
+                DockPanel.Lookup -> looked?.let { word ->
+                    WordLookupPanel(word, meaning, onSearchWeb = { openSite(webSearchFor(word)) }, onDismiss = {
+                        looked = null
+                        close()
+                    })
+                }
+
+                DockPanel.Page -> {
+                    val held = state.pages.getOrNull(page)
+                    val address = held?.imageUrl
+                    if (address != null) {
+                        // A shuffled page is only put right when it is drawn, so as a cover it would stay shuffled.
+                        PageMenuPanel(
+                            page + 1,
+                            address,
+                            onSetCover = if (held.descramble == null) ({ actions.onSetCover(address) }) else null,
+                            onOpenBrowser = state.webUrl?.let { url -> { openSite(url) } },
+                            onDismiss = close,
+                        )
                     }
                 }
+
+                else -> Unit
             }
-            // In the bedtime hours the screen is at least as warm and as dim as bedtime asks, over what was set by hand.
-            val bedtime by rememberBedtime(settings.bedtime, settings.bedtimeFrom, settings.bedtimeTo)
-            val shownDim = if (bedtime) maxOf(dim, settings.bedtimeDim) else dim
-            val shownWarmth = if (bedtime) maxOf(warmth, settings.bedtimeWarmth) else warmth
-            ReaderLight(shownDim, shownWarmth)
-            // What each panel of the dock shows. Closing one, or picking a chapter in it, folds the dock back.
-            val close = { panel = DockPanel.None }
-            val panelView: @Composable (DockPanel) -> Unit = { shown ->
-                when (shown) {
-                    DockPanel.Settings -> ReaderSettingsPanel(
-                        settings,
-                        state.isText,
-                        actions.onSettings,
-                        onDismiss = close,
-                    )
-
-                    DockPanel.Chapters -> ChaptersPanel(
-                        state.chapters,
-                        state.kind,
-                        state.chapterId,
-                        actions.onOpenChapter,
-                        onDismiss = close,
-                    )
-
-                    DockPanel.Lookup -> looked?.let { word ->
-                        WordLookupPanel(word, meaning, onSearchWeb = { openSite(webSearchFor(word)) }, onDismiss = {
-                            looked = null
-                            close()
-                        })
-                    }
-
-                    DockPanel.Page -> {
-                        val held = state.pages.getOrNull(page)
-                        val address = held?.imageUrl
-                        if (address != null) {
-                            // A shuffled page is only put right when it is drawn, so as a cover it would stay shuffled.
-                            PageMenuPanel(
-                                page + 1,
-                                address,
-                                onSetCover = if (held.descramble == null) ({ actions.onSetCover(address) }) else null,
-                                onOpenBrowser = state.webUrl?.let { url -> { openSite(url) } },
-                                onDismiss = close,
+        }
+        val bar = BarState(state.mode, auto, state.mode == ReaderMode.Continuous, dim, warmth, state.isText)
+        // On a wide window a panel opens as a card at the bottom right, over the pages, which stay where they are.
+        val aside = isWideWindow() && controls && panel.goesAside()
+        AsideCard(
+            aside,
+            Modifier.fillMaxSize().background(settings.background.fill()),
+            panel = {
+                ReaderAside(panel, bar, settings.mode, actions.onDefaultMode, actions.onMode, { newDim, newWarmth ->
+                    dim = newDim
+                    warmth = newWarmth
+                }, { actions.onSettings(settings.copy(dim = dim, warmth = warmth)) }, close, panelView)
+            },
+        ) {
+            BoxWithConstraints(Modifier.fillMaxSize()) {
+                // A new chapter, mode, or page pairing starts the viewer at the right place and takes the zoom off.
+                key(rootChapterId, state.mode, settings.dual) {
+                    Box(Modifier.fillMaxSize().pinchZoom()) {
+                        when {
+                            state.mode == ReaderMode.Continuous -> ContinuousReader(
+                                state,
+                                view,
+                                actions.onOpenChapter,
                             )
+
+                            state.isText -> NovelPagedReader(state, view, actions.onOpenChapter)
+
+                            else -> PagedReader(state, view, actions.onOpenChapter)
                         }
                     }
-
-                    else -> Unit
                 }
+                // In the bedtime hours the screen is at least as warm and as dim as bedtime asks, over what was set by hand.
+                val bedtime by rememberBedtime(settings.bedtime, settings.bedtimeFrom, settings.bedtimeTo)
+                val shownDim = if (bedtime) maxOf(dim, settings.bedtimeDim) else dim
+                val shownWarmth = if (bedtime) maxOf(warmth, settings.bedtimeWarmth) else warmth
+                ReaderLight(shownDim, shownWarmth)
+                val first = segment?.start ?: 0
+                ReaderChrome(
+                    state,
+                    controls,
+                    shownPage,
+                    total,
+                    minutesLeft,
+                    bar,
+                    ChromeCalls(
+                        onBack = actions.onBack,
+                        onBookmark = actions.onBookmark,
+                        onOpenBrowser = state.webUrl?.let { address -> { openSite(address) } },
+                        onPageMenu = if (state.isText) null else ({ show(DockPanel.Page) }),
+                        onComments = state.comments?.let { target -> { actions.onComments(target) } },
+                        onJump = jumpTo,
+                        onOpenChapter = actions.onOpenChapter,
+                        onMode = actions.onMode,
+                        onLight = { newDim, newWarmth ->
+                            dim = newDim
+                            warmth = newWarmth
+                        },
+                        onLightDone = { actions.onSettings(settings.copy(dim = dim, warmth = warmth)) },
+                        onAuto = {
+                            auto = !auto
+                            // Out of the way, so the page can be read while it moves.
+                            if (auto) controls = false
+                        },
+                        panel = panel,
+                        onPanel = { panel = it },
+                        panelContent = panelView,
+                        onShowControls = { controls = true },
+                        onDefaultMode = actions.onDefaultMode,
+                        preview = { at ->
+                            state.pages
+                                .getOrNull(first + at)
+                                ?.takeIf { it.descramble == null }
+                                ?.imageUrl
+                                ?.let { PagePreview(it, state.imageHeaders) }
+                        },
+                        panelAside = aside,
+                    ),
+                )
             }
-            val first = segment?.start ?: 0
-            ReaderChrome(
-                state,
-                controls,
-                shownPage,
-                total,
-                minutesLeft,
-                BarState(state.mode, auto, state.mode == ReaderMode.Continuous, dim, warmth, state.isText),
-                ChromeCalls(
-                    onBack = actions.onBack,
-                    onBookmark = actions.onBookmark,
-                    onOpenBrowser = state.webUrl?.let { address -> { openSite(address) } },
-                    onPageMenu = if (state.isText) null else ({ show(DockPanel.Page) }),
-                    onComments = state.comments?.let { target -> { actions.onComments(target) } },
-                    onJump = jumpTo,
-                    onOpenChapter = actions.onOpenChapter,
-                    onMode = actions.onMode,
-                    onLight = { newDim, newWarmth ->
-                        dim = newDim
-                        warmth = newWarmth
-                    },
-                    onLightDone = { actions.onSettings(settings.copy(dim = dim, warmth = warmth)) },
-                    onAuto = {
-                        auto = !auto
-                        // Out of the way, so the page can be read while it moves.
-                        if (auto) controls = false
-                    },
-                    panel = panel,
-                    onPanel = { panel = it },
-                    panelContent = panelView,
-                    onShowControls = { controls = true },
-                    onDefaultMode = actions.onDefaultMode,
-                    preview = { at ->
-                        state.pages
-                            .getOrNull(first + at)
-                            ?.takeIf { it.descramble == null }
-                            ?.imageUrl
-                            ?.let { PagePreview(it, state.imageHeaders) }
-                    },
-                ),
-            )
         }
     }
 }
