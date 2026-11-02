@@ -37,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -75,13 +76,19 @@ import com.sumizuri.app.ui.kit.dock.DockAction
 import com.sumizuri.app.ui.kit.dock.DockMargin
 import com.sumizuri.app.ui.kit.dock.DockRule
 import com.sumizuri.app.ui.kit.dock.DockSurface
+import com.sumizuri.app.ui.kit.dock.LocalDockLabels
+import com.sumizuri.app.ui.kit.dock.isWideWindow
 import com.sumizuri.app.ui.kit.dock.panelChange
+import com.sumizuri.app.ui.kit.dock.tellsAsideCard
 import com.sumizuri.app.ui.text.numberedUnit
 import com.sumizuri.app.ui.theme.LocalReduceMotion
 import org.jetbrains.compose.resources.stringResource
 
 // The widest the capsule and the dock grow on a big window.
 private val DockWidth = 760.dp
+
+// How wide the top and the dock grow on a wide window.
+private val WideDockWidth = 1100.dp
 
 // The controls over the video, built like the reader: a capsule at the top with the way back, the names and the window buttons, the buttons to play in the middle, and a dock at the bottom with the line to jump along over a row of actions. A choice opens inside the dock, which grows to hold it, so the player has no panels or sheets of its own.
 @Composable
@@ -95,10 +102,19 @@ internal fun PlayerOverlay(
     // The choice open in the dock, and what each choice shows.
     picker: Picker? = null,
     pickerContent: @Composable (Picker) -> Unit = {},
+    // False when the open choice shows docked at the side of a wide window instead of in the dock.
+    pickerInDock: Boolean = true,
 ) {
     val reduce = LocalReduceMotion.current
+    val widest = if (isWideWindow()) WideDockWidth else DockWidth
+    val inDock = picker.takeIf { pickerInDock }
     // A choice takes at most half the height of the window, so the video stays in sight.
     val panelMax = with(LocalDensity.current) { (LocalWindowInfo.current.containerSize.height * 0.5f).toDp() }
+    // The width of the window, which an open card at the bottom right compares with the dock to sit beside it or above it.
+    val window = with(LocalDensity.current) {
+        LocalWindowInfo.current.containerSize.width
+            .toDp()
+    }
     Box(Modifier.fillMaxSize()) {
         Box(
             Modifier
@@ -109,10 +125,10 @@ internal fun PlayerOverlay(
                 ).padding(DockMargin),
             contentAlignment = Alignment.TopCenter,
         ) {
-            DockSurface(Modifier.widthIn(max = DockWidth).fillMaxWidth()) { TopRow(session, fullscreen, calls) }
+            DockSurface(Modifier.widthIn(max = widest).fillMaxWidth()) { TopRow(session, fullscreen, calls) }
         }
         // While the episode is still being found or opened, the loading card in the middle takes the place of the buttons.
-        if (picker == null &&
+        if (inDock == null &&
             session.phase != PlayerPhase.Loading
         ) {
             Box(Modifier.align(Alignment.Center)) { Transport(session, engine, calls) }
@@ -121,16 +137,17 @@ internal fun PlayerOverlay(
             Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+                .tellsAsideCard(minOf(widest, window - DockMargin * 2), window)
                 .windowInsetsPadding(
                     WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
                 ).padding(DockMargin),
             contentAlignment = Alignment.BottomCenter,
         ) {
             // Solid while a choice is open, so its words never sit over the video.
-            DockSurface(Modifier.widthIn(max = DockWidth).fillMaxWidth(), solid = picker != null) {
+            DockSurface(Modifier.widthIn(max = widest).fillMaxWidth(), solid = inDock != null) {
                 Column(Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) {
                     AnimatedContent(
-                        picker,
+                        inDock,
                         transitionSpec = { panelChange(reduce, null) },
                         label = "player panel",
                     ) { shown ->
@@ -152,7 +169,10 @@ internal fun PlayerOverlay(
                         onPreview = calls.onPreview,
                     )
                     DockRule()
-                    Actions(session, engine, aspect, picker, calls)
+                    // A wide window has room for the name of each button under its icon, as in the reader.
+                    CompositionLocalProvider(
+                        LocalDockLabels provides isWideWindow(),
+                    ) { Actions(session, engine, aspect, picker, calls) }
                 }
             }
         }
