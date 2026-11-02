@@ -35,10 +35,7 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.app_icon
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -104,7 +101,7 @@ internal fun AnimatedLogo(size: Dp, modifier: Modifier = Modifier) {
                 )
             }
         }
-        Image(painterResource(Res.drawable.app_icon), null, Modifier.size(size))
+        Image(AppIconArt, null, Modifier.size(size))
     }
 }
 
