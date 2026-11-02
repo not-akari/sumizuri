@@ -140,7 +140,8 @@ private fun NoticeCard(release: AppRelease, left: () -> Float, onOpen: () -> Uni
                         stringResource(Res.string.appupdate_notice_title, release.version),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
+                        // Two lines, so the version is never cut on a narrow phone.
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(

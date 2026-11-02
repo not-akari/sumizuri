@@ -98,11 +98,12 @@ private fun Figure(value: String, label: String, modifier: Modifier) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+        // The name of a figure may take two lines, so a narrow phone shows it whole.
         Text(
             label,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
     }
