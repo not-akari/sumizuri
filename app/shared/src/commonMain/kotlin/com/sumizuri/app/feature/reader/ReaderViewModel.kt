@@ -290,6 +290,8 @@ class ReaderViewModel(
                 chapterId = here.id,
                 titleId = here.titleId,
                 titleName = here.titleName,
+                coverUrl = here.coverUrl,
+                sourceId = here.sourceId,
                 kind = here.kind,
                 chapterName = here.name?.takeIf { name -> name.isNotBlank() },
                 chapterNumber = here.number,

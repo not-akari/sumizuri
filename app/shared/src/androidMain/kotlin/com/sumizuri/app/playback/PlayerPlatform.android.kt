@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
+import android.view.WindowManager.LayoutParams.ROTATION_ANIMATION_CROSSFADE
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -16,13 +17,20 @@ import androidx.core.view.WindowInsetsControllerCompat
 
 actual val touchPlayer: Boolean = true
 
+// How long the fade stays the way the screen turns after the player closes, so the turn back fades too.
+private const val TurnBackMs = 1500L
+
 @Composable
-actual fun PlayerSystemUi(keepOn: Boolean) {
+actual fun PlayerWindow() {
     val view = LocalView.current
     DisposableEffect(view) {
         val activity = view.context.activity()
-        val controller = activity?.window?.let { WindowCompat.getInsetsController(it, view) }
+        val window = activity?.window
+        val controller = window?.let { WindowCompat.getInsetsController(it, view) }
         val before = activity?.requestedOrientation
+        val turnBefore = window?.attributes?.rotationAnimation
+        // The screen fades into its new side instead of spinning.
+        window?.let { it.attributes = it.attributes.apply { rotationAnimation = ROTATION_ANIMATION_CROSSFADE } }
         // The video fills a screen turned sideways, and a swipe from the edge shows the bars for a moment.
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         controller?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -30,8 +38,17 @@ actual fun PlayerSystemUi(keepOn: Boolean) {
         onDispose {
             before?.let { activity.requestedOrientation = it }
             controller?.show(WindowInsetsCompat.Type.systemBars())
+            if (window != null && turnBefore != null) {
+                val back = Runnable { window.attributes = window.attributes.apply { rotationAnimation = turnBefore } }
+                window.decorView.postDelayed(back, TurnBackMs)
+            }
         }
     }
+}
+
+@Composable
+actual fun PlayerSystemUi(keepOn: Boolean) {
+    val view = LocalView.current
     DisposableEffect(view, keepOn) {
         view.keepScreenOn = keepOn
         onDispose { view.keepScreenOn = false }

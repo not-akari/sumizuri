@@ -3,14 +3,12 @@ package com.sumizuri.app.feature.reader
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -24,7 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardDoubleArrowDown
@@ -37,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -64,12 +60,17 @@ import com.sumizuri.app.ui.kit.dock.DockMargin
 import com.sumizuri.app.ui.kit.dock.DockShape
 import com.sumizuri.app.ui.kit.dock.dockEnter
 import com.sumizuri.app.ui.kit.dock.dockExit
+import com.sumizuri.app.ui.kit.dock.tellsAsideCard
 import com.sumizuri.app.ui.text.unitCount
 import com.sumizuri.app.ui.theme.LocalReduceMotion
 import org.jetbrains.compose.resources.stringResource
 
 // The widest the controls at the top and the bottom grow on a big window.
 private val BarWidth = 640.dp
+
+// From this width of room the dock lays the track and the actions in one row, and how wide it and the top grow then.
+private val WideWidth = 840.dp
+private val WideBarWidth = 1100.dp
 
 // What the controls over the pages show and what their buttons do.
 internal class ChromeCalls(
@@ -93,11 +94,13 @@ internal class ChromeCalls(
     // Makes a mode the default of every title without a mode of its own.
     val onDefaultMode: (ReaderMode) -> Unit,
     val preview: (Int) -> PagePreview?,
+    // Whether the open panel shows docked at the side of a wide window, so the dock leaves it out.
+    val panelAside: Boolean = false,
 )
 
 // The controls over the pages as two floating pieces in the colors of the theme that touch no edge of the screen: a capsule at the top with the chapter, and a dock at the bottom with the track and the actions. With them hidden only a small page number is left at the bottom, when the person keeps it.
 @Composable
-internal fun BoxScope.ReaderChrome(
+internal fun BoxWithConstraintsScope.ReaderChrome(
     state: ReaderState,
     controls: Boolean,
     page: Int,
@@ -108,6 +111,19 @@ internal fun BoxScope.ReaderChrome(
 ) {
     val settings = state.settings
     val reduce = LocalReduceMotion.current
+    // Room as wide as a desktop gets the same pieces laid out wider and lower, so they cover less of the page.
+    val wide = maxWidth >= WideWidth
+    // How wide the dock is, which an open card at the bottom right is told so it sits beside the dock or above it.
+    val dockWidth = minOf(
+        if (wide &&
+            settings.progressBar == ReaderProgressBar.Horizontal
+        ) {
+            WideBarWidth
+        } else {
+            BarWidth
+        },
+        maxWidth - DockMargin * 2,
+    )
     // A panel in the dock takes at most a bit over half the height of the window, so the page and the top stay in sight.
     val panelMax = with(LocalDensity.current) { (LocalWindowInfo.current.containerSize.height * 0.58f).toDp() }
     // The number of a chapter of this title, for the buttons that open the one before and after.
@@ -150,7 +166,7 @@ internal fun BoxScope.ReaderChrome(
             contentAlignment = Alignment.TopCenter,
         ) {
             Surface(
-                Modifier.widthIn(max = BarWidth).fillMaxWidth().keepTaps(),
+                Modifier.widthIn(max = if (wide) WideBarWidth else BarWidth).fillMaxWidth().keepTaps(),
                 shape = DockShape,
                 color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = settings.controlShade),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
@@ -202,7 +218,9 @@ internal fun BoxScope.ReaderChrome(
         nextLabel = numberOf(state.nextId),
         strip = settings.pageStrip,
         shade = settings.controlShade,
-        maxWidth = BarWidth,
+        maxWidth = if (wide && settings.progressBar == ReaderProgressBar.Horizontal) WideBarWidth else BarWidth,
+        oneRow = wide,
+        panelInDock = !calls.panelAside,
         preview = calls.preview,
         onJump = calls.onJump,
         onOpenChapter = calls.onOpenChapter,
@@ -219,7 +237,7 @@ internal fun BoxScope.ReaderChrome(
         onExpand = calls.onShowControls,
         defaultMode = settings.mode,
         onDefaultMode = calls.onDefaultMode,
-        modifier = Modifier.align(Alignment.BottomCenter),
+        modifier = Modifier.align(Alignment.BottomCenter).tellsAsideCard(dockWidth, maxWidth),
     )
 }
 

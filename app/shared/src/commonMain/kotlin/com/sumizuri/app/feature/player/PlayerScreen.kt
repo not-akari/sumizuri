@@ -1,19 +1,15 @@
 package com.sumizuri.app.feature.player
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FastForward
 import androidx.compose.material3.Icon
@@ -54,10 +50,7 @@ import com.sumizuri.app.feature.player.overlay.PlayerGestureMath
 import com.sumizuri.app.feature.player.overlay.PlayerLoading
 import com.sumizuri.app.feature.player.overlay.PlayerLockedOverlay
 import com.sumizuri.app.feature.player.overlay.PlayerLogPanel
-import com.sumizuri.app.feature.player.overlay.PlayerMarkerButton
 import com.sumizuri.app.feature.player.overlay.PlayerOverlay
-import com.sumizuri.app.feature.player.overlay.PlayerSkipButton
-import com.sumizuri.app.feature.player.overlay.PlayerUpNextButton
 import com.sumizuri.app.feature.player.overlay.jumpIcon
 import com.sumizuri.app.feature.player.picker.Picker
 import com.sumizuri.app.feature.player.picker.PickerCalls
@@ -70,6 +63,9 @@ import com.sumizuri.app.playback.PlayerSurface
 import com.sumizuri.app.playback.PlayerSystemUi
 import com.sumizuri.app.playback.PlayingNow
 import com.sumizuri.app.playback.touchPlayer
+import com.sumizuri.app.ui.kit.dock.AsideCard
+import com.sumizuri.app.ui.kit.dock.KeepLast
+import com.sumizuri.app.ui.kit.dock.isWideWindow
 import com.sumizuri.app.ui.kit.input.FileKind
 import com.sumizuri.app.ui.kit.input.rememberFilePicker
 import kotlinx.coroutines.delay
@@ -78,8 +74,6 @@ import kotlinx.coroutines.delay
 private const val ArrowJumpMs = 5000L
 private const val FlashMs = 550L
 private const val UnlockMs = 2000L
-private val LiftShown = 136.dp
-private val LiftHidden = 24.dp
 
 // The screen of the player, laid out as in Flutter. The picture fills it. A tap shows or hides the controls, a double tap jumps on a phone and goes full screen on a computer, the keys and the wheel of the mouse work, and the controls can be locked. Buttons float over the picture to skip an intro or go on to the next episode. A failure takes the whole screen, and a choice opens in a panel.
 @Composable
@@ -317,77 +311,76 @@ internal fun PlayerScreen(session: PlayerSession, engine: PlayerEngine, onClose:
                 }
             },
     ) {
-        // The light around the video, only where bars are left around the picture.
-        val ambient by engine.ambient.collectAsState()
-        val thumbnail by engine.thumbnail.collectAsState()
-        LaunchedEffect(prefs.ambient, aspect) { engine.setAmbient(prefs.ambient && aspect == AspectMode.Fit) }
-        if (prefs.ambient && aspect == AspectMode.Fit) AmbientGlow(ambient, Modifier.fillMaxSize())
-        PlayerSurface(engine, aspect, Modifier.fillMaxSize())
-        if (locked && !failed) {
-            PlayerLockedOverlay(unlockShown, onTap = { unlockShown = true }, onUnlock = {
-                locked = false
-                unlockShown = false
-                show()
-            })
-        } else {
-            PlayerGestureLayer(
-                engine,
-                touch = touchPlayer && prefs.swipeGestures,
-                holdSpeed = prefs.holdSpeed,
-                onTap = if (small) ::playPause else ::toggle,
-                onDoubleTap = if (small) { _ -> mini.exit() } else ::doubleTap,
-            )
-            flash?.let { (icon, side) ->
-                Box(Modifier.fillMaxSize().padding(horizontal = 48.dp), contentAlignment = side) {
-                    Icon(icon, null, Modifier.padding(0.dp), tint = Color.White)
-                }
-            }
-            if (failed) {
-                PlayerFailureView(state, session::solve, session::tryAnotherVideo, session::retry, onClose)
-            } else {
-                AnimatedVisibility(visible && !small, enter = fadeIn(), exit = fadeOut()) {
-                    PlayerOverlay(
-                        state,
-                        player,
-                        aspect,
-                        fullscreen?.active == true,
-                        calls,
-                        thumbnail = thumbnail,
-                        picker = picker,
-                        pickerContent = { PlayerPicker(it, state, player, aspect, logShown, pickerCalls) },
+        // On a wide window a choice opens as a small card at the bottom right, over the video, which keeps its size.
+        val aside = isWideWindow() && visible && !small && !failed && picker != null
+        AsideCard(
+            aside,
+            Modifier.fillMaxSize(),
+            panel = { KeepLast(picker) { PlayerPicker(it, state, player, aspect, logShown, pickerCalls) } },
+        ) {
+            Box(Modifier.fillMaxSize()) {
+                // The light around the video, only where bars are left around the picture.
+                val ambient by engine.ambient.collectAsState()
+                val thumbnail by engine.thumbnail.collectAsState()
+                LaunchedEffect(prefs.ambient, aspect) { engine.setAmbient(prefs.ambient && aspect == AspectMode.Fit) }
+                if (prefs.ambient && aspect == AspectMode.Fit) AmbientGlow(ambient, Modifier.fillMaxSize())
+                PlayerSurface(engine, aspect, Modifier.fillMaxSize())
+                if (locked && !failed) {
+                    PlayerLockedOverlay(unlockShown, onTap = { unlockShown = true }, onUnlock = {
+                        locked = false
+                        unlockShown = false
+                        show()
+                    })
+                } else {
+                    PlayerGestureLayer(
+                        engine,
+                        touch = touchPlayer && prefs.swipeGestures,
+                        holdSpeed = prefs.holdSpeed,
+                        onTap = if (small) ::playPause else ::toggle,
+                        onDoubleTap = if (small) { _ -> mini.exit() } else ::doubleTap,
                     )
-                }
-            }
-            if (logShown && (failed || visible)) {
-                val top = WindowInsetsSides.Top + WindowInsetsSides.Horizontal
-                PlayerCorner(Alignment.TopCenter, top, PaddingValues(start = 12.dp, end = 12.dp, top = 56.dp)) {
-                    val name = state.episode?.let { "${state.titleName} ${it.number}" } ?: state.titleName
-                    PlayerLogPanel(session.log, name)
-                }
-            }
-            if (!failed && picker == null) {
-                val lift = if (visible) LiftShown else LiftHidden
-                val bottom = WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
-                val start = PaddingValues(start = 20.dp, bottom = lift)
-                val video = state.current
-                if (video != null && (video.intro != null || video.outro != null)) {
-                    PlayerCorner(Alignment.BottomStart, bottom, start) {
-                        PlayerMarkerButton(player.positionMs, player.durationMs, video.intro, video.outro, ::skipMarker)
+                    flash?.let { (icon, side) ->
+                        Box(Modifier.fillMaxSize().padding(horizontal = 48.dp), contentAlignment = side) {
+                            Icon(icon, null, Modifier.padding(0.dp), tint = Color.White)
+                        }
                     }
-                }
-                if (visible && video?.intro == null) {
-                    PlayerCorner(Alignment.BottomStart, bottom, start) {
-                        PlayerSkipButton(prefs.skipSeconds) {
+                    if (failed) {
+                        PlayerFailureView(state, session::solve, session::tryAnotherVideo, session::retry, onClose)
+                    } else {
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible && !small,
+                            enter = fadeIn(),
+                            exit = fadeOut(),
+                        ) {
+                            PlayerOverlay(
+                                state,
+                                player,
+                                aspect,
+                                fullscreen?.active == true,
+                                calls,
+                                thumbnail = thumbnail,
+                                picker = picker,
+                                pickerContent = { PlayerPicker(it, state, player, aspect, logShown, pickerCalls) },
+                                pickerInDock = !aside,
+                            )
+                        }
+                    }
+                    if (logShown && (failed || visible)) {
+                        val top = WindowInsetsSides.Top + WindowInsetsSides.Horizontal
+                        PlayerCorner(Alignment.TopCenter, top, PaddingValues(start = 12.dp, end = 12.dp, top = 56.dp)) {
+                            val name = state.episode?.let { "${state.titleName} ${it.number}" } ?: state.titleName
+                            PlayerLogPanel(session.log, name)
+                        }
+                    }
+                    if (!failed && picker == null) {
+                        PlayerCornerButtons(state, player, visible, prefs.skipSeconds, ::skipMarker, {
                             seekBy(prefs.skipSeconds * 1000L)
                             flash = Icons.Rounded.FastForward to Alignment.Center
                             show()
-                        }
+                        }) { session.nextEpisode() }
+                        PlayerLoading(state, player, controls = visible && !small, Modifier.align(Alignment.Center))
                     }
                 }
-                PlayerCorner(Alignment.BottomEnd, bottom, PaddingValues(end = 20.dp, bottom = lift)) {
-                    PlayerUpNextButton(state.hasNext, player.positionMs, player.durationMs) { session.nextEpisode() }
-                }
-                PlayerLoading(state, player, controls = visible && !small, Modifier.align(Alignment.Center))
             }
         }
     }

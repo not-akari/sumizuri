@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sumizuri.app.data.LocalAppContainer
+import com.sumizuri.app.data.model.ChapterPlace
 import com.sumizuri.app.feature.comments.CommentsTarget
 
 @Composable
@@ -16,6 +17,8 @@ fun ReaderRoute(
     onBack: () -> Unit,
     onOpenChapter: (Long) -> Unit,
     onOpenComments: (CommentsTarget) -> Unit,
+    // What the opener already knows of the chapter, shown while the reader reads the rest.
+    opening: ChapterPlace? = null,
 ) {
     val container = LocalAppContainer.current
     val viewModel = viewModel(key = "reader_$chapterId") {
@@ -51,5 +54,5 @@ fun ReaderRoute(
             onComments = onOpenComments,
         )
     }
-    ReaderScreen(state, actions)
+    ReaderScreen(state, actions, opening)
 }

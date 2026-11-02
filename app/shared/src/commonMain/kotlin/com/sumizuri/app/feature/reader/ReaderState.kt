@@ -12,6 +12,9 @@ import org.jetbrains.compose.resources.StringResource
 data class ReaderState(
     val loading: Boolean = true,
     val titleName: String = "",
+    // The cover of the title, shown while the chapter comes in.
+    val coverUrl: String? = null,
+    val sourceId: String? = null,
     val chapterId: Long = 0,
     val titleId: Long = 0,
     val kind: Kind = Kind.Manga,

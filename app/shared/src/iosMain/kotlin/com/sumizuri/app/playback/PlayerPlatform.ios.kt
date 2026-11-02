@@ -11,7 +11,11 @@ import platform.UIKit.*
 
 actual val touchPlayer: Boolean = true
 
-// The screen stays on while a video plays. Turning the screen sideways and hiding the bars are done by the view controller of the app, which is not written yet.
+// Turning the screen sideways and hiding the bars are done by the view controller of the app, which is not written yet.
+@Composable
+actual fun PlayerWindow() = Unit
+
+// The screen stays on while a video plays.
 @Composable
 actual fun PlayerSystemUi(keepOn: Boolean) {
     DisposableEffect(keepOn) {

@@ -30,7 +30,11 @@ object PlayingNow {
     var aspect: Float? = null
 }
 
-// Holds the screen on while a video plays and, on a phone, turns the screen sideways and hides the bars of the system until the player is left.
+// On a phone, turns the screen sideways and hides the bars of the system from the moment an episode is opened until it is left.
+@Composable
+expect fun PlayerWindow()
+
+// Holds the screen on while a video plays.
 @Composable
 expect fun PlayerSystemUi(keepOn: Boolean)
 

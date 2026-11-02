@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -49,6 +50,9 @@ import org.jetbrains.compose.resources.stringResource
 
 // No slice is taller than this many pixels, which every graphics card can hold.
 private const val SliceHeight = 2048
+
+// Told once a page has drawn or failed, so the reader can keep its opening card up until there is something to see.
+val LocalPageShown = staticCompositionLocalOf<() -> Unit> { {} }
 
 // One picture page, loaded at its own size and cut into slices, so even a very tall strip is drawn sharp. A failed page loads again on a tap.
 @Composable
@@ -87,6 +91,8 @@ fun PageImage(
         value =
             readPage(context, url, headers, maxWidth, descramble, crop)?.let { PageLoad.Ready(it) } ?: PageLoad.Failed
     }
+    val shownNow = LocalPageShown.current
+    LaunchedEffect(load is PageLoad.Loading) { if (load !is PageLoad.Loading) shownNow() }
     when (val state = load) {
         PageLoad.Loading -> Waiting(modifier, fit, shape) { InkCircularProgressIndicator(strokeWidth = 2.dp) }
 

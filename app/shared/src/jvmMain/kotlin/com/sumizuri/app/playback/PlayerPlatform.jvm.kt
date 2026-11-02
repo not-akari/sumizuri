@@ -27,6 +27,9 @@ private const val BackdropDim = 0.45f
 
 // A desktop window keeps its shape and the computer is left to its own sleep.
 @Composable
+actual fun PlayerWindow() = Unit
+
+@Composable
 actual fun PlayerSystemUi(keepOn: Boolean) = Unit
 
 @Composable

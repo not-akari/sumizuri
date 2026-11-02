@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.HorizontalDivider
@@ -24,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,8 +35,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.close
 import org.jetbrains.compose.resources.stringResource
@@ -84,6 +90,12 @@ fun DockRule() {
     )
 }
 
+// Whether the actions of a dock show their names under their icons, which a dock turns on when it has the room.
+val LocalDockLabels = compositionLocalOf { false }
+
+// The smallest a name under a button gets before it is cut.
+private val SmallestName = 8.sp
+
 // One action of a dock: an icon in a pill that fills while its panel is open or its feature is on. The name is read out to screen readers.
 @Composable
 fun RowScope.DockAction(
@@ -100,17 +112,36 @@ fun RowScope.DockAction(
         active -> colors.onSecondaryContainer
         else -> colors.onSurfaceVariant
     }
+    val named = LocalDockLabels.current
     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-        Box(
+        Column(
             Modifier
-                .width(56.dp)
-                .height(38.dp)
-                .clip(CircleShape)
-                .background(pill)
-                .clickable(enabled = enabled, onClickLabel = label, onClick = onClick),
-            contentAlignment = Alignment.Center,
+                .clip(MaterialTheme.shapes.medium)
+                .clickable(enabled = enabled, onClickLabel = label, onClick = onClick)
+                .padding(horizontal = 4.dp, vertical = if (named) 4.dp else 0.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(icon, label, Modifier.size(22.dp), tint = tint)
+            Box(
+                Modifier
+                    .width(56.dp)
+                    .height(if (named) 32.dp else 38.dp)
+                    .clip(CircleShape)
+                    .background(pill),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(icon, label, Modifier.size(22.dp), tint = tint)
+            }
+            // A wide dock has room for the name under the icon, which makes every button clear without a guess. The name keeps to one line and gets a little smaller where the room is tight.
+            if (named) {
+                val style = MaterialTheme.typography.labelSmall
+                BasicText(
+                    label,
+                    Modifier.padding(top = 2.dp),
+                    style = style.copy(color = tint, textAlign = TextAlign.Center),
+                    maxLines = 1,
+                    autoSize = TextAutoSize.StepBased(minFontSize = SmallestName, maxFontSize = style.fontSize),
+                )
+            }
         }
     }
 }

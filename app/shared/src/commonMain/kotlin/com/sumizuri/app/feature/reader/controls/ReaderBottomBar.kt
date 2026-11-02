@@ -2,19 +2,15 @@ package com.sumizuri.app.feature.reader.controls
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,64 +26,70 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material.icons.outlined.PauseCircle
-import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.SkipNext
 import androidx.compose.material.icons.outlined.SkipPrevious
-import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.reader.ReaderMode
 import com.sumizuri.app.feature.reader.BarState
-import com.sumizuri.app.ui.kit.dock.DockAction
+import com.sumizuri.app.shared.resources.Res
+import com.sumizuri.app.shared.resources.manga_group_mode
+import com.sumizuri.app.shared.resources.reader_mode_default
+import com.sumizuri.app.shared.resources.reader_mode_make_default
+import com.sumizuri.app.shared.resources.reader_mode_this_title
+import com.sumizuri.app.shared.resources.reader_next_chapter
+import com.sumizuri.app.shared.resources.reader_previous_chapter
 import com.sumizuri.app.ui.kit.dock.DockMargin
 import com.sumizuri.app.ui.kit.dock.DockRule
 import com.sumizuri.app.ui.kit.dock.DockShape
+import com.sumizuri.app.ui.kit.dock.LocalDockLabels
 import com.sumizuri.app.ui.kit.dock.PanelHead
 import com.sumizuri.app.ui.kit.dock.dockEnter
 import com.sumizuri.app.ui.kit.dock.dockExit
 import com.sumizuri.app.ui.kit.dock.dockMorph
 import com.sumizuri.app.ui.kit.dock.keepTaps
 import com.sumizuri.app.ui.kit.dock.panelChange
-import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.manga_group_mode
-import com.sumizuri.app.shared.resources.reader_auto
-import com.sumizuri.app.shared.resources.reader_auto_stop
-import com.sumizuri.app.shared.resources.reader_chapters
-import com.sumizuri.app.shared.resources.reader_light
-import com.sumizuri.app.shared.resources.reader_mode_button
-import com.sumizuri.app.shared.resources.reader_mode_default
-import com.sumizuri.app.shared.resources.reader_mode_make_default
-import com.sumizuri.app.shared.resources.reader_mode_this_title
-import com.sumizuri.app.shared.resources.reader_next_chapter
-import com.sumizuri.app.shared.resources.reader_options
-import com.sumizuri.app.shared.resources.reader_previous_chapter
 import com.sumizuri.app.ui.theme.LocalReduceMotion
 import org.jetbrains.compose.resources.stringResource
 
-// The bottom of the reader as one floating dock that touches no edge of the screen, so the page shows all around it. Its upper row is the track between the chapter before and after with the page and the count at its ends, a hairline parts it from the row of actions under it, and the light, the settings, the chapters, the actions of a page and the meaning of a word open inside the dock above the track, which grows to hold them, so the reader needs no sheets.
+// How wide the dock grows while the actions of a page are open, and how wide the window must be before they sit beside the picture with the track.
+private val PageMenuWidth = 960.dp
+private val PageBesideWidth = 840.dp
+
+// How wide the window must be before the buttons of the dock show their names.
+private val NamedWidth = 400.dp
+
+// The room one action takes in the one row dock of a wide window, and the widest a panel opens in it.
+private val ActionWidth = 76.dp
+private val RowPanelWidth = 640.dp
+
+// How wide the button to the chapter before or after is at an end of the row.
+private val ChapterEndWidth = 48.dp
+
+// The track of the dock, given to the panel of a page that draws it beside its picture on a wide dock, or null when the dock draws it itself.
+internal val LocalDockTrack = compositionLocalOf<(@Composable () -> Unit)?> { null }
+
+// The bottom of the reader as one floating dock that touches no edge of the screen, so the page shows all around it. A thin track runs across its top with the page and the count riding on the thumb, and under it one row holds the actions between the chapter before and the chapter after. A wide window puts all of it in one row. The light, the settings, the chapters, the actions of a page and the meaning of a word open inside the dock above the track, which grows to hold them, so the reader needs no sheets.
 @Composable
 fun ReaderBottomBar(
     page: Int,
@@ -105,6 +107,10 @@ fun ReaderBottomBar(
     shade: Float,
     // The widest the dock grows on a big window.
     maxWidth: Dp,
+    // On a wide window the track and the actions sit side by side in one row, so the dock covers less of the page.
+    oneRow: Boolean = false,
+    // False when the open panel shows docked at the side of a wide window instead of in the dock.
+    panelInDock: Boolean = true,
     preview: (Int) -> PagePreview?,
     onJump: (Int) -> Unit,
     onOpenChapter: (Long) -> Unit,
@@ -131,6 +137,7 @@ fun ReaderBottomBar(
     val colors = MaterialTheme.colorScheme
     // With the track down the side, the chapter buttons and the page go with it, and only the actions stay in the dock.
     val side = !slider && total > 1
+    val windowWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
     Box(
         modifier
             .fillMaxWidth()
@@ -140,11 +147,13 @@ fun ReaderBottomBar(
     ) {
         // The dock is one surface that changes its shape: the full dock while the controls are out, a small pill with the page while they rest, and gone when no pill is kept.
         AnimatedVisibility(expanded || collapsed != null, enter = dockEnter(fromTop = false, reduce), exit = dockExit(fromTop = false, reduce)) {
+        // The dock grows wider while the actions of a page are open, so they fit in one row beside the picture on a big screen.
+        val widest by animateDpAsState(if (panel == DockPanel.Page) maxOf(maxWidth, PageMenuWidth) else maxWidth, label = "dock width")
         Surface(
-            Modifier.widthIn(max = maxWidth).keepTaps(),
+            Modifier.widthIn(max = widest).keepTaps(),
             shape = DockShape,
             // Solid while a panel is open, so its words never sit over the page.
-            color = colors.surfaceContainerHigh.copy(alpha = if (panel == DockPanel.None) shade else 1f),
+            color = colors.surfaceContainerHigh.copy(alpha = if (panel == DockPanel.None || !panelInDock) shade else 1f),
             border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = 0.5f)),
         ) {
           AnimatedContent(expanded, transitionSpec = { dockMorph(reduce) }, label = "dock shape") { open ->
@@ -157,16 +166,34 @@ fun ReaderBottomBar(
                 )
                 return@AnimatedContent
             }
+            Box {
+            // On a wide window the actions of a page take the track into their own panel, beside the picture of the page. The window is measured, as the dock itself changes its size while it opens.
+            val pageBeside = panel == DockPanel.Page && windowWidth >= PageBesideWidth
+            // The track alone across the dock, its thumb a tag with the page and the count.
+            val track: @Composable () -> Unit = {
+                if (total > 1) PageTrack(page, total, vertical = false, preview, onJump, Modifier.fillMaxWidth(), tagged = true)
+            }
+            // The chapter before and after, at the two ends of the row of actions.
+            val before: @Composable () -> Unit = {
+                ChapterEnd(Icons.Outlined.SkipPrevious, stringResource(Res.string.reader_previous_chapter), previousLabel, previousId, onOpenChapter)
+            }
+            val after: @Composable () -> Unit = {
+                ChapterEnd(Icons.Outlined.SkipNext, stringResource(Res.string.reader_next_chapter), nextLabel, nextId, onOpenChapter)
+            }
             Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp)) {
                 // The open panel grows out of the dock above the track, and a new one fades in where the last one was.
                 AnimatedContent(
-                    panel,
+                    if (panelInDock) panel else DockPanel.None,
                     transitionSpec = { panelChange(reduce, DockPanel.None) },
                     label = "dock panel",
                 ) { shown ->
                     if (shown != DockPanel.None) {
                         Column {
-                            Box(Modifier.heightIn(max = panelMax)) {
+                            Box(
+                                Modifier
+                                    .heightIn(max = panelMax)
+                                    .then(if (oneRow && shown != DockPanel.Page) Modifier.widthIn(max = RowPanelWidth).align(Alignment.CenterHorizontally) else Modifier),
+                            ) {
                                 when (shown) {
                                     DockPanel.Light -> LightPanel(bar.dim, bar.warmth, onLight, onLightDone)
 
@@ -175,7 +202,7 @@ fun ReaderBottomBar(
                                         onMode(it)
                                     }
 
-                                    else -> panelContent(shown)
+                                    else -> CompositionLocalProvider(LocalDockTrack provides if (pageBeside && !side) track else null) { panelContent(shown) }
                                 }
                             }
                             DockRule()
@@ -185,84 +212,27 @@ fun ReaderBottomBar(
                 if (strip && !side && total > 1 && preview(page) != null) {
                     PageStrip(page, total, preview, onJump, Modifier.padding(horizontal = 4.dp, vertical = 6.dp))
                 }
-                if (!side) {
-                    Row(Modifier.height(44.dp), verticalAlignment = Alignment.CenterVertically) {
-                        ChapterStep(
-                            Icons.Outlined.SkipPrevious,
-                            stringResource(Res.string.reader_previous_chapter),
-                            previousLabel,
-                            previousId,
-                            true,
-                            onOpenChapter,
-                        )
-                        Text(
-                            (page + 1).toString(),
-                            Modifier.padding(start = 6.dp),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = colors.primary,
-                        )
-                        if (total > 1) {
-                            PageTrack(
-                                page,
-                                total,
-                                vertical = false,
-                                preview,
-                                onJump,
-                                Modifier.weight(1f).padding(horizontal = 6.dp),
-                            )
-                        } else {
-                            Box(Modifier.weight(1f))
+                if (oneRow) {
+                    CompositionLocalProvider(LocalDockLabels provides true) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (!side) before()
+                            if (!side && !pageBeside) Box(Modifier.weight(1f).padding(horizontal = 8.dp)) { track() } else Spacer(Modifier.weight(1f))
+                            Row(Modifier.width(ActionWidth * (if (bar.canAuto) 5 else 4))) { ReaderActions(bar, panel, ::toggle, onAuto) }
+                            if (!side) after()
                         }
-                        Text(
-                            total.toString(),
-                            Modifier.padding(end = 6.dp),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = colors.onSurfaceVariant,
-                        )
-                        ChapterStep(
-                            Icons.Outlined.SkipNext,
-                            stringResource(Res.string.reader_next_chapter),
-                            nextLabel,
-                            nextId,
-                            false,
-                            onOpenChapter,
-                        )
                     }
-                    DockRule()
+                } else {
+                if (!side && !pageBeside) track()
+                // The buttons show their names under their icons where the screen has the room, so none of them needs a guess. A small phone keeps the icons alone, as the names would break.
+                CompositionLocalProvider(LocalDockLabels provides (windowWidth >= NamedWidth)) {
+                Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                    if (!side) before()
+                    ReaderActions(bar, panel, ::toggle, onAuto)
+                    if (!side) after()
                 }
-                Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
-                    DockAction(
-                        Icons.AutoMirrored.Outlined.FormatListBulleted,
-                        stringResource(Res.string.reader_chapters),
-                        panel == DockPanel.Chapters,
-                        { toggle(DockPanel.Chapters) },
-                    )
-                    // The button shows the picture of the mode in use, and the modes open in the dock like every other panel.
-                    DockAction(bar.mode.icon(), stringResource(Res.string.reader_mode_button), panel == DockPanel.Mode, {
-                        toggle(DockPanel.Mode)
-                    })
-                    DockAction(
-                        Icons.Outlined.LightMode,
-                        stringResource(Res.string.reader_light),
-                        panel == DockPanel.Light,
-                        { toggle(DockPanel.Light) },
-                    )
-                    if (bar.canAuto) {
-                        DockAction(
-                            if (bar.auto) Icons.Outlined.PauseCircle else Icons.Outlined.PlayCircle,
-                            stringResource(if (bar.auto) Res.string.reader_auto_stop else Res.string.reader_auto),
-                            bar.auto,
-                            onAuto,
-                        )
-                    }
-                    DockAction(
-                        Icons.Outlined.Tune,
-                        stringResource(Res.string.reader_options),
-                        panel == DockPanel.Settings,
-                        { toggle(DockPanel.Settings) },
-                    )
                 }
+                }
+            }
             }
           }
         }
@@ -270,50 +240,30 @@ fun ReaderBottomBar(
     }
 }
 
-// The arrow to the chapter before or after with its number beside it, faded when there is none.
+// The chapter before or after at an end of the row of actions, in the look of an action: the arrow, and the number of the chapter under it where the actions show their names. Faded when there is none.
 @Composable
-private fun ChapterStep(
-    icon: ImageVector,
-    label: String,
-    number: String?,
-    target: Long?,
-    iconFirst: Boolean,
-    onOpenChapter: (Long) -> Unit,
-) {
+private fun ChapterEnd(icon: ImageVector, label: String, number: String?, target: Long?, onOpenChapter: (Long) -> Unit) {
     val enabled = target != null
-    val tint = if (enabled) {
-        MaterialTheme.colorScheme.onSurface
-    } else {
-        MaterialTheme.colorScheme.onSurface.copy(
-            alpha = 0.3f,
-        )
-    }
-    Row(
+    val named = LocalDockLabels.current
+    val tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.3f)
+    Column(
         Modifier
-            .height(36.dp)
-            .clip(CircleShape)
+            .width(ChapterEndWidth)
+            .clip(MaterialTheme.shapes.medium)
             .clickable(enabled = enabled, role = Role.Button, onClickLabel = label) { target?.let(onOpenChapter) }
-            .padding(horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(vertical = if (named) 4.dp else 0.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (iconFirst) Icon(icon, label, Modifier.size(20.dp), tint = tint)
-        if (number !=
-            null
-        ) {
-            Text(
-                number,
-                Modifier.padding(horizontal = 3.dp),
-                style = MaterialTheme.typography.labelMedium,
-                color = tint,
-            )
+        Box(Modifier.height(if (named) 32.dp else 38.dp), contentAlignment = Alignment.Center) {
+            Icon(icon, label, Modifier.size(22.dp), tint = tint)
         }
-        if (!iconFirst) Icon(icon, label, Modifier.size(20.dp), tint = tint)
+        if (named) Text(number.orEmpty(), Modifier.padding(top = 2.dp), style = MaterialTheme.typography.labelSmall, color = tint, maxLines = 1)
     }
 }
 
 // The ways to read as a panel of the dock. A mode picked here is kept for this title, which the line under the head says. The mode every other title opens in carries a small tag, and a button makes the mode of this title that default too, so the mode has one place and not two.
 @Composable
-private fun ModePanel(bar: BarState, defaultMode: ReaderMode, onDefaultMode: (ReaderMode) -> Unit, onClose: () -> Unit, onMode: (ReaderMode) -> Unit) {
+internal fun ModePanel(bar: BarState, defaultMode: ReaderMode, onDefaultMode: (ReaderMode) -> Unit, onClose: () -> Unit, onMode: (ReaderMode) -> Unit) {
     val colors = MaterialTheme.colorScheme
     // Words read in pages under every mode but the scroll, so a mode stands for the row it falls under.
     fun row(mode: ReaderMode) = if (bar.textual && mode != ReaderMode.Continuous) ReaderMode.LeftToRight else mode

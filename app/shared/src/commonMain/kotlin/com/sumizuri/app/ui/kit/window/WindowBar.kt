@@ -29,17 +29,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.core.AppBuild
 import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.app_icon
 import com.sumizuri.app.shared.resources.window_close
 import com.sumizuri.app.shared.resources.window_maximize
 import com.sumizuri.app.shared.resources.window_minimize
 import com.sumizuri.app.shared.resources.window_restore
+import com.sumizuri.app.ui.kit.art.AppIconArt
 import com.sumizuri.app.ui.text.appName
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 // How tall the bar is.
@@ -66,7 +66,7 @@ fun WindowBar(
                             Modifier.fillMaxSize().onDoubleTap(onToggleMaximize).padding(start = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Image(painterResource(Res.drawable.app_icon), null, Modifier.size(20.dp))
+                            Image(AppIconArt, null, Modifier.size(20.dp))
                             Text(
                                 appName(),
                                 Modifier.padding(start = 10.dp),
@@ -93,7 +93,7 @@ fun WindowBar(
 // The icon of the app, for the window of a desktop. A debug build gets it inside a red frame.
 @Composable
 fun appIcon(): Painter {
-    val icon = painterResource(Res.drawable.app_icon)
+    val icon = rememberVectorPainter(AppIconArt)
     return if (AppBuild.isDebug) remember(icon) { DebugIcon(icon) } else icon
 }
 
