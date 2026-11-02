@@ -23,11 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.East
-import androidx.compose.material.icons.outlined.South
-import androidx.compose.material.icons.outlined.ViewStream
-import androidx.compose.material.icons.outlined.West
-import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,7 +41,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.model.reader.ReaderMode
+import com.sumizuri.app.feature.reader.controls.icon
 import com.sumizuri.app.feature.settings.GlobalReaderViewModel
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.onboarding_mode_continuous_hint
@@ -80,13 +77,18 @@ internal fun ReadingStep() {
     StepHeader(stringResource(Res.string.onboarding_reading_title), stringResource(Res.string.onboarding_reading_text))
     BoxWithConstraints(Modifier.fillMaxWidth().rise(2)) {
         val wide = maxWidth > 520.dp
+        // The modes sit in a card of the settings, each marked the way the panel of modes in the reader marks the one in use.
         val options: @Composable () -> Unit = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                for (mode in ReaderMode.entries) {
-                    ModeOption(
-                        mode,
-                        mode == settings.mode,
-                    ) { model.update { it.copy(mode = mode) } }
+            SettingsSection {
+                padded {
+                    Column(Modifier.padding(vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        for (mode in ReaderMode.entries) {
+                            ModeOption(
+                                mode,
+                                mode == settings.mode,
+                            ) { model.update { it.copy(mode = mode) } }
+                        }
+                    }
                 }
             }
         }
@@ -134,35 +136,27 @@ internal fun ReadingStep() {
     }
 }
 
-// One way pages can turn, with its own arrow, a line about it, and a tick when it is the one chosen.
+// One way pages can turn: the icon the reader shows for it, its name and a line about it, on a soft fill with a tick when it is the one chosen.
 @Composable
 private fun ModeOption(mode: ReaderMode, selected: Boolean, onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
-    val back by animateColorAsState(
-        if (selected) colors.primaryContainer.copy(alpha = 0.7f) else colors.surfaceContainerHigh.copy(alpha = 0.5f),
-        label = "mode back",
-    )
-    val edge by animateColorAsState(
-        if (selected) colors.primary else colors.outlineVariant.copy(alpha = 0.5f),
-        label = "mode edge",
-    )
-    val shape = RoundedCornerShape(14.dp)
+    val back by animateColorAsState(if (selected) colors.secondaryContainer else Color.Transparent, label = "mode back")
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(shape)
+            .clip(RoundedCornerShape(16.dp))
             .background(back)
-            .border(1.dp, edge, shape)
-            .clickable(onClick = onClick)
+            .clickable(role = Role.RadioButton, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Icon(mode.icon(), null, Modifier.size(22.dp), tint = colors.primary)
+        Icon(mode.icon(), null, tint = if (selected) colors.onSecondaryContainer else colors.onSurfaceVariant)
         Column(Modifier.weight(1f)) {
             Text(
                 stringResource(mode.label),
                 style = MaterialTheme.typography.bodyLarge,
+                color = if (selected) colors.onSecondaryContainer else colors.onSurface,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
             )
             Text(
@@ -171,16 +165,8 @@ private fun ModeOption(mode: ReaderMode, selected: Boolean, onClick: () -> Unit)
                 color = colors.onSurfaceVariant,
             )
         }
-        val tick by animateFloatAsState(if (selected) 1f else 0f, label = "tick")
-        Icon(Icons.Rounded.CheckCircle, null, Modifier.size((20 * tick).dp), tint = colors.primary)
+        if (selected) Icon(Icons.Outlined.Check, null, tint = colors.primary)
     }
-}
-
-private fun ReaderMode.icon(): ImageVector = when (this) {
-    ReaderMode.Continuous -> Icons.Outlined.ViewStream
-    ReaderMode.RightToLeft -> Icons.Outlined.West
-    ReaderMode.LeftToRight -> Icons.Outlined.East
-    ReaderMode.Vertical -> Icons.Outlined.South
 }
 
 private fun ReaderMode.hint(): StringResource = when (this) {

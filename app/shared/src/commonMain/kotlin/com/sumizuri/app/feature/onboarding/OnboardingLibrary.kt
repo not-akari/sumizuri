@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,11 +30,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sumizuri.app.data.LocalAppContainer
+import com.sumizuri.app.data.sources.RepoMigration
 import com.sumizuri.app.feature.backup.BackupCalls
 import com.sumizuri.app.feature.backup.BackupDialogs
 import com.sumizuri.app.feature.backup.BackupState
 import com.sumizuri.app.feature.backup.BackupViewModel
 import com.sumizuri.app.feature.backup.RestoreRow
+import com.sumizuri.app.feature.browse.extensions.AddRepoDialog
+import com.sumizuri.app.feature.browse.extensions.ExtensionsViewModel
+import com.sumizuri.app.feature.browse.extensions.SourceFileImporter
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.backup_done_added
 import com.sumizuri.app.shared.resources.backup_done_matched
@@ -41,16 +46,23 @@ import com.sumizuri.app.shared.resources.backup_matching
 import com.sumizuri.app.shared.resources.backup_migrate_now
 import com.sumizuri.app.shared.resources.backup_progress
 import com.sumizuri.app.shared.resources.backup_reading
+import com.sumizuri.app.shared.resources.extensions_add_repo
 import com.sumizuri.app.shared.resources.onboarding_library_another
 import com.sumizuri.app.shared.resources.onboarding_library_done
 import com.sumizuri.app.shared.resources.onboarding_library_text
 import com.sumizuri.app.shared.resources.onboarding_library_title
 import com.sumizuri.app.shared.resources.onboarding_library_waiting
+import com.sumizuri.app.shared.resources.onboarding_repo_hint
+import com.sumizuri.app.shared.resources.onboarding_repos_added
 import com.sumizuri.app.ui.kit.art.DrawnCheck
 import com.sumizuri.app.ui.kit.art.ProgressRing
 import com.sumizuri.app.ui.kit.art.QuietButton
 import com.sumizuri.app.ui.kit.art.rise
+import com.sumizuri.app.ui.kit.card.ListChevron
+import com.sumizuri.app.ui.kit.setting.SettingIcon
+import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 // A backup of this app or of another, brought in here. The way is the row of the backup page. While it works, a ring fills with the count of titles, and at the end a tick draws itself over what came in. Asking for a password or a yes uses the windows of the backup page.
@@ -65,10 +77,21 @@ internal fun LibraryStep(onMigrate: (List<Long>) -> Unit) {
             onDismiss = model::onDismiss, onMigrate = onMigrate, onMake = { _, _ -> }, onSaved = {}, onMakeDismiss = {},
         )
     }
+    // The repos come first, as a new app has no sources and finds no titles without one.
+    val extensions = viewModel {
+        ExtensionsViewModel(
+            container.repos,
+            container.updates,
+            SourceFileImporter(container.manager, container.sources),
+            RepoMigration(container.manager.repos, container.sources, container.database),
+        )
+    }
+    val sources by extensions.state.collectAsStateWithLifecycle()
     StepHeader(stringResource(Res.string.onboarding_library_title), stringResource(Res.string.onboarding_library_text))
     AnimatedContent(state.phase(), Modifier.fillMaxWidth().rise(2), transitionSpec = { (fadeIn(tween(300)) + scaleIn(initialScale = 0.96f)) togetherWith fadeOut(tween(180)) }, label = "library") { phase ->
         when (phase) {
             LibraryPhase.Choose -> SettingsSection {
+                row { RepoRow(sources.repos.size, extensions::onAddOpen) }
                 row { RestoreRow(model::onPicked) }
             }
 
@@ -79,6 +102,16 @@ internal fun LibraryStep(onMigrate: (List<Long>) -> Unit) {
     }
     // A password, a yes before the titles go in, and a file that could not be read are asked in the windows of the backup page.
     if (state is BackupState.Password || state is BackupState.Confirm || state is BackupState.Failed) BackupDialogs(state, calls)
+    sources.adding?.let { AddRepoDialog(it, extensions::onAddress, extensions::onAddConfirm, extensions::onAddDismiss) }
+}
+
+// Adding a repo, which says how many are in once there are some.
+@Composable
+private fun RepoRow(count: Int, onAdd: () -> Unit) {
+    val line = if (count > 0) pluralStringResource(Res.plurals.onboarding_repos_added, count, count) else stringResource(Res.string.onboarding_repo_hint)
+    SettingRow(stringResource(Res.string.extensions_add_repo), subtitle = line, subtitleLines = 3, leading = {
+        SettingIcon(Icons.Outlined.Extension)
+    }, trailing = { ListChevron() }, onClick = onAdd)
 }
 
 // What the step shows for where the backup is: the ways to choose from, the work going on, or what came in.

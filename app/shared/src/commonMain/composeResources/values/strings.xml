@@ -2158,10 +2158,15 @@
     <string name="onboarding_profile_text">A name and a picture for your profile. Each profile keeps a library of its own.</string>
     <string name="onboarding_profile_photo">Choose a picture</string>
     <string name="onboarding_library_title">Bring your library</string>
-    <string name="onboarding_library_text">Bring your titles, shelves and progress back from a backup, or start fresh.</string>
+    <string name="onboarding_library_text">Add a repo to find titles, and bring your titles, shelves and progress back from a backup. Both can also wait for later.</string>
     <string name="onboarding_library_done">Your library is here</string>
     <string name="onboarding_library_waiting">%1$d titles wait for a source. You can move them later from Backup in Profile.</string>
     <string name="onboarding_library_another">Bring another</string>
+    <string name="onboarding_repo_hint">A repo lists sources you can browse. Sumizuri comes with none of its own.</string>
+    <plurals name="onboarding_repos_added">
+        <item quantity="one">%1$d repo added</item>
+        <item quantity="other">%1$d repos added</item>
+    </plurals>
     <string name="onboarding_reading_title">How do you read?</string>
     <string name="onboarding_reading_text">How manga pages turn, and how large novel text is. Each title can still have its own.</string>
     <string name="onboarding_reading_sample">The lantern swayed as the boat drifted into the harbor, and for a moment the whole town seemed to hold its breath.</string>
