@@ -10,15 +10,27 @@ import com.sumizuri.app.navigation.bar.NavStyle
 import com.sumizuri.app.ui.language.AppLanguage
 import com.sumizuri.app.ui.motion.PageMotion
 import com.sumizuri.app.ui.theme.ThemeMode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val repository: SettingsRepository) : ViewModel() {
+    // Which settings of the look have been read, one bit each, so the first screen waits for them and never draws in the default look first.
+    private val lookParts = MutableStateFlow(0)
+
+    private fun <T> Flow<T>.lookPart(bit: Int): Flow<T> = onEach { lookParts.update { it or bit } }
+
+    val lookRead: StateFlow<Boolean> =
+        lookParts.map { it == LookPartsAll }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     val themeMode: StateFlow<ThemeMode> =
-        repository.themeMode.stateIn(viewModelScope, SharingStarted.Eagerly, ThemeMode.System)
+        repository.themeMode.lookPart(1).stateIn(viewModelScope, SharingStarted.Eagerly, ThemeMode.System)
 
     val compactLists: StateFlow<Boolean> = repository
         .flag(
@@ -41,13 +53,15 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
         .flag(
             SettingKey.Oled,
             false,
-        ).stateIn(viewModelScope, SharingStarted.Eagerly, false)
+        ).lookPart(2)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     val oledGlow: StateFlow<Boolean> = repository
         .flag(
             SettingKey.OledGlow,
             false,
-        ).stateIn(viewModelScope, SharingStarted.Eagerly, false)
+        ).lookPart(4)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     val navLabels: StateFlow<NavLabels> = repository
         .text(SettingKey.NavLabels)
@@ -200,3 +214,6 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
         viewModelScope.launch { repository.setThemeMode(mode) }
     }
 }
+
+// The bits of the dark mode, the black page and its glow, all read.
+private const val LookPartsAll = 7
