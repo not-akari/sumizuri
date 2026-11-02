@@ -49,7 +49,7 @@ import org.jetbrains.compose.resources.stringResource
 // How long the note that the name was copied stays.
 private const val CopiedMs = 1500L
 
-// The name, the author, a line of facts and where it comes from. On the phone it sits over the faded cover, so the name gets a glow of the page colour to be read on any picture. The wide page also puts the genres here.
+// The name, the author, a line of facts and where it comes from, and on the phone only the name and the facts. On the phone it sits over the faded cover, so the name gets a glow of the page colour to be read on any picture. The wide page also puts the genres here.
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 internal fun TitleHeading(
@@ -103,7 +103,8 @@ internal fun TitleHeading(
         }
         // Over the cover on the phone the small lines are a step brighter and get the same glow as the name, so a busy picture does not swallow them.
         val quiet = if (wide) colors.onSurfaceVariant else colors.onSurface.copy(alpha = 0.86f)
-        if (title.author.isNotBlank()) {
+        // The phone keeps the top for the name and the story, so the creators and the source wait in About.
+        if (wide && title.author.isNotBlank()) {
             Text(
                 title.author,
                 style = MaterialTheme.typography.bodyMedium.copy(shadow = glow),
@@ -113,7 +114,7 @@ internal fun TitleHeading(
             )
         }
         FactLine(title, state.counted.size, quiet, glow)
-        state.sourceName?.let { name ->
+        state.sourceName?.takeIf { wide }?.let { name ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.Extension, null, Modifier.size(14.dp), tint = quiet)
                 Text(

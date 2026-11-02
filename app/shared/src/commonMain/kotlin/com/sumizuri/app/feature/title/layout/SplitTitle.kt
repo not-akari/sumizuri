@@ -122,7 +122,12 @@ internal fun SplitTitle(
             BoxWithConstraints(Modifier.fillMaxSize().padding(start = TextStart)) {
                 val columns = maxOf(2, ((maxWidth - PageGutter * 2) / CellWidth).toInt())
                 LazyColumn(
-                    Modifier.fillMaxSize().mouseDragScroll(list),
+                    Modifier
+                        .fillMaxSize()
+                        .fadeUnderBar(
+                            titleBarRoom(),
+                        ) { (scrolled / BarFade).coerceIn(0f, 1f) }
+                        .mouseDragScroll(list),
                     state = list,
                     contentPadding = titleListPadding(),
                 ) {

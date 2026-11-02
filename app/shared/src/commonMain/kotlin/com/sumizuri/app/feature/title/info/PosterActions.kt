@@ -56,6 +56,9 @@ import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.web.LocalOpenSite
 import org.jetbrains.compose.resources.stringResource
 
+// How wide the square button of the menu is.
+private val MoreWidth = 56.dp
+
 // The row of slim buttons under the continue button, each a small icon beside a word: the library, the favorite star when there is one, the comments when the source has them, and a menu for the rest, which are the page of the title on its site, moving it to another source and choosing what the backdrop centres on.
 @Composable
 internal fun PosterActions(
@@ -118,11 +121,11 @@ internal fun PosterActions(
         }
         if (web != null || move || background) {
             var open by remember { mutableStateOf(false) }
-            // The menu opens under its tile, so the two are in one box.
-            Box(each) {
+            // The menu opens under its tile, so the two are in one box. It is a square with only its icon, so the library and the other buttons get the room.
+            Box {
                 PosterAction(Icons.Outlined.MoreHoriz, stringResource(Res.string.more), {
                     open = true
-                }, Modifier.fillMaxWidth().then(tile))
+                }, Modifier.width(MoreWidth).then(tile), iconOnly = true)
                 DropdownMenu(open, { open = false }) {
                     if (web != null) {
                         DropdownMenuItem({ Text(stringResource(Res.string.title_action_web)) }, {
@@ -157,6 +160,7 @@ private fun PosterAction(
     modifier: Modifier = Modifier,
     active: Boolean = false,
     enabled: Boolean = true,
+    iconOnly: Boolean = false,
 ) {
     val colors = MaterialTheme.colorScheme
     Surface(
@@ -171,7 +175,8 @@ private fun PosterAction(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
-            Icon(icon, null, Modifier.size(18.dp), tint = colors.primary)
+            Icon(icon, label.takeIf { iconOnly }, Modifier.size(18.dp), tint = colors.primary)
+            if (iconOnly) return@Row
             Spacer(Modifier.width(6.dp))
             Text(
                 label,

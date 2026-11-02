@@ -43,6 +43,7 @@ import com.sumizuri.app.ui.kit.input.AppSearchBar
 import com.sumizuri.app.ui.kit.input.SearchFocus
 import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.page.PageTopBar
+import com.sumizuri.app.ui.kit.page.ReadableColumn
 import com.sumizuri.app.ui.kit.scroll.mouseDragScroll
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
@@ -70,41 +71,44 @@ internal fun GlobalSearchScreen(
             else -> 2
         }
     }
-    Column(Modifier.fillMaxSize()) {
-        PageTopBar(stringResource(Res.string.global_search_title), onBack = onBack)
-        Column(Modifier.padding(horizontal = PageGutter), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            AppSearchBar(state.query, onQuery, stringResource(Res.string.global_search_hint))
-            // Every kind at once, or one of them.
-            val kind = state.kind
-            if (state.kinds.size > 1) {
-                ChipRow {
-                    ChoiceChip(stringResource(Res.string.all), kind == null) { onKind(null) }
-                    for (each in state.kinds) ChoiceChip(stringResource(each.label), each == kind) { onKind(each) }
+    // The search keeps to the middle column every page uses, so a tablet does not stretch it across the screen.
+    ReadableColumn {
+        Column(Modifier.fillMaxSize()) {
+            PageTopBar(stringResource(Res.string.global_search_title), onBack = onBack)
+            Column(Modifier.padding(horizontal = PageGutter), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                AppSearchBar(state.query, onQuery, stringResource(Res.string.global_search_hint))
+                // Every kind at once, or one of them.
+                val kind = state.kind
+                if (state.kinds.size > 1) {
+                    ChipRow {
+                        ChoiceChip(stringResource(Res.string.all), kind == null) { onKind(null) }
+                        for (each in state.kinds) ChoiceChip(stringResource(each.label), each == kind) { onKind(each) }
+                    }
                 }
             }
-        }
-        LazyColumn(
-            Modifier.weight(1f),
-            contentPadding = PaddingValues(start = PageGutter, end = PageGutter, top = 16.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
-        ) {
-            if (state.query.isBlank()) {
-                item(key = "intro") {
-                    Text(
-                        stringResource(Res.string.global_search_intro),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.outline,
+            LazyColumn(
+                Modifier.weight(1f),
+                contentPadding = PaddingValues(start = PageGutter, end = PageGutter, top = 16.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp),
+            ) {
+                if (state.query.isBlank()) {
+                    item(key = "intro") {
+                        Text(
+                            stringResource(Res.string.global_search_intro),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.outline,
+                        )
+                    }
+                }
+                items(ordered, key = { it.source.id }) { result ->
+                    SourceSection(
+                        result,
+                        showKind =
+                        state.kind == null && state.kinds.size > 1,
+                        onOpen,
+                        Modifier.animateItem(),
                     )
                 }
-            }
-            items(ordered, key = { it.source.id }) { result ->
-                SourceSection(
-                    result,
-                    showKind =
-                    state.kind == null && state.kinds.size > 1,
-                    onOpen,
-                    Modifier.animateItem(),
-                )
             }
         }
     }

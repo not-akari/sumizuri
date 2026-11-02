@@ -2,10 +2,12 @@ package com.sumizuri.app.feature.browse.extensions
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.sources.RepoProblem
 import com.sumizuri.app.shared.resources.Res
@@ -37,6 +39,7 @@ internal fun AddRepoDialog(
                 OutlinedTextField(
                     value = state.address,
                     onValueChange = onAddress,
+                    modifier = Modifier.fillMaxWidth(),
                     label = { Text(stringResource(Res.string.sources_repo_address)) },
                     singleLine = true,
                     isError = state.problem != null,
