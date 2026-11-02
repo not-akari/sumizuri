@@ -31,10 +31,13 @@ import com.sumizuri.app.shared.resources.app_icon_hint
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import org.jetbrains.compose.resources.stringResource
 
+// Whether people can pick the icon yet. It stays off until the icons are ready to be shown to everyone.
+internal const val AppIconsReady = false
+
 // The icon of the app in the launcher, each shown as the round of its color with the dark circle of the book in it. Only shown where the system lets the app change its icon.
 @Composable
 internal fun AppIconSection() {
-    if (!AppIcons.supported) return
+    if (!AppIconsReady || !AppIcons.supported) return
     var current by remember { mutableStateOf(AppIcons.current()) }
     SettingsSection(Res.string.app_icon, Res.string.app_icon_hint) {
         padded {
