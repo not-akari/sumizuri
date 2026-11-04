@@ -371,7 +371,7 @@
     <string name="onboarding_profile_text">Un nombre y una foto para tu perfil. Cada perfil tiene su propia biblioteca.</string>
     <string name="onboarding_profile_photo">Elige una foto</string>
     <string name="onboarding_library_title">Trae tu biblioteca</string>
-    <string name="onboarding_library_text">Recupera tus títulos, estantes y progreso desde un respaldo, o empieza de cero.</string>
+    <string name="onboarding_library_text">Agrega un repo para encontrar títulos y recupera tus títulos, estantes y progreso desde un respaldo. Ambas cosas pueden esperar para después.</string>
     <string name="onboarding_library_done">Tu biblioteca está aquí</string>
     <string name="onboarding_library_waiting">%1$d títulos esperan una fuente. Puedes moverlos después desde Respaldo, en Perfil.</string>
     <string name="onboarding_library_another">Traer otro</string>
@@ -511,7 +511,7 @@
     <string name="sync_now">Sincronizar ahora</string>
     <string name="sync_running">Sincronizando</string>
     <string name="sync_last_at">Última sincronización: %1$s</string>
-    <string name="sync_last_changes">Sincronizado %1$s, %2$d títulos cambiaron aquí</string>
+    <string name="sync_last_changes">Última sincronización: %1$s · %2$d títulos cambiaron aquí</string>
     <string name="sync_last_never">Aún no se ha sincronizado</string>
     <string name="sync_last_failed">La última sincronización no terminó: %1$s</string>
     <string name="sync_details">Detalles de la sincronización</string>
@@ -560,8 +560,8 @@
     <string name="sync_what_shelves_hint">Estantes, qué título está en cuál y su orden</string>
     <string name="sync_what_sources">Fuentes</string>
     <string name="sync_what_sources_hint">Fuentes instaladas, repos y sus ajustes</string>
-    <string name="sync_what_settings">Ajustes y temas</string>
-    <string name="sync_what_settings_hint">Ajustes del lector y de la app, apariencia y temas personalizados</string>
+    <string name="sync_what_settings">Ajustes de lectura</string>
+    <string name="sync_what_settings_hint">Cómo lees y ves, y qué títulos se salta la búsqueda de novedades. La apariencia, el diseño, el tema, las descargas y los ajustes de pantalla se quedan en cada dispositivo.</string>
     <string name="sync_every">Sincronizar</string>
     <string name="sync_every_manual">Solo cuando lo pida</string>
     <string name="sync_every_minutes">Cada %1$d minutos</string>
@@ -599,7 +599,7 @@
     <string name="sync_copy_section">En el servidor</string>
     <string name="sync_copy_none">Todavía no hay nada en el servidor para esta biblioteca. Envíala desde aquí.</string>
     <string name="sync_copy_no_library">Este perfil todavía no se sincroniza con un perfil del servidor. Elige o crea uno en Cuenta.</string>
-    <string name="sync_copy_line">%1$d títulos · modificado %2$s</string>
+    <string name="sync_copy_line">%1$d títulos · último cambio: %2$s</string>
     <string name="sync_copy_upload">Sincronizar ahora</string>
     <string name="sync_copy_refresh">Volver a traer</string>
     <string name="sync_copy_packing">Empaquetando %1$d de %2$d títulos</string>
@@ -613,7 +613,7 @@
     <string name="sync_error_too_large">La biblioteca es más grande de lo que acepta este servidor. Su dueño puede subir el límite de carga.</string>
     <string name="sync_settings_section">Ajustes de sincronización</string>
     <string name="sync_link_title">Perfil en el servidor</string>
-    <string name="sync_link_none">Todavía no se sincroniza</string>
+    <string name="sync_link_none">Sin sincronizar</string>
     <string name="sync_what_none">Nada</string>
     <string name="sync_when_title">Cuándo sincronizar</string>
     <string name="sync_when_hint">Cada cuánto se sincroniza este dispositivo, en qué momentos también lo hace y qué espera</string>
@@ -626,6 +626,7 @@
     <string name="sync_devices_hint">Todos los dispositivos con sesión iniciada en tu cuenta. Cierra la sesión de uno que perdiste o que ya no usas.</string>
     <plurals name="sync_devices_count">
         <item quantity="one">%1$d dispositivo</item>
+        <item quantity="many">%1$d dispositivos</item>
         <item quantity="other">%1$d dispositivos</item>
     </plurals>
     <string name="sync_signed_out_note">Primero inicia sesión para sincronizar.</string>
@@ -638,6 +639,7 @@
     <string name="sync_admin_server_line">Versión %1$s · %2$s · iniciado %3$s</string>
     <plurals name="sync_admin_people">
         <item quantity="one">%1$d persona</item>
+        <item quantity="many">%1$d personas</item>
         <item quantity="other">%1$d personas</item>
     </plurals>
     <string name="sync_admin_people_line">administradores: %1$d · desactivados: %2$d · activos hoy: %3$d</string>
@@ -647,6 +649,7 @@
     <string name="sync_signup_closed">cerrado</string>
     <plurals name="sync_admin_profiles">
         <item quantity="one">%1$d perfil</item>
+        <item quantity="many">%1$d perfiles</item>
         <item quantity="other">%1$d perfiles</item>
     </plurals>
     <string name="sync_admin_stored">%1$s guardados</string>
@@ -901,7 +904,7 @@
     <string name="reader_action_page_menu">Menú de la página</string>
     <string name="reader_page_menu_title">Página %1$d</string>
     <string name="reader_page_save">Guardar imagen</string>
-    <string name="reader_page_copy_link">Copiar la dirección de la imagen</string>
+    <string name="reader_page_copy_link">Copiar enlace</string>
     <string name="reader_page_share">Compartir imagen</string>
     <string name="reader_page_set_cover">Usar como portada</string>
     <string name="reader_skip_read">Saltar capítulos leídos</string>
@@ -1019,7 +1022,7 @@
     <string name="player_bg_box">Recuadro</string>
     <string name="player_set_sub_bold">Texto en negritas</string>
     <string name="player_set_sub_position">Posición</string>
-    <string name="player_position_low">Abajo</string>
+    <string name="player_position_low">Baja</string>
     <string name="player_position_usual">Normal</string>
     <string name="player_position_high">Arriba</string>
     <string name="player_sub_preview">Así se verán los subtítulos.</string>
@@ -1422,7 +1425,7 @@
     <string name="mig_source_stats">buscados %1$d, encontrados %2$d, fallidos %3$d</string>
     <string name="mig_gave_up">saltada en esta búsqueda</string>
     <string name="mig_group_matching">Coincidencias</string>
-    <string name="mig_group_searching">Búsqueda</string>
+    <string name="mig_group_searching">Buscando</string>
     <string name="mig_group_chapters">Capítulos</string>
     <string name="mig_rule_read_chapters">Comparar listas de capítulos</string>
     <string name="mig_rule_read_chapters_hint">Carga las listas de capítulos de los resultados más parecidos para distinguir títulos con el mismo nombre. Es mucho más lento: una petición extra por resultado. Si está desactivado, se compara por título y autor, y los capítulos de la fuente nueva se cargan al abrir el título.</string>
@@ -1613,7 +1616,7 @@
     <string name="editor_bg_still">Quieto</string>
     <string name="editor_bg_count">Cantidad</string>
     <string name="editor_bg_scale">Tamaño</string>
-    <string name="editor_bg_drift">Desplazamiento</string>
+    <string name="editor_bg_drift">Deriva</string>
     <string name="editor_bg_vignette">Bordes sombreados</string>
     <string name="editor_bg_ring">Anillo giratorio</string>
     <string name="editor_bg_palette">Colores</string>
@@ -1654,7 +1657,7 @@
     <string name="selection_invert">Invertir selección</string>
     <string name="selection_mark_read">Marcar como leído</string>
     <string name="selection_mark_unread">Marcar como no leído</string>
-    <string name="selection_bookmark">Agregar marcador</string>
+    <string name="selection_bookmark">Marcador</string>
     <string name="selection_unbookmark">Quitar marcadores</string>
     <string name="selection_mark_below">Marcar anteriores como leídos</string>
     <string name="selection_close">Cerrar selección</string>
@@ -2434,7 +2437,7 @@
     <string name="simple_text">Texto</string>
     <string name="simple_title">Título</string>
     <string name="simple_label">Etiqueta</string>
-    <string name="simple_caption">Nota</string>
+    <string name="simple_caption">Leyenda</string>
     <string name="simple_color">Color</string>
     <string name="simple_theme_color">Color del tema</string>
     <string name="simple_all">Todo</string>
@@ -2554,7 +2557,7 @@
     <string name="incognito_mode_hint">La lectura no se guarda en el progreso ni en el historial</string>
     <string name="reading_group_chapters">Capítulo siguiente y anterior</string>
     <string name="page_motion">Animación de página</string>
-    <string name="page_motion_smooth">Suave</string>
+    <string name="page_motion_smooth">Tranquila</string>
     <string name="page_motion_slide">Deslizar</string>
     <string name="page_motion_zoom">Zoom</string>
     <string name="page_motion_fade">Desvanecer</string>
@@ -2645,4 +2648,19 @@
     <string name="notice_mark_read">Marcar como leído</string>
     <string name="handoff_title">Leíste más adelante en otro dispositivo</string>
     <string name="handoff_continue">Continuar</string>
+    <string name="onboarding_repo_hint">Un repo enumera las fuentes que puedes explorar. Sumizuri no trae ninguna propia.</string>
+    <plurals name="onboarding_repos_added">
+        <item quantity="one">%1$d repo agregado</item>
+        <item quantity="many">%1$d repos agregados</item>
+        <item quantity="other">%1$d repos agregados</item>
+    </plurals>
+    <string name="sync_state_ok">Actualizado</string>
+    <string name="sync_state_running">Sincronizando</string>
+    <string name="sync_state_failed">La sincronización no terminó</string>
+    <string name="sync_state_never">Todavía no se sincroniza</string>
+    <string name="sync_state_unlinked">Elige un perfil en el servidor para empezar a sincronizar</string>
+    <string name="sync_notice_offline">No se pudo conectar con el servidor durante un día. Tus cambios se guardan y se sincronizan cuando vuelva.</string>
+    <string name="sync_notice_channel">Problemas de sincronización</string>
+    <string name="sync_bring">Agregar aquí</string>
+    <string name="sync_tab_server">En el servidor</string>
 </resources>
