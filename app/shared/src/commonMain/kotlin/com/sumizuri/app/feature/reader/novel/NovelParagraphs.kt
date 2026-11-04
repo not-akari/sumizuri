@@ -9,9 +9,24 @@ fun splitParagraphs(text: String): List<String> {
     return text.split('\n').map { it.trim() }.filter { it.isNotEmpty() }
 }
 
-// The pages of a text chapter as one page for each paragraph, so a long block becomes something that can be scrolled, paged and counted.
-fun paragraphsOf(pages: List<ReaderPage>): List<ReaderPage> =
-    pages.flatMap { splitParagraphs(it.text.orEmpty()) }.map { ReaderPage(null, it) }
+// The pages of a text chapter as one page for each paragraph, so a long block becomes something that can be scrolled, paged and counted. A paragraph that is only a picture written as ![](address), such as the art of a light novel, becomes a page of that picture.
+fun paragraphsOf(pages: List<ReaderPage>): List<ReaderPage> = pages.flatMap { page ->
+    if (page.imageUrl !=
+        null
+    ) {
+        listOf(page)
+    } else {
+        splitParagraphs(page.text.orEmpty()).map(::paragraphPage)
+    }
+}
+
+private val PictureParagraph = Regex("""^!\[[^\]]*]\((https?://[^\s)]+)\)$""")
+
+private fun paragraphPage(text: String): ReaderPage =
+    PictureParagraph.matchEntire(text)?.let { ReaderPage(it.groupValues[1], null) } ?: ReaderPage(null, text)
+
+// A chapter of words, which may have pictures among its paragraphs, as against a chapter of pictures only.
+fun hasWords(pages: List<ReaderPage>): Boolean = pages.isEmpty() || pages.any { it.imageUrl == null }
 
 // How many words a text holds. Languages written without spaces count about two characters to a word.
 fun wordCount(pages: List<ReaderPage>): Int {
