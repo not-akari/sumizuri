@@ -26,11 +26,24 @@ data class RepoState(
     val query: String = "",
     val chosenKind: Kind? = null,
     val showNsfw: Boolean = false,
+    // The one language on show, or null for all of them.
+    val chosenLanguage: String? = null,
 ) {
     // The kinds the repo has a source of, and the one on show. A kind the repo lacks falls back to the first it has.
     val kinds: List<Kind> get() = Kind.entries.filter { kind -> available.any { it.kind == kind } }
     val kind: Kind? get() = chosenKind?.takeIf { it in kinds } ?: kinds.firstOrNull()
     val hasNsfw: Boolean get() = available.any { it.nsfw }
+
+    // The languages of the sources the kind and the adult choice leave, the biggest first, and the one on show. A language no longer there falls back to all.
+    val languages: List<String>
+        get() = available
+            .filter { (kind == null || it.kind == kind) && (showNsfw || !it.nsfw) }
+            .groupingBy { it.lang }
+            .eachCount()
+            .entries
+            .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key })
+            .map { it.key }
+    val language: String? get() = chosenLanguage?.takeIf { it in languages }
 
     // What shows under the filters: the kind, the typed words, and the sources the repo marks for adults only when those are asked for.
     val visible: List<RepoSource>
@@ -38,6 +51,7 @@ data class RepoState(
             val words = query.trim().lowercase()
             return available.filter {
                 (kind == null || it.kind == kind) && (showNsfw || !it.nsfw) &&
+                    (language == null || it.lang == language) &&
                     (words.isEmpty() || it.name.lowercase().contains(words))
             }
         }
@@ -76,6 +90,7 @@ class RepoActions(
     val onRemove: (String, String) -> Unit,
     val onQuery: (String) -> Unit,
     val onKind: (Kind) -> Unit,
+    val onLanguage: (String?) -> Unit,
     val onShowNsfw: (Boolean) -> Unit,
     val onUpdateAll: () -> Unit,
     val onCopyAddress: () -> Unit,
