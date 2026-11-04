@@ -221,7 +221,8 @@ fun ReaderBottomBar(
                                 Spacer(Modifier.weight(1f))
                             }
                             Row(Modifier.width(ActionWidth * (if (bar.canAuto) 5 else 4))) { ReaderActions(bar, panel, ::toggle, onAuto) }
-                            if (!side) after()
+                            // With the track down the side the actions are all the dock holds, so they sit in its middle.
+                            if (!side) after() else Spacer(Modifier.weight(1f))
                         }
                     }
                 } else {

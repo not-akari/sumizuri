@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -31,11 +32,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
@@ -58,6 +64,7 @@ import com.sumizuri.app.shared.resources.reader_previous_chapter
 import com.sumizuri.app.shared.resources.reader_units_left
 import com.sumizuri.app.ui.kit.dock.DockMargin
 import com.sumizuri.app.ui.kit.dock.DockShape
+import com.sumizuri.app.ui.kit.dock.LocalAsideDock
 import com.sumizuri.app.ui.kit.dock.dockEnter
 import com.sumizuri.app.ui.kit.dock.dockExit
 import com.sumizuri.app.ui.kit.dock.tellsAsideCard
@@ -71,6 +78,12 @@ private val BarWidth = 640.dp
 // From this width of room the dock lays the track and the actions in one row, and how wide it and the top grow then.
 private val WideWidth = 840.dp
 private val WideBarWidth = 1100.dp
+
+// The least room the track down the side needs between the top and the dock. With less, such as under a tall panel, it steps away.
+private val SideTrackLeast = 280.dp
+
+// How far from the right edge a card above the dock must end to leave the track down the side clear.
+private val SideTrackClear = 64.dp
 
 // What the controls over the pages show and what their buttons do.
 internal class ChromeCalls(
@@ -150,6 +163,10 @@ internal fun BoxWithConstraintsScope.ReaderChrome(
     val left = listOfNotNull(minutes, chaptersLeft).joinToString("  ·  ").ifEmpty { null }
     // The bars and pills in the container color of the theme, as solid as the person chose, with clear edges and no fade.
     val fill = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = settings.controlShade)
+    // How much of the height the capsule at the top and the dock at the bottom take, so the track down the side fits between them as the dock grows.
+    val density = LocalDensity.current
+    var topRoom by remember { mutableStateOf(0.dp) }
+    var dockRoom by remember { mutableStateOf(0.dp) }
     AnimatedVisibility(
         controls,
         Modifier.align(Alignment.TopCenter).fillMaxWidth(),
@@ -160,6 +177,7 @@ internal fun BoxWithConstraintsScope.ReaderChrome(
         Box(
             Modifier
                 .fillMaxWidth()
+                .onSizeChanged { topRoom = with(density) { it.height.toDp() } }
                 .windowInsetsPadding(
                     WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
                 ).padding(DockMargin),
@@ -184,20 +202,37 @@ internal fun BoxWithConstraintsScope.ReaderChrome(
             }
         }
     }
+    // The track down the side sits in the room between the capsule and the dock, shrinking as a panel grows the dock. It steps away when that room gets too small, or when a card at the side of a wide window reaches its edge. A card above a narrow dock ends short of it and leaves it be.
+    val sideRoom = maxHeight - topRoom - dockRoom
+    val sideMost = maxHeight * 0.62f
+    val asideDock = LocalAsideDock.current
+    val cardAside = calls.panelAside &&
+        calls.panel != DockPanel.None &&
+        (asideDock == null || !asideDock.inTheWay || asideDock.end < SideTrackClear)
     AnimatedVisibility(
-        controls && settings.progressBar == ReaderProgressBar.Vertical,
-        Modifier.align(Alignment.CenterEnd).windowInsetsPadding(WindowInsets.safeDrawing).padding(end = 8.dp),
+        controls && settings.progressBar == ReaderProgressBar.Vertical && !cardAside && sideRoom >= SideTrackLeast,
+        Modifier
+            .align(Alignment.TopEnd)
+            .padding(top = topRoom, bottom = dockRoom)
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End))
+            .padding(end = 8.dp),
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
-        SideTrack(
-            page,
-            total,
-            SideChapter(state.previousId, numberOf(state.previousId)),
-            SideChapter(state.nextId, numberOf(state.nextId)),
-            calls,
-            Modifier.fillMaxHeight(0.62f).keepTaps(),
-        )
+        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+            SideTrack(
+                page,
+                total,
+                SideChapter(state.previousId, numberOf(state.previousId)),
+                SideChapter(state.nextId, numberOf(state.nextId)),
+                calls,
+                Modifier
+                    .heightIn(max = sideMost)
+                    .fillMaxHeight()
+                    .padding(vertical = 8.dp)
+                    .keepTaps(),
+            )
+        }
     }
     // The dock is always there and changes its own shape: the full dock with the controls, a small pill with the page while they rest.
     val resting = if (settings.pageNumber && total > 1 &&
@@ -237,7 +272,10 @@ internal fun BoxWithConstraintsScope.ReaderChrome(
         onExpand = calls.onShowControls,
         defaultMode = settings.mode,
         onDefaultMode = calls.onDefaultMode,
-        modifier = Modifier.align(Alignment.BottomCenter).tellsAsideCard(dockWidth, maxWidth),
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .tellsAsideCard(dockWidth, maxWidth)
+            .onSizeChanged { dockRoom = with(density) { it.height.toDp() } },
     )
 }
 

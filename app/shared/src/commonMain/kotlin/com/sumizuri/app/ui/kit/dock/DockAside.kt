@@ -84,7 +84,6 @@ fun AsideCard(shown: Boolean, modifier: Modifier, panel: @Composable () -> Unit,
             Surface(
                 Modifier
                     .align(Alignment.BottomEnd)
-                    .width(CardWidth)
                     .fillMaxHeight(CardShare)
                     .graphicsLayer { translationX = (1f - slide.value) * size.width }
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.End))
@@ -98,7 +97,9 @@ fun AsideCard(shown: Boolean, modifier: Modifier, panel: @Composable () -> Unit,
                         } else {
                             bottom + DockMargin
                         },
-                    ).wrapContentHeight(Alignment.Bottom),
+                        // The width comes after the gaps, so a card lined up with the end of a narrow dock keeps its full width.
+                    ).width(CardWidth)
+                    .wrapContentHeight(Alignment.Bottom),
                 shape = DockShape,
                 color = colors.surfaceContainerHigh,
                 border = BorderStroke(1.dp, colors.outlineVariant.copy(alpha = 0.5f)),
