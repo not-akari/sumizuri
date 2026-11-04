@@ -38,7 +38,7 @@
                 <data android:scheme="sumizuri" android:host="theme" />
             </intent-filter>
         </activity>
-        <!-- The app in the launcher, one entry for each icon a person can pick, of which one is on at a time. -->
+        <!-- The app in the launcher, one entry for each icon. Made by scripts/app-icons.js. -->
         <activity-alias
                 android:name=".IconInk"
                 android:targetActivity=".MainActivity"
@@ -53,10 +53,400 @@
             <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
         </activity-alias>
         <activity-alias
+                android:name=".IconInkClassicGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_classic_gold"
+                android:roundIcon="@mipmap/ic_launcher_ink_classic_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkClassicWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_classic_white"
+                android:roundIcon="@mipmap/ic_launcher_ink_classic_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkClassicNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_classic_none"
+                android:roundIcon="@mipmap/ic_launcher_ink_classic_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkMonoCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_mono_cream"
+                android:roundIcon="@mipmap/ic_launcher_ink_mono_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkMonoGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_mono_gold"
+                android:roundIcon="@mipmap/ic_launcher_ink_mono_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkMonoWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_mono_white"
+                android:roundIcon="@mipmap/ic_launcher_ink_mono_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkMonoNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_mono_none"
+                android:roundIcon="@mipmap/ic_launcher_ink_mono_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkMoonCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_moon_cream"
+                android:roundIcon="@mipmap/ic_launcher_ink_moon_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkMoonGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_moon_gold"
+                android:roundIcon="@mipmap/ic_launcher_ink_moon_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkMoonWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_moon_white"
+                android:roundIcon="@mipmap/ic_launcher_ink_moon_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkMoonNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_moon_none"
+                android:roundIcon="@mipmap/ic_launcher_ink_moon_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkGoldCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_gold_cream"
+                android:roundIcon="@mipmap/ic_launcher_ink_gold_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkGoldGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_gold_gold"
+                android:roundIcon="@mipmap/ic_launcher_ink_gold_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkGoldWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_gold_white"
+                android:roundIcon="@mipmap/ic_launcher_ink_gold_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconInkGoldNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_ink_gold_none"
+                android:roundIcon="@mipmap/ic_launcher_ink_gold_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
                 android:name=".IconPaper"
                 android:targetActivity=".MainActivity"
                 android:icon="@mipmap/ic_launcher_paper"
                 android:roundIcon="@mipmap/ic_launcher_paper"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperClassicGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_classic_gold"
+                android:roundIcon="@mipmap/ic_launcher_paper_classic_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperClassicWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_classic_white"
+                android:roundIcon="@mipmap/ic_launcher_paper_classic_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperClassicNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_classic_none"
+                android:roundIcon="@mipmap/ic_launcher_paper_classic_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperMonoCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_mono_cream"
+                android:roundIcon="@mipmap/ic_launcher_paper_mono_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperMonoGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_mono_gold"
+                android:roundIcon="@mipmap/ic_launcher_paper_mono_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperMonoWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_mono_white"
+                android:roundIcon="@mipmap/ic_launcher_paper_mono_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperMonoNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_mono_none"
+                android:roundIcon="@mipmap/ic_launcher_paper_mono_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperMoonCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_moon_cream"
+                android:roundIcon="@mipmap/ic_launcher_paper_moon_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperMoonGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_moon_gold"
+                android:roundIcon="@mipmap/ic_launcher_paper_moon_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperMoonWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_moon_white"
+                android:roundIcon="@mipmap/ic_launcher_paper_moon_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperMoonNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_moon_none"
+                android:roundIcon="@mipmap/ic_launcher_paper_moon_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperGoldCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_gold_cream"
+                android:roundIcon="@mipmap/ic_launcher_paper_gold_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperGoldGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_gold_gold"
+                android:roundIcon="@mipmap/ic_launcher_paper_gold_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperGoldWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_gold_white"
+                android:roundIcon="@mipmap/ic_launcher_paper_gold_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconPaperGoldNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_paper_gold_none"
+                android:roundIcon="@mipmap/ic_launcher_paper_gold_none"
                 android:enabled="false"
                 android:exported="true">
             <intent-filter>
@@ -79,10 +469,400 @@
             <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
         </activity-alias>
         <activity-alias
+                android:name=".IconSakuraClassicGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_classic_gold"
+                android:roundIcon="@mipmap/ic_launcher_sakura_classic_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraClassicWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_classic_white"
+                android:roundIcon="@mipmap/ic_launcher_sakura_classic_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraClassicNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_classic_none"
+                android:roundIcon="@mipmap/ic_launcher_sakura_classic_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraMonoCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_mono_cream"
+                android:roundIcon="@mipmap/ic_launcher_sakura_mono_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraMonoGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_mono_gold"
+                android:roundIcon="@mipmap/ic_launcher_sakura_mono_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraMonoWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_mono_white"
+                android:roundIcon="@mipmap/ic_launcher_sakura_mono_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraMonoNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_mono_none"
+                android:roundIcon="@mipmap/ic_launcher_sakura_mono_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraMoonCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_moon_cream"
+                android:roundIcon="@mipmap/ic_launcher_sakura_moon_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraMoonGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_moon_gold"
+                android:roundIcon="@mipmap/ic_launcher_sakura_moon_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraMoonWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_moon_white"
+                android:roundIcon="@mipmap/ic_launcher_sakura_moon_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraMoonNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_moon_none"
+                android:roundIcon="@mipmap/ic_launcher_sakura_moon_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraGoldCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_gold_cream"
+                android:roundIcon="@mipmap/ic_launcher_sakura_gold_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraGoldGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_gold_gold"
+                android:roundIcon="@mipmap/ic_launcher_sakura_gold_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraGoldWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_gold_white"
+                android:roundIcon="@mipmap/ic_launcher_sakura_gold_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconSakuraGoldNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_sakura_gold_none"
+                android:roundIcon="@mipmap/ic_launcher_sakura_gold_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
                 android:name=".IconIndigo"
                 android:targetActivity=".MainActivity"
                 android:icon="@mipmap/ic_launcher_indigo"
                 android:roundIcon="@mipmap/ic_launcher_indigo"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoClassicGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_classic_gold"
+                android:roundIcon="@mipmap/ic_launcher_indigo_classic_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoClassicWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_classic_white"
+                android:roundIcon="@mipmap/ic_launcher_indigo_classic_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoClassicNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_classic_none"
+                android:roundIcon="@mipmap/ic_launcher_indigo_classic_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoMonoCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_mono_cream"
+                android:roundIcon="@mipmap/ic_launcher_indigo_mono_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoMonoGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_mono_gold"
+                android:roundIcon="@mipmap/ic_launcher_indigo_mono_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoMonoWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_mono_white"
+                android:roundIcon="@mipmap/ic_launcher_indigo_mono_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoMonoNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_mono_none"
+                android:roundIcon="@mipmap/ic_launcher_indigo_mono_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoMoonCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_moon_cream"
+                android:roundIcon="@mipmap/ic_launcher_indigo_moon_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoMoonGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_moon_gold"
+                android:roundIcon="@mipmap/ic_launcher_indigo_moon_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoMoonWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_moon_white"
+                android:roundIcon="@mipmap/ic_launcher_indigo_moon_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoMoonNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_moon_none"
+                android:roundIcon="@mipmap/ic_launcher_indigo_moon_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoGoldCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_gold_cream"
+                android:roundIcon="@mipmap/ic_launcher_indigo_gold_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoGoldGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_gold_gold"
+                android:roundIcon="@mipmap/ic_launcher_indigo_gold_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoGoldWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_gold_white"
+                android:roundIcon="@mipmap/ic_launcher_indigo_gold_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconIndigoGoldNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_indigo_gold_none"
+                android:roundIcon="@mipmap/ic_launcher_indigo_gold_none"
                 android:enabled="false"
                 android:exported="true">
             <intent-filter>
@@ -104,6 +884,410 @@
             </intent-filter>
             <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
         </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaClassicGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_classic_gold"
+                android:roundIcon="@mipmap/ic_launcher_matcha_classic_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaClassicWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_classic_white"
+                android:roundIcon="@mipmap/ic_launcher_matcha_classic_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaClassicNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_classic_none"
+                android:roundIcon="@mipmap/ic_launcher_matcha_classic_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaMonoCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_mono_cream"
+                android:roundIcon="@mipmap/ic_launcher_matcha_mono_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaMonoGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_mono_gold"
+                android:roundIcon="@mipmap/ic_launcher_matcha_mono_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaMonoWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_mono_white"
+                android:roundIcon="@mipmap/ic_launcher_matcha_mono_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaMonoNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_mono_none"
+                android:roundIcon="@mipmap/ic_launcher_matcha_mono_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaMoonCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_moon_cream"
+                android:roundIcon="@mipmap/ic_launcher_matcha_moon_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaMoonGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_moon_gold"
+                android:roundIcon="@mipmap/ic_launcher_matcha_moon_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaMoonWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_moon_white"
+                android:roundIcon="@mipmap/ic_launcher_matcha_moon_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaMoonNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_moon_none"
+                android:roundIcon="@mipmap/ic_launcher_matcha_moon_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaGoldCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_gold_cream"
+                android:roundIcon="@mipmap/ic_launcher_matcha_gold_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaGoldGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_gold_gold"
+                android:roundIcon="@mipmap/ic_launcher_matcha_gold_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaGoldWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_gold_white"
+                android:roundIcon="@mipmap/ic_launcher_matcha_gold_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconMatchaGoldNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_matcha_gold_none"
+                android:roundIcon="@mipmap/ic_launcher_matcha_gold_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightClassicCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_classic_cream"
+                android:roundIcon="@mipmap/ic_launcher_night_classic_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightClassicGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_classic_gold"
+                android:roundIcon="@mipmap/ic_launcher_night_classic_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightClassicWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_classic_white"
+                android:roundIcon="@mipmap/ic_launcher_night_classic_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightClassicNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_classic_none"
+                android:roundIcon="@mipmap/ic_launcher_night_classic_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightMonoCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_mono_cream"
+                android:roundIcon="@mipmap/ic_launcher_night_mono_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightMonoGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_mono_gold"
+                android:roundIcon="@mipmap/ic_launcher_night_mono_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightMonoWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_mono_white"
+                android:roundIcon="@mipmap/ic_launcher_night_mono_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightMonoNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_mono_none"
+                android:roundIcon="@mipmap/ic_launcher_night_mono_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightMoonCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_moon_cream"
+                android:roundIcon="@mipmap/ic_launcher_night_moon_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightMoonGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_moon_gold"
+                android:roundIcon="@mipmap/ic_launcher_night_moon_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightMoonWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_moon_white"
+                android:roundIcon="@mipmap/ic_launcher_night_moon_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightMoonNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_moon_none"
+                android:roundIcon="@mipmap/ic_launcher_night_moon_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightGoldCream"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_gold_cream"
+                android:roundIcon="@mipmap/ic_launcher_night_gold_cream"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightGoldGold"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_gold_gold"
+                android:roundIcon="@mipmap/ic_launcher_night_gold_gold"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightGoldWhite"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_gold_white"
+                android:roundIcon="@mipmap/ic_launcher_night_gold_white"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <activity-alias
+                android:name=".IconNightGoldNone"
+                android:targetActivity=".MainActivity"
+                android:icon="@mipmap/ic_launcher_night_gold_none"
+                android:roundIcon="@mipmap/ic_launcher_night_gold_none"
+                android:enabled="false"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity-alias>
+        <!-- End of the launcher entries. -->
         <activity
                 android:exported="false"
                 android:name=".ChallengeActivity" />

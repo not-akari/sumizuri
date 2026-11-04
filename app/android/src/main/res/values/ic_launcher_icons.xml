@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Made by scripts/app-icons.js. -->
+<resources>
+    <color name="ic_launcher_back_ink">#0F1114</color>
+    <color name="ic_launcher_back_paper">#EDE6D6</color>
+    <color name="ic_launcher_back_sakura">#E7A3B6</color>
+    <color name="ic_launcher_back_indigo">#2E3170</color>
+    <color name="ic_launcher_back_matcha">#6F8F55</color>
+    <color name="ic_launcher_back_night">#1A1D24</color>
+    <item name="ic_launcher_ink_classic_gold" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_classic_white" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_classic_none" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_mono_cream" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_mono_gold" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_mono_white" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_mono_none" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_moon_cream" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_moon_gold" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_moon_white" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_moon_none" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_gold_cream" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_gold_gold" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_gold_white" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_ink_gold_none" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_paper_classic_gold" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_classic_white" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_classic_none" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_mono_cream" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_mono_gold" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_mono_white" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_mono_none" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_moon_cream" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_moon_gold" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_moon_white" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_moon_none" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_gold_cream" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_gold_gold" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_gold_white" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_paper_gold_none" type="mipmap">@mipmap/ic_launcher_paper</item>
+    <item name="ic_launcher_sakura_classic_gold" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_classic_white" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_classic_none" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_mono_cream" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_mono_gold" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_mono_white" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_mono_none" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_moon_cream" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_moon_gold" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_moon_white" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_moon_none" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_gold_cream" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_gold_gold" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_gold_white" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_sakura_gold_none" type="mipmap">@mipmap/ic_launcher_sakura</item>
+    <item name="ic_launcher_indigo_classic_gold" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_classic_white" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_classic_none" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_mono_cream" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_mono_gold" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_mono_white" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_mono_none" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_moon_cream" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_moon_gold" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_moon_white" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_moon_none" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_gold_cream" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_gold_gold" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_gold_white" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_indigo_gold_none" type="mipmap">@mipmap/ic_launcher_indigo</item>
+    <item name="ic_launcher_matcha_classic_gold" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_classic_white" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_classic_none" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_mono_cream" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_mono_gold" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_mono_white" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_mono_none" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_moon_cream" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_moon_gold" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_moon_white" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_moon_none" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_gold_cream" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_gold_gold" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_gold_white" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_matcha_gold_none" type="mipmap">@mipmap/ic_launcher_matcha</item>
+    <item name="ic_launcher_night_classic_cream" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_classic_gold" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_classic_white" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_classic_none" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_mono_cream" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_mono_gold" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_mono_white" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_mono_none" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_moon_cream" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_moon_gold" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_moon_white" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_moon_none" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_gold_cream" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_gold_gold" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_gold_white" type="mipmap">@mipmap/ic_launcher</item>
+    <item name="ic_launcher_night_gold_none" type="mipmap">@mipmap/ic_launcher</item>
+</resources>

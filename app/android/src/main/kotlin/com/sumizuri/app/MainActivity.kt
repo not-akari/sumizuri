@@ -16,6 +16,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import com.sumizuri.app.data.AppIcons
+import com.sumizuri.app.data.resetWhileHidden
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.navigation.Destination
 import com.sumizuri.app.navigation.requestedTabOf
@@ -72,6 +74,8 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         if (!isChangingConfigurations) {
+            // Done while the app is away, since changing the icon while it is open can close it on some phones.
+            AppIcons.resetWhileHidden()
             (application as SumizuriApplication)
                 .profiles.container.value.lock
                 .onAway()

@@ -1,76 +1,97 @@
 package com.sumizuri.app.ui.kit.art
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.PathBuilder
-import androidx.compose.ui.graphics.vector.group
-import androidx.compose.ui.graphics.vector.path
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.inset
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.addPathNodes
+import androidx.compose.ui.graphics.vector.toPath
+import com.sumizuri.app.data.IconDesign
+import com.sumizuri.app.data.IconPart
 
-// The icon of the app drawn as shapes so it stays sharp at any size, measured from the launcher icon on its 432 wide grid and cut to the ring.
-val AppIconArt: ImageVector by lazy {
-    ImageVector
-        .Builder("AppIcon", 64.dp, 64.dp, viewportWidth = 252f, viewportHeight = 252f)
-        .apply {
-            group(translationX = -89.5f, translationY = -89.5f) {
-                path(fill = SolidColor(Color(0xFF1A1D24))) { circle(215.5f, 215.5f, 109f) }
-                path(stroke = SolidColor(Color(0xFFE8E0B0)), strokeLineWidth = 17f, strokeLineCap = StrokeCap.Round) {
-                    moveTo(178.2f, 104.1f)
-                    arcTo(117.5f, 117.5f, 0f, isMoreThanHalf = true, isPositiveArc = true, 128.9f, 136.1f)
-                }
-                path(fill = SolidColor(Color(0xFF8E8A7E))) { band(drop = 22f) }
-                path(fill = SolidColor(Color(0xFFB4B0A2))) { band(drop = 13f) }
-                path(fill = SolidColor(Color(0xFFF4F1E4))) {
-                    moveTo(120f, 167f)
-                    quadTo(166.5f, 140.5f, 214f, 172f)
-                    lineTo(214f, 242f)
-                    quadTo(167.5f, 220.5f, 121f, 235f)
-                    close()
-                }
-                path(fill = SolidColor(Color(0xFFD9D6CA))) {
-                    moveTo(215f, 170f)
-                    quadTo(263f, 136.5f, 311f, 159f)
-                    lineTo(311f, 225f)
-                    quadTo(250f, 216f, 216f, 242f)
-                    close()
-                }
-                path(stroke = SolidColor(Color(0xFFBEBBAF)), strokeLineWidth = 3f) {
-                    moveTo(215f, 171f)
-                    lineTo(215f, 242f)
-                }
-                path(stroke = SolidColor(Color(0xFFB8B5A9)), strokeLineWidth = 5.5f, strokeLineCap = StrokeCap.Round) {
-                    line(132f, 181f, 159f, 169.5f, 198f, 186f)
-                    line(132f, 194f, 158f, 182f, 198f, 200f)
-                    line(133f, 208f, 158f, 196.5f, 200f, 213f)
-                    line(226f, 184f, 250f, 166f, 280f, 173f)
-                    line(230f, 198f, 252f, 180f, 280f, 186f)
-                    line(232f, 212f, 254f, 194f, 288f, 199f)
-                }
-            }
-        }.build()
+// How much of a launcher tile the ring takes, the part of the 108 wide icon a launcher shows being the middle 72.
+const val ArtInTile = 0.875f
+
+// The width of the launcher grid the shapes are measured on, and of the part of it inside the ring.
+private const val Grid = 432f
+private const val RingBox = 252f
+
+// The shapes of the icon on the 432 wide grid of an adaptive launcher icon. scripts/app-icons.js draws the same ones.
+private object IconShapes {
+    private fun path(data: String): Path = addPathNodes(data).toPath()
+
+    private fun band(drop: Float) = path(
+        "M128,230 L128,${235 + drop} Q167.5,${220.5 + drop} 216,${242 + drop} Q250,${216 + drop} 306,${225 + drop} L306,220 Z",
+    )
+
+    val disc = path("M106.5,215.5 A109,109 0 1 1 324.5,215.5 A109,109 0 1 1 106.5,215.5 Z")
+    val ring = path("M178.2,104.1 A117.5,117.5 0 1 1 128.9,136.1")
+    val edgeDark = band(22f)
+    val edgeLight = band(13f)
+    val leftPage = path("M120,167 Q166.5,140.5 214,172 L214,242 Q167.5,220.5 121,235 Z")
+    val rightPage = path("M215,170 Q263,136.5 311,159 L311,225 Q250,216 216,242 Z")
+    val spine = path("M215,171 L215,242")
+    val lines = path(
+        "M132,181 Q159,169.5 198,186 M132,194 Q158,182 198,200 M133,208 Q158,196.5 200,213 " +
+            "M226,184 Q250,166 280,173 M230,198 Q252,180 280,186 M232,212 Q254,194 288,199",
+    )
 }
 
-private fun PathBuilder.circle(x: Float, y: Float, radius: Float) {
-    moveTo(x - radius, y)
-    arcTo(radius, radius, 0f, isMoreThanHalf = true, isPositiveArc = true, x + radius, y)
-    arcTo(radius, radius, 0f, isMoreThanHalf = true, isPositiveArc = true, x - radius, y)
-    close()
+// Draws the book in its ring in the colors of a design. Cut to the ring it fills the room it is given, and on the grid it sits where an adaptive launcher icon has it.
+fun DrawScope.drawIconArt(design: IconDesign, onGrid: Boolean = false) {
+    val box = if (onGrid) Grid else RingBox
+    val shift = if (onGrid) 0f else -(Grid - RingBox) / 2f
+    scale(size.minDimension / box, pivot = Offset.Zero) {
+        translate(shift, shift) {
+            fun part(p: IconPart) = Color(design.color(p))
+            drawPath(IconShapes.disc, part(IconPart.Disc))
+            if (design.ring) drawPath(IconShapes.ring, part(IconPart.Ring), style = Stroke(17f, cap = StrokeCap.Round))
+            drawPath(IconShapes.edgeDark, part(IconPart.EdgeDark))
+            drawPath(IconShapes.edgeLight, part(IconPart.EdgeLight))
+            drawPath(IconShapes.leftPage, part(IconPart.LeftPage))
+            drawPath(IconShapes.rightPage, part(IconPart.RightPage))
+            drawPath(IconShapes.spine, part(IconPart.Spine), style = Stroke(3f))
+            drawPath(IconShapes.lines, part(IconPart.Lines), style = Stroke(5.5f, cap = StrokeCap.Round))
+        }
+    }
 }
 
-// One edge of the pages under the open book, the given distance below the bottom of the pages. Its top hides under them.
-private fun PathBuilder.band(drop: Float) {
-    moveTo(128f, 230f)
-    lineTo(128f, 235f + drop)
-    quadTo(167.5f, 220.5f + drop, 216f, 242f + drop)
-    quadTo(250f, 216f + drop, 306f, 225f + drop)
-    lineTo(306f, 220f)
-    close()
+// An icon drawn from a design: the book in its ring alone, or on its rounded tile of color as a launcher shows it.
+class IconPainter(private val design: IconDesign, private val onTile: Boolean = false) : Painter() {
+    override val intrinsicSize: Size get() = Size(256f, 256f)
+
+    override fun DrawScope.onDraw() {
+        if (!onTile) return drawIconArt(design)
+        drawRoundRect(Color(design.color(IconPart.Back)), cornerRadius = CornerRadius(size.minDimension * 0.3f))
+        inset(size.minDimension * (1f - ArtInTile) / 2f) { drawIconArt(design) }
+    }
 }
 
-// One written line on a page, as a soft curve.
-private fun PathBuilder.line(x0: Float, y0: Float, cx: Float, cy: Float, x1: Float, y1: Float) {
-    moveTo(x0, y0)
-    quadTo(cx, cy, x1, y1)
+// The usual icon of the app, drawn so it stays sharp at any size.
+val AppIconArt: Painter = IconPainter(IconDesign.Usual)
+
+// An icon as a launcher shows it: its background filling the shape with the book in its ring in the middle.
+@Composable
+fun AppIconTile(design: IconDesign, shape: Shape, modifier: Modifier = Modifier) {
+    val art = remember(design) { IconPainter(design) }
+    Box(modifier.background(Color(design.color(IconPart.Back)), shape), contentAlignment = Alignment.Center) {
+        Image(art, null, Modifier.fillMaxSize(ArtInTile))
+    }
 }
