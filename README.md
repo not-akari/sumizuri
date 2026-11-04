@@ -31,10 +31,11 @@ Sumizuri is one app for the things you read and watch. Open files from your devi
 
 - **Manga and comics:** pages right to left, left to right or downwards, or a long scroll, with tap zones and keys you can change.
 - **Novels:** text set the way you read best, with word lookup.
-- **Anime:** a player with subtitles and audio tracks.
+- **Anime:** a player with subtitles, audio tracks and a choice of quality.
 - **Your own files:** folders of pictures, ZIP and CBZ, and EPUB.
 - **Library:** shelves, a feed of new chapters, downloads, and backups you can lock with a password.
-- **Sync:** keep devices the same through your own [sync server](docs/sync-server.md).
+- **Phones, tablets and desktop:** on a wide screen the reader and the player keep their controls in one row, and their menus open in a corner so the page or the video is never covered.
+- **Sync:** keep your library, progress and reading habits the same on every device through your own [sync server](docs/sync-server.md). Each device keeps its own look and theme.
 
 ## Download
 
@@ -52,7 +53,7 @@ Get the file for your device from the download page above, then follow the steps
 
 ### iPhone and iPad
 
-The `.ipa` cannot be installed by tapping it. A sideloading tool signs it with your own Apple ID and puts it on the phone. Your Apple ID goes to Apple and stays on your computer. Nobody else gets it. You need iOS 16 or newer and a computer, Windows or Mac, with the phone's cable.
+The `.ipa` cannot be installed by tapping it. A sideloading tool signs it with your own Apple ID and puts it on the phone. Your Apple ID goes to Apple and stays on your computer. Nobody else gets it. You need iOS 15 or newer and a computer, Windows or Mac, with the phone's cable.
 
 A free Apple ID makes an app that lasts **7 days**, and the tool renews it while the phone is on the same Wi-Fi as the computer. A free Apple ID also allows about 3 apps at a time.
 
