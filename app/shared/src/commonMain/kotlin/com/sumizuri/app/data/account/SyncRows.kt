@@ -209,13 +209,36 @@ internal object SyncRowCodec {
                         RowBody(RowKind.Source, name = id, version = want.sources[id], entry = entries.sources[id])
                 }
             }
-            if (entries.extras.isNotEmpty() &&
-                entries.extras != serverExtras
-            ) {
-                out += RowBody(RowKind.Extras, extras = entries.extras)
+            // The repos and source values are sent only when this device has one the server lacks, and then with all the server has, in a set order. A value both have is left as each device has it, as a restore never changes one, so two devices never send the same row back and forth.
+            val joined = joinExtras(serverExtras, entries.extras)
+            if (joined.isNotEmpty() && joined != serverExtras?.let { joinExtras(it, JsonObject(emptyMap())) }) {
+                out += RowBody(RowKind.Extras, extras = joined)
             }
         }
         return out
+    }
+
+    // The repos of the server with the ones only this device has, and the same for the source values, each sorted by what names them.
+    private fun joinExtras(server: JsonObject?, local: JsonObject): JsonObject {
+        fun join(part: String, key: (JsonObject) -> String): JsonArray? {
+            val all = ((server?.get(part) as? JsonArray).orEmpty() + (local[part] as? JsonArray).orEmpty()).mapNotNull {
+                it as? JsonObject
+            }
+            if (all.isEmpty()) return null
+            return JsonArray(all.distinctBy(key).sortedBy(key))
+        }
+        val text = { item: JsonObject, name: String -> item[name]?.jsonPrimitive?.content.orEmpty() }
+        return JsonObject(
+            listOfNotNull(
+                join("repos") { text(it, "url") }?.let { "repos" to it },
+                join(
+                    "sourceValues",
+                ) { listOf("scope", "area", "key").joinToString("\u0000") { name -> text(it, name) } }?.let {
+                    "sourceValues" to
+                        it
+                },
+            ).toMap(),
+        )
     }
 
     // The rows that came from the server as a backup, so the titles, chapters and sources this device lacks can be put in the way a restore does.
