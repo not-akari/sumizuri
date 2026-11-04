@@ -59,8 +59,10 @@ import kotlinx.coroutines.delay
 fun ReaderScreen(state: ReaderState, actions: ReaderActions, opening: ChapterPlace? = null) {
     val ready = !(state.loading || state.message != null || state.pages.isEmpty() || !state.modeKnown)
     // The reader is made under the opening card and stays clear until its first page has drawn, so the black of pages still loading never shows. A chapter of words has nothing to wait for, and a slow first page is given up on after a while.
-    var drawn by remember(state.chapterId) { mutableStateOf(false) }
-    LaunchedEffect(ready, state.chapterId) {
+    // It follows the chapter the reader was opened on, so a scroll on into the next chapter, which joins it to the same run, never brings the opening back.
+    val opened = state.segments.firstOrNull()?.chapterId ?: state.chapterId
+    var drawn by remember(opened) { mutableStateOf(false) }
+    LaunchedEffect(ready, opened) {
         if (!ready) return@LaunchedEffect
         if (state.isText) drawn = true
         delay(FirstPageWaitMs)

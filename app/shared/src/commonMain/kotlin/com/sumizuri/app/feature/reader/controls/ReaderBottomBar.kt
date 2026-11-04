@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -83,8 +82,8 @@ private val NamedWidth = 400.dp
 private val ActionWidth = 76.dp
 private val RowPanelWidth = 640.dp
 
-// How wide the button to the chapter before or after is at an end of the row.
-private val ChapterEndWidth = 48.dp
+// How big the button to the chapter before or after is at an end of the row.
+private val ChapterEndWidth = 44.dp
 
 // The track of the dock, given to the panel of a page that draws it beside its picture on a wide dock, or null when the dock draws it itself.
 internal val LocalDockTrack = compositionLocalOf<(@Composable () -> Unit)?> { null }
@@ -216,7 +215,11 @@ fun ReaderBottomBar(
                     CompositionLocalProvider(LocalDockLabels provides true) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if (!side) before()
-                            if (!side && !pageBeside) Box(Modifier.weight(1f).padding(horizontal = 8.dp)) { track() } else Spacer(Modifier.weight(1f))
+                            if (!side && !pageBeside) {
+                                Box(Modifier.weight(1f).padding(start = 12.dp, end = 20.dp)) { track() }
+                            } else {
+                                Spacer(Modifier.weight(1f))
+                            }
                             Row(Modifier.width(ActionWidth * (if (bar.canAuto) 5 else 4))) { ReaderActions(bar, panel, ::toggle, onAuto) }
                             if (!side) after()
                         }
@@ -240,24 +243,20 @@ fun ReaderBottomBar(
     }
 }
 
-// The chapter before or after at an end of the row of actions, in the look of an action: the arrow, and the number of the chapter under it where the actions show their names. Faded when there is none.
+// The arrow to the chapter before or after at an end of the row of actions, centered in the row with no number under it. Its number is read out with its name. Faded when there is none.
 @Composable
 private fun ChapterEnd(icon: ImageVector, label: String, number: String?, target: Long?, onOpenChapter: (Long) -> Unit) {
     val enabled = target != null
-    val named = LocalDockLabels.current
     val tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else 0.3f)
-    Column(
+    val said = if (number == null) label else "$label $number"
+    Box(
         Modifier
-            .width(ChapterEndWidth)
-            .clip(MaterialTheme.shapes.medium)
-            .clickable(enabled = enabled, role = Role.Button, onClickLabel = label) { target?.let(onOpenChapter) }
-            .padding(vertical = if (named) 4.dp else 0.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .size(ChapterEndWidth)
+            .clip(CircleShape)
+            .clickable(enabled = enabled, role = Role.Button, onClickLabel = said) { target?.let(onOpenChapter) },
+        contentAlignment = Alignment.Center,
     ) {
-        Box(Modifier.height(if (named) 32.dp else 38.dp), contentAlignment = Alignment.Center) {
-            Icon(icon, label, Modifier.size(22.dp), tint = tint)
-        }
-        if (named) Text(number.orEmpty(), Modifier.padding(top = 2.dp), style = MaterialTheme.typography.labelSmall, color = tint, maxLines = 1)
+        Icon(icon, said, Modifier.size(22.dp), tint = tint)
     }
 }
 
