@@ -136,6 +136,7 @@ fun main(args: Array<String>) {
             ) { file -> AppContainer(databaseBuilder(file.toString()), pages, solver, file.toString()) }
         }
         val icon = appIcon()
+        if (isMac) DockIcon(icon)
         val state = rememberWindowState(width = 1000.dp, height = 720.dp)
         // Windows uses the app-drawn bar. macOS and Linux use the native frame.
         Window(

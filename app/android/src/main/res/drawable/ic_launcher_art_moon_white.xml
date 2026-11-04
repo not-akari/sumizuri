@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Made by scripts/app-icons.js. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="432"
+    android:viewportHeight="432">
+    <path android:fillColor="#E8E0B0" android:pathData="M106.5,215.5 A109,109 0 1 1 324.5,215.5 A109,109 0 1 1 106.5,215.5 Z"/>
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="17" android:strokeLineCap="round" android:pathData="M178.2,104.1 A117.5,117.5 0 1 1 128.9,136.1"/>
+    <path android:fillColor="#0F1114" android:pathData="M128,230 L128,257 Q167.5,242.5 216,264 Q250,238 306,247 L306,220 Z"/>
+    <path android:fillColor="#3C414D" android:pathData="M128,230 L128,248 Q167.5,233.5 216,255 Q250,229 306,238 L306,220 Z"/>
+    <path android:fillColor="#1A1D24" android:pathData="M120,167 Q166.5,140.5 214,172 L214,242 Q167.5,220.5 121,235 Z"/>
+    <path android:fillColor="#2C303A" android:pathData="M215,170 Q263,136.5 311,159 L311,225 Q250,216 216,242 Z"/>
+    <path android:strokeColor="#3C414D" android:strokeWidth="3" android:pathData="M215,171 L215,242"/>
+    <path android:strokeColor="#5D6473" android:strokeWidth="5.5" android:strokeLineCap="round" android:pathData="M132,181 Q159,169.5 198,186 M132,194 Q158,182 198,200 M133,208 Q158,196.5 200,213 M226,184 Q250,166 280,173 M230,198 Q252,180 280,186 M232,212 Q254,194 288,199"/>
+</vector>

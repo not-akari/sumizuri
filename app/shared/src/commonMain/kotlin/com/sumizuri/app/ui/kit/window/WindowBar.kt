@@ -29,16 +29,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.core.AppBuild
+import com.sumizuri.app.data.AppIconShown
+import com.sumizuri.app.data.IconDesign
+import com.sumizuri.app.data.appIconsShown
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.window_close
 import com.sumizuri.app.shared.resources.window_maximize
 import com.sumizuri.app.shared.resources.window_minimize
 import com.sumizuri.app.shared.resources.window_restore
-import com.sumizuri.app.ui.kit.art.AppIconArt
+import com.sumizuri.app.ui.kit.art.IconPainter
 import com.sumizuri.app.ui.text.appName
 import org.jetbrains.compose.resources.stringResource
 
@@ -66,7 +68,7 @@ fun WindowBar(
                             Modifier.fillMaxSize().onDoubleTap(onToggleMaximize).padding(start = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Image(AppIconArt, null, Modifier.size(20.dp))
+                            Image(appIcon(debug = false), null, Modifier.size(20.dp))
                             Text(
                                 appName(),
                                 Modifier.padding(start = 10.dp),
@@ -90,11 +92,12 @@ fun WindowBar(
     }
 }
 
-// The icon of the app, for the window of a desktop. A debug build gets it inside a red frame.
+// The icon of the app, for the window of a desktop: the usual one, or the one a person made on its tile. A debug build gets it inside a red frame.
 @Composable
-fun appIcon(): Painter {
-    val icon = rememberVectorPainter(AppIconArt)
-    return if (AppBuild.isDebug) remember(icon) { DebugIcon(icon) } else icon
+fun appIcon(debug: Boolean = AppBuild.isDebug): Painter {
+    val design = if (appIconsShown) AppIconShown.now() else IconDesign.Usual
+    val icon = remember(design) { IconPainter(design, onTile = design != IconDesign.Usual) }
+    return if (debug) remember(icon) { DebugIcon(icon) } else icon
 }
 
 private val DebugRed = Color(0xFFC62828)
