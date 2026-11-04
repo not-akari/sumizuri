@@ -2,9 +2,9 @@ package com.sumizuri.app.source.engine
 
 import com.fleeksoft.ksoup.nodes.Entities
 import com.sumizuri.app.source.model.Descramble
+import com.sumizuri.app.source.model.SourceBook
 import com.sumizuri.app.source.model.SourceChapter
 import com.sumizuri.app.source.model.SourceEntry
-import com.sumizuri.app.source.model.SourceBook
 import com.sumizuri.app.source.model.SourcePage
 import com.sumizuri.app.source.model.SourceTrack
 import com.sumizuri.app.source.model.SourceVideo

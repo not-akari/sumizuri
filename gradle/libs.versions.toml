@@ -30,7 +30,6 @@ exposed = "1.5.1"
 cryptography = "0.6.0"
 okio = "3.18.2"
 pdfbox = "3.0.8"
-pdfboxAndroid = "2.0.27.0"
 coil = "3.6.3"
 media3 = "1.11.1"
 qrose = "1.3.0"
@@ -62,7 +61,6 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 quickjs = { module = "io.github.dokar3:quickjs-kt", version.ref = "quickjs" }
 ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
 pdfbox = { module = "org.apache.pdfbox:pdfbox", version.ref = "pdfbox" }
-pdfbox-android = { module = "com.tom-roush:pdfbox-android", version.ref = "pdfboxAndroid" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }

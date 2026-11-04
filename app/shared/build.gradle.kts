@@ -73,7 +73,6 @@ kotlin {
             implementation(libs.androidx.webkit)
             implementation(libs.androidx.work)
             implementation(libs.media3.exoplayer)
-            implementation(libs.pdfbox.android)
             implementation(libs.media3.hls)
             implementation(libs.media3.okhttp)
             implementation(libs.media3.ui)

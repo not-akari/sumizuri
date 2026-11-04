@@ -263,7 +263,6 @@ class LocalSource(
             }
         }
         if (path.ext() == "txt") return listOf(SourcePage(0, text = fs.read(path) { readUtf8() }))
-        if (path.ext() == "pdf") return listOf(SourcePage(0, text = pdfText(path.toString())))
         return picturesOf(path).mapIndexed { i, address -> SourcePage(i, imageUrl = address) }
     }
 
@@ -275,6 +274,8 @@ class LocalSource(
                 .filter { it.ext() in Pictures && it.name.lowercase() !in CoverNames }
                 .sortedWith(compareBy(NaturalOrder) { it.name })
                 .map { localFileAddress(it.toString()) }
+
+        path.ext() == "pdf" -> List(pdfPageCount(path.toString())) { localPdfPageAddress(path.toString(), it) }
 
         path.ext() == "epub" -> {
             val book = Epub(path.toString())

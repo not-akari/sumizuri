@@ -1,14 +1,18 @@
 package com.sumizuri.app.data.local
 
-import java.io.File
 import org.apache.pdfbox.Loader
-import org.apache.pdfbox.text.PDFTextStripper
+import org.apache.pdfbox.rendering.PDFRenderer
+import java.io.ByteArrayOutputStream
+import java.io.File
+import javax.imageio.ImageIO
 
-actual fun pdfText(path: String): String = Loader.loadPDF(File(path)).use { document ->
-    PDFTextStripper().run {
-        lineSeparator = " "
-        paragraphEnd = "\n\n"
-        pageEnd = ""
-        getText(document).let(::tidiedPdfText)
-    }
+// How sharp a page is drawn: 150 dots an inch fills a screen and reads well.
+private const val PageDpi = 150f
+
+actual fun pdfPageCount(path: String): Int = Loader.loadPDF(File(path)).use { it.numberOfPages }
+
+// ponytail: the file is opened again for each page; keep it open between pages if big books turn slowly.
+actual fun renderPdfPage(path: String, index: Int): ByteArray = Loader.loadPDF(File(path)).use { document ->
+    val picture = PDFRenderer(document).renderImageWithDPI(index, PageDpi)
+    ByteArrayOutputStream().also { ImageIO.write(picture, "jpg", it) }.toByteArray()
 }

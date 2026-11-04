@@ -16,40 +16,35 @@ import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
 
-private val Spaces = Regex("[ \\t\\u00A0]+")
-private val BlankLines = Regex("\\n{3,}")
-
 // The client books are fetched with. A book may take minutes, so only a stalled connection gives up.
 private val http = lazy { HttpClient { install(HttpTimeout) { socketTimeoutMillis = 60_000 } } }
 
-// The words a PDF gave, with the spaces of its layout taken out of each line.
-internal fun tidiedPdfText(text: String): String = text
-    .lines()
-    .joinToString("\n") { it.replace(Spaces, " ").trim() }
-    .replace(BlankLines, "\n\n")
-    .trim()
-
 // The pages of a book at an address. It is kept among the temporary files, so opening a chapter again does not fetch it again.
-internal suspend fun bookPages(url: String, headers: Map<String, String>): List<SourcePage> = withContext(Dispatchers.IO) {
-    val fs = FileSystem.SYSTEM
-    val folder = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "sumizuri-books"
-    fs.createDirectories(folder)
-    val file = folder / url.hashCode().toUInt().toString()
-    if (!fs.exists(file)) fetchBook(url, headers, file)
-    val start = fs.read(file) { readUtf8(minOf(4L, fs.metadata(file).size ?: 0L)) }
-    val pages = when {
-        start == "%PDF" -> listOf(SourcePage(0, text = pdfText(file.toString())))
-        start.startsWith("PK") -> Epub(file.toString()).let { book ->
-            book.documents.mapIndexed { index, document -> SourcePage(index, text = book.words(document)) }
+internal suspend fun bookPages(url: String, headers: Map<String, String>): List<SourcePage> =
+    withContext(Dispatchers.IO) {
+        val fs = FileSystem.SYSTEM
+        val folder = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "sumizuri-books"
+        fs.createDirectories(folder)
+        val file = folder / url.hashCode().toUInt().toString()
+        if (!fs.exists(file)) fetchBook(url, headers, file)
+        val start = fs.read(file) { readUtf8(minOf(4L, fs.metadata(file).size ?: 0L)) }
+        val pages = when {
+            start == "%PDF" -> List(pdfPageCount(file.toString())) {
+                SourcePage(it, imageUrl = localPdfPageAddress(file.toString(), it))
+            }
+
+            start.startsWith("PK") -> Epub(file.toString()).let { book ->
+                book.documents.mapIndexed { index, document -> SourcePage(index, text = book.words(document)) }
+            }
+
+            else -> emptyList()
+        }.filter { it.imageUrl != null || !it.text.isNullOrBlank() }
+        if (pages.isEmpty()) {
+            fs.delete(file)
+            error("This book has no pages to show, or the file could not be read")
         }
-        else -> emptyList()
-    }.filter { !it.text.isNullOrBlank() }
-    if (pages.isEmpty()) {
-        fs.delete(file)
-        error("This book has no words to show. It may be a PDF of scanned pictures, or the file could not be read")
+        pages
     }
-    pages
-}
 
 // Writes the file as it arrives, into a name of its own first so a cut one is never taken for the book.
 private suspend fun fetchBook(url: String, headers: Map<String, String>, file: Path) {
