@@ -1,5 +1,7 @@
 package com.sumizuri.app.feature.title.layout
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,9 +23,12 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -39,7 +44,12 @@ import androidx.compose.ui.unit.lerp
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.back
 import com.sumizuri.app.ui.kit.page.PageGutter
+import com.sumizuri.app.ui.motion.motionMs
 import org.jetbrains.compose.resources.stringResource
+
+// How long the name takes to come into the bar, and how far below it starts.
+private const val NameMs = 220
+private val NameRise = 8.dp
 
 // How tall the bar is without the room the system takes at the top.
 private val BarHeight = 56.dp
@@ -90,9 +100,20 @@ internal fun TitleBar(
             onBack,
             colors = shade,
         ) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(Res.string.back)) }
+        // The name fades and rises in when it is given and goes the same way, keeping the last name while it fades out.
+        var shownName by remember { mutableStateOf(title) }
+        if (title.isNotEmpty()) shownName = title
+        val named by animateFloatAsState(
+            if (title.isNotEmpty()) 1f else 0f,
+            tween(motionMs(NameMs)),
+            label = "bar name",
+        )
         Text(
-            title,
-            Modifier.weight(1f).padding(horizontal = 8.dp).alpha(progress),
+            shownName,
+            Modifier.weight(1f).padding(horizontal = 8.dp).graphicsLayer {
+                alpha = progress * named
+                translationY = (1f - named) * NameRise.toPx()
+            },
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             maxLines = 1,

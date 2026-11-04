@@ -64,7 +64,7 @@ private val CellWidth = 170.dp
 
 // How far the page scrolls before the bar gets its backdrop, and before the name shows in it.
 private const val BarFade = 80f
-private val NamedAfter = 160.dp
+private val NamedAfter = 40.dp
 
 // The wide page in the way of a streaming app. The art lies behind the window and stays put: the sharp cover stands on the left in its own shape and melts into the page. The name, the buttons, the facts and the chapters scroll in a column beside it, over a wash of the page color.
 @Composable
