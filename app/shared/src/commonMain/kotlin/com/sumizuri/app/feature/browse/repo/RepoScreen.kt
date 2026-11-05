@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.shared.resources.Res
+import com.sumizuri.app.shared.resources.all
 import com.sumizuri.app.shared.resources.remove
 import com.sumizuri.app.shared.resources.repo_copy_address
 import com.sumizuri.app.shared.resources.repo_empty
@@ -94,6 +95,22 @@ fun RepoScreen(state: RepoState, actions: RepoActions) {
                                             actions.onShowNsfw(!state.showNsfw)
                                         },
                                     )
+                                }
+                            }
+                            // A repo with sources in several languages can be narrowed to one of them.
+                            val languages = state.languages
+                            if (languages.size > 1) {
+                                ChipRow {
+                                    ChoiceChip(
+                                        stringResource(Res.string.all),
+                                        state.language == null,
+                                    ) { actions.onLanguage(null) }
+                                    for (each in languages) {
+                                        ChoiceChip(
+                                            languageName(each),
+                                            each == state.language,
+                                        ) { actions.onLanguage(each) }
+                                    }
                                 }
                             }
                             if (updates.isNotEmpty()) {
