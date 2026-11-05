@@ -81,9 +81,11 @@ fun ReaderScreen(state: ReaderState, actions: ReaderActions, opening: ChapterPla
         done = ready && drawn,
         opening = { ReaderStatus(state, actions.onRetry, actions.onSolve, actions.onBack, opening) },
     ) {
-        if (ready) CompositionLocalProvider(LocalPageShown provides { drawn = true }) {
-            val shown = if (translator.active) state.translatedWith(translator.translations) else state
-            Reader(shown, actions, translator.takeIf { state.isText })
+        if (ready) {
+            CompositionLocalProvider(LocalPageShown provides { drawn = true }) {
+                val shown = if (translator.active) state.translatedWith(translator.translations) else state
+                Reader(shown, actions, translator.takeIf { state.isText })
+            }
         }
     }
     if (!state.loading && !state.modeKnown) ProbeAspect(sampleUrls(state.pages), state.imageHeaders, actions.onAspects)

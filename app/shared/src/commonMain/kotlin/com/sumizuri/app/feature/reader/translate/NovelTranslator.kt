@@ -140,7 +140,13 @@ class NovelTranslator : AutoCloseable {
             .jsonArray
             .first()
             .jsonArray
-            .joinToString("") { sentence -> sentence.jsonArray.firstOrNull()?.jsonPrimitive?.contentOrNull.orEmpty() }
+            .joinToString("") { sentence ->
+                sentence.jsonArray
+                    .firstOrNull()
+                    ?.jsonPrimitive
+                    ?.contentOrNull
+                    .orEmpty()
+            }
     }
 
     // The spare address answers with a list holding the translation and the language it found.
