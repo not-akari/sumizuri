@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +53,9 @@ internal fun PlayerGestureLayer(
     onDoubleTap: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // The tap handlers change with the screen (full screen on or off), but the gesture detector below lives on, so it calls the newest ones.
+    val tap by rememberUpdatedState(onTap)
+    val doubleTap by rememberUpdatedState(onDoubleTap)
     var hud by remember { mutableStateOf<Hud?>(null) }
     var hudJob by remember { mutableStateOf<Job?>(null) }
     val scope = rememberCoroutineScope()
@@ -96,8 +100,8 @@ internal fun PlayerGestureLayer(
                                 hideSoon()
                             }
                         },
-                        onTap = { onTap() },
-                        onDoubleTap = { offset -> onDoubleTap(if (size.width <= 0) 0.5f else offset.x / size.width) },
+                        onTap = { tap() },
+                        onDoubleTap = { offset -> doubleTap(if (size.width <= 0) 0.5f else offset.x / size.width) },
                     )
                 }.pointerInput(touch) {
                     if (!touch) return@pointerInput
