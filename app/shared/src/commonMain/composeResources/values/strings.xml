@@ -2613,6 +2613,7 @@
     <string name="player_set_ambient">Ambient light</string>
     <string name="player_set_ambient_hint">The bars around a video glow softly in the colors of its picture.</string>
     <string name="player_mini_short">Mini</string>
+    <string name="player_volume">Volume</string>
     <string name="cond_updated">Days since a new chapter</string>
     <string name="cond_last_read">Days since last read</string>
     <string name="shelf_template_reading">Reading now</string>
