@@ -19,7 +19,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import coil3.compose.LocalPlatformContext
 import com.sumizuri.app.data.model.ChapterPlace
 import com.sumizuri.app.data.model.controls.ReaderAction
@@ -82,7 +81,7 @@ fun ReaderScreen(state: ReaderState, actions: ReaderActions, opening: ChapterPla
             Box(
                 Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
-            ) { InkCircularProgressIndicator(strokeWidth = 2.dp) }
+            ) { InkCircularProgressIndicator() }
         }
     }
     if (!state.loading && !state.modeKnown) ProbeAspect(sampleUrls(state.pages), state.imageHeaders, actions.onAspects)
