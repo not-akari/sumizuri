@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,7 +94,14 @@ internal fun PlayerScreen(session: PlayerSession, engine: PlayerEngine, onClose:
         16f / 9f
     }
     LaunchedEffect(player.playing, shape) { PlayingNow.aspect = shape.takeIf { player.playing } }
-    DisposableEffect(Unit) { onDispose { PlayingNow.aspect = null } }
+    // Leaving the player any way at all (the back arrow, the next screen) gives the window its size back, not only Escape.
+    val latestFullscreen by rememberUpdatedState(fullscreen)
+    DisposableEffect(Unit) {
+        onDispose {
+            PlayingNow.aspect = null
+            latestFullscreen?.takeIf { it.active }?.toggle()
+        }
+    }
     var visible by remember { mutableStateOf(true) }
     var tick by remember { mutableIntStateOf(0) }
     var scrubbing by remember { mutableStateOf(false) }
