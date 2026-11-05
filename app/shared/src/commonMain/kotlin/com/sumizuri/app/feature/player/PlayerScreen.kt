@@ -168,6 +168,7 @@ internal fun PlayerScreen(session: PlayerSession, engine: PlayerEngine, onClose:
         flash = jumpIcon(prefs.doubleTapSeconds, forward) to if (forward) Alignment.CenterEnd else Alignment.CenterStart
     }
     fun volumeBy(delta: Int) = engine.setVolume((engine.state.value.volume + delta).coerceIn(0, 100))
+    fun volumeTo(percent: Int) = engine.setVolume(percent).also { show() }
     fun playPause() {
         if (engine.state.value.playing) engine.pause() else engine.play()
         show()
@@ -241,6 +242,7 @@ internal fun PlayerScreen(session: PlayerSession, engine: PlayerEngine, onClose:
         onFit = ::cycleFit,
         onPreview = engine::thumbnailAt,
         onMini = mini?.let { control -> { control.enter(shape) } },
+        onVolume = if (touchPlayer) null else ::volumeTo,
     )
     val pickerCalls = PickerCalls(
         onClose = { picker = null },
