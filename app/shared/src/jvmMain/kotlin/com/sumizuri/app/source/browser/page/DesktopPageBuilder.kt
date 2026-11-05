@@ -16,6 +16,9 @@ import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.network.CefRequest
 import java.awt.BorderLayout
 import java.awt.GraphicsEnvironment
+import java.awt.Window
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
 import javax.swing.JWindow
 import javax.swing.SwingUtilities
 import kotlin.time.TimeSource
@@ -60,7 +63,18 @@ internal object DesktopPageBuilder {
                     layout = BorderLayout()
                     add(browser.uiComponent, BorderLayout.CENTER)
                     focusableWindowState = false
+                    // A popup is not managed by the window manager on X11, so KWin cannot pull it back on screen.
+                    type = Window.Type.POPUP
                     setBounds(PARKED, PARKED, VIEW_WIDTH, VIEW_HEIGHT)
+                    hideIfShown()
+                    // Some window managers move it into view anyway; it goes straight back.
+                    addComponentListener(
+                        object : ComponentAdapter() {
+                            override fun componentMoved(e: ComponentEvent) {
+                                if (x != PARKED || y != PARKED) setLocation(PARKED, PARKED)
+                            }
+                        },
+                    )
                     isVisible = true
                 }
             }
@@ -81,6 +95,14 @@ internal object DesktopPageBuilder {
             throw BrowserUnavailableException("The embedded browser did not start.")
         }
         return DesktopRenderPage(client, browser, window, state)
+    }
+
+    // Fully transparent where the system can draw translucent windows, so it shows nothing even when on screen.
+    private fun JWindow.hideIfShown() {
+        val device = graphicsConfiguration?.device ?: return
+        if (device.isWindowTranslucencySupported(java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT)) {
+            opacity = 0f
+        }
     }
 
     private suspend fun <T> onSwing(work: () -> T): T = withContext(Dispatchers.IO) {
