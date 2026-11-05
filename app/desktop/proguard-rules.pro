@@ -36,6 +36,9 @@
 -keep class androidx.savedstate.** { *; }
 -keep class org.slf4j.** { *; }
 -keep class com.fleeksoft.** { *; }
+-keep class org.apache.commons.logging.** { *; }
+-keep class org.apache.pdfbox.** { *; }
+-keep class org.apache.fontbox.** { *; }
 
 # What Kotlin, the serializers and the lifecycle read about classes while the app runs.
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod,Exceptions,RuntimeVisible*Annotations,KotlinMetadata
