@@ -21,10 +21,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withTimeoutOrNull
 
 // How long the typing must pause before the sources are asked, how many sources are asked at once, and how many results of each are shown.
 private const val PauseMs = 500L
-private const val AtOnce = 3
+private const val AtOnce = 8
+
+// A source slower than this is left out of the search, so one dead site does not hold the others back.
+private const val WaitMs = 20_000L
 private const val PerSource = 12
 
 // Searches every installed source that is on for the words, of every kind or of one, a few sources at once, and shows each answer as it comes. The sources used last are asked first.
@@ -81,7 +85,7 @@ class GlobalSearchViewModel(
             mutable.update { it.copy(results = wanted.map { source -> SourceResults(source) }) }
             val gate = Semaphore(AtOnce)
             coroutineScope {
-                wanted.map { source -> async { gate.withPermit { settle(searchOne(source, query)) } } }.awaitAll()
+                wanted.map { source -> async { gate.withPermit { settle(withTimeoutOrNull(WaitMs) { searchOne(source, query) } ?: SourceResults(source, loading = false, error = "Took longer than ${WaitMs / 1000} seconds")) } } }.awaitAll()
             }
         }
     }
