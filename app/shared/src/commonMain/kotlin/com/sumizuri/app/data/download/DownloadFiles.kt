@@ -93,12 +93,19 @@ class DownloadFiles(private val root: Path, private val fs: FileSystem = FileSys
         val manifest = folder / Manifest
         if (!fs.exists(manifest)) return null
         val video = runCatching { Format.decodeFromString(SavedChapter.serializer(), fs.read(manifest) { readUtf8() }) }
-            .getOrNull()?.video ?: return null
+            .getOrNull()
+            ?.video ?: return null
         if (!fs.exists(folder / video.file)) return null
         return SourceVideo(
             url = fileAddress((folder / video.file).toString()),
             quality = "Saved",
-            subtitles = video.subtitles.map { SourceTrack(fileAddress((folder / it.file).toString()), it.label, it.language) },
+            subtitles = video.subtitles.map {
+                SourceTrack(
+                    fileAddress((folder / it.file).toString()),
+                    it.label,
+                    it.language,
+                )
+            },
             pairedAudio = video.audio?.let { SourceTrack(fileAddress((folder / it).toString()), "Saved sound") },
         )
     }

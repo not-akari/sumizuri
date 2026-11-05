@@ -19,6 +19,9 @@ import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.data.work.BusyHandle
 import com.sumizuri.app.data.work.BusyKind
 import com.sumizuri.app.data.work.BusyWork
+import com.sumizuri.app.feature.player.VideoChoice
+import com.sumizuri.app.playback.hls.expandHlsMasters
+import com.sumizuri.app.playback.hls.isHls
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.download_err_kind
 import com.sumizuri.app.shared.resources.download_err_no_pages
@@ -26,9 +29,6 @@ import com.sumizuri.app.shared.resources.download_err_no_video
 import com.sumizuri.app.shared.resources.download_err_page
 import com.sumizuri.app.shared.resources.download_err_source
 import com.sumizuri.app.shared.resources.download_save_failed
-import com.sumizuri.app.feature.player.VideoChoice
-import com.sumizuri.app.playback.hls.expandHlsMasters
-import com.sumizuri.app.playback.hls.isHls
 import com.sumizuri.app.source.Source
 import com.sumizuri.app.source.SourceManager
 import com.sumizuri.app.source.SourceResult
@@ -362,12 +362,22 @@ class Downloader(
             } catch (error: Throwable) {
                 last = error
                 failedHosts += hostOf(video.url)
-                AppLog.warn(Tag, "could not save ${place.titleName} ${place.number} from ${hostOf(video.url)}, ${error.message}; trying the next server")
+                AppLog.warn(
+                    Tag,
+                    "could not save ${place.titleName} ${place.number} from ${hostOf(
+                        video.url,
+                    )}, ${error.message}; trying the next server",
+                )
                 continue
             }
             withContext(Dispatchers.IO) { files.finish(place.titleId, place.id, part, SavedChapter(video = saved)) }
             db.downloads().setDone(item.chapterId, parts, size, nowMillis())
-            AppLog.info(Tag, "saved ${place.titleName} ${place.number} from ${hostOf(video.url)}, ${video.quality ?: "video"}, ${size / 1024 / 1024} MB")
+            AppLog.info(
+                Tag,
+                "saved ${place.titleName} ${place.number} from ${hostOf(
+                    video.url,
+                )}, ${video.quality ?: "video"}, ${size / 1024 / 1024} MB",
+            )
             return
         }
         throw DownloadProblem(last?.message ?: getString(Res.string.download_err_no_video))

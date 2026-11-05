@@ -91,7 +91,10 @@ class ExoEngine(context: Context) : PlayerEngine {
 
     override fun open(media: PlayerMedia, startMs: Long, play: Boolean) {
         // Sites go through OkHttp with their headers, and a saved episode is read from its files.
-        val factory = DefaultDataSource.Factory(appContext, OkHttpDataSource.Factory(OkHttpClient()).setDefaultRequestProperties(media.headers))
+        val factory = DefaultDataSource.Factory(
+            appContext,
+            OkHttpDataSource.Factory(OkHttpClient()).setDefaultRequestProperties(media.headers),
+        )
         val subtitles = media.subtitles.mapNotNull { track ->
             val address = track.url ?: return@mapNotNull null
             MediaItem.SubtitleConfiguration
