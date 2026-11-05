@@ -55,6 +55,7 @@ import com.sumizuri.app.feature.reader.controls.PagePreview
 import com.sumizuri.app.feature.reader.controls.PageTrack
 import com.sumizuri.app.feature.reader.controls.ReaderBottomBar
 import com.sumizuri.app.feature.reader.controls.ReaderTopBar
+import com.sumizuri.app.feature.reader.translate.NovelTranslator
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.reader_latest
 import com.sumizuri.app.shared.resources.reader_minutes_left
@@ -107,6 +108,8 @@ internal class ChromeCalls(
     // Makes a mode the default of every title without a mode of its own.
     val onDefaultMode: (ReaderMode) -> Unit,
     val preview: (Int) -> PagePreview?,
+    // Translates the words of a novel, or null for a chapter of pictures.
+    val translator: NovelTranslator? = null,
     // Whether the open panel shows docked at the side of a wide window, so the dock leaves it out.
     val panelAside: Boolean = false,
 )
@@ -198,6 +201,7 @@ internal fun BoxWithConstraintsScope.ReaderChrome(
                     Modifier.padding(horizontal = 4.dp),
                     onComments = calls.onComments,
                     left = left,
+                    translator = calls.translator,
                 )
             }
         }

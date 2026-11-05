@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Text of the Suki novel translate patch, kept apart so it never meets the files Weblate writes. -->
+<resources>
+    <string name="reader_translate">Translate chapter</string>
+    <string name="reader_translate_off">Show the original text</string>
+</resources>
