@@ -65,6 +65,9 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
 
+// How many parts of a stream are fetched at once at most, whatever is set for pages, as a video server blocks many at once sooner than a picture server.
+private const val SegmentsAtOnce = 3
+
 // Saves the video of an episode that the player would pick, with the quality and sound the person likes.
 internal class EpisodeSaver(
     private val db: AppDatabase,
@@ -85,7 +88,7 @@ internal class EpisodeSaver(
         val tries = (listOf(first) + (videos - first)).sortedBy { !it.isHls }
         val failedHosts = mutableSetOf<String>()
         var last: Throwable? = null
-        val atOnce = prefs.first().pagesAtOnce
+        val atOnce = minOf(prefs.first().pagesAtOnce, SegmentsAtOnce)
         for (video in tries) {
             // Another quality of a server that failed fails the same way, so the next server is tried.
             if (hostOf(video.url) in failedHosts) continue

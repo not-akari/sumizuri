@@ -88,7 +88,7 @@ class DownloadFiles(private val root: Path, private val fs: FileSystem = FileSys
     }
 
     // The saved video of an episode, as a video the players open from the device, or null when it is not saved or its file is gone.
-    fun readVideo(titleId: Long, chapterId: Long): SourceVideo? {
+    fun readVideo(titleId: Long, chapterId: Long, quality: String, sound: String): SourceVideo? {
         val folder = folderOf(titleId, chapterId)
         val manifest = folder / Manifest
         if (!fs.exists(manifest)) return null
@@ -98,7 +98,7 @@ class DownloadFiles(private val root: Path, private val fs: FileSystem = FileSys
         if (!fs.exists(folder / video.file)) return null
         return SourceVideo(
             url = fileAddress((folder / video.file).toString()),
-            quality = "Saved",
+            quality = quality,
             subtitles = video.subtitles.map {
                 SourceTrack(
                     fileAddress((folder / it.file).toString()),
@@ -106,7 +106,7 @@ class DownloadFiles(private val root: Path, private val fs: FileSystem = FileSys
                     it.language,
                 )
             },
-            pairedAudio = video.audio?.let { SourceTrack(fileAddress((folder / it).toString()), "Saved sound") },
+            pairedAudio = video.audio?.let { SourceTrack(fileAddress((folder / it).toString()), sound) },
         )
     }
 

@@ -2,6 +2,9 @@ package com.sumizuri.app.data.download
 
 import com.sumizuri.app.playback.hls.HlsPlaylist
 import com.sumizuri.app.playback.hls.isHls
+import com.sumizuri.app.shared.resources.Res
+import com.sumizuri.app.shared.resources.download_err_no_quality
+import com.sumizuri.app.shared.resources.download_err_video_status
 import com.sumizuri.app.source.model.SourceVideo
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
@@ -10,9 +13,9 @@ import io.ktor.client.request.header
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.contentLength
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.CancellationException
@@ -31,6 +34,7 @@ import kotlinx.coroutines.withContext
 import okio.FileSystem
 import okio.Path
 import okio.buffer
+import org.jetbrains.compose.resources.getString
 
 // How many times a part of a video that fails is asked for again.
 private const val PartTries = 3
@@ -68,7 +72,11 @@ internal fun localPlaylist(text: String, base: String, prefix: String): Pair<Str
     val segment = if (text.contains("#EXT-X-MAP")) "m4s" else "ts"
     fun local(reference: String, extension: String): String {
         val url = HlsPlaylist.resolve(base, reference)
-        return parts.getOrPut(url) { StreamPart(url, "$prefix${parts.size.toString().padStart(5, '0')}.$extension") }.name
+        return parts
+            .getOrPut(
+                url,
+            ) { StreamPart(url, "$prefix${parts.size.toString().padStart(5, '0')}.$extension") }
+            .name
     }
     val address = Regex("URI=\"([^\"]*)\"")
     val lines = text.lines().map { it.trim() }.map { line ->
@@ -98,7 +106,9 @@ internal suspend fun saveVideo(
             delay(SlowWindowMs)
             val sent = meter.bytes - before
             before = meter.bytes
-            if (sent < SlowBytesPerSecond * SlowWindowMs / 1000) throw TooSlow("${hostOf(video.url)} sent ${sent / 1024} KB in ${SlowWindowMs / 1000} s")
+            if (sent < SlowBytesPerSecond * SlowWindowMs / 1000) {
+                throw TooSlow("${hostOf(video.url)} sent ${sent / 1024} KB in ${SlowWindowMs / 1000} s")
+            }
         }
     }
     try {
@@ -130,7 +140,8 @@ private suspend fun saveWatched(
             total = bytes
             progress(0, 1, bytes)
         }
-        val start = withContext(Dispatchers.IO) { fs.read(folder / name) { readUtf8(minOf(HlsMark.length.toLong(), total)) } }
+        val start =
+            withContext(Dispatchers.IO) { fs.read(folder / name) { readUtf8(minOf(HlsMark.length.toLong(), total)) } }
         if (start != HlsMark) {
             // ponytail: a separate sound kept as a plain file is not saved; HLS sound is, below. Add it if a source sends one.
             fetchAll(subtitles.map { it.first }, headers, folder, atOnce, meter) { _, _ -> }
@@ -145,7 +156,9 @@ private suspend fun saveWatched(
     if (HlsPlaylist.isMaster(text)) {
         // The quality was not picked from the master, so the one with the most bits is kept.
         val master = HlsPlaylist.parseMaster(text, mediaUrl)
-        val best = master.variants.maxByOrNull { it.bandwidth ?: 0 } ?: throw DownloadProblem("The stream lists no quality")
+        val best =
+            master.variants.maxByOrNull { it.bandwidth ?: 0 }
+                ?: throw DownloadProblem(getString(Res.string.download_err_no_quality))
         mediaUrl = best.uri
         soundUrl = soundUrl ?: HlsPlaylist.audioFor(master, best)?.uri
         text = text(mediaUrl, headers)
@@ -179,18 +192,19 @@ private suspend fun fetchAll(
     val counting = Mutex()
     var count = 0
     coroutineScope {
-        parts.map { part ->
-            async {
-                gate.withPermit {
-                    val bytes = bytes(part.url, headers)
-                    withContext(Dispatchers.IO) { FileSystem.SYSTEM.write(folder / part.name) { write(bytes) } }
-                    counting.withLock {
-                        meter.bytes += bytes.size
-                        done(++count, bytes.size)
+        parts
+            .map { part ->
+                async {
+                    gate.withPermit {
+                        val bytes = bytes(part.url, headers)
+                        withContext(Dispatchers.IO) { FileSystem.SYSTEM.write(folder / part.name) { write(bytes) } }
+                        counting.withLock {
+                            meter.bytes += bytes.size
+                            done(++count, bytes.size)
+                        }
                     }
                 }
-            }
-        }.awaitAll()
+            }.awaitAll()
     }
 }
 
@@ -207,44 +221,57 @@ private suspend fun bytes(url: String, headers: Map<String, String>): ByteArray 
 }
 
 // Writes a big file as it arrives, never whole in memory, telling the bytes so far every megabyte. When the server cuts it, it is asked again from the byte it stopped at, and from the start when the server cannot do that.
-private suspend fun stream(url: String, headers: Map<String, String>, file: Path, meter: Meter, told: suspend (Long) -> Unit) {
+private suspend fun stream(
+    url: String,
+    headers: Map<String, String>,
+    file: Path,
+    meter: Meter,
+    told: suspend (Long) -> Unit,
+) {
     val fs = FileSystem.SYSTEM
     var done = 0L
     var cuts = 0
     while (true) {
         try {
-            http.value.prepareGet(url) {
-                headers.forEach { (name, value) -> header(name, value) }
-                if (done > 0) header("Range", "bytes=$done-")
-            }.execute { response ->
-                if (!response.status.isSuccess()) throw DownloadProblem("The video answered ${response.status.value}")
-                // A server that sends the whole file again instead of the rest has it written from the start.
-                val resumed = done > 0 && response.status == HttpStatusCode.PartialContent
-                if (!resumed) done = 0
-                // The size the server says it sends, to tell a file it closed early from one that is whole.
-                val expected = response.contentLength()?.let { it + done }
-                val channel = response.bodyAsChannel()
-                val buffer = ByteArray(64 * 1024)
-                var shown = done
-                withContext(Dispatchers.IO) {
-                    (if (resumed) fs.appendingSink(file) else fs.sink(file)).buffer().use { sink ->
-                        while (true) {
-                            val read = channel.readAvailable(buffer, 0, buffer.size)
-                            if (read == -1) break
-                            if (read == 0) continue
-                            sink.write(buffer, 0, read)
-                            done += read
-                            meter.bytes += read
-                            if (done - shown >= 1024 * 1024) {
-                                shown = done
-                                told(done)
+            http.value
+                .prepareGet(url) {
+                    headers.forEach { (name, value) -> header(name, value) }
+                    if (done > 0) header("Range", "bytes=$done-")
+                }.execute { response ->
+                    if (!response.status.isSuccess()) {
+                        throw DownloadProblem(getString(Res.string.download_err_video_status, response.status.value))
+                    }
+                    // A server that sends the whole file again instead of the rest has it written from the start.
+                    val resumed = done > 0 && response.status == HttpStatusCode.PartialContent
+                    if (!resumed) done = 0
+                    // The size the server says it sends, to tell a file it closed early from one that is whole.
+                    val expected = response.contentLength()?.let { it + done }
+                    val channel = response.bodyAsChannel()
+                    val buffer = ByteArray(64 * 1024)
+                    var shown = done
+                    withContext(Dispatchers.IO) {
+                        (if (resumed) fs.appendingSink(file) else fs.sink(file)).buffer().use { sink ->
+                            while (true) {
+                                val read = channel.readAvailable(buffer, 0, buffer.size)
+                                if (read == -1) break
+                                if (read == 0) continue
+                                sink.write(buffer, 0, read)
+                                done += read
+                                meter.bytes += read
+                                if (done - shown >= 1024 * 1024) {
+                                    shown = done
+                                    told(done)
+                                }
                             }
                         }
                     }
+                    // Some servers end a file early as if it were whole, so a short one is taken as cut.
+                    if (expected != null &&
+                        done < expected
+                    ) {
+                        error("the server sent ${done / 1024 / 1024} of ${expected / 1024 / 1024} MB")
+                    }
                 }
-                // Some servers end a file early as if it were whole, so a short one is taken as cut.
-                if (expected != null && done < expected) error("the server sent ${done / 1024 / 1024} of ${expected / 1024 / 1024} MB")
-            }
             told(done)
             return
         } catch (error: CancellationException) {
@@ -284,4 +311,8 @@ private fun extensionIn(url: String, otherwise: String): String = url
     .takeIf { it.length in 2..4 && it.all(Char::isLetterOrDigit) } ?: otherwise
 
 // The site part of an address, which tells one server from another.
-internal fun hostOf(url: String): String = url.substringAfter("://").substringBefore('/').substringBefore(':').lowercase()
+internal fun hostOf(url: String): String = url
+    .substringAfter("://")
+    .substringBefore('/')
+    .substringBefore(':')
+    .lowercase()

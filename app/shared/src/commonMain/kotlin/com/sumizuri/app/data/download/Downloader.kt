@@ -29,6 +29,8 @@ import com.sumizuri.app.shared.resources.download_err_no_video
 import com.sumizuri.app.shared.resources.download_err_page
 import com.sumizuri.app.shared.resources.download_err_source
 import com.sumizuri.app.shared.resources.download_save_failed
+import com.sumizuri.app.shared.resources.download_saved_quality
+import com.sumizuri.app.shared.resources.download_saved_sound
 import com.sumizuri.app.source.Source
 import com.sumizuri.app.source.SourceManager
 import com.sumizuri.app.source.SourceResult
@@ -194,7 +196,9 @@ class Downloader(
     // The saved video of an episode, played from the device, or null when it is not saved.
     suspend fun savedVideo(titleId: Long, chapterId: Long): SourceVideo? {
         if (db.downloads().get(chapterId)?.status != DownloadState.Done) return null
-        return withContext(Dispatchers.IO) { files.readVideo(titleId, chapterId) }
+        val quality = getString(Res.string.download_saved_quality)
+        val sound = getString(Res.string.download_saved_sound)
+        return withContext(Dispatchers.IO) { files.readVideo(titleId, chapterId, quality, sound) }
     }
 
     // While chapters are being saved the app stays awake in the background, with a notice of how many are done out of the ones in the queue. Its stop button pauses the queue.
