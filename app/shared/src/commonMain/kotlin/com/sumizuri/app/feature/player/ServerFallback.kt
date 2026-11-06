@@ -1,5 +1,6 @@
 package com.sumizuri.app.feature.player
 
+import com.sumizuri.app.source.host.net.AddressGuard
 import com.sumizuri.app.source.model.SourceVideo
 
 // The videos of an episode that did not start, and the next server to open in their place.
@@ -12,10 +13,7 @@ internal class ServerFallback {
     fun next(video: SourceVideo, videos: List<SourceVideo>): SourceVideo? {
         failed += video
         val left = videos.filter { it !in failed }
-        val failedHosts = failed.map { hostOf(it.url) }.toSet()
-        return left.firstOrNull { hostOf(it.url) !in failedHosts } ?: left.firstOrNull()
+        val failedHosts = failed.map { AddressGuard.hostOf(it.url) }.toSet()
+        return left.firstOrNull { AddressGuard.hostOf(it.url) !in failedHosts } ?: left.firstOrNull()
     }
 }
-
-// The site part of the address of a video, which tells one server from another.
-private fun hostOf(url: String): String = url.substringAfter("://").substringBefore('/').lowercase()
