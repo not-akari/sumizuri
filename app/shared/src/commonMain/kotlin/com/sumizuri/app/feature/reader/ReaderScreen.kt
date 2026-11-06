@@ -83,7 +83,8 @@ fun ReaderScreen(state: ReaderState, actions: ReaderActions, opening: ChapterPla
     ) {
         if (ready) {
             CompositionLocalProvider(LocalPageShown provides { drawn = true }) {
-                val shown = if (translator.active) state.translatedWith(translator.translations) else state
+                val translations = translator.translations.takeIf { translator.active }.orEmpty()
+                val shown = remember(state, translations) { state.translatedWith(translations) }
                 Reader(shown, actions, translator.takeIf { state.isText })
             }
         }

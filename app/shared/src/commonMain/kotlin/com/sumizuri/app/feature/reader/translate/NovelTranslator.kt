@@ -86,12 +86,9 @@ class NovelTranslator : AutoCloseable {
             try {
                 val answer = ask(batch.joinToString(Gap), language)
                 val parts = answer.split(BlankLine).map { it.trim() }
-                // When the paragraphs did not come back one for one, each is sent alone.
-                if (parts.size == batch.size) {
-                    batch.zip(parts).forEach { (text, translated) -> done[text] = translated }
-                } else {
-                    batch.forEach { text -> done[text] = ask(text, language).trim() }
-                }
+                // When the paragraphs did not come back one for one, the batch stays as the source gave it, rather than asking for each paragraph alone and running into the limits of the service.
+                if (parts.size != batch.size) error("The translation came back cut differently")
+                batch.zip(parts).forEach { (text, translated) -> done[text] = translated }
                 translations = done.toMap()
             } catch (cancelled: CancellationException) {
                 throw cancelled
