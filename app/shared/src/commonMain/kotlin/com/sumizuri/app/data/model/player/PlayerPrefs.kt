@@ -41,6 +41,8 @@ data class PlayerPrefs(
     val showLog: Boolean = false,
     // The next episode starts by itself when one ends.
     val autoNext: Boolean = true,
+    // When a video does not start, the next server is tried by itself instead of asking, until one plays or none is left.
+    val autoNextServer: Boolean = false,
     // How much of an episode must be played, in percent, for it to count as watched.
     val watchedAt: Int = 90,
     // An episode starts where it was left.

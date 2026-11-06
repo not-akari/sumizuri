@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.SkipNext
 import androidx.compose.material.icons.outlined.SlowMotionVideo
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Subtitles
+import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material.icons.outlined.Swipe
 import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material.icons.outlined.Terminal
@@ -27,6 +28,7 @@ import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.player_aspect
 import com.sumizuri.app.shared.resources.player_set_audio_pref
 import com.sumizuri.app.shared.resources.player_set_auto_next
+import com.sumizuri.app.shared.resources.player_set_auto_server
 import com.sumizuri.app.shared.resources.player_set_double_tap
 import com.sumizuri.app.shared.resources.player_set_hide
 import com.sumizuri.app.shared.resources.player_set_hold_speed
@@ -59,6 +61,8 @@ internal fun playerSettingIconOf(title: StringResource): ImageVector? = when (ti
     Res.string.player_set_resume -> Icons.Outlined.History
 
     Res.string.player_set_auto_next -> Icons.Outlined.SkipNext
+
+    Res.string.player_set_auto_server -> Icons.Outlined.SwapHoriz
 
     Res.string.player_set_watched -> Icons.Outlined.TaskAlt
 

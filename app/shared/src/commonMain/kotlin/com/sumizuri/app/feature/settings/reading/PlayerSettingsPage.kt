@@ -29,6 +29,8 @@ import com.sumizuri.app.shared.resources.player_set_ambient_hint
 import com.sumizuri.app.shared.resources.player_set_audio_pref
 import com.sumizuri.app.shared.resources.player_set_auto_next
 import com.sumizuri.app.shared.resources.player_set_auto_next_hint
+import com.sumizuri.app.shared.resources.player_set_auto_server
+import com.sumizuri.app.shared.resources.player_set_auto_server_hint
 import com.sumizuri.app.shared.resources.player_set_double_tap
 import com.sumizuri.app.shared.resources.player_set_double_tap_hint
 import com.sumizuri.app.shared.resources.player_set_hide
@@ -113,6 +115,13 @@ fun PlayerSettingsRoute(onBack: () -> Unit) {
                         it.copy(autoNext = on)
                     }
                 }, Res.string.player_set_auto_next_hint)
+            }
+            padded {
+                SwitchSetting(Res.string.player_set_auto_server, prefs.autoNextServer, { on ->
+                    change {
+                        it.copy(autoNextServer = on)
+                    }
+                }, Res.string.player_set_auto_server_hint)
             }
             padded {
                 ChoiceSetting(Res.string.player_set_watched, PlayerPrefs.WatchedAt, prefs.watchedAt, {
