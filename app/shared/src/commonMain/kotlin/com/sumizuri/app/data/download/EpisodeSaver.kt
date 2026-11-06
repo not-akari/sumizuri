@@ -1,5 +1,6 @@
 package com.sumizuri.app.data.download
 
+import com.sumizuri.app.source.host.net.AddressGuard
 import com.sumizuri.app.StartQuietMs
 import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.data.db.AppDatabase
@@ -91,7 +92,7 @@ internal class EpisodeSaver(
         val atOnce = minOf(prefs.first().pagesAtOnce, SegmentsAtOnce)
         for (video in tries) {
             // Another quality of a server that failed fails the same way, so the next server is tried.
-            if (hostOf(video.url) in failedHosts) continue
+            if (AddressGuard.hostOf(video.url) in failedHosts) continue
             val part = withContext(Dispatchers.IO) { files.begin(place.titleId, place.id) }
             val clock = TimeSource.Monotonic.markNow()
             var written = Duration.ZERO
@@ -111,10 +112,10 @@ internal class EpisodeSaver(
                 throw cancelled
             } catch (error: Throwable) {
                 last = error
-                failedHosts += hostOf(video.url)
+                failedHosts += AddressGuard.hostOf(video.url)
                 AppLog.warn(
                     Tag,
-                    "could not save ${place.titleName} ${place.number} from ${hostOf(
+                    "could not save ${place.titleName} ${place.number} from ${AddressGuard.hostOf(
                         video.url,
                     )}, ${error.message}; trying the next server",
                 )
@@ -124,7 +125,7 @@ internal class EpisodeSaver(
             db.downloads().setDone(item.chapterId, parts, size, nowMillis())
             AppLog.info(
                 Tag,
-                "saved ${place.titleName} ${place.number} from ${hostOf(
+                "saved ${place.titleName} ${place.number} from ${AddressGuard.hostOf(
                     video.url,
                 )}, ${video.quality ?: "video"}, ${size / 1024 / 1024} MB",
             )

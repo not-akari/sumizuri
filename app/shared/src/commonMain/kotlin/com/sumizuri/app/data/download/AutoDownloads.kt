@@ -104,7 +104,7 @@ class AutoDownloads(
 
     private suspend fun inLibrary(titleId: Long): Boolean {
         val title = library.title(titleId).first() ?: return false
-        // ponytail: episodes are only saved when asked, as one takes hundreds of megabytes; a choice of their own if wanted.
+        // Episodes are only saved when asked, as one takes hundreds of megabytes.
         return title.inLibrary && title.kind != Kind.Anime && canBeSaved(title.kind, title.sourceId)
     }
 }

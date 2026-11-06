@@ -1,5 +1,6 @@
 package com.sumizuri.app.data.download
 
+import com.sumizuri.app.source.host.net.AddressGuard
 import com.sumizuri.app.playback.hls.HlsPlaylist
 import com.sumizuri.app.playback.hls.isHls
 import com.sumizuri.app.shared.resources.Res
@@ -12,7 +13,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.bodyAsChannel
-import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentLength
@@ -107,7 +107,7 @@ internal suspend fun saveVideo(
             val sent = meter.bytes - before
             before = meter.bytes
             if (sent < SlowBytesPerSecond * SlowWindowMs / 1000) {
-                throw TooSlow("${hostOf(video.url)} sent ${sent / 1024} KB in ${SlowWindowMs / 1000} s")
+                throw TooSlow("${AddressGuard.hostOf(video.url)} sent ${sent / 1024} KB in ${SlowWindowMs / 1000} s")
             }
         }
     }
@@ -143,7 +143,7 @@ private suspend fun saveWatched(
         val start =
             withContext(Dispatchers.IO) { fs.read(folder / name) { readUtf8(minOf(HlsMark.length.toLong(), total)) } }
         if (start != HlsMark) {
-            // ponytail: a separate sound kept as a plain file is not saved; HLS sound is, below. Add it if a source sends one.
+            // A separate sound beside a plain file is not saved yet; the sound of an HLS stream is, below.
             fetchAll(subtitles.map { it.first }, headers, folder, atOnce, meter) { _, _ -> }
             progress(1, 1, total)
             return SavedVideo(name, subtitles.map { it.second })
@@ -208,11 +208,7 @@ private suspend fun fetchAll(
     }
 }
 
-private suspend fun text(url: String, headers: Map<String, String>): String = tried(url) {
-    val response = http.value.get(url) { headers.forEach { (name, value) -> header(name, value) } }
-    if (!response.status.isSuccess()) error("$url answered ${response.status.value}")
-    response.bodyAsText()
-}
+private suspend fun text(url: String, headers: Map<String, String>): String = bytes(url, headers).decodeToString()
 
 private suspend fun bytes(url: String, headers: Map<String, String>): ByteArray = tried(url) {
     val response = http.value.get(url) { headers.forEach { (name, value) -> header(name, value) } }
@@ -309,10 +305,3 @@ private fun extensionIn(url: String, otherwise: String): String = url
     .substringAfterLast('.', "")
     .lowercase()
     .takeIf { it.length in 2..4 && it.all(Char::isLetterOrDigit) } ?: otherwise
-
-// The site part of an address, which tells one server from another.
-internal fun hostOf(url: String): String = url
-    .substringAfter("://")
-    .substringBefore('/')
-    .substringBefore(':')
-    .lowercase()
