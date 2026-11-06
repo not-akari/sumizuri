@@ -3,6 +3,8 @@ package com.sumizuri.app.feature.reader.translate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.sumizuri.app.data.model.Kind
+import com.sumizuri.app.data.net.SiteKinds
 import com.sumizuri.app.feature.reader.ReaderPage
 import com.sumizuri.app.feature.reader.ReaderState
 import io.ktor.client.HttpClient
@@ -53,6 +55,12 @@ private object Kept {
 // Puts the words of a novel into the language of the app. Paragraphs go to the service together in batches.
 class NovelTranslator : AutoCloseable {
     private val http = HttpClient { install(HttpTimeout) { requestTimeoutMillis = AnswerWithinMs } }
+
+    // The translator takes the way set for novels, as it carries their words.
+    init {
+        SiteKinds.mark(TranslateAddress, Kind.Novel)
+        SiteKinds.mark(SpareAddress, Kind.Novel)
+    }
     private val done = Kept.done
 
     var status by mutableStateOf(if (Kept.on) TranslateStatus.Working else TranslateStatus.Off)
