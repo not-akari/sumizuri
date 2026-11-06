@@ -23,6 +23,13 @@ import javax.swing.JWindow
 import javax.swing.SwingUtilities
 import kotlin.time.TimeSource
 
+// Window managers that pull a parked window back on screen are a Linux matter.
+private val OnLinux = System
+    .getProperty("os.name")
+    .orEmpty()
+    .lowercase()
+    .contains("linux")
+
 // Creates a hidden Chromium page in a real window parked outside the screen, since bot checks refuse a page drawn off screen.
 internal object DesktopPageBuilder {
     private const val VIEW_WIDTH = 1280
@@ -63,18 +70,8 @@ internal object DesktopPageBuilder {
                     layout = BorderLayout()
                     add(browser.uiComponent, BorderLayout.CENTER)
                     focusableWindowState = false
-                    // A popup is not managed by the window manager on X11, so KWin cannot pull it back on screen.
-                    type = Window.Type.POPUP
                     setBounds(PARKED, PARKED, VIEW_WIDTH, VIEW_HEIGHT)
-                    hideIfShown()
-                    // Some window managers move it into view anyway; it goes straight back.
-                    addComponentListener(
-                        object : ComponentAdapter() {
-                            override fun componentMoved(e: ComponentEvent) {
-                                if (x != PARKED || y != PARKED) setLocation(PARKED, PARKED)
-                            }
-                        },
-                    )
+                    if (OnLinux) keepOffScreen()
                     isVisible = true
                 }
             }
@@ -97,8 +94,16 @@ internal object DesktopPageBuilder {
         return DesktopRenderPage(client, browser, window, state)
     }
 
-    // Fully transparent where the system can draw translucent windows, so it shows nothing even when on screen.
-    private fun JWindow.hideIfShown() {
+    // Some Linux window managers, such as KWin, pull a window parked off screen back into view on top of the app. A popup is left alone by the window manager on X11, a moved window goes straight back, and it is made see through where the system can draw that. Only on Linux, as Chromium may slow down a page it thinks nobody can see, which other systems need for bot checks.
+    private fun JWindow.keepOffScreen() {
+        type = Window.Type.POPUP
+        addComponentListener(
+            object : ComponentAdapter() {
+                override fun componentMoved(e: ComponentEvent) {
+                    if (x != PARKED || y != PARKED) setLocation(PARKED, PARKED)
+                }
+            },
+        )
         val device = graphicsConfiguration?.device ?: return
         if (device.isWindowTranslucencySupported(java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT)) {
             opacity = 0f
