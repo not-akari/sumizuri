@@ -275,6 +275,8 @@ class LocalSource(
                 .sortedWith(compareBy(NaturalOrder) { it.name })
                 .map { localFileAddress(it.toString()) }
 
+        path.ext() == "pdf" -> List(pdfPageCount(path.toString())) { localPdfPageAddress(path.toString(), it) }
+
         path.ext() == "epub" -> {
             val book = Epub(path.toString())
             val ordered = book.documents.flatMap { book.pictures(it) }.distinct()
