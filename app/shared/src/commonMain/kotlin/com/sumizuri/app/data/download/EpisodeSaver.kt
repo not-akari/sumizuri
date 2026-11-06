@@ -1,6 +1,5 @@
 package com.sumizuri.app.data.download
 
-import com.sumizuri.app.source.host.net.AddressGuard
 import com.sumizuri.app.StartQuietMs
 import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.data.db.AppDatabase
@@ -33,6 +32,7 @@ import com.sumizuri.app.shared.resources.download_save_failed
 import com.sumizuri.app.source.Source
 import com.sumizuri.app.source.SourceManager
 import com.sumizuri.app.source.SourceResult
+import com.sumizuri.app.source.host.net.AddressGuard
 import com.sumizuri.app.source.model.SourceChapter
 import com.sumizuri.app.source.model.SourcePage
 import com.sumizuri.app.source.model.SourceVideo

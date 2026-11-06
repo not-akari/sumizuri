@@ -1,11 +1,11 @@
 package com.sumizuri.app.data.download
 
-import com.sumizuri.app.source.host.net.AddressGuard
 import com.sumizuri.app.playback.hls.HlsPlaylist
 import com.sumizuri.app.playback.hls.isHls
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.download_err_no_quality
 import com.sumizuri.app.shared.resources.download_err_video_status
+import com.sumizuri.app.source.host.net.AddressGuard
 import com.sumizuri.app.source.model.SourceVideo
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
