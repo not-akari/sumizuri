@@ -25,8 +25,8 @@ private val PictureParagraph = Regex("""^!\[[^\]]*]\((https?://[^\s)]+)\)$""")
 private fun paragraphPage(text: String): ReaderPage =
     PictureParagraph.matchEntire(text)?.let { ReaderPage(it.groupValues[1], null) } ?: ReaderPage(null, text)
 
-// A chapter of words, which may have pictures among its paragraphs, as against a chapter of pictures only.
-fun hasWords(pages: List<ReaderPage>): Boolean = pages.isEmpty() || pages.any { it.imageUrl == null }
+// A chapter of words, which may have pictures among its paragraphs, as against a chapter of pictures only. It takes words that are there, so a comic with one page that failed to give its picture is still a comic.
+fun hasWords(pages: List<ReaderPage>): Boolean = pages.isEmpty() || pages.any { !it.text.isNullOrBlank() }
 
 // How many words a text holds. Languages written without spaces count about two characters to a word.
 fun wordCount(pages: List<ReaderPage>): Int {
