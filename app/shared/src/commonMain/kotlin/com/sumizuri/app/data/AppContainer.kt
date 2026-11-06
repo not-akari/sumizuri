@@ -163,6 +163,8 @@ class AppContainer(
                 SourceReferers.bySource =
                     list.filter { it.baseUrl.isNotBlank() }.associate { it.id to it.baseUrl.trimEnd('/') + "/" }
                 SiteKinds.bySource = list.associate { it.id to it.kind }
+                SourceReferers.headersBySource =
+                    list.associate { it.id to it.imageHeaders() }.filterValues { it.isNotEmpty() }
             }
         }
         // The pictures of the pages last read sit beside the database of this profile.
