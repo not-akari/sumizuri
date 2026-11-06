@@ -3,15 +3,16 @@ package com.sumizuri.app.feature.reader.novel
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
+import com.sumizuri.app.feature.reader.ReaderPage
 import kotlinx.coroutines.yield
 import kotlin.math.roundToInt
 
 // How many paragraphs are set before the work lets the screen draw.
 private const val Batch = 10
 
-// Fills screens with text, as many whole lines as the height allows. The lines are measured the way they are drawn, so a screen shows exactly the lines it was given. All sizes are in pixels.
+// Fills screens with text, as many whole lines as the height allows. The lines are measured the way they are drawn, so a screen shows exactly the lines it was given. A picture among the paragraphs takes a screen of its own. All sizes are in pixels.
 suspend fun paginate(
-    paragraphs: List<String>,
+    paragraphs: List<ReaderPage>,
     measurer: TextMeasurer,
     style: TextStyle,
     width: Int,
@@ -28,8 +29,15 @@ suspend fun paginate(
         used = 0
     }
 
-    for ((index, text) in paragraphs.withIndex()) {
+    for ((index, paragraph) in paragraphs.withIndex()) {
         if (index % Batch == 0) yield()
+        val picture = paragraph.imageUrl
+        if (picture != null) {
+            flush()
+            pages += NovelPage(listOf(NovelChunk("", index, true, picture)))
+            continue
+        }
+        val text = paragraph.text.orEmpty()
         val layout = measurer.measure(text, style, constraints = Constraints(maxWidth = width))
         var line = 0
         while (line < layout.lineCount) {
@@ -57,7 +65,7 @@ suspend fun paginate(
 }
 
 // A run of lines from one paragraph. It is the first of its paragraph when the paragraph starts there, and the rest of a paragraph that went on from the page before otherwise.
-data class NovelChunk(val text: String, val paragraph: Int, val first: Boolean)
+data class NovelChunk(val text: String, val paragraph: Int, val first: Boolean, val picture: String? = null)
 
 // What fits on one screen of text, from the end of one chunk to the start of the next.
 data class NovelPage(val chunks: List<NovelChunk>)
