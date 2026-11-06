@@ -105,10 +105,12 @@ class ExoEngine(context: Context) : PlayerEngine {
                 .setId(track.id)
                 .build()
         }
+        // A playlist at an address that does not end in m3u8 is not found out by the address, so the source's word is used.
         val item = MediaItem
             .Builder()
             .setUri(media.url)
             .setSubtitleConfigurations(subtitles)
+            .apply { if (media.type == "hls") setMimeType(MimeTypes.APPLICATION_M3U8) }
             .build()
         mutable.update { PlayerState(speed = it.speed, volume = it.volume) }
         val sources = DefaultMediaSourceFactory(factory)
