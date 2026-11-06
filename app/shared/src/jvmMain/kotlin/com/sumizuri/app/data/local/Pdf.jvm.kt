@@ -11,7 +11,7 @@ private const val PageDpi = 150f
 
 actual fun pdfPageCount(path: String): Int = Loader.loadPDF(File(path)).use { it.numberOfPages }
 
-// ponytail: the file is opened again for each page; keep it open between pages if big books turn slowly.
+// The file is opened again for each page, so only the page on screen is held in memory.
 actual fun renderPdfPage(path: String, index: Int): ByteArray = Loader.loadPDF(File(path)).use { document ->
     val picture = PDFRenderer(document).renderImageWithDPI(index, PageDpi)
     ByteArrayOutputStream().also { ImageIO.write(picture, "jpg", it) }.toByteArray()

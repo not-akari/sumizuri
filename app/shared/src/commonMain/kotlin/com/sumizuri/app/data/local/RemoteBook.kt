@@ -1,32 +1,31 @@
 package com.sumizuri.app.data.local
 
+import com.sumizuri.app.source.host.net.HttpHost
 import com.sumizuri.app.source.model.SourcePage
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.request.header
-import io.ktor.client.request.prepareGet
-import io.ktor.client.statement.bodyAsChannel
-import io.ktor.http.isSuccess
-import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
+import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
-import okio.buffer
 
-// The client books are fetched with. A book may take minutes, so only a stalled connection gives up.
-private val http = lazy { HttpClient { install(HttpTimeout) { socketTimeoutMillis = 60_000 } } }
+// How many fetched books are kept, the ones fetched last, so the temporary folder does not grow without end.
+private const val KeptBooks = 5
 
 // The pages of a book at an address. It is kept among the temporary files, so opening a chapter again does not fetch it again.
-internal suspend fun bookPages(url: String, headers: Map<String, String>): List<SourcePage> =
+internal suspend fun bookPages(url: String, headers: Map<String, String>, http: HttpHost): List<SourcePage> =
     withContext(Dispatchers.IO) {
         val fs = FileSystem.SYSTEM
         val folder = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "sumizuri-books"
         fs.createDirectories(folder)
-        val file = folder / url.hashCode().toUInt().toString()
-        if (!fs.exists(file)) fetchBook(url, headers, file)
+        val file = folder / url.encodeUtf8().sha256().hex()
+        if (!fs.exists(file)) {
+            val part = "$file.part".toPath()
+            http.download(url, headers, part)
+            fs.atomicMove(part, file)
+            forgetOldBooks(fs, folder)
+        }
         val start = fs.read(file) { readUtf8(minOf(4L, fs.metadata(file).size ?: 0L)) }
         val pages = when {
             start == "%PDF" -> List(pdfPageCount(file.toString())) {
@@ -46,20 +45,11 @@ internal suspend fun bookPages(url: String, headers: Map<String, String>): List<
         pages
     }
 
-// Writes the file as it arrives, into a name of its own first so a cut one is never taken for the book.
-private suspend fun fetchBook(url: String, headers: Map<String, String>, file: Path) {
-    val part = "$file.part".toPath()
-    http.value.prepareGet(url) { headers.forEach { (name, value) -> header(name, value) } }.execute { response ->
-        if (!response.status.isSuccess()) error("The book answered ${response.status.value}")
-        val channel = response.bodyAsChannel()
-        val buffer = ByteArray(64 * 1024)
-        FileSystem.SYSTEM.sink(part).buffer().use { sink ->
-            while (true) {
-                val read = channel.readAvailable(buffer, 0, buffer.size)
-                if (read == -1) break
-                if (read > 0) sink.write(buffer, 0, read)
-            }
-        }
+// Only the books fetched last stay. A file still being fetched is left alone.
+private fun forgetOldBooks(fs: FileSystem, folder: Path) {
+    val books = fs.list(folder).filter { !it.name.endsWith(".part") }.sortedByDescending {
+        fs.metadata(it).lastModifiedAtMillis
+            ?: 0L
     }
-    FileSystem.SYSTEM.atomicMove(part, file)
+    books.drop(KeptBooks).forEach { fs.delete(it) }
 }

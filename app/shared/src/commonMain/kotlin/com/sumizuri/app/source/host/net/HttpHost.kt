@@ -1,5 +1,15 @@
 package com.sumizuri.app.source.host.net
 
+import io.ktor.client.plugins.HttpTimeoutConfig
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.prepareGet
+import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.isSuccess
+import io.ktor.utils.io.readAvailable
+import okio.FileSystem
+import okio.Path
+import okio.buffer
+import okio.use
 import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.core.log.briefTrace
 import com.sumizuri.app.core.log.withoutQuery
@@ -327,6 +337,37 @@ class HttpHost(
         lookupLock.withLock { lookups[host] = blocked to TimeSource.Monotonic.markNow() }
         if (blocked) throw BlockedException("Refusing to fetch a private or internal address: \"$host\"")
         return clean
+    }
+
+    // Writes a big file a source points at, such as a book, as it arrives. It goes through the same checks, cookies, agent and way as every other call of the source, with no time limit on the whole, since a book may take minutes.
+    suspend fun download(url: String, headers: Map<String, String>, target: Path) {
+        var address = url
+        repeat(MAX_REDIRECTS + 1) {
+            address = checked(address)
+            kind?.let { SiteKinds.mark(address, it, sourceId) }
+            val next = client.prepareGet(address) {
+                timeout { requestTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS }
+                headers.forEach { (name, value) -> header(name, value) }
+                val hasAgent = headers.keys.any { it.equals(HttpHeaders.UserAgent, ignoreCase = true) }
+                if (!hasAgent && defaultUserAgent != null) header(HttpHeaders.UserAgent, defaultUserAgent)
+            }.execute { response ->
+                val location = response.headers[HttpHeaders.Location]
+                if (response.status.value in REDIRECTS && location != null) return@execute resolveLocation(address, location)
+                if (!response.status.isSuccess()) throw BridgeException("The file answered ${response.status.value}")
+                val channel = response.bodyAsChannel()
+                val buffer = ByteArray(64 * 1024)
+                FileSystem.SYSTEM.sink(target).buffer().use { sink ->
+                    while (true) {
+                        val read = channel.readAvailable(buffer, 0, buffer.size)
+                        if (read == -1) break
+                        if (read > 0) sink.write(buffer, 0, read)
+                    }
+                }
+                null
+            } ?: return
+            address = next
+        }
+        throw BridgeException("Too many redirects from ${AddressGuard.hostOf(url)}")
     }
 
     suspend fun cookiesFor(arguments: JsonObject): JsonElement = cookies.repliesFor(arguments)

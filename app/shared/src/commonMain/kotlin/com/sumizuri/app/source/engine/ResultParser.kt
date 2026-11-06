@@ -75,7 +75,7 @@ internal object ResultParser {
         )
     }
 
-    // The file a chapter points at instead of giving its pages, a PDF or an EPUB, an addition of the Suki build.
+    // The file a chapter points at instead of giving its pages, a PDF or an EPUB.
     fun book(details: JsonObject): SourceBook? {
         val book = details["book"] as? JsonObject ?: return null
         return text(book, "url")?.let { SourceBook(it, strings(book["headers"])) }

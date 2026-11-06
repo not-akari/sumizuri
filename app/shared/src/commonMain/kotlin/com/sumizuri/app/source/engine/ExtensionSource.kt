@@ -160,7 +160,7 @@ class ExtensionSource private constructor(
         val reply = (details as? SourceResult.Ok)?.value ?: return details.map { emptyList() }
         // A chapter that is a whole book, as a PDF or an EPUB the source points at, is read into words here.
         ResultParser.book(reply)?.let { book ->
-            return runCatching { SourceResult.Ok(bookPages(book.url, book.headers)) }.getOrElse { problem ->
+            return runCatching { SourceResult.Ok(bookPages(book.url, book.headers, host.http)) }.getOrElse { problem ->
                 if (problem is CancellationException) throw problem
                 SourceResult.Err(SourceError.Parse(problem.message ?: "The book could not be read"))
             }
