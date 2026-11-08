@@ -7,10 +7,10 @@ on:
   push:
     branches: [main]
 
-# A newer push to the same pull request stops the run of the one before it.
+# A newer push to the same pull request stops the run of the one before it. Runs on main all finish, so every merge is checked even when two land close together.
 concurrency:
   group: checks-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # A pull request only reads the repo, so the token of the run can do nothing else.
 permissions:
@@ -46,10 +46,10 @@ jobs:
           java-version: 21
       # The Gradle files are kept in the cache of GitHub between runs.
       - uses: gradle/actions/setup-gradle@v5
-      # Only this copy of the repo is changed. The machines of GitHub have 16 GB, so the build takes 6 of them.
+      # Only this copy of the repo is changed. The machines of GitHub have 16 GB, so the build takes 6 of them. The build cache is kept with the other Gradle files, so a part of the app that did not change comes from the last run instead of being compiled again.
       - name: Let Gradle build in parallel
         run: |
-          printf '\norg.gradle.parallel=true\norg.gradle.jvmargs=-Xmx6g -Dfile.encoding=UTF-8\n' >> gradle.properties
+          printf '\norg.gradle.parallel=true\norg.gradle.caching=true\norg.gradle.jvmargs=-Xmx6g -Dfile.encoding=UTF-8\n' >> gradle.properties
       # The Linux machines of GitHub come with the Android SDK, set in ANDROID_HOME. The desktop code is compiled, and the Android app is built in full, which also checks its resources and its manifest.
       - name: Compile desktop and build Android
         run: ./gradlew :app:desktop:compileKotlin :app:android:assembleDebug --console=plain

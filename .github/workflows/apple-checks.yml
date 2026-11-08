@@ -42,7 +42,11 @@ jobs:
       # The Kotlin side alone, which shows an error in the code of the iPhone before the whole project is made.
       - name: Build the Kotlin framework
         run: ./gradlew :app:shared:linkDebugFrameworkIosSimulatorArm64
+      # Homebrew would update its whole list first, which takes minutes, and XcodeGen does not need the newest one.
       - name: Install XcodeGen
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: brew install xcodegen
       - name: Build the app for the simulator
         working-directory: iosApp
@@ -70,7 +74,11 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           printf 'org.gradle.jvmargs=-Xmx6g -Dfile.encoding=UTF-8\nkotlin.daemon.jvmargs=-Xmx6g\n' >> ~/.gradle/gradle.properties
+      # Homebrew would update its whole list first, which takes minutes, and XcodeGen does not need the newest one.
       - name: Install XcodeGen
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: brew install xcodegen
       - name: Build the app for a phone
         working-directory: iosApp
