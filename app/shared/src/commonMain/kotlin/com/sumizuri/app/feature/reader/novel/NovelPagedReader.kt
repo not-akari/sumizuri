@@ -30,9 +30,11 @@ import com.sumizuri.app.feature.reader.ReaderState
 import com.sumizuri.app.feature.reader.controls.ink
 import com.sumizuri.app.feature.reader.lookup.LookupText
 import com.sumizuri.app.feature.reader.view.ChapterEnd
+import com.sumizuri.app.feature.reader.view.PageImage
 import com.sumizuri.app.feature.reader.view.ReaderView
 import com.sumizuri.app.feature.reader.view.readerInput
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
+import com.sumizuri.app.ui.kit.image.ImageFit
 import com.sumizuri.app.ui.kit.page.PageGutter
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -60,7 +62,7 @@ fun NovelPagedReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
         val height = with(density) { (maxHeight - Margin * 2).roundToPx() }
         val gap = with(density) { settings.paragraphGap.dp.roundToPx() }
         val pages by produceState<List<NovelPage>?>(null, state.pages, style, width, height, gap) {
-            value = paginate(state.pages.map { it.text.orEmpty() }, measurer, style, width, height, gap)
+            value = paginate(state.pages, measurer, style, width, height, gap)
         }
         val laid = pages
         if (laid == null) {
@@ -153,8 +155,19 @@ private fun NovelScreens(
                     for (page in screens[index]) {
                         Column(Modifier.weight(1f).padding(horizontal = PageGutter)) {
                             page.chunks.forEachIndexed { place, chunk ->
-                                val above = if (chunk.first && place > 0) settings.paragraphGap.dp else 0.dp
-                                LookupText(chunk.text, style, Modifier.padding(top = above))
+                                val picture = chunk.picture
+                                if (picture != null) {
+                                    PageImage(
+                                        picture,
+                                        state.imageHeaders,
+                                        chunk.paragraph + 1,
+                                        Modifier.fillMaxSize(),
+                                        fit = ImageFit.Screen,
+                                    )
+                                } else {
+                                    val above = if (chunk.first && place > 0) settings.paragraphGap.dp else 0.dp
+                                    LookupText(chunk.text, style, Modifier.padding(top = above))
+                                }
                             }
                         }
                     }

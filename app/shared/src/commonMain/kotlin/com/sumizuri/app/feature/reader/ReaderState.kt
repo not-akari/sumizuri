@@ -6,6 +6,7 @@ import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.reader.ReaderMode
 import com.sumizuri.app.data.model.reader.ReaderSettings
 import com.sumizuri.app.feature.comments.CommentsTarget
+import com.sumizuri.app.feature.reader.novel.hasWords
 import com.sumizuri.app.source.model.Descramble
 import org.jetbrains.compose.resources.StringResource
 
@@ -66,7 +67,7 @@ data class ReaderState(
     val bookmarked: Boolean get() = chapters.firstOrNull { it.id == chapterId }?.bookmarked == true
 
     // A chapter of words, which is either one scroll or turned pages.
-    val isText: Boolean get() = pages.firstOrNull()?.imageUrl == null
+    val isText: Boolean get() = hasWords(pages)
 }
 
 // One page of the reader, a picture or a block of text. A picture that was cut into tiles and shuffled carries the way to put it back.

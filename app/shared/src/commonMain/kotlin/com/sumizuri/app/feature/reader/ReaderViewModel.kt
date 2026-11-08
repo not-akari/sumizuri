@@ -11,6 +11,7 @@ import com.sumizuri.app.data.model.reader.ReaderSettings
 import com.sumizuri.app.data.settings.ReaderSettingsRepository
 import com.sumizuri.app.data.sources.SourceRepository
 import com.sumizuri.app.feature.comments.CommentsTarget
+import com.sumizuri.app.feature.reader.novel.hasWords
 import com.sumizuri.app.feature.reader.novel.wordCount
 import com.sumizuri.app.feature.reader.view.looksLikeStrip
 import com.sumizuri.app.shared.resources.Res
@@ -260,7 +261,7 @@ class ReaderViewModel(
             ?: return
         mutableState.update {
             // Pictures and words do not mix in one scroll.
-            if ((loaded.pages.first().imageUrl == null) != it.isText) return@update it
+            if (hasWords(loaded.pages) != it.isText) return@update it
             it.copy(
                 pages = it.pages + loaded.pages,
                 segments = it.segments + segmentOf(here, it.pages.size, loaded.pages.size, base),
@@ -358,7 +359,7 @@ class ReaderViewModel(
                 imageHeaders = headers,
                 startIndex = (saved * (shown.size - 1)).toInt(),
                 startFraction = saved,
-                words = if (shown.first().imageUrl == null) wordCount(shown) else 0,
+                words = if (hasWords(shown)) wordCount(shown) else 0,
             )
         }
     }
