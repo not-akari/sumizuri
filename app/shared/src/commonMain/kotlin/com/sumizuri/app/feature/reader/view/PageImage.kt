@@ -63,7 +63,8 @@ fun PageImage(
     modifier: Modifier = Modifier,
     fit: ImageFit = ImageFit.Width,
     bias: Float = 0.5f,
-    shape: Float? = null,
+    // The shape the page is known or guessed to have, read only while it waits, so a page on the screen is not redrawn when another one learns its shape.
+    shape: (() -> Float?)? = null,
     onShape: ((Float) -> Unit)? = null,
     visibleRangePx: (() -> ClosedFloatingPointRange<Float>?)? = null,
     maxWidth: Int? = null,
@@ -71,12 +72,12 @@ fun PageImage(
     crop: Boolean = false,
 ) {
     val context = LocalPlatformContext.current
-    val key = pageKey(url, headers, maxWidth, descramble, crop)
+    val key = remember(url, headers, maxWidth, descramble, crop) { pageKey(url, headers, maxWidth, descramble, crop) }
     var attempt by remember { mutableIntStateOf(0) }
+    // The cache is asked once for each page, not on every redraw.
+    val cached = remember(key) { PageCache.get(key, nowMillis()) }
     val load by produceState<PageLoad>(
-        PageCache.get(key, nowMillis())?.let {
-            PageLoad.Ready(it)
-        } ?: PageLoad.Loading,
+        cached?.let { PageLoad.Ready(it) } ?: PageLoad.Loading,
         key,
         attempt,
     ) {
@@ -94,9 +95,9 @@ fun PageImage(
     val shownNow = LocalPageShown.current
     LaunchedEffect(load is PageLoad.Loading) { if (load !is PageLoad.Loading) shownNow() }
     when (val state = load) {
-        PageLoad.Loading -> Waiting(modifier, fit, shape) { InkCircularProgressIndicator(strokeWidth = 2.dp) }
+        PageLoad.Loading -> Waiting(modifier, fit, shape?.invoke()) { InkCircularProgressIndicator(strokeWidth = 2.dp) }
 
-        PageLoad.Failed -> Waiting(modifier.clickable { attempt++ }, fit, shape) {
+        PageLoad.Failed -> Waiting(modifier.clickable { attempt++ }, fit, shape?.invoke()) {
             Text(stringResource(Res.string.reader_page_failed, number), color = MaterialTheme.colorScheme.error)
         }
 
@@ -160,17 +161,28 @@ suspend fun readPage(
 ): List<ImageBitmap>? {
     val key = pageKey(url, headers, maxWidth, descramble, crop)
     PageCache.get(key, nowMillis())?.let { return it }
+    // A page ahead waits its turn before it takes the page, so a page that comes on the screen in the meantime is read at once and not after the queue.
+    if (!ahead) return readLocked(context, key, url, headers, maxWidth, descramble, crop)
+    return PageWork.ahead.withPermit { readLocked(context, key, url, headers, maxWidth, descramble, crop) }
+}
+
+// Reads a page once even when the screen and the read ahead ask for it together.
+private suspend fun readLocked(
+    context: PlatformContext,
+    key: String,
+    url: String,
+    headers: Map<String, String>,
+    maxWidth: Int?,
+    descramble: Descramble?,
+    crop: Boolean,
+): List<ImageBitmap>? {
     val lock = pageLoadLocks.getOrPut(key) { PageLoadLock() }.also { it.users++ }
     var locked = false
     try {
         lock.mutex.lock()
         locked = true
-        PageCache.get(key, nowMillis())?.let { return it }
-        if (!ahead) return readNow(context, url, headers, maxWidth, descramble, crop)
-        return PageWork.ahead.withPermit {
-            // The page may have been read while this one waited.
-            PageCache.get(key, nowMillis()) ?: readNow(context, url, headers, maxWidth, descramble, crop)
-        }
+        // The page may have been read while this one waited.
+        return PageCache.get(key, nowMillis()) ?: readNow(context, key, url, headers, maxWidth, descramble, crop)
     } finally {
         if (locked) lock.mutex.unlock()
         lock.users--
@@ -180,13 +192,13 @@ suspend fun readPage(
 
 private suspend fun readNow(
     context: PlatformContext,
+    key: String,
     url: String,
     headers: Map<String, String>,
     maxWidth: Int?,
     descramble: Descramble?,
     crop: Boolean,
 ): List<ImageBitmap>? {
-    val key = pageKey(url, headers, maxWidth, descramble, crop)
     val limit = if (descramble == null) maxWidth else null
     // The whole picture is not kept in the memory cache, because the slices are what the page keeps.
     val request = buildImageRequest(context, url, headers, original = true, maxWidth = limit)
