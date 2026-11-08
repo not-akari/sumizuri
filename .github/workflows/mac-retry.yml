@@ -1,0 +1,36 @@
+name: Mac retry
+
+# GitHub sometimes finds no Mac for a job, and after 15 minutes the job ends without running a single step. When that is the only reason a release or an Apple check failed, the jobs that never started run again, at most twice. A job that started and then failed is left alone.
+on:
+  workflow_run:
+    workflows: [Release, Apple checks]
+    types: [completed]
+
+jobs:
+  retry:
+    name: Run again the jobs no Mac took
+    if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.run_attempt < 3
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Look at the jobs and run again the ones that never started
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const { owner, repo } = context.repo;
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRunAttempt, {
+              owner, repo, run_id: run.id, attempt_number: run.run_attempt, per_page: 100,
+            });
+            const failed = jobs.filter(job => job.conclusion === "failure" || job.conclusion === "cancelled");
+            // A job that no machine took has no runner and no steps.
+            const untaken = job => !job.runner_id && (job.steps ?? []).length === 0;
+            const said = failed.map(job => `${job.name} ${untaken(job) ? "never started" : "failed"}`).join(", ");
+            if (failed.length === 0 || !failed.every(untaken)) {
+              core.info(`Not run again: ${said || "nothing failed"}`);
+              return;
+            }
+            core.info(`Running again, attempt ${run.run_attempt + 1}: ${said}`);
+            await github.rest.actions.reRunWorkflowFailedJobs({ owner, repo, run_id: run.id });
