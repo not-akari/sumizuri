@@ -11,9 +11,11 @@ import coil3.request.Options
 import com.sumizuri.app.data.local.LocalPicture
 import com.sumizuri.app.data.local.archiveSource
 import com.sumizuri.app.data.local.localPictureOf
+import com.sumizuri.app.data.local.renderPdfPage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
+import okio.Buffer
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.buffer
@@ -24,6 +26,11 @@ class LocalPictureFetcher(private val picture: LocalPicture, private val options
         val source = withContext(Dispatchers.IO) {
             when (picture) {
                 is LocalPicture.File -> ImageSource(picture.path.toPath(), FileSystem.SYSTEM)
+
+                is LocalPicture.PdfPage -> ImageSource(
+                    Buffer().write(renderPdfPage(picture.pdf, picture.index)),
+                    options.fileSystem,
+                )
 
                 is LocalPicture.Entry -> ImageSource(
                     archiveSource(picture.archive, picture.entry).buffer(),

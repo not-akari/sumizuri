@@ -16,12 +16,17 @@ fun localFileAddress(path: String): String = "$Scheme://file/${Coder.encode(path
 fun localEntryAddress(archive: String, entry: String): String =
     "$Scheme://zip/${Coder.encode(archive.encodeToByteArray())}/${Coder.encode(entry.encodeToByteArray())}"
 
+@OptIn(ExperimentalEncodingApi::class)
+fun localPdfPageAddress(pdf: String, index: Int): String =
+    "$Scheme://pdf/${Coder.encode(pdf.encodeToByteArray())}/$index"
+
 fun isLocalAddress(address: String): Boolean = address.startsWith("$Scheme://")
 
 // Where a local address points: a file, or a file inside an archive. Null for any other address.
 sealed interface LocalPicture {
     data class File(val path: String) : LocalPicture
     data class Entry(val archive: String, val entry: String) : LocalPicture
+    data class PdfPage(val pdf: String, val index: Int) : LocalPicture
 }
 
 @OptIn(ExperimentalEncodingApi::class)
@@ -36,6 +41,8 @@ fun localPictureOf(address: String): LocalPicture? {
                 Coder.decode(parts[1]).decodeToString(),
                 Coder.decode(parts[2]).decodeToString(),
             )
+
+            "pdf" -> LocalPicture.PdfPage(Coder.decode(parts[1]).decodeToString(), parts[2].toInt())
 
             else -> null
         }
