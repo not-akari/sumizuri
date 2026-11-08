@@ -119,7 +119,7 @@ private fun NovelScreens(
                 ?.chunks
                 ?.first()
                 ?.let { onAnchor(it.paragraph) }
-            view.onProgress(index.coerceAtMost(end - 1), end)
+            view.onProgress(index.coerceAtMost(end - 1), index.coerceAtMost(end - 1), end)
         }
     }
 

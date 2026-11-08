@@ -93,7 +93,7 @@ fun PagedReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long) -> U
         snapshotFlow { pager.currentPage }.collect { index ->
             val spread = spreads.getOrNull(index)
             view.onPage(spread?.first() ?: lastPage)
-            view.onProgress(spread?.last() ?: lastPage, state.pages.size)
+            view.onProgress(spread?.first() ?: lastPage, spread?.last() ?: lastPage, state.pages.size)
         }
     }
     // The pages a few screens past the ones the pager makes ready are read and cut early too, so quick turns do not wait for them.
