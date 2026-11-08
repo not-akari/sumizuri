@@ -23,6 +23,7 @@ fun RepoRoute(repo: Repo, onBack: () -> Unit) {
         onRemove = viewModel::onRemove,
         onQuery = viewModel::onQuery,
         onKind = viewModel::onKind,
+        onLanguage = viewModel::onLanguage,
         onShowNsfw = viewModel::onShowNsfw,
         onUpdateAll = viewModel::onUpdateAll,
         onCopyAddress = { copy(repo.url) },
