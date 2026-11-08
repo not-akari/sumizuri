@@ -9,7 +9,7 @@ import kotlinx.coroutines.CancellationException
 import okio.ByteString.Companion.encodeUtf8
 
 // The folders the source tree of a repo sorts its sources into by kind.
-private val RepoFolders = listOf("anime", "comics", "novels", "mixed")
+private val RepoFolders = listOf("anime", "donghua", "drama", "western", "comics", "novels", "mixed")
 
 // Fetches a repo's index and the code of its sources, always through the host's address checks.
 class RepoClient(private val http: HttpHost) {
@@ -62,7 +62,7 @@ class RepoClient(private val http: HttpHost) {
         if (first.statusCode in 200..299) return first
         val root = source.fileUrl.removeSuffix("/${source.id}/index.js")
         val folders = when (source.kind) {
-            Kind.Anime -> listOf("anime")
+            Kind.Anime -> listOf("anime", "donghua", "drama", "western")
             Kind.Novel -> listOf("novels", "mixed")
             else -> listOf("comics", "mixed")
         } + RepoFolders
