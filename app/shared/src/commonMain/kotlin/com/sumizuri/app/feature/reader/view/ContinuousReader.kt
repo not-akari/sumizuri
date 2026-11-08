@@ -85,13 +85,21 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
         }
     }
     LaunchedEffect(page) { view.onPage(page) }
-    // The furthest page that has been in view, which is where the reader is counted as having got to.
+    // The page in view, which is the place kept, and the furthest page on the screen, which counts toward reading the chapter. The page in view is the top one unless only a sliver of it is left, then the one under it.
     LaunchedEffect(list, last) {
         snapshotFlow {
-            list.layoutInfo.visibleItemsInfo
-                .lastOrNull()
-                ?.index ?: 0
-        }.collect { view.onProgress(it.coerceAtMost(last), state.pages.size) }
+            val layout = list.layoutInfo
+            val top = layout.viewportStartOffset
+            val room = layout.viewportEndOffset - top
+            val shown = layout.visibleItemsInfo.firstOrNull { it.offset + it.size - top > room / 4 }?.index ?: 0
+            shown to (layout.visibleItemsInfo.lastOrNull()?.index ?: 0)
+        }.collect { (shown, reached) ->
+            view.onProgress(
+                shown.coerceAtMost(last),
+                reached.coerceAtMost(last),
+                state.pages.size,
+            )
+        }
     }
 
     // The pages just ahead and just behind are asked for early, which fills the disk cache and gives their height. The nearest ones are read and cut in full, so the heavy work is done before they scroll in and not while they do.
