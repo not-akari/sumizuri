@@ -35,13 +35,14 @@ fun imageRequest(
     val site = SourceReferers.of(sourceId)
     // The host of the picture takes the way of the kind of its source.
     remember(url, sourceId) { SiteKinds.markFor(url, sourceId) }
-    val headers = remember(extra, site) {
+    val asked = SourceReferers.headersOf(sourceId)
+    val headers = remember(extra, site, asked) {
         if (site == null ||
             extra.keys.any { it.equals("Referer", ignoreCase = true) }
         ) {
-            extra
+            asked + extra
         } else {
-            mapOf("Referer" to site) + extra
+            mapOf("Referer" to site) + asked + extra
         }
     }
     // Kept while the address and the choices stay the same, so a cover that is drawn again does not build its request again.
@@ -99,4 +100,10 @@ object SourceReferers {
     var bySource: Map<String, String> by mutableStateOf(emptyMap())
 
     fun of(sourceId: String?): String? = sourceId?.takeIf { it.isNotEmpty() }?.let { bySource[it] }
+
+    // The picture headers a source asked for in its repo, for the sources that asked.
+    var headersBySource: Map<String, Map<String, String>> by mutableStateOf(emptyMap())
+
+    fun headersOf(sourceId: String?): Map<String, String> =
+        sourceId?.takeIf { it.isNotEmpty() }?.let { headersBySource[it] }.orEmpty()
 }
