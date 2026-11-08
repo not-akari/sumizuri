@@ -19,6 +19,7 @@ fun ReaderRoute(
     onOpenComments: (CommentsTarget) -> Unit,
     // What the opener already knows of the chapter, shown while the reader reads the rest.
     opening: ChapterPlace? = null,
+    quiet: Boolean = false,
 ) {
     val container = LocalAppContainer.current
     val viewModel = viewModel(key = "reader_$chapterId") {
@@ -54,5 +55,5 @@ fun ReaderRoute(
             onComments = onOpenComments,
         )
     }
-    ReaderScreen(state, actions, opening)
+    ReaderScreen(state, actions, opening, quiet)
 }

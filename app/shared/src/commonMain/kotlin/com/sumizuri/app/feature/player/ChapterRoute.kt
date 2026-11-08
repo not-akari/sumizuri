@@ -19,6 +19,8 @@ fun ChapterRoute(
     onBack: () -> Unit,
     onOpenChapter: (Long) -> Unit,
     onOpenComments: (CommentsTarget) -> Unit,
+    // Opened from the reader, so it comes in without the opening card.
+    quiet: Boolean = false,
 ) {
     val library = LocalAppContainer.current.library
     // What is known of the chapter is read once, to tell a video from a book and to give the reader its names and cover at once, and a chapter that is gone is left to the reader to say so.
@@ -30,7 +32,7 @@ fun ChapterRoute(
 
         place?.kind == Kind.Anime -> PlayerRoute(chapterId, onBack, opening = place)
 
-        else -> ReaderRoute(chapterId, onBack, onOpenChapter, onOpenComments, opening = place)
+        else -> ReaderRoute(chapterId, onBack, onOpenChapter, onOpenComments, opening = place, quiet = quiet)
     }
 }
 
