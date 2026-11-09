@@ -3,7 +3,8 @@ import { computed } from 'vue'
 import { withBase } from 'vitepress'
 import { releaseDate, useRelease, type Device } from './release'
 import Glyph from './Glyph.vue'
-import AppMock from './AppMock.vue'
+import HeroShots from './HeroShots.vue'
+import PhoneShot from './PhoneShot.vue'
 
 const { release, seen, recommended } = useRelease()
 
@@ -32,6 +33,13 @@ const features = [
   { icon: 'folder', title: 'Profiles and backups', text: 'Give each person their own library, and keep everything in one backup file you can lock with a password.' },
 ]
 
+const screens = [
+  { src: '/screens/library.jpg', title: 'Library', text: 'Covers, unread counts and shelves, with the bar out of the way.', alt: 'The library, a grid of covers' },
+  { src: '/screens/profile.jpg', title: 'Profile', text: 'Your streak, what you read most and the titles to go on with.', alt: 'The profile page with reading stats' },
+  { src: '/screens/theme-editor.jpg', title: 'Theme editor', text: 'Tap any part of the preview to change it, and see it at once.', alt: 'The theme editor with a live preview' },
+  { src: '/screens/settings.jpg', title: 'Settings', text: 'Grouped, searchable, and every page says what is set.', alt: 'The settings page' },
+]
+
 const platforms = [
   { icon: 'android', name: 'Android' },
   { icon: 'apple', name: 'iPhone and iPad' },
@@ -57,7 +65,7 @@ const platforms = [
           <template v-else>&nbsp;</template>
         </p>
       </div>
-      <AppMock class="mock" />
+      <HeroShots class="mock" />
     </section>
 
     <section class="block">
@@ -68,6 +76,19 @@ const platforms = [
           <h3>{{ kind.title }}</h3>
           <p>{{ kind.text }}</p>
         </article>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>A look inside</h2>
+      <div class="screens">
+        <figure v-for="screen in screens" :key="screen.src" class="screen">
+          <PhoneShot :src="screen.src" :alt="screen.alt" />
+          <figcaption>
+            <strong>{{ screen.title }}</strong>
+            <span>{{ screen.text }}</span>
+          </figcaption>
+        </figure>
       </div>
     </section>
 
@@ -262,6 +283,30 @@ h1 {
   color: var(--vp-c-text-2);
 }
 
+.screens {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 28px;
+}
+.screen {
+  margin: 0;
+}
+.screen figcaption {
+  display: grid;
+  gap: 4px;
+  margin-top: 16px;
+  padding: 0 4px;
+}
+.screen strong {
+  font-size: 16px;
+}
+.screen span {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--vp-c-text-2);
+}
+
 .bento {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -373,8 +418,23 @@ h1 {
     gap: 36px;
   }
   .mock {
+    width: 100%;
     max-width: 360px;
     margin: 0 auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .screens {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 62%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+  }
+  .screen {
+    scroll-snap-align: start;
   }
 }
 
