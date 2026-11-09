@@ -1,11 +1,15 @@
 ---
 title: Privacy
 description: What stays on your device, what leaves it, and what this website does.
+eyebrow: Privacy
+heading: We collect nothing about you
+lead: What stays on your device, what leaves it, and what this website does.
+facts:
+  - No account
+  - No ads
+  - No analytics
+  - No tracking
 ---
-
-# Privacy
-
-We collect nothing about you.
 
 ## In short
 
@@ -24,6 +28,7 @@ Backups are files you make. They go where you save them, and you can lock one wi
 - **Updates.** The app asks GitHub for new versions of Sumizuri. You can turn this off in App updates.
 - **Word lookup.** A word you look up in the reader goes to Wiktionary or Jisho. Web search opens Google.
 - **Translation.** When you turn on translation in the novel reader, the text of the chapter goes to Google Translate. Nothing is sent until you turn it on.
+- **Season posters.** The seasons of a show get their posters from AniList, or from TVmaze for shows AniList does not have. Only the names of the show and its seasons are sent. You can turn this off with Season posters in Storage.
 - **Browser download.** On desktop, the first time a source needs it, the app downloads the browser it uses for sites with a bot check.
 - **Sync.** Sync happens only if you sign in, and only with the server you chose. Your library is locked on your device before it is sent, so the server cannot read it. The server keeps your username, and the name, type, app version and last seen time of your devices.
 

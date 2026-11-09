@@ -309,3 +309,46 @@ body::after {
 .VPContent.is-home {
   background: transparent;
 }
+
+/* Inner pages in the look of the home page: see through tables, code and notes over the wash, and a small moon mark before each part. */
+.vp-doc h2::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin: 0 14px 0 4px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: var(--vp-c-brand-1);
+  box-shadow: 0 0 0 5px var(--vp-c-brand-soft);
+}
+.vp-doc table,
+.vp-doc div[class*='language-'],
+.vp-doc .custom-block {
+  background: color-mix(in srgb, var(--vp-c-bg-soft) 70%, transparent);
+  backdrop-filter: blur(6px);
+}
+.vp-doc th {
+  background: color-mix(in srgb, var(--sz-high) 80%, transparent);
+}
+.vp-doc tr:nth-child(2n) {
+  background: color-mix(in srgb, var(--sz-low) 70%, transparent);
+}
+.vp-doc .custom-block {
+  border: 1px solid var(--sz-outline-variant);
+}
+.vp-doc ol > li::marker,
+.vp-doc ul > li::marker {
+  color: var(--vp-c-brand-1);
+  font-weight: 600;
+}
+.vp-doc blockquote {
+  padding: 4px 18px;
+  border-left: 3px solid var(--vp-c-brand-1);
+  border-radius: 0 12px 12px 0;
+  background: var(--vp-c-brand-soft);
+}
+.VPDoc .content-container,
+.VPDoc .aside-container {
+  padding-top: 8px;
+}

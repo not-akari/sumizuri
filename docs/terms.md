@@ -1,11 +1,10 @@
 ---
 title: Terms
 description: What Sumizuri is, what it is not, and what you are responsible for.
+eyebrow: Terms
+heading: Sumizuri is an app, not a content service
+lead: What it is, what we do not provide, and where your responsibility starts. These terms match the Legal page inside the app.
 ---
-
-# Terms
-
-Sumizuri is an app, not a content service. These terms say what it is, what we do not provide, and where your responsibility starts. They match the Legal page inside the app.
 
 ## What Sumizuri is
 
