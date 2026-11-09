@@ -19,10 +19,10 @@ object VideoChoice {
     fun height(label: String?): Int? {
         if (label == null) return null
         val text = label.lowercase()
-        Regex("(\\d{3,4})\\s*p").find(text)?.let { return it.groupValues[1].toInt() }
-        if (Regex("(^|[^a-z0-9])(4k|uhd)($|[^a-z0-9])").containsMatchIn(text)) return 2160
-        if (Regex("(^|[^a-z0-9])2k($|[^a-z0-9])").containsMatchIn(text)) return 1440
-        return Regex("(^|[^0-9])(2160|1440|1080|720|576|480|360|240)($|[^0-9])")
+        Pixels.find(text)?.let { return it.groupValues[1].toInt() }
+        if (FourK.containsMatchIn(text)) return 2160
+        if (TwoK.containsMatchIn(text)) return 1440
+        return BareHeight
             .find(text)
             ?.groupValues
             ?.get(2)
@@ -103,3 +103,9 @@ object VideoChoice {
 
 // What a subtitle was picked from: a track the video carries, or a file the source gave.
 class SubtitleChoice(val track: PlayerTrack?, val file: SourceTrack?)
+
+// The ways a quality label says its height: 1080p, 4k or uhd, 2k, or a bare common height.
+private val Pixels = Regex("(\\d{3,4})\\s*p")
+private val FourK = Regex("(^|[^a-z0-9])(4k|uhd)($|[^a-z0-9])")
+private val TwoK = Regex("(^|[^a-z0-9])2k($|[^a-z0-9])")
+private val BareHeight = Regex("(^|[^0-9])(2160|1440|1080|720|576|480|360|240)($|[^0-9])")

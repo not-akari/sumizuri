@@ -48,7 +48,7 @@ class PlaybackLog {
     }
 
     // A line with its numbers taken out, so two warnings that only differ by a number count as the same.
-    private fun shape(text: String) = text.replace(Regex("0x[0-9a-fA-F]+|\\d+"), "#")
+    private fun shape(text: String) = text.replace(Numbers, "#")
 }
 
 // A video as the log writes it: its label, what it carries, its address and its headers with the secret ones hidden.
@@ -70,3 +70,6 @@ fun describeVideo(video: SourceVideo): String {
     return (video.quality ?: "no label") + (if (extras.isEmpty()) "" else " [${extras.joinToString(", ")}]") +
         "\n    ${video.url}" + if (headers.isEmpty()) "" else "\n    headers: ${headers.joinToString("; ")}"
 }
+
+// The numbers in a log line, as hex or plain digits.
+private val Numbers = Regex("0x[0-9a-fA-F]+|\\d+")

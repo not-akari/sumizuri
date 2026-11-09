@@ -40,6 +40,9 @@ interface ProgressDao {
     @Query("UPDATE progress SET readAt = :at WHERE chapterId = :chapterId")
     suspend fun setReadAt(chapterId: Long, at: Long?)
 
+    @Query("UPDATE progress SET readAt = NULL WHERE chapterId IN (:chapterIds)")
+    suspend fun clearReadAtMany(chapterIds: List<Long>)
+
     @Query("SELECT * FROM progress WHERE titleId = :titleId")
     suspend fun allOf(titleId: Long): List<ProgressEntity>
 
