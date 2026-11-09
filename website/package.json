@@ -6,11 +6,10 @@
     "dev": "vitepress dev",
     "build": "vitepress build",
     "preview": "vitepress preview",
-    "deploy": "vitepress build && firebase deploy --only hosting"
+    "deploy": "vitepress build && npx --yes firebase-tools@15.35.0 deploy --only hosting"
   },
   "devDependencies": {
     "@fontsource/inter": "^5.3.0",
-    "firebase-tools": "^15.34.0",
-    "vitepress": "^1.6.4"
+    "vitepress": "2.0.0-alpha.21"
   }
 }
