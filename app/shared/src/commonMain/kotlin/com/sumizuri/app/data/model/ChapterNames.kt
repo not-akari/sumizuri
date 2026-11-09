@@ -122,7 +122,7 @@ fun chapterRanks(chapters: List<Pair<String?, Double>>): List<ChapterRank> {
 private fun filledIn(groups: List<Double?>, places: List<Double>, firstWhenAllLater: Boolean): List<Double> {
     val known = groups.indices.filter { groups[it] != null }.sortedBy { places[it] }
     if (known.isEmpty()) return groups.map { 0.0 }
-    val lowest = known.minOf { groups[it]!! }
+    val lowest = groups.filterNotNull().min()
     if (firstWhenAllLater && lowest > 1.0) return groups.map { it ?: 1.0 }
     return groups.mapIndexed { index, group ->
         group ?: known.lastOrNull { places[it] <= places[index] }?.let { groups[it] } ?: lowest

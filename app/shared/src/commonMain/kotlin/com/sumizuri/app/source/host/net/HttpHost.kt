@@ -370,10 +370,6 @@ class HttpHost(
         throw BridgeException("Too many redirects from ${AddressGuard.hostOf(url)}")
     }
 
-    suspend fun cookiesFor(arguments: JsonObject): JsonElement = cookies.repliesFor(arguments)
-
-    suspend fun setCookie(arguments: JsonObject): JsonElement = cookies.keep(arguments)
-
     fun close() = client.close()
 
     private companion object {
