@@ -125,6 +125,7 @@ class TitleViewModel(
             challengeUrl = (message as? SourceError.Challenge)?.url,
             oldestFirst = now.oldestFirst,
             grid = now.grid,
+            gridPictures = now.pictures,
             hideDuplicates = now.hideDuplicates,
             sort = now.sort,
             filter = now.filter,
@@ -187,6 +188,7 @@ class TitleViewModel(
                     it.copy(
                         oldestFirst = chosen.oldestFirst,
                         grid = chosen.grid,
+                        pictures = chosen.pictures,
                         hideDuplicates = chosen.hideDuplicates,
                         sort = chosen.sort,
                         filter = chosen.filter,
@@ -299,6 +301,12 @@ class TitleViewModel(
         val next = !look.value.grid
         look.update { it.copy(grid = next) }
         viewModelScope.launch { session.setChapterGrid(next) }
+    }
+
+    fun onToggleGridPictures() {
+        val next = !look.value.pictures
+        look.update { it.copy(pictures = next) }
+        viewModelScope.launch { session.setChapterPictures(next) }
     }
 
     fun onToggleDuplicates() {

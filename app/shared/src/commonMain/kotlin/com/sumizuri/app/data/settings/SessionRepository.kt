@@ -20,6 +20,7 @@ private const val BrowsePinnedKey = "session.browsePinned"
 private const val LibraryKindKey = "session.libraryKind"
 private const val OldestFirstKey = "session.oldestFirst"
 private const val ChapterGridKey = "session.chapterGrid"
+private const val ChapterPicturesKey = "session.chapterPictures"
 private const val HideDuplicatesKey = "session.hideDuplicates"
 private const val ChapterSortKey = "session.chapterSort"
 internal const val FilterUnreadKey = "session.filterUnread"
@@ -79,6 +80,9 @@ class SessionRepository(private val db: AppDatabase) {
 
     suspend fun setChapterGrid(value: Boolean) = put(ChapterGridKey, value.toString())
 
+    // Whether each cell of the grid shows a page from inside its chapter.
+    suspend fun setChapterPictures(value: Boolean) = put(ChapterPicturesKey, value.toString())
+
     // Whether a chapter listed twice is shown once.
     suspend fun hideDuplicates(): Boolean = db.settings().get(HideDuplicatesKey) == "true"
 
@@ -99,6 +103,7 @@ class SessionRepository(private val db: AppDatabase) {
         for (key in listOf(
             OldestFirstKey,
             ChapterGridKey,
+            ChapterPicturesKey,
             HideDuplicatesKey,
             ChapterSortKey,
             FilterUnreadKey,
@@ -136,7 +141,8 @@ class SessionRepository(private val db: AppDatabase) {
             ChapterSort.of(sort),
             filter,
         )
-    }.distinctUntilChanged()
+    }.combine(db.settings().observe(ChapterPicturesKey)) { look, pictures -> look.copy(pictures = pictures == "true") }
+        .distinctUntilChanged()
 
     // The groups, languages and other labels whose chapters a title hides. They are kept for each title, as each has its own.
     fun hiddenFacets(titleId: Long): Flow<Set<Facet>> = db
@@ -166,4 +172,6 @@ data class ChapterLook(
     val hideDuplicates: Boolean = false,
     val sort: ChapterSort = ChapterSort.Source,
     val filter: ChapterFilter = ChapterFilter(),
+    // A page from inside each chapter in its cell of the grid.
+    val pictures: Boolean = false,
 )

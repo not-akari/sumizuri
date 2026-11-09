@@ -15,6 +15,7 @@ private const val Finished = 0.99
 internal data class Look(
     val oldestFirst: Boolean = false,
     val grid: Boolean = false,
+    val pictures: Boolean = false,
     val hideDuplicates: Boolean = false,
     val sort: ChapterSort = ChapterSort.Source,
     val filter: ChapterFilter = ChapterFilter(),

@@ -109,6 +109,7 @@ import com.sumizuri.app.shared.resources.chapter_filter_unread
 import com.sumizuri.app.shared.resources.chapter_list_duplicates
 import com.sumizuri.app.shared.resources.chapter_list_grid
 import com.sumizuri.app.shared.resources.chapter_list_oldest
+import com.sumizuri.app.shared.resources.chapter_list_pictures
 import com.sumizuri.app.shared.resources.chapter_sort_title
 import com.sumizuri.app.shared.resources.display_collapsible_search
 import com.sumizuri.app.shared.resources.display_cover_size
@@ -298,6 +299,8 @@ fun settingIconOf(title: StringResource): ImageVector? = when (title) {
     Res.string.chapter_list_oldest -> Icons.Outlined.SwapVert
 
     Res.string.chapter_list_grid -> Icons.Outlined.ViewModule
+
+    Res.string.chapter_list_pictures -> Icons.Outlined.Photo
 
     Res.string.chapter_list_duplicates -> Icons.Outlined.ContentCopy
 
