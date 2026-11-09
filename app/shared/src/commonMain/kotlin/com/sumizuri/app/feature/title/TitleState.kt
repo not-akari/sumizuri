@@ -36,6 +36,8 @@ data class TitleState(
     val oldestFirst: Boolean = false,
     // The chapters as a grid of cells, and a chapter listed twice shown once. Both are kept for every title.
     val grid: Boolean = false,
+    // A page from inside each chapter in its cell of the grid, kept for every title.
+    val gridPictures: Boolean = false,
     val hideDuplicates: Boolean = false,
     // What the chapters are put in order by, which is kept for every title.
     val sort: ChapterSort = ChapterSort.Source,

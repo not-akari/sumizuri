@@ -109,6 +109,7 @@ internal fun LazyListScope.chapterSection(
                         calls.chapters,
                         Modifier.weight(1f),
                         calls.downloads?.let { RowDownload(state.downloads[chapter.id], it) },
+                        pictures = state.gridPictures && !state.preview,
                     )
                 }
                 repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }

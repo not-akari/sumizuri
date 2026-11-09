@@ -44,6 +44,7 @@ data class TitleCallbacks(
     val onEnableSource: () -> Unit,
     val onToggleSort: () -> Unit,
     val onToggleGrid: () -> Unit,
+    val onToggleGridPictures: () -> Unit,
     val onToggleDuplicates: () -> Unit,
     val onSort: (ChapterSort) -> Unit,
     // Which chapters show by their marks, for every title, and the groups, languages and labels whose chapters this title hides.

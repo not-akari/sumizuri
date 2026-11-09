@@ -27,6 +27,8 @@ import com.sumizuri.app.shared.resources.chapter_list_grid
 import com.sumizuri.app.shared.resources.chapter_list_grid_hint
 import com.sumizuri.app.shared.resources.chapter_list_oldest
 import com.sumizuri.app.shared.resources.chapter_list_oldest_hint
+import com.sumizuri.app.shared.resources.chapter_list_pictures
+import com.sumizuri.app.shared.resources.chapter_list_pictures_hint
 import com.sumizuri.app.shared.resources.chapter_settings_hint
 import com.sumizuri.app.shared.resources.chapter_settings_title
 import com.sumizuri.app.shared.resources.chapter_sort_hint
@@ -86,6 +88,16 @@ fun ChapterListRoute(onBack: () -> Unit) {
                     chapters::onGrid,
                     Res.string.chapter_list_grid_hint,
                 )
+            }
+            if (choices.grid) {
+                padded {
+                    SwitchSetting(
+                        Res.string.chapter_list_pictures,
+                        choices.pictures,
+                        chapters::onPictures,
+                        Res.string.chapter_list_pictures_hint,
+                    )
+                }
             }
             padded {
                 SwitchSetting(

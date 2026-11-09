@@ -866,6 +866,8 @@
     <string name="chapter_list_oldest_hint">Show the first chapter at the top.</string>
     <string name="chapter_list_grid">Grid layout</string>
     <string name="chapter_list_grid_hint">Show chapters as a grid instead of a list.</string>
+    <string name="chapter_list_pictures">Pages in the grid</string>
+    <string name="chapter_list_pictures_hint">Each cell shows a page from inside its chapter, skipping the first two and the last. The pages are fetched as the cells come into view.</string>
     <string name="chapter_list_duplicates">Hide duplicate chapters</string>
     <string name="chapter_list_duplicates_hint">Show a chapter once when a source lists it twice.</string>
     <string name="settings_missing_sources">Missing sources</string>

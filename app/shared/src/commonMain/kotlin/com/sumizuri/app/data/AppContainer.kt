@@ -48,6 +48,7 @@ import com.sumizuri.app.data.storage.DatabaseLogSink
 import com.sumizuri.app.data.storage.StorageRepository
 import com.sumizuri.app.data.sync.TitleSync
 import com.sumizuri.app.data.text.nowMillis
+import com.sumizuri.app.feature.title.chapter.ChapterPictures
 import com.sumizuri.app.source.SourceManager
 import com.sumizuri.app.source.browser.ChallengeSolver
 import com.sumizuri.app.source.browser.page.RenderPageFactory
@@ -117,6 +118,9 @@ class AppContainer(
         )
     val categories = CategoryRepository(database)
     val autoDownloads = AutoDownloads(library, categories, downloads, settings, work)
+
+    // A page from inside each chapter for the cells of the chapter grid, kept while the app runs.
+    val chapterPictures = ChapterPictures(library, sources, manager, downloads)
     val lock = AppLock(settings, shared)
     val updater = AppUpdater(settings, work)
     val sync = TitleSync(library, sources, manager, settings, carry, autoDownloads)
