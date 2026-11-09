@@ -2662,6 +2662,9 @@
     <string name="network_status_through">Everything goes through %1$s</string>
     <string name="network_status_mixed">Split by kind of title</string>
     <string name="network_test_short">Test</string>
+    <string name="player_dont_ask_again">Don't ask again, try the next one by itself</string>
+    <string name="player_set_auto_server">Try the next server by itself</string>
+    <string name="player_set_auto_server_hint">When a video does not load, the next server is tried without asking, until one plays.</string>
     <string name="download_err_no_quality">The stream lists no quality</string>
     <string name="download_err_video_status">The video server answered %1$d</string>
     <string name="download_saved_quality">Saved</string>
