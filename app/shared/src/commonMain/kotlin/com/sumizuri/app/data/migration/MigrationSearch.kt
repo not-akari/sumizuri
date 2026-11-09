@@ -130,8 +130,8 @@ class MigrationSearch(
     // The whole name, then what stands before a colon or a dash, then the first words.
     private fun queriesFor(title: String): List<String> {
         if (!rules.tryShorterName) return listOf(title)
-        val before = title.split(Regex("\\s[-\u2013|]\\s|:")).first().trim()
-        val words = title.trim().split(Regex("\\s+"))
+        val before = title.split(NameBreak).first().trim()
+        val words = title.trim().split(Spaces)
         val first = if (words.size >= 5) words.take(4).joinToString(" ") else ""
         return listOf(title, before, first).filter { it.length >= 3 }.distinct()
     }
@@ -141,10 +141,15 @@ class MigrationSearch(
         return a != null && a == hostOf(baseUrl)
     }
 
-    private fun hostOf(url: String): String? = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://([^/:?#]+)")
+    private fun hostOf(url: String): String? = HostPart
         .find(url)
         ?.groupValues
         ?.get(1)
         ?.lowercase()
         ?.removePrefix("www.")
 }
+
+// Where a name breaks into a shorter one, a run of spaces, and the host of an address.
+private val NameBreak = Regex("\\s[-\u2013|]\\s|:")
+private val Spaces = Regex("\\s+")
+private val HostPart = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://([^/:?#]+)")

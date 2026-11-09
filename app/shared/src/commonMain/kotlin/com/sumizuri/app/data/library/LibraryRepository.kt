@@ -197,7 +197,7 @@ class LibraryRepository(private val db: AppDatabase, private val scope: Coroutin
 
     // Takes chapters out of the history without making them unread, and puts them back with the times they had.
     suspend fun forgetReadings(chapterIds: List<Long>) {
-        for (id in chapterIds) db.progress().setReadAt(id, null)
+        for (part in chapterIds.chunked(BulkChunk)) db.progress().clearReadAtMany(part)
     }
 
     suspend fun restoreReadings(times: Map<Long, Long>) {

@@ -83,10 +83,10 @@ object HlsPlaylist {
 
     // An address made whole against the address it was found in.
     fun resolve(base: String, reference: String): String {
-        if (Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://").containsMatchIn(reference)) return reference
+        if (SchemeStart.containsMatchIn(reference)) return reference
         val scheme = base.substringBefore("://", "https")
         if (reference.startsWith("//")) return "$scheme:$reference"
-        val origin = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://[^/]+").find(base)?.value ?: return reference
+        val origin = OriginStart.find(base)?.value ?: return reference
         if (reference.startsWith("/")) return origin + reference
         val folder = base.substringBefore('?').substringBeforeLast('/', origin)
         return "$folder/$reference"
@@ -100,3 +100,7 @@ class HlsVariant(val uri: String, val bandwidth: Long?, val height: Int?, val au
 class HlsAudio(val group: String, val name: String, val language: String?, val uri: String?, val isDefault: Boolean)
 
 class HlsMaster(val variants: List<HlsVariant>, val audios: List<HlsAudio>)
+
+// The scheme at the start of a whole address, and the scheme with the host. A saved episode resolves every one of its segments, so they are made once.
+private val SchemeStart = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://")
+private val OriginStart = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://[^/]+")

@@ -9,8 +9,6 @@ import com.sumizuri.app.data.model.chapterTagsText
 import com.sumizuri.app.source.model.SourceChapter
 import kotlinx.coroutines.flow.map
 
-private const val FeedLimit = 40
-
 // Writes the chapters a source lists for a title, adding the new ones and bringing the saved ones up to date.
 internal class ChapterWriter(private val db: AppDatabase) {
     // A chapter with no number takes its place in the list, counted from the end. Chapters already saved are kept, with their place in the list of the source brought up to date. Only the new ones and the places that moved are written, so a title with nothing new changes nothing and the lists that watch the chapters are not worked out again. Gives the ids of the new ones.

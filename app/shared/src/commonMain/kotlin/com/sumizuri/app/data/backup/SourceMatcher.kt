@@ -213,7 +213,7 @@ class SourceMatcher(
 
     private fun plainName(name: String): String = name.lowercase().filter { it.isLetterOrDigit() }
 
-    private fun hostOf(url: String): String? = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://([^/:?#]+)")
+    private fun hostOf(url: String): String? = HostPart
         .find(url)
         ?.groupValues
         ?.get(1)
@@ -223,3 +223,6 @@ class SourceMatcher(
 
 // How a look for sources is going: how far it got while it runs, and how many titles found a source once it ended.
 data class LinkRun(val checking: Pair<Int, Int>? = null, val found: Pair<Int, Int>? = null)
+
+// The host of an address.
+private val HostPart = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://([^/:?#]+)")

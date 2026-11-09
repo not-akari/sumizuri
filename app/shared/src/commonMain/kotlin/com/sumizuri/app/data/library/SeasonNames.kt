@@ -38,12 +38,12 @@ internal fun seasonQueries(name: String): List<String> {
 
 // Whether the words in brackets only tell the sound, the subtitles or the cut.
 private fun isNote(inside: String): Boolean {
-    val words = inside.lowercase().split(Regex("[^\\p{L}\\p{N}]+")).filter { it.isNotEmpty() }
+    val words = inside.lowercase().split(NotWord).filter { it.isNotEmpty() }
     return words.isNotEmpty() && words.all { it in NoteWords }
 }
 
 // Spaces made single and marks left at the ends taken off.
-private fun String.tidy(): String = replace(Regex("\\s+"), " ").trim().trimEnd(':', '-', ',').trim()
+private fun String.tidy(): String = replace(Spaces, " ").trim().trimEnd(':', '-', ',').trim()
 
 // The season a part belongs to, such as Season 1 for Season 1 Part 2, or null when the name does not end in a part with its number.
 internal fun partOf(name: String): String? {
@@ -68,7 +68,7 @@ internal fun likeness(name: String, titles: List<String>): Double {
 // The words of a name that tell seasons apart. Words like season and part say nothing on their own, 2nd counts as 2, so Season 2 and 2nd Season are alike.
 private fun words(text: String): Set<String> = text
     .lowercase()
-    .split(Regex("[^\\p{L}\\p{N}]+"))
+    .split(NotWord)
     .map { it.replace(Ordinal, "$1") }
     // A plural counts as its one, so OADs and OAD are alike.
     .map { if (it.length > 3 && it.endsWith("s") && !it.endsWith("ss")) it.dropLast(1) else it }
@@ -90,3 +90,7 @@ internal fun seasonNumber(key: String?, name: String?): Int? {
     }
     return key?.toDoubleOrNull()?.takeIf { it > 0 && it % 1.0 == 0.0 }?.toInt()
 }
+
+// What lies between words, and a run of spaces.
+private val NotWord = Regex("[^\\p{L}\\p{N}]+")
+private val Spaces = Regex("\\s+")

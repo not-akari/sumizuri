@@ -27,7 +27,7 @@ object MatchScoring {
             .map { accents[it] ?: it.toString() }
             .joinToString("")
             .replace(symbols, " ")
-        return plain.split(Regex("\\s+")).filter { it.isNotEmpty() && it !in noise }.joinToString(" ")
+        return plain.split(Spaces).filter { it.isNotEmpty() && it !in noise }.joinToString(" ")
     }
 
     // From 0 to 1, how alike two strings are by the edits it takes to turn one into the other.
@@ -90,3 +90,6 @@ object MatchScoring {
         return MigrationScore(total, title, chapters)
     }
 }
+
+// A run of spaces between words.
+private val Spaces = Regex("\\s+")
