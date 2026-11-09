@@ -42,6 +42,7 @@ fun PreviewRoute(
             onEnableSource = {},
             onToggleSort = viewModel::onToggleSort,
             onToggleGrid = viewModel::onToggleGrid,
+            onToggleGridPictures = viewModel::onToggleGridPictures,
             onToggleDuplicates = viewModel::onToggleDuplicates,
             onSort = viewModel::onSort,
             onSwitchVolumes = viewModel::onSwitchVolumes,

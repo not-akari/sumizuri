@@ -866,6 +866,8 @@
     <string name="chapter_list_oldest_hint">Show the first chapter at the top.</string>
     <string name="chapter_list_grid">Grid layout</string>
     <string name="chapter_list_grid_hint">Show chapters as a grid instead of a list.</string>
+    <string name="chapter_list_pictures">Pages in the grid</string>
+    <string name="chapter_list_pictures_hint">Each cell shows a page from inside its chapter, skipping the first two and the last. The pages are fetched as the cells come into view.</string>
     <string name="chapter_list_duplicates">Hide duplicate chapters</string>
     <string name="chapter_list_duplicates_hint">Show a chapter once when a source lists it twice.</string>
     <string name="settings_missing_sources">Missing sources</string>
@@ -2613,6 +2615,7 @@
     <string name="player_set_ambient">Ambient light</string>
     <string name="player_set_ambient_hint">The bars around a video glow softly in the colors of its picture.</string>
     <string name="player_mini_short">Mini</string>
+    <string name="player_volume">Volume</string>
     <string name="cond_updated">Days since a new chapter</string>
     <string name="cond_last_read">Days since last read</string>
     <string name="shelf_template_reading">Reading now</string>
@@ -2662,4 +2665,9 @@
     <string name="player_dont_ask_again">Don't ask again, try the next one by itself</string>
     <string name="player_set_auto_server">Try the next server by itself</string>
     <string name="player_set_auto_server_hint">When a video does not load, the next server is tried without asking, until one plays.</string>
+    <string name="download_err_no_quality">The stream lists no quality</string>
+    <string name="download_err_video_status">The video server answered %1$d</string>
+    <string name="download_saved_quality">Saved</string>
+    <string name="download_saved_sound">Saved sound</string>
+    <string name="download_err_no_video">The source gave no video for this episode</string>
 </resources>

@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,7 +94,14 @@ internal fun PlayerScreen(session: PlayerSession, engine: PlayerEngine, onClose:
         16f / 9f
     }
     LaunchedEffect(player.playing, shape) { PlayingNow.aspect = shape.takeIf { player.playing } }
-    DisposableEffect(Unit) { onDispose { PlayingNow.aspect = null } }
+    // Leaving the player any way at all (the back arrow, the next screen) gives the window its size back, not only Escape.
+    val latestFullscreen by rememberUpdatedState(fullscreen)
+    DisposableEffect(Unit) {
+        onDispose {
+            PlayingNow.aspect = null
+            latestFullscreen?.takeIf { it.active }?.toggle()
+        }
+    }
     var visible by remember { mutableStateOf(true) }
     var tick by remember { mutableIntStateOf(0) }
     var scrubbing by remember { mutableStateOf(false) }
@@ -160,6 +168,7 @@ internal fun PlayerScreen(session: PlayerSession, engine: PlayerEngine, onClose:
         flash = jumpIcon(prefs.doubleTapSeconds, forward) to if (forward) Alignment.CenterEnd else Alignment.CenterStart
     }
     fun volumeBy(delta: Int) = engine.setVolume((engine.state.value.volume + delta).coerceIn(0, 100))
+    fun volumeTo(percent: Int) = engine.setVolume(percent).also { show() }
     fun playPause() {
         if (engine.state.value.playing) engine.pause() else engine.play()
         show()
@@ -233,6 +242,7 @@ internal fun PlayerScreen(session: PlayerSession, engine: PlayerEngine, onClose:
         onFit = ::cycleFit,
         onPreview = engine::thumbnailAt,
         onMini = mini?.let { control -> { control.enter(shape) } },
+        onVolume = if (touchPlayer) null else ::volumeTo,
     )
     val pickerCalls = PickerCalls(
         onClose = { picker = null },

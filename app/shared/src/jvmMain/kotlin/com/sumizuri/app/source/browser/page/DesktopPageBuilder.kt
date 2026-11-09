@@ -16,9 +16,19 @@ import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.network.CefRequest
 import java.awt.BorderLayout
 import java.awt.GraphicsEnvironment
+import java.awt.Window
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
 import javax.swing.JWindow
 import javax.swing.SwingUtilities
 import kotlin.time.TimeSource
+
+// Window managers that pull a parked window back on screen are a Linux matter.
+private val OnLinux = System
+    .getProperty("os.name")
+    .orEmpty()
+    .lowercase()
+    .contains("linux")
 
 // Creates a hidden Chromium page in a real window parked outside the screen, since bot checks refuse a page drawn off screen.
 internal object DesktopPageBuilder {
@@ -61,6 +71,7 @@ internal object DesktopPageBuilder {
                     add(browser.uiComponent, BorderLayout.CENTER)
                     focusableWindowState = false
                     setBounds(PARKED, PARKED, VIEW_WIDTH, VIEW_HEIGHT)
+                    if (OnLinux) keepOffScreen()
                     isVisible = true
                 }
             }
@@ -81,6 +92,22 @@ internal object DesktopPageBuilder {
             throw BrowserUnavailableException("The embedded browser did not start.")
         }
         return DesktopRenderPage(client, browser, window, state)
+    }
+
+    // Some Linux window managers, such as KWin, pull a window parked off screen back into view on top of the app. A popup is left alone by the window manager on X11, a moved window goes straight back, and it is made see through where the system can draw that. Only on Linux, as Chromium may slow down a page it thinks nobody can see, which other systems need for bot checks.
+    private fun JWindow.keepOffScreen() {
+        type = Window.Type.POPUP
+        addComponentListener(
+            object : ComponentAdapter() {
+                override fun componentMoved(e: ComponentEvent) {
+                    if (x != PARKED || y != PARKED) setLocation(PARKED, PARKED)
+                }
+            },
+        )
+        val device = graphicsConfiguration?.device ?: return
+        if (device.isWindowTranslucencySupported(java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT)) {
+            opacity = 0f
+        }
     }
 
     private suspend fun <T> onSwing(work: () -> T): T = withContext(Dispatchers.IO) {

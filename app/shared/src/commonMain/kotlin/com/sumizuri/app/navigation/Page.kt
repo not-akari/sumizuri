@@ -12,8 +12,8 @@ sealed interface Page {
     // A source open for browsing.
     data class Source(val source: InstalledSource) : Page
 
-    // A chapter of a saved title, open in the reader.
-    data class Reader(val chapterId: Long) : Page
+    // A chapter of a saved title, open in the reader. From the reader itself (the next or the previous chapter) it opens without the opening card.
+    data class Reader(val chapterId: Long, val fromReader: Boolean = false) : Page
 
     // The lines the app has logged.
     data object Logs : Page

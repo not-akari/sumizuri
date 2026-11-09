@@ -39,10 +39,11 @@ import com.sumizuri.app.feature.reader.novel.novelStyle
 import com.sumizuri.app.ui.controls.LocalReaderControls
 import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.scroll.scrollFrom
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 // How many pages ahead and behind the ones in view are asked for early.
-private const val Ahead = 3
+private const val Ahead = 5
 
 // How many pages ahead and behind the ones in view are read and cut in full before they show.
 private const val ReadAhead = 2
@@ -85,17 +86,28 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
         }
     }
     LaunchedEffect(page) { view.onPage(page) }
-    // The furthest page that has been in view, which is where the reader is counted as having got to.
+    // The page in view, which is the place kept, and the furthest page on the screen, which counts toward reading the chapter. The page in view is the top one unless only a sliver of it is left, then the one under it.
     LaunchedEffect(list, last) {
         snapshotFlow {
-            list.layoutInfo.visibleItemsInfo
-                .lastOrNull()
-                ?.index ?: 0
-        }.collect { view.onProgress(it.coerceAtMost(last), state.pages.size) }
+            val layout = list.layoutInfo
+            val top = layout.viewportStartOffset
+            val room = layout.viewportEndOffset - top
+            val shown = layout.visibleItemsInfo.firstOrNull { it.offset + it.size - top > room / 4 }?.index ?: 0
+            shown to (layout.visibleItemsInfo.lastOrNull()?.index ?: 0)
+        }.collect { (shown, reached) ->
+            view.onProgress(
+                shown.coerceAtMost(last),
+                reached.coerceAtMost(last),
+                state.pages.size,
+            )
+        }
     }
 
     // The pages just ahead and just behind are asked for early, which fills the disk cache and gives their height. The nearest ones are read and cut in full, so the heavy work is done before they scroll in and not while they do.
     LaunchedEffect(list, state.pages, settings.quality) {
+        // Work for pages the reader has gone well past is called off, so it neither holds up the pages it comes to nor pushes them out of the cache.
+        val reading = HashMap<Int, Job>()
+        val probing = HashMap<Int, Job>()
         snapshotFlow {
             (
                 list.layoutInfo.visibleItemsInfo
@@ -107,12 +119,15 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
                     ?.index ?: 0
                 )
         }.collect { (first, lastShown) ->
+            val near = (first - Behind - 1)..(lastShown + Ahead + 1)
+            reading.dropFar(near, read)
+            probing.dropFar(near, asked)
             val ready = (lastShown + 1..lastShown + ReadAhead) + (first - 1 downTo first - ReadBehind)
             for (index in ready) {
                 val item = state.pages.getOrNull(index) ?: continue
                 val url = item.imageUrl ?: continue
                 if (!read.add(index)) continue
-                launch {
+                reading[index] = launch {
                     readPage(
                         context,
                         url,
@@ -129,7 +144,7 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
             for (index in wanted) {
                 val url = state.pages.getOrNull(index)?.imageUrl ?: continue
                 if (index in shapes || index in read || !asked.add(index)) continue
-                launch {
+                probing[index] = launch {
                     probeAspect(
                         context,
                         url,
@@ -234,12 +249,11 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
                         )
                     }
                     if (url != null) {
-                        val shape = shapes[index] ?: shapes[index - 1] ?: shapes[index + 1]
                         PageImage(
                             url,
                             state.imageHeaders,
                             index + 1,
-                            shape = shape,
+                            shape = { shapes[index] ?: shapes[index - 1] ?: shapes[index + 1] },
                             onShape = { shapes[index] = it },
                             visibleRangePx = {
                                 val layout = list.layoutInfo
@@ -280,5 +294,17 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
                 )
             }
         }
+    }
+}
+
+// Calls off the work for pages outside the range near the screen, so they can be asked for again when the reader comes back, and forgets the work that is done.
+private fun MutableMap<Int, Job>.dropFar(near: IntRange, started: MutableSet<Int>) {
+    entries.removeAll { (index, job) ->
+        val far = index !in near && !job.isCompleted
+        if (far) {
+            job.cancel()
+            started.remove(index)
+        }
+        far || job.isCompleted
     }
 }

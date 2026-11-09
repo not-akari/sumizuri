@@ -1,6 +1,7 @@
 package com.sumizuri.app.feature.player
 
 import com.sumizuri.app.core.log.AppLog
+import com.sumizuri.app.data.download.Downloader
 import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.model.ChapterPlace
 import com.sumizuri.app.data.model.player.AudioPreference
@@ -50,6 +51,7 @@ internal class PlayerSession(
     private val solver: ChallengeSolver,
     private val prefsRepository: PlayerPrefsRepository,
     private val reading: ReaderSettingsRepository,
+    private val downloads: Downloader,
 ) {
     private val mutable = MutableStateFlow(SessionState())
     val state: StateFlow<SessionState> = mutable
@@ -131,27 +133,12 @@ internal class PlayerSession(
     // Adds a subtitle file from the device to the video, which starts again at the same place with it, and turns it on.
     fun loadSubtitle(path: String, name: String) {
         val current = mutable.value.current ?: return
-        val track = PlayerTrack(
-            "file${extraSubtitles.size}",
-            name,
-            null,
-            "file:///" + path.replace('\\', '/').removePrefix("/"),
-        )
+        val track = subtitleFileTrack(extraSubtitles.size, path, name)
         extraSubtitles = extraSubtitles + track
         val before = engine.state.value
         log.add("Subtitle file: $name")
         engine.open(mediaOf(current, extraSubtitles), before.positionMs, play = before.playing)
-        scope.launch {
-            // The new track has its name when the engine keeps names, and is the last one in the list when it does not.
-            val loaded = withTimeoutOrNull(5000) {
-                engine.state.first { now ->
-                    now.subtitles.size > before.subtitles.size ||
-                        now.subtitles.any { it.label == name }
-                }
-            } ?: return@launch
-            val added = loaded.subtitles.firstOrNull { it.label == name } ?: loaded.subtitles.lastOrNull()
-            added?.let { engine.selectSubtitle(it.id) }
-        }
+        scope.launch { engine.selectAddedSubtitle(before, name) }
     }
 
     // Keeps the place and lets go of what is watched. The engine is released by whoever made it.
@@ -177,6 +164,12 @@ internal class PlayerSession(
         refreshEpisodes(here.titleId)
         val now = mutable.value
         log.add("Episode ${now.index + 1} of ${now.episodes.size}: ${here.name ?: here.number}\n    ${here.url}")
+        // A saved episode plays from the device, with no source and no connection.
+        downloads.savedVideo(here.titleId, id)?.let { saved ->
+            log.add("Playing the saved copy")
+            mutable.update { it.copy(videos = listOf(saved)) }
+            return play(saved, mine)
+        }
         val found = sources.find(here.sourceId) ?: return failSource(Res.string.reader_source_missing)
         if (!found.enabled) return failSource(Res.string.reader_source_off)
         log.add("Asking ${found.name} for the videos...")

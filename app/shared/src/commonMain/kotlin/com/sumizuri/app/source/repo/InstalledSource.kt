@@ -34,6 +34,19 @@ data class InstalledSource(
             )?.get("hosts") as? JsonArray
         )?.mapNotNull { (it as? JsonPrimitive)?.content }
         ?.takeIf { it.isNotEmpty() }
+
+    // Headers the repo says the pictures of this source need, such as the fetch metadata a browser sends, for a CDN that answers anything else with a bot check.
+    fun imageHeaders(): Map<String, String> = (
+        (
+            runCatching {
+                Json.parseToJsonElement(
+                    extra,
+                )
+            }.getOrNull() as? JsonObject
+            )?.get("imageHeaders") as? JsonObject
+        )?.mapNotNull { (name, value) -> (value as? JsonPrimitive)?.content?.let { name to it } }
+        ?.toMap()
+        .orEmpty()
 }
 
 // The format of a source. Only the current one runs, and a source kept from the old engine stays listed until it is installed again.
@@ -48,8 +61,7 @@ enum class EngineKind(val key: String) {
 }
 
 // The headers pictures of a source are loaded with, its site as the referrer. The reader and the saving of chapters both use them, so a saved page comes as the reader would have it.
-fun pictureHeaders(installed: InstalledSource): Map<String, String> = if (installed.baseUrl.isBlank()) {
-    emptyMap()
-} else {
-    mapOf("Referer" to installed.baseUrl.trimEnd('/') + "/")
+fun pictureHeaders(installed: InstalledSource): Map<String, String> = buildMap {
+    if (installed.baseUrl.isNotBlank()) put("Referer", installed.baseUrl.trimEnd('/') + "/")
+    putAll(installed.imageHeaders())
 }

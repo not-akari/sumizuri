@@ -117,8 +117,9 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
             chapterId = page.chapterId,
             onBack = navigation::pop,
             // The next chapter takes the place of this one, so back still leads to the title.
-            onOpenChapter = { navigation.replaceTop(Page.Reader(it)) },
+            onOpenChapter = { navigation.replaceTop(Page.Reader(it, fromReader = true)) },
             onOpenComments = { navigation.push(Page.Comments(it)) },
+            quiet = page.fromReader,
         )
 
         is Page.GlobalSearch -> GlobalSearchRoute(

@@ -6,7 +6,7 @@ import com.sumizuri.app.feature.comments.CommentsTarget
 
 // Everything the reader can ask of the model, so the screen is given one thing and not a dozen.
 class ReaderActions(
-    val onProgress: (index: Int, count: Int) -> Unit,
+    val onProgress: (shown: Int, reached: Int, count: Int) -> Unit,
     val onRetry: () -> Unit,
     val onSolve: () -> Unit,
     val onOpenChapter: (Long) -> Unit,

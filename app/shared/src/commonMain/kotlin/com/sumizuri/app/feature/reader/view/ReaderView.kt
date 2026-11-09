@@ -8,7 +8,8 @@ class ReaderView(
     val jump: Int?,
     val onJumped: () -> Unit,
     val onPage: (Int) -> Unit,
-    val onProgress: (index: Int, count: Int) -> Unit,
+    // The page in view, the furthest page on the screen and how many pages there are.
+    val onProgress: (shown: Int, reached: Int, count: Int) -> Unit,
     // How far into the chapter the reader was, from 0 to 1, and a way to say how many pages the viewer made of it when that is not the number of pages the source gave.
     val startFraction: Double,
     val onCount: (Int) -> Unit,

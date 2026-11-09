@@ -43,6 +43,7 @@ private fun decodeSource(json: JsonObject, base: String): RepoSource {
     val rating = json.string("contentRating")
     val extra = buildJsonObject {
         json["hosts"]?.let { put("hosts", it) }
+        json["imageHeaders"]?.let { put("imageHeaders", it) }
         json["settingsSchema"]?.let { put("settingsSchema", it) }
         rating?.let { put("contentRating", it) }
         json.string("status")?.let { put("status", it) }

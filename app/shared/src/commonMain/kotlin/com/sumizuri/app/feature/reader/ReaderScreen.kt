@@ -17,6 +17,8 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import coil3.compose.LocalPlatformContext
 import com.sumizuri.app.data.model.ChapterPlace
@@ -45,6 +47,7 @@ import com.sumizuri.app.feature.reader.view.PagedReader
 import com.sumizuri.app.feature.reader.view.ProbeAspect
 import com.sumizuri.app.feature.reader.view.ReaderView
 import com.sumizuri.app.feature.reader.view.sampleUrls
+import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.dock.AsideCard
 import com.sumizuri.app.ui.kit.dock.isWideWindow
 import com.sumizuri.app.ui.kit.image.LocalPageFilter
@@ -56,7 +59,7 @@ import kotlinx.coroutines.delay
 
 // A chapter in the mode that was chosen. A tap in the middle shows the bars, the page slider, the chapter list and the options.
 @Composable
-fun ReaderScreen(state: ReaderState, actions: ReaderActions, opening: ChapterPlace? = null) {
+fun ReaderScreen(state: ReaderState, actions: ReaderActions, opening: ChapterPlace? = null, quiet: Boolean = false) {
     val ready = !(state.loading || state.message != null || state.pages.isEmpty() || !state.modeKnown)
     // The reader is made under the opening card and stays clear until its first page has drawn, so the black of pages still loading never shows. A chapter of words has nothing to wait for, and a slow first page is given up on after a while.
     // It follows the chapter the reader was opened on, so a scroll on into the next chapter, which joins it to the same run, never brings the opening back.
@@ -68,11 +71,19 @@ fun ReaderScreen(state: ReaderState, actions: ReaderActions, opening: ChapterPla
         delay(FirstPageWaitMs)
         drawn = true
     }
+    // A chapter opened from the reader comes in as before the opening card: a small spinner while it loads, and the card only to say why it failed.
     OpeningLayer(
-        done = ready && drawn,
+        done = (ready && drawn) || (quiet && state.message == null),
         opening = { ReaderStatus(state, actions.onRetry, actions.onSolve, actions.onBack, opening) },
     ) {
-        if (ready) CompositionLocalProvider(LocalPageShown provides { drawn = true }) { Reader(state, actions) }
+        if (ready) {
+            CompositionLocalProvider(LocalPageShown provides { drawn = true }) { Reader(state, actions) }
+        } else if (quiet) {
+            Box(
+                Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) { InkCircularProgressIndicator() }
+        }
     }
     if (!state.loading && !state.modeKnown) ProbeAspect(sampleUrls(state.pages), state.imageHeaders, actions.onAspects)
 }
@@ -124,68 +135,72 @@ private fun Reader(state: ReaderState, actions: ReaderActions) {
     } else {
         null
     }
-    val view = ReaderView(
-        startPage = page,
-        jump = jump,
-        onJumped = { jump = null },
-        onPage = { page = it },
-        onProgress = actions.onProgress,
-        onNearEnd = actions.onNearEnd,
-        startFraction = state.startFraction,
-        onCount = { counted = it },
-        onToggleControls = { controls = !controls },
-        onCommon = { action ->
-            when (action) {
-                ReaderAction.ToggleControls -> controls = !controls
+    // The viewer is told the same things for as long as they stay the same, so a page change while scrolling redraws the bars and not every page on the screen. The page it starts at is only read when it is made.
+    val view = remember(state, actions, jump, auto, openSite) {
+        ReaderView(
+            startPage = Snapshot.withoutReadObservation { page },
+            jump = jump,
+            onJumped = { jump = null },
+            onPage = { page = it },
+            onProgress = actions.onProgress,
+            onNearEnd = actions.onNearEnd,
+            startFraction = state.startFraction,
+            onCount = { counted = it },
+            onToggleControls = { controls = !controls },
+            onCommon = { action ->
+                when (action) {
+                    ReaderAction.ToggleControls -> controls = !controls
 
-                ReaderAction.NextChapter -> state.nextId?.let(actions.onOpenChapter) ?: return@ReaderView false
+                    ReaderAction.NextChapter -> state.nextId?.let(actions.onOpenChapter) ?: return@ReaderView false
 
-                ReaderAction.PreviousChapter -> state.previousId?.let(actions.onOpenChapter) ?: return@ReaderView false
+                    ReaderAction.PreviousChapter -> state.previousId?.let(actions.onOpenChapter)
+                        ?: return@ReaderView false
 
-                ReaderAction.OpenSettings -> show(DockPanel.Settings)
+                    ReaderAction.OpenSettings -> show(DockPanel.Settings)
 
-                ReaderAction.OpenChapters -> show(DockPanel.Chapters)
+                    ReaderAction.OpenChapters -> show(DockPanel.Chapters)
 
-                ReaderAction.OpenInBrowser -> openSite(state.webUrl ?: return@ReaderView false)
+                    ReaderAction.OpenInBrowser -> openSite(state.webUrl ?: return@ReaderView false)
 
-                ReaderAction.ToggleBookmark -> actions.onBookmark()
+                    ReaderAction.ToggleBookmark -> actions.onBookmark()
 
-                // Words have no picture to save, and a long press on them is for looking a word up.
-                ReaderAction.PageMenu -> if (state.isText) return@ReaderView false else show(DockPanel.Page)
+                    // Words have no picture to save, and a long press on them is for looking a word up.
+                    ReaderAction.PageMenu -> if (state.isText) return@ReaderView false else show(DockPanel.Page)
 
-                ReaderAction.ToggleAutoScroll -> {
-                    auto = !auto
-                    if (auto) controls = false
+                    ReaderAction.ToggleAutoScroll -> {
+                        auto = !auto
+                        if (auto) controls = false
+                    }
+
+                    ReaderAction.AutoScrollFaster -> actions.onSettings(
+                        settings.copy(
+                            autoSpeed = (
+                                settings.autoSpeed +
+                                    AutoStep
+                                ).coerceAtMost(AutoMax),
+                        ),
+                    )
+
+                    ReaderAction.AutoScrollSlower -> actions.onSettings(
+                        settings.copy(
+                            autoSpeed = (
+                                settings.autoSpeed -
+                                    AutoStep
+                                ).coerceAtLeast(AutoMin),
+                        ),
+                    )
+
+                    ReaderAction.Close -> actions.onBack()
+
+                    else -> return@ReaderView false
                 }
-
-                ReaderAction.AutoScrollFaster -> actions.onSettings(
-                    settings.copy(
-                        autoSpeed = (
-                            settings.autoSpeed +
-                                AutoStep
-                            ).coerceAtMost(AutoMax),
-                    ),
-                )
-
-                ReaderAction.AutoScrollSlower -> actions.onSettings(
-                    settings.copy(
-                        autoSpeed = (
-                            settings.autoSpeed -
-                                AutoStep
-                            ).coerceAtLeast(AutoMin),
-                    ),
-                )
-
-                ReaderAction.Close -> actions.onBack()
-
-                else -> return@ReaderView false
-            }
-            true
-        },
-        auto = auto && state.mode == ReaderMode.Continuous,
-        autoSpeed = settings.autoSpeed,
-        onAutoStopped = { auto = false },
-    )
+                true
+            },
+            auto = auto && state.mode == ReaderMode.Continuous,
+            autoSpeed = settings.autoSpeed,
+            onAutoStopped = { auto = false },
+        )
+    }
     // The bars count the pages of the chapter in view. In a scroll over several chapters that is the stretch the page is in, and the jumps go to a place in that stretch.
     val segment = if (state.mode == ReaderMode.Continuous) state.segments.at(page) else null
     val shownPage = if (segment == null) page else page - segment.start
