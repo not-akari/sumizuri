@@ -23,6 +23,7 @@ Backups are files you make. They go where you save them, and you can lock one wi
 - **Repos.** Repos you add are read to install and update their sources.
 - **Updates.** The app asks GitHub for new versions of Sumizuri. You can turn this off in App updates.
 - **Word lookup.** A word you look up in the reader goes to Wiktionary or Jisho. Web search opens Google.
+- **Translation.** When you turn on translation in the novel reader, the text of the chapter goes to Google Translate. Nothing is sent until you turn it on.
 - **Browser download.** On desktop, the first time a source needs it, the app downloads the browser it uses for sites with a bot check.
 - **Sync.** Sync happens only if you sign in, and only with the server you chose. Your library is locked on your device before it is sent, so the server cannot read it. The server keeps your username, and the name, type, app version and last seen time of your devices.
 
