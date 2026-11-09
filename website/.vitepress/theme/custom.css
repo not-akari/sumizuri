@@ -274,3 +274,38 @@
 .VPDoc:not(.has-sidebar) .container {
   max-width: 760px;
 }
+
+/* Ink wash behind every page: a pale moon glow at the top, a cloud of ink low on the other side, and a faint paper grain, all drawn here so nothing is loaded from elsewhere. */
+:root {
+  --sz-wash-moon: rgba(236, 229, 194, 0.55);
+  --sz-wash-ink: rgba(52, 58, 74, 0.10);
+  --sz-grain-opacity: 0.05;
+}
+.dark {
+  --sz-wash-moon: rgba(232, 224, 176, 0.10);
+  --sz-wash-ink: rgba(154, 166, 194, 0.07);
+  --sz-grain-opacity: 0.06;
+}
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+body::before {
+  background:
+    radial-gradient(60vw 60vw at 88% -10%, var(--sz-wash-moon), transparent 60%),
+    radial-gradient(70vw 50vw at -10% 105%, var(--sz-wash-ink), transparent 65%);
+}
+body::after {
+  opacity: var(--sz-grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* The home page has no panel of its own, so the wash shows through from edge to edge. */
+.VPHome,
+.VPContent.is-home {
+  background: transparent;
+}
