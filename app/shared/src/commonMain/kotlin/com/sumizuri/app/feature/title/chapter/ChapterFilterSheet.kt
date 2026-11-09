@@ -53,6 +53,8 @@ import com.sumizuri.app.shared.resources.chapter_list_grid
 import com.sumizuri.app.shared.resources.chapter_list_grid_hint
 import com.sumizuri.app.shared.resources.chapter_list_oldest
 import com.sumizuri.app.shared.resources.chapter_list_oldest_hint
+import com.sumizuri.app.shared.resources.chapter_list_pictures
+import com.sumizuri.app.shared.resources.chapter_list_pictures_hint
 import com.sumizuri.app.shared.resources.chapter_options
 import com.sumizuri.app.shared.resources.chapter_sort_hint
 import com.sumizuri.app.shared.resources.chapter_sort_title
@@ -222,6 +224,14 @@ private fun DisplayPart(state: TitleState, calls: TitleCallbacks) {
                 { calls.onToggleGrid() },
                 Res.string.chapter_list_grid_hint,
             )
+        }
+        // Pictures need the chapters of a saved title, so a preview leaves the choice out.
+        if (state.grid && !state.preview) {
+            padded {
+                SwitchSetting(Res.string.chapter_list_pictures, state.gridPictures, {
+                    calls.onToggleGridPictures()
+                }, Res.string.chapter_list_pictures_hint)
+            }
         }
         padded {
             SwitchSetting(Res.string.chapter_list_duplicates, state.hideDuplicates, {

@@ -32,22 +32,25 @@ interface ChapterDao {
     suspend fun recentReleases(perTitle: Int): List<ReleaseRow>
 
     // CROSS JOIN keeps chapters on the outside, so the date index gives the order and the loop stops at the limit.
+    // Only the chapters that came out once the title was in the library are news, less a day for the sources that give the day of a chapter and not its hour; the ones it had before were never new.
     @Query(
         """
         SELECT c.titleId, c.number, c.publishedAt AS at FROM chapter c
         CROSS JOIN title t ON t.id = c.titleId
         WHERE c.publishedAt > 0 AND t.inLibrary = 1
+        AND c.publishedAt >= t.addedAt - 86400000
         ORDER BY c.publishedAt DESC LIMIT :limit
         """,
     )
     fun observeUpdates(limit: Int): Flow<List<FeedRow>>
 
-    // The newest chapters that are not read, of titles in the library whose source is installed and on. CROSS JOIN keeps chapters on the outside so the date index gives the order. The titles of a missing source are left out before the limit, so they cannot fill it with chapters the page would not show.
+    // The newest chapters that are not read, of titles in the library whose source is installed and on. CROSS JOIN keeps chapters on the outside so the date index gives the order. The titles of a missing source are left out before the limit, so they cannot fill it with chapters the page would not show. Only the ones that came out once the title was in the library, as for the updates above.
     @Query(
         """
         SELECT c.id, c.titleId, c.number, c.name, c.publishedAt AS at FROM chapter c
         CROSS JOIN title t ON t.id = c.titleId
         WHERE c.publishedAt > 0 AND t.inLibrary = 1
+        AND c.publishedAt >= t.addedAt - 86400000
         AND t.sourceId IN (SELECT id FROM source WHERE enabled = 1)
         AND NOT EXISTS (SELECT 1 FROM progress p WHERE p.chapterId = c.id AND p.read = 1)
         ORDER BY c.publishedAt DESC LIMIT :limit
@@ -75,6 +78,7 @@ interface ChapterDao {
             SELECT c.id FROM chapter c
             CROSS JOIN title t ON t.id = c.titleId
             WHERE c.publishedAt > 0 AND t.inLibrary = 1
+            AND c.publishedAt >= t.addedAt - 86400000
             AND t.sourceId IN (SELECT id FROM source WHERE enabled = 1)
             AND NOT EXISTS (SELECT 1 FROM progress p WHERE p.chapterId = c.id AND p.read = 1)
             ORDER BY c.publishedAt DESC LIMIT :limit

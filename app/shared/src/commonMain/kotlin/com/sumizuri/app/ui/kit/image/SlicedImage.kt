@@ -8,15 +8,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -40,7 +49,11 @@ fun SlicedImage(
         ImageFit.Original -> modifier.requiredSize(with(density) { width.toDp() }, with(density) { height.toDp() })
     }
     val filter = LocalPageFilter.current
-    Spacer(sized.drawBehind { drawSlices(slices, width, height, bias, filter, visibleRangePx?.invoke()) })
+    // Which pieces are drawn is worked out apart from the drawing, so a scroll redraws the page only when a piece comes into view or leaves it, not on every frame.
+    val range by rememberUpdatedState(visibleRangePx)
+    var drawn by remember { mutableStateOf(Size.Zero) }
+    val inView by remember(slices) { derivedStateOf { range?.let { slicesInView(slices, width, height, drawn, it()) } } }
+    Spacer(sized.onSizeChanged { drawn = it.toSize() }.drawBehind { drawSlices(slices, width, height, bias, filter, inView) })
 }
 
 // A color change laid over the pictures of the reader, such as gray or turned around, or null for the pictures as they are.
@@ -66,45 +79,52 @@ fun pageFilterOf(gray: Boolean, invert: Boolean, sepia: Float = 0f, contrast: Fl
     return ColorFilter.colorMatrix(matrix)
 }
 
+// The pieces of a page in the part of it that is in view, with one more above and below so each is ready as it scrolls in. Null draws them all, and an empty range draws none.
+private fun slicesInView(
+    slices: List<ImageBitmap>,
+    sourceWidth: Int,
+    sourceHeight: Int,
+    size: Size,
+    visible: ClosedFloatingPointRange<Float>?,
+): IntRange? {
+    if (visible == null) return null
+    val scale = min(size.width / sourceWidth, size.height / sourceHeight)
+    val above = (size.height - sourceHeight * scale) / 2f
+    var first = -1
+    var last = -1
+    var offset = 0
+    for (index in slices.indices) {
+        val start = (above + offset * scale).roundToInt()
+        offset += slices[index].height
+        val end = (above + offset * scale).roundToInt()
+        if (end > visible.start && start < visible.endInclusive) {
+            if (first == -1) first = index
+            last = index
+        }
+    }
+    if (first == -1) return IntRange.EMPTY
+    return (first - 1).coerceAtLeast(0)..(last + 1).coerceAtMost(slices.lastIndex)
+}
+
 private fun DrawScope.drawSlices(
     slices: List<ImageBitmap>,
     sourceWidth: Int,
     sourceHeight: Int,
     bias: Float,
     filter: ColorFilter?,
-    visibleRangePx: ClosedFloatingPointRange<Float>?,
+    inView: IntRange?,
 ) {
     val scale = min(size.width / sourceWidth, size.height / sourceHeight)
     val left = (size.width - sourceWidth * scale) * bias
     val above = (size.height - sourceHeight * scale) / 2f
     val from = left.roundToInt()
     val across = (left + sourceWidth * scale).roundToInt() - from
-    var firstVisible = -1
-    var lastVisible = -1
-    if (visibleRangePx != null) {
-        var offset = 0
-        for (index in slices.indices) {
-            val start = (above + offset * scale).roundToInt()
-            offset += slices[index].height
-            val end = (above + offset * scale).roundToInt()
-            if (end > visibleRangePx.start && start < visibleRangePx.endInclusive) {
-                if (firstVisible == -1) firstVisible = index
-                lastVisible = index
-            }
-        }
-    }
     var top = 0
     for ((index, slice) in slices.withIndex()) {
         // The edges are rounded to whole pixels from the top, so the pieces always meet exactly.
         val start = (above + top * scale).roundToInt()
         val end = (above + (top + slice.height) * scale).roundToInt()
-        // Draw one slice above and below the viewport so its texture is ready as it scrolls in.
-        if (visibleRangePx == null ||
-            (
-                firstVisible != -1 &&
-                    index in (firstVisible - 1).coerceAtLeast(0)..(lastVisible + 1).coerceAtMost(slices.lastIndex)
-                )
-        ) {
+        if (inView == null || index in inView) {
             drawImage(
                 image = slice,
                 srcSize = IntSize(slice.width, slice.height),

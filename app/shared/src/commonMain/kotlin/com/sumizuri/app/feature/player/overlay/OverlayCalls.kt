@@ -20,4 +20,6 @@ internal class OverlayCalls(
     val onPreview: ((Long) -> Unit)? = null,
     // Shrinks the player to the small floating one, where the system has it.
     val onMini: (() -> Unit)? = null,
+    // Sets the sound from 0 to 100, where the player has a pointer instead of touch.
+    val onVolume: ((Int) -> Unit)? = null,
 )

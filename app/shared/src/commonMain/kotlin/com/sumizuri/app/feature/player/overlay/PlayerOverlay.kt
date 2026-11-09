@@ -13,11 +13,14 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
+import androidx.compose.material.icons.automirrored.outlined.VolumeDown
+import androidx.compose.material.icons.automirrored.outlined.VolumeOff
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.material.icons.outlined.AspectRatio
 import androidx.compose.material.icons.outlined.Fullscreen
@@ -72,6 +75,7 @@ import com.sumizuri.app.shared.resources.player_quality
 import com.sumizuri.app.shared.resources.player_settings_title
 import com.sumizuri.app.shared.resources.player_speed
 import com.sumizuri.app.shared.resources.player_subtitles
+import com.sumizuri.app.shared.resources.player_volume
 import com.sumizuri.app.ui.kit.dock.DockAction
 import com.sumizuri.app.ui.kit.dock.DockMargin
 import com.sumizuri.app.ui.kit.dock.DockRule
@@ -80,9 +84,11 @@ import com.sumizuri.app.ui.kit.dock.LocalDockLabels
 import com.sumizuri.app.ui.kit.dock.isWideWindow
 import com.sumizuri.app.ui.kit.dock.panelChange
 import com.sumizuri.app.ui.kit.dock.tellsAsideCard
+import com.sumizuri.app.ui.kit.input.InkSlider
 import com.sumizuri.app.ui.text.numberedUnit
 import com.sumizuri.app.ui.theme.LocalReduceMotion
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.roundToInt
 
 // The widest the capsule and the dock grow on a big window.
 private val DockWidth = 760.dp
@@ -125,7 +131,9 @@ internal fun PlayerOverlay(
                 ).padding(DockMargin),
             contentAlignment = Alignment.TopCenter,
         ) {
-            DockSurface(Modifier.widthIn(max = widest).fillMaxWidth()) { TopRow(session, fullscreen, calls) }
+            DockSurface(
+                Modifier.widthIn(max = widest).fillMaxWidth(),
+            ) { TopRow(session, engine.volume, fullscreen, calls) }
         }
         // While the episode is still being found or opened, the loading card in the middle takes the place of the buttons.
         if (inDock == null &&
@@ -181,7 +189,7 @@ internal fun PlayerOverlay(
 
 // The way back, the episode with the title under it, and the buttons for the window: the small player, and full screen on a computer or the lock on a phone.
 @Composable
-private fun TopRow(session: SessionState, fullscreen: Boolean, calls: OverlayCalls) {
+private fun TopRow(session: SessionState, volume: Int, fullscreen: Boolean, calls: OverlayCalls) {
     val episode = session.episode
     Row(Modifier.padding(horizontal = 4.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         IconButton(
@@ -208,6 +216,20 @@ private fun TopRow(session: SessionState, fullscreen: Boolean, calls: OverlayCal
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+        }
+        // The sound on a computer: the speaker mutes or brings the sound back, the bar sets it.
+        calls.onVolume?.let { set ->
+            IconButton({ set(if (volume > 0) 0 else 100) }) {
+                Icon(
+                    when {
+                        volume <= 0 -> Icons.AutoMirrored.Outlined.VolumeOff
+                        volume < 50 -> Icons.AutoMirrored.Outlined.VolumeDown
+                        else -> Icons.AutoMirrored.Outlined.VolumeUp
+                    },
+                    stringResource(Res.string.player_volume),
+                )
+            }
+            InkSlider(volume.toFloat(), { set(it.roundToInt()) }, Modifier.width(96.dp), valueRange = 0f..100f)
         }
         calls.onMini?.let {
             IconButton(it) { Icon(Icons.Outlined.PictureInPictureAlt, stringResource(Res.string.player_mini_short)) }

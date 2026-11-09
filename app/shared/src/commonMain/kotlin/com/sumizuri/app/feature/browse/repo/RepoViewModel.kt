@@ -74,6 +74,8 @@ class RepoViewModel(
 
     fun onKind(value: Kind) = mutableState.update { it.copy(chosenKind = value) }
 
+    fun onLanguage(value: String?) = mutableState.update { it.copy(chosenLanguage = value) }
+
     fun onShowNsfw(value: Boolean) = mutableState.update { it.copy(showNsfw = value) }
 
     private suspend fun install(source: RepoSource) {

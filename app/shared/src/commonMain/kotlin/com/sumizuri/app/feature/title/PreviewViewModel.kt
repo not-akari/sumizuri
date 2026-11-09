@@ -59,6 +59,7 @@ class PreviewViewModel(
                     it.copy(
                         oldestFirst = chosen.oldestFirst,
                         grid = chosen.grid,
+                        gridPictures = chosen.pictures,
                         hideDuplicates = chosen.hideDuplicates,
                         sort = chosen.sort,
                     )
@@ -78,6 +79,12 @@ class PreviewViewModel(
         val next = !mutableState.value.grid
         mutableState.update { it.copy(grid = next) }
         viewModelScope.launch { session.setChapterGrid(next) }
+    }
+
+    fun onToggleGridPictures() {
+        val next = !mutableState.value.gridPictures
+        mutableState.update { it.copy(gridPictures = next) }
+        viewModelScope.launch { session.setChapterPictures(next) }
     }
 
     fun onToggleDuplicates() {

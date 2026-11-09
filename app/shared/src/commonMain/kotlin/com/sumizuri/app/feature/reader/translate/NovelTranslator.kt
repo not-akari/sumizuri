@@ -51,8 +51,7 @@ private val Addresses: List<Pair<String, (JsonArray) -> String>> = listOf(
 // How long to wait before asking again once both addresses failed.
 private const val RetryAfterMs = 1_500L
 
-// How many paragraphs are kept translated while the app runs, so a long reading does not fill the memory.
-// When full they are all dropped at once.
+// How many paragraphs are kept translated while the app runs, all dropped at once when full, so a long reading does not fill the memory.
 private const val KeepAtMost = 5_000
 
 // How long the service has to answer one batch, and how many letters go in one batch, below what it takes in one call.
@@ -108,7 +107,7 @@ class NovelTranslator : AutoCloseable {
         }
         val missing = pages.mapNotNull { it.text }.filter { it.isNotBlank() && it !in Kept.done }.distinct()
         translations = Kept.done.toMap()
-        // A batch that fails leaves its paragraphs as the source gave them and the others go on; the next pass asks for them again.
+        // A batch that fails leaves its paragraphs as the source gave them while the others go on, and the next pass asks for them again.
         var failed = 0
         for (batch in batchesOf(missing)) {
             try {

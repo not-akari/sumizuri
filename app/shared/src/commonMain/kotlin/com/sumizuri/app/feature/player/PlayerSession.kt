@@ -1,6 +1,7 @@
 package com.sumizuri.app.feature.player
 
 import com.sumizuri.app.core.log.AppLog
+import com.sumizuri.app.data.download.Downloader
 import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.model.ChapterPlace
 import com.sumizuri.app.data.model.player.AudioPreference
@@ -40,18 +41,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.StringResource
 import kotlin.math.abs
 
-// How often the place is kept while playing, and how long a video may take to tell its length before it is called broken.
-private const val SaveEveryMs = 5000L
-private const val StartTimeoutMs = 30_000L
-
-// How near its length an end must come to count as the end of the episode, a fiftieth of the length kept between these two, and what the log and the failure say when it comes before.
-private const val EndSlackMs = 15_000L
-private const val EndSlackMinMs = 2_000L
-
-// A video shorter than this has no end the player trusts, since a broken stream reports lengths like that.
-private const val ShortestEpisodeMs = 60_000L
-private const val StoppedEarly = "The video stopped before its end, its stream could not be read"
-
 // The episode list, the videos and the one that plays, behind the screen of the player. It opens episodes in place, picks the video the person likes, plays it from where it was left, keeps the place, starts again quietly when the connection drops, and goes on to the next episode when one ends.
 internal class PlayerSession(
     private val engine: PlayerEngine,
@@ -62,6 +51,7 @@ internal class PlayerSession(
     private val solver: ChallengeSolver,
     private val prefsRepository: PlayerPrefsRepository,
     private val reading: ReaderSettingsRepository,
+    private val downloads: Downloader,
 ) {
     private val mutable = MutableStateFlow(SessionState())
     val state: StateFlow<SessionState> = mutable
@@ -185,6 +175,12 @@ internal class PlayerSession(
         refreshEpisodes(here.titleId)
         val now = mutable.value
         log.add("Episode ${now.index + 1} of ${now.episodes.size}: ${here.name ?: here.number}\n    ${here.url}")
+        // A saved episode plays from the device, with no source and no connection.
+        downloads.savedVideo(here.titleId, id)?.let { saved ->
+            log.add("Playing the saved copy")
+            mutable.update { it.copy(videos = listOf(saved)) }
+            return play(saved, mine)
+        }
         val found = sources.find(here.sourceId) ?: return failSource(Res.string.reader_source_missing)
         if (!found.enabled) return failSource(Res.string.reader_source_off)
         log.add("Asking ${found.name} for the videos...")

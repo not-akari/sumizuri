@@ -48,6 +48,7 @@ import com.sumizuri.app.data.storage.DatabaseLogSink
 import com.sumizuri.app.data.storage.StorageRepository
 import com.sumizuri.app.data.sync.TitleSync
 import com.sumizuri.app.data.text.nowMillis
+import com.sumizuri.app.feature.title.chapter.ChapterPictures
 import com.sumizuri.app.source.SourceManager
 import com.sumizuri.app.source.browser.ChallengeSolver
 import com.sumizuri.app.source.browser.page.RenderPageFactory
@@ -105,9 +106,21 @@ class AppContainer(
 
     // Saved chapters are kept next to the database of the profile, in a folder of their own for each profile.
     val downloads =
-        Downloader(database, library, sources, manager, settings, DownloadFiles(downloadFolder(databasePath)), work)
+        Downloader(
+            database,
+            library,
+            sources,
+            manager,
+            settings,
+            DownloadFiles(downloadFolder(databasePath)),
+            work,
+            PlayerPrefsRepository(database),
+        )
     val categories = CategoryRepository(database)
     val autoDownloads = AutoDownloads(library, categories, downloads, settings, work)
+
+    // A page from inside each chapter for the cells of the chapter grid, kept while the app runs.
+    val chapterPictures = ChapterPictures(library, sources, manager, downloads)
     val lock = AppLock(settings, shared)
     val updater = AppUpdater(settings, work)
     val sync = TitleSync(library, sources, manager, settings, carry, autoDownloads)
@@ -163,6 +176,8 @@ class AppContainer(
                 SourceReferers.bySource =
                     list.filter { it.baseUrl.isNotBlank() }.associate { it.id to it.baseUrl.trimEnd('/') + "/" }
                 SiteKinds.bySource = list.associate { it.id to it.kind }
+                SourceReferers.headersBySource =
+                    list.associate { it.id to it.imageHeaders() }.filterValues { it.isNotEmpty() }
             }
         }
         // The pictures of the pages last read sit beside the database of this profile.
