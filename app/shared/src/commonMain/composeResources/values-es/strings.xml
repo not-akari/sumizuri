@@ -2663,4 +2663,17 @@
     <string name="sync_notice_channel">Problemas de sincronización</string>
     <string name="sync_bring">Agregar aquí</string>
     <string name="sync_tab_server">En el servidor</string>
+    <string name="chapter_list_pictures">Páginas en la cuadrícula</string>
+    <string name="chapter_list_pictures_hint">Cada celda muestra una página de dentro de su capítulo, sin contar las dos primeras ni la última. Las páginas se cargan conforme las celdas aparecen en pantalla.</string>
+    <string name="player_volume">Volumen</string>
+    <string name="player_dont_ask_again">No volver a preguntar, probar el siguiente solo</string>
+    <string name="player_set_auto_server">Probar el siguiente servidor solo</string>
+    <string name="player_set_auto_server_hint">Cuando un video no carga, se prueba el siguiente servidor sin preguntar, hasta que uno funcione.</string>
+    <string name="download_err_no_quality">La transmisión no indica ninguna calidad</string>
+    <string name="download_err_video_status">El servidor de video respondió %1$d</string>
+    <string name="download_saved_quality">Guardado</string>
+    <string name="download_saved_sound">Audio guardado</string>
+    <string name="download_err_no_video">La fuente no dio ningún video para este episodio</string>
+    <string name="reader_translate">Traducir capítulo</string>
+    <string name="reader_translate_off">Ver el texto original</string>
 </resources>
