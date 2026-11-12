@@ -1,13 +1,13 @@
 package com.sumizuri.app.feature.reader.view
 
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,7 +38,6 @@ import com.sumizuri.app.feature.reader.lookup.LookupText
 import com.sumizuri.app.feature.reader.novel.novelStyle
 import com.sumizuri.app.ui.controls.LocalReaderControls
 import com.sumizuri.app.ui.kit.page.PageGutter
-import com.sumizuri.app.ui.kit.scroll.scrollFrom
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -156,7 +155,7 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
         }
     }
     val density = LocalDensity.current.density
-    // The scroll moves by the speed times the time of each frame, and ends when the end of the chapter stops it.
+    // The scroll moves by the speed times the time of each frame, and ends when the end of the chapter stops it. It moves the list without holding it, so a tap or a key can still turn the page while it runs.
     LaunchedEffect(view.auto, view.autoSpeed) {
         if (!view.auto) return@LaunchedEffect
         var before = withFrameNanos { it }
@@ -165,7 +164,7 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
             val now = withFrameNanos { it }
             val wanted = view.autoSpeed * density * (now - before) / NanosPerSecond
             before = now
-            stuck = if (list.scrollBy(wanted) == 0f) stuck + 1 else 0
+            stuck = if (list.dispatchRawDelta(wanted) == 0f) stuck + 1 else 0
             if (stuck >= StuckFrames) {
                 view.onAutoStopped()
                 return@LaunchedEffect
@@ -206,8 +205,7 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
             .fillMaxSize()
             .onSizeChanged {
                 height = it.height
-            }.scrollFrom { list }
-            .readerInput(TapLayout.Continuous) { action, tap ->
+            }.readerInput(TapLayout.Continuous) { action, tap ->
                 val steps = controls.scroll
                 when (action) {
                     ReaderAction.NextPage -> scrollBy(height * if (tap) steps.tapFraction else steps.pageFraction)
@@ -220,13 +218,16 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
             },
         contentAlignment = Alignment.TopCenter,
     ) {
+        // The list is as wide as the screen and each page keeps to the width set, so a finger beside the pages still stops a glide and drags the list.
         val widest = settings.width.dp?.dp
+        val pageWidth = (if (widest == null) Modifier else Modifier.widthIn(max = widest)).fillMaxWidth()
         LazyColumn(
-            (if (widest == null) Modifier else Modifier.widthIn(max = widest)).fillMaxSize(),
+            Modifier.fillMaxSize(),
             state = list,
             // Words start a little way down, and pictures start at the very top.
             contentPadding = PaddingValues(top = if (state.isText) 24.dp else 0.dp),
             verticalArrangement = Arrangement.spacedBy(settings.gap.dp.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             itemsIndexed(
                 items = state.pages,
@@ -234,7 +235,7 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
                 contentType = { _, item -> if (item.imageUrl == null) "text" else "image" },
             ) { index, item ->
                 val url = item.imageUrl
-                Column {
+                Column(pageWidth) {
                     // Where another chapter starts, its name stands above its first page.
                     chapterStarts[index]?.let {
                         ChapterDivider(
@@ -283,15 +284,17 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
                 }
             }
             item {
-                ChapterEnd(
-                    state.chapters,
-                    state.kind,
-                    state.segments.lastOrNull()?.chapterId ?: state.chapterId,
-                    state.segments.firstOrNull()?.previousId,
-                    state.segments.lastOrNull()?.nextId,
-                    ink,
-                    onOpenChapter,
-                )
+                Box(pageWidth) {
+                    ChapterEnd(
+                        state.chapters,
+                        state.kind,
+                        state.segments.lastOrNull()?.chapterId ?: state.chapterId,
+                        state.segments.firstOrNull()?.previousId,
+                        state.segments.lastOrNull()?.nextId,
+                        ink,
+                        onOpenChapter,
+                    )
+                }
             }
         }
     }

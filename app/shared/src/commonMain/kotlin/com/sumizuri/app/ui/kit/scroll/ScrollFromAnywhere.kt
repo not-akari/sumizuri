@@ -5,8 +5,12 @@ import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -20,7 +24,7 @@ import kotlin.math.abs
 // How far one notch of the mouse wheel moves the list.
 private val WheelStep = 80.dp
 
-// Lets a list be scrolled from the empty space around it. The mouse wheel glides the list the way it does on the list itself, and a finger or a pen dragging over that space moves it as if it were on it, gliding on after a quick swipe. Whatever the list or its rows already use is left to them.
+// Lets a list be scrolled from the empty space around it. The mouse wheel glides the list the way it does on the list itself, and a finger or a pen dragging over that space moves it as if it were on it, gliding on after a quick swipe and stopping when a finger comes down. Whatever the list or its rows already use is left to them.
 fun Modifier.scrollFrom(target: () -> ScrollableState?): Modifier = this
     .pointerInput(Unit) {
         coroutineScope {
@@ -45,6 +49,15 @@ fun Modifier.scrollFrom(target: () -> ScrollableState?): Modifier = this
                         }
                     }
                 }
+            }
+        }
+    }.pointerInput(Unit) {
+        // A finger put down beside the list stops it at once, as one on the list does. A touch the list or a row took first is left to them.
+        coroutineScope {
+            awaitEachGesture {
+                awaitFirstDown()
+                val state = target()
+                if (state != null && state.isScrollInProgress) launch { state.stopScroll(MutatePriority.UserInput) }
             }
         }
     }.pointerInput(Unit) {
