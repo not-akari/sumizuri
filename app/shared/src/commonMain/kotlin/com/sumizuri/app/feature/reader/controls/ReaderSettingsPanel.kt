@@ -28,7 +28,6 @@ import com.sumizuri.app.data.model.reader.ReaderQuality
 import com.sumizuri.app.data.model.reader.ReaderScale
 import com.sumizuri.app.data.model.reader.ReaderSettings
 import com.sumizuri.app.data.model.reader.ReaderTextAlign
-import com.sumizuri.app.data.model.reader.ReaderWidth
 import com.sumizuri.app.data.model.reader.ReaderZoomStart
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.manga_group_pages
@@ -55,7 +54,6 @@ import com.sumizuri.app.shared.resources.reader_tab_pages
 import com.sumizuri.app.shared.resources.reader_tab_text
 import com.sumizuri.app.shared.resources.reader_text_align
 import com.sumizuri.app.shared.resources.reader_text_size
-import com.sumizuri.app.shared.resources.reader_width
 import com.sumizuri.app.shared.resources.reader_wpm
 import com.sumizuri.app.shared.resources.reader_zoom_start
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
@@ -148,11 +146,7 @@ private fun PagesPart(
                 stringResource(it.label)
             }) { onSettings(settings.copy(gap = it)) }
         }
-        padded {
-            ChoiceSetting(Res.string.reader_width, ReaderWidth.entries, settings.width, {
-                stringResource(it.label)
-            }) { onSettings(settings.copy(width = it)) }
-        }
+        stripWidth(settings, onSettings)
         padded {
             ChoiceSetting(
                 Res.string.reader_zoom_start,

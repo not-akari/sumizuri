@@ -227,6 +227,9 @@
     <string name="reader_size_medium">Medium</string>
     <string name="reader_size_large">Large</string>
     <string name="reader_size_full">Full width</string>
+    <string name="reader_size_custom">Custom</string>
+    <string name="reader_width_custom">Own width</string>
+    <string name="reader_width_dp">%1$d dp</string>
     <string name="reader_dual">Dual page</string>
     <string name="reader_dual_off">Off</string>
     <string name="reader_dual_on">On</string>

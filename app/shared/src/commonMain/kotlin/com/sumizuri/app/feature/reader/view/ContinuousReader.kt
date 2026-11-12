@@ -219,7 +219,7 @@ fun ContinuousReader(state: ReaderState, view: ReaderView, onOpenChapter: (Long)
         contentAlignment = Alignment.TopCenter,
     ) {
         // The list is as wide as the screen and each page keeps to the width set, so a finger beside the pages still stops a glide and drags the list.
-        val widest = settings.width.dp?.dp
+        val widest = settings.width.widest(settings.customWidth)?.dp
         val pageWidth = (if (widest == null) Modifier else Modifier.widthIn(max = widest)).fillMaxWidth()
         LazyColumn(
             Modifier.fillMaxSize(),

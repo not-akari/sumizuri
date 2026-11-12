@@ -82,6 +82,7 @@ class ReaderSettingsRepository(private val db: AppDatabase) {
         put(scope + "background", settings.background.name)
         put(scope + "gap", settings.gap.name)
         put(scope + "width", settings.width.name)
+        put(scope + "customWidth", settings.customWidth.toString())
         put(scope + "dual", settings.dual.name)
         put(scope + "invert", settings.invertTaps.toString())
         put(scope + "font", settings.font.name)
@@ -136,6 +137,9 @@ class ReaderSettingsRepository(private val db: AppDatabase) {
             background = enumNamed<ReaderBackground>(read("background")) ?: usual.background,
             gap = enumNamed<ReaderGap>(read("gap")) ?: usual.gap,
             width = enumNamed<ReaderWidth>(read("width")) ?: usual.width,
+            customWidth =
+            read("customWidth")?.toIntOrNull()?.coerceIn(ReaderWidth.CustomLeast, ReaderWidth.CustomMost)
+                ?: usual.customWidth,
             dual = enumNamed<ReaderDual>(read("dual")) ?: usual.dual,
             invertTaps = read("invert") == "true",
             font = enumNamed<ReaderFont>(read("font")) ?: usual.font,

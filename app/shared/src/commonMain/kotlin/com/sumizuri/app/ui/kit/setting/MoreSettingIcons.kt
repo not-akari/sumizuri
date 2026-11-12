@@ -107,6 +107,7 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.Wallpaper
 import androidx.compose.material.icons.outlined.WbTwilight
 import androidx.compose.material.icons.outlined.WidthNormal
+import androidx.compose.material.icons.outlined.WidthWide
 import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material.icons.outlined.ZoomOutMap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -209,6 +210,7 @@ import com.sumizuri.app.shared.resources.reader_text_align
 import com.sumizuri.app.shared.resources.reader_text_size
 import com.sumizuri.app.shared.resources.reader_warmth
 import com.sumizuri.app.shared.resources.reader_width
+import com.sumizuri.app.shared.resources.reader_width_custom
 import com.sumizuri.app.shared.resources.reader_wpm
 import com.sumizuri.app.shared.resources.rule_own_order
 import com.sumizuri.app.shared.resources.rule_status
@@ -262,6 +264,8 @@ internal fun moreSettingIconOf(title: StringResource): ImageVector? = when (titl
     Res.string.reader_gap -> Icons.Outlined.Height
 
     Res.string.reader_width -> Icons.Outlined.WidthNormal
+
+    Res.string.reader_width_custom -> Icons.Outlined.WidthWide
 
     Res.string.reader_background -> Icons.Outlined.Wallpaper
 

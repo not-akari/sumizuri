@@ -8,6 +8,8 @@ data class ReaderSettings(
     val background: ReaderBackground = ReaderBackground.Theme,
     val gap: ReaderGap = ReaderGap.None,
     val width: ReaderWidth = ReaderWidth.Medium,
+    // The width of the long scroll in dp when its width is Custom.
+    val customWidth: Int = 800,
     val dual: ReaderDual = ReaderDual.Off,
     val invertTaps: Boolean = false,
     val font: ReaderFont = ReaderFont.System,
