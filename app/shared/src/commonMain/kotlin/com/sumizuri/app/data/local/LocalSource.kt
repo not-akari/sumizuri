@@ -74,7 +74,7 @@ class LocalSource(
 
     override suspend fun chapters(entry: SourceEntry) = attempt { chaptersOf(titlePath(entry.url)) }
 
-    override suspend fun pages(chapter: SourceChapter) = attempt { pagesOf(chapter.url) }
+    override suspend fun pages(chapter: SourceChapter, books: Boolean) = attempt { pagesOf(chapter.url) }
 
     override suspend fun videos(chapter: SourceChapter): SourceResult<List<SourceVideo>> =
         SourceResult.Err(SourceError.NotImplemented("videos"))

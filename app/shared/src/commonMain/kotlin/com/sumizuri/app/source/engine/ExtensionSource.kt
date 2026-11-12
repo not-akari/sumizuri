@@ -151,7 +151,7 @@ class ExtensionSource private constructor(
         }
 
     // The pages of a chapter. A source that hands its pages out one at a time gives stand ins, and each real page comes from getPageData, a few at once.
-    override suspend fun pages(chapter: SourceChapter): SourceResult<List<SourcePage>> {
+    override suspend fun pages(chapter: SourceChapter, books: Boolean): SourceResult<List<SourcePage>> {
         val (titleId, chapterId) = splitChapterUrl(chapter.url)
         val details = call("getChapterDetails", JsonPrimitive(titleId), JsonPrimitive(chapterId)) {
             it as? JsonObject
@@ -160,6 +160,7 @@ class ExtensionSource private constructor(
         val reply = (details as? SourceResult.Ok)?.value ?: return details.map { emptyList() }
         // A chapter that is a whole book, as a PDF or an EPUB the source points at, is read into words here.
         ResultParser.book(reply)?.let { book ->
+            if (!books) return SourceResult.Ok(emptyList())
             return runCatching { SourceResult.Ok(bookPages(book.url, book.headers, host.http)) }.getOrElse { problem ->
                 if (problem is CancellationException) throw problem
                 SourceResult.Err(SourceError.Parse(problem.message ?: "The book could not be read"))

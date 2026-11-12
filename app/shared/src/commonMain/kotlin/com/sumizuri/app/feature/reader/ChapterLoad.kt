@@ -44,9 +44,15 @@ private object RecentPageLists {
 }
 
 // Asks the source for the pages of a chapter and puts them in order. Words are cut into paragraphs, so a chapter in one block can still be scrolled and counted.
-internal suspend fun loadChapterPages(source: Source, url: String, kind: Kind, sourceId: String? = null): ChapterLoad {
+internal suspend fun loadChapterPages(
+    source: Source,
+    url: String,
+    kind: Kind,
+    sourceId: String? = null,
+    books: Boolean = true,
+): ChapterLoad {
     RecentPageLists.get(url)?.let { return ChapterLoad.Pages(it) }
-    val pages = when (val result = source.pages(SourceChapter(url = url, title = ""))) {
+    val pages = when (val result = source.pages(SourceChapter(url = url, title = ""), books)) {
         is SourceResult.Err -> return ChapterLoad.Failed(
             ReaderMessage.Detail(result.error.message),
             (result.error as? SourceError.Challenge)?.url,

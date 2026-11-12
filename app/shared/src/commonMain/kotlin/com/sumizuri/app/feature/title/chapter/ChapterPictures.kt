@@ -38,7 +38,7 @@ class ChapterPictures(
     private val lock = Mutex()
     private val gate = Semaphore(AtOnce)
 
-    // The picture of a chapter by its row id, or null when it has none, such as a chapter of words or a video.
+    // The picture of a chapter by its row id, or null when it has none, such as a chapter of words, a video or a whole book, which is never fetched just for a picture.
     suspend fun of(chapterId: Long): ChapterPicture? {
         lock.withLock { if (chapterId in found) return found[chapterId] }
         val picture = gate.withPermit { look(chapterId) }
@@ -52,7 +52,15 @@ class ChapterPictures(
         val installed = sources.find(place.sourceId) ?: return null
         val pages = savedChapterPages(downloads, place.titleId, chapterId)
             ?: manager.open(installed).valueOrNull()?.let { source ->
-                (loadChapterPages(source, place.url, place.kind, place.sourceId) as? ChapterLoad.Pages)?.pages
+                (
+                    loadChapterPages(
+                        source,
+                        place.url,
+                        place.kind,
+                        place.sourceId,
+                        books = false,
+                    ) as? ChapterLoad.Pages
+                    )?.pages
             }
             ?: return null
         val page = pickPage(pages.filter { it.imageUrl != null && it.descramble == null }, chapterId) ?: return null
