@@ -12,9 +12,13 @@ import okio.ByteString.Companion.encodeUtf8
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
+import kotlin.concurrent.Volatile
 
-// How many fetched books are kept, the ones opened last, so the temporary folder does not grow without end.
-private const val KeptBooks = 5
+// How many fetched books are kept, the ones opened last, so the temporary folder does not grow without end. The storage settings set it.
+object FetchedBooks {
+    @Volatile
+    var kept: Int = 5
+}
 
 // One book is fetched at a time, so two asks for the same book never write the same file.
 private val Fetching = Mutex()
@@ -87,7 +91,7 @@ private fun forgetOldBooks(fs: FileSystem, folder: Path) {
     fun opened(book: Path): Long = fs.metadataOrNull(usedMark(book))?.lastModifiedAtMillis
         ?: fs.metadataOrNull(book)?.lastModifiedAtMillis
         ?: 0L
-    books.sortedByDescending(::opened).drop(KeptBooks).forEach { forget(fs, it) }
+    books.sortedByDescending(::opened).drop(FetchedBooks.kept).forEach { forget(fs, it) }
     // A mark whose book is gone is dropped as well.
     names
         .filter {

@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.AvTimer
 import androidx.compose.material.icons.outlined.BatteryChargingFull
 import androidx.compose.material.icons.outlined.BlurOn
+import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.Bookmarks
 import androidx.compose.material.icons.outlined.Brightness6
@@ -196,6 +197,7 @@ import com.sumizuri.app.shared.resources.sort_pin_favorites
 import com.sumizuri.app.shared.resources.sort_pin_unread
 import com.sumizuri.app.shared.resources.sort_then
 import com.sumizuri.app.shared.resources.sort_then_direction
+import com.sumizuri.app.shared.resources.storage_books_kept
 import com.sumizuri.app.shared.resources.storage_image_disk_limit
 import com.sumizuri.app.shared.resources.storage_image_memory_limit
 import com.sumizuri.app.shared.resources.storage_page_keep
@@ -275,6 +277,8 @@ fun settingIconOf(title: StringResource): ImageVector? = when (title) {
     Res.string.storage_page_memory_limit -> Icons.Outlined.Memory
 
     Res.string.storage_page_keep -> Icons.Outlined.Timer
+
+    Res.string.storage_books_kept -> Icons.Outlined.Book
 
     // Library updates
     Res.string.update_interval -> Icons.Outlined.Schedule

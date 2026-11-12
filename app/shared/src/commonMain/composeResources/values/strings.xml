@@ -1139,6 +1139,8 @@
     <string name="storage_anilist_season_covers_hint">Video seasons show their poster from AniList, or from TVmaze for shows AniList does not have, such as live action. Only the names of the show and its seasons are sent. Posters of titles in your library are kept until you clear the image cache.</string>
     <string name="storage_page_memory_limit">Memory limit</string>
     <string name="storage_page_keep">Keep pages for</string>
+    <string name="storage_books_kept">Fetched books kept</string>
+    <string name="storage_books">%1$d books</string>
     <string name="storage_clear_all">Clear all caches</string>
     <string name="storage_path_database">Database file</string>
     <string name="storage_path_data">Data folder</string>

@@ -92,6 +92,9 @@ object SettingKey {
     const val PageMemoryMb = "cache.pageMemoryMb"
     const val PageKeepMinutes = "cache.pageKeepMinutes"
 
+    // How many books a source pointed at are kept, so opening one again does not fetch it again.
+    const val BooksKept = "cache.booksKept"
+
     // Whether the seasons of an anime get their covers from AniList, found by the names of the seasons.
     const val AniListSeasonCovers = "cache.aniListSeasonCovers"
 
@@ -116,4 +119,5 @@ object SettingKey {
     const val DefaultImageMemoryPercent = 15
     const val DefaultPageMemoryMb = 64
     const val DefaultPageKeepMinutes = 5
+    const val DefaultBooksKept = 5
 }
