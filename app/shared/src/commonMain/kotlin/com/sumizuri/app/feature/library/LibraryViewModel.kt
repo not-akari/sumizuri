@@ -2,6 +2,7 @@ package com.sumizuri.app.feature.library
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sumizuri.app.core.flow.atMostEvery
 import com.sumizuri.app.core.perf.timed
 import com.sumizuri.app.data.library.CategoryRepository
 import com.sumizuri.app.data.library.LibraryRepository
@@ -43,6 +44,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+
+// The library is ordered again at most this often while its titles keep changing, as they do for each title a check for new chapters saves.
+private const val ReorderGapMs = 500L
 
 // What the page knows besides the library itself.
 private class Around(
@@ -88,7 +92,7 @@ class LibraryViewModel(
         ::Pair,
     ).flatMapLatest { (saved, categories) ->
         val prefs = saved.settled(categories)
-        library.entries(fieldsInUse(prefs, categories)).map { Shown(prefs, categories, it) }
+        library.entries(fieldsInUse(prefs, categories)).atMostEvery(ReorderGapMs).map { Shown(prefs, categories, it) }
     }
 
     private val around =
