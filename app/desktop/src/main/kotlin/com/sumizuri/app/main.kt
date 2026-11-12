@@ -24,6 +24,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.sumizuri.app.core.AppBuild
 import com.sumizuri.app.core.log.AppLog
+import com.sumizuri.app.core.log.CrashReport
 import com.sumizuri.app.core.log.FileLogSink
 import com.sumizuri.app.data.AppContainer
 import com.sumizuri.app.data.db.databaseBuilder
@@ -101,6 +102,7 @@ fun main(args: Array<String>) {
     AppLinks.open(link)
     val sink = FileLogSink(File(folder, "logs/sumizuri.log"))
     AppLog.sink = sink
+    CrashReport.install(folder.absolutePath.toPath())
     AppLog.info("app", "desktop start, log file ${sink.file.absolutePath}")
     // A Mac does not pass a link in the arguments. It hands the link to the running app, which comes forward for it.
     if (isMac && Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_URI)) {

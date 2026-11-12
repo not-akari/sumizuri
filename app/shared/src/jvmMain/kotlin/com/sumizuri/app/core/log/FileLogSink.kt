@@ -3,6 +3,8 @@ package com.sumizuri.app.core.log
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.LinkedBlockingQueue
@@ -15,13 +17,15 @@ private const val MaxBytes = 1_000_000L
 class FileLogSink(val file: File) : LogSink {
     private val stamp = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
     private val queue = LinkedBlockingQueue<String>()
-    private val out: BufferedWriter
+    private val old = File(file.path + ".old")
+    private var out: BufferedWriter
+    private var size: Long
 
     init {
         file.parentFile?.mkdirs()
-        // A file that grew large is kept once as the old one, so the log never fills the disk.
-        if (file.exists() && file.length() > MaxBytes) file.renameTo(File(file.path + ".old"))
+        if (file.exists() && file.length() > MaxBytes) moveToOld()
         out = BufferedWriter(FileWriter(file, true))
+        size = file.length()
         thread(isDaemon = true, name = "log-file") { drain() }
         // What is still waiting is written when the app ends.
         Runtime.getRuntime().addShutdownHook(Thread { flush() })
@@ -47,12 +51,25 @@ class FileLogSink(val file: File) : LogSink {
         }
     }
 
+    // A file that grows past the limit, also during a long run, is kept once as the old one and a new one is begun, so the log never fills the disk.
     @Synchronized
     private fun write(text: String) {
         runCatching {
+            if (size > MaxBytes) {
+                out.close()
+                moveToOld()
+                out = BufferedWriter(FileWriter(file, true))
+                size = 0
+            }
             out.write(text)
             out.newLine()
+            size += text.length + 1
         }
+    }
+
+    // A move that replaces the old file, since a plain rename on Windows fails when the old one is still there.
+    private fun moveToOld() {
+        runCatching { Files.move(file.toPath(), old.toPath(), StandardCopyOption.REPLACE_EXISTING) }
     }
 
     // Also called by a process that ends itself without the usual end, such as the setup, so its last lines are kept.
