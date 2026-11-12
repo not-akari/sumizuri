@@ -110,7 +110,7 @@ internal fun HistoryScreen(state: HistoryState, calls: HistoryCalls) {
 @Composable
 private fun Header(state: HistoryState, calls: HistoryCalls, showSearch: Boolean) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (showSearch) AppSearchBar(state.query, calls.onQuery, stringResource(Res.string.history_search_hint), pauseMs = 150)
+        if (showSearch) AppSearchBar(state.query, calls.onQuery, stringResource(Res.string.history_search_hint), pauseMs = 150, historyPlace = "history")
         if (hasKindChoice(state.kinds, state.kind)) ChipRow { KindChips(state.kind, state.kinds, calls.onKind) }
     }
 }

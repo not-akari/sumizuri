@@ -76,7 +76,12 @@ internal fun GlobalSearchScreen(
         Column(Modifier.fillMaxSize()) {
             PageTopBar(stringResource(Res.string.global_search_title), onBack = onBack)
             Column(Modifier.padding(horizontal = PageGutter), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                AppSearchBar(state.query, onQuery, stringResource(Res.string.global_search_hint))
+                AppSearchBar(
+                    state.query,
+                    onQuery,
+                    stringResource(Res.string.global_search_hint),
+                    historyPlace = "global",
+                )
                 // Every kind at once, or one of them.
                 val kind = state.kind
                 if (state.kinds.size > 1) {

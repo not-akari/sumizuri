@@ -25,6 +25,7 @@ import com.sumizuri.app.data.security.DeviceUnlock
 import com.sumizuri.app.data.security.LockAfterChoices
 import com.sumizuri.app.data.security.LockPrefs
 import com.sumizuri.app.data.security.SecureScreen
+import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.feature.settings.GlobalReaderViewModel
 import com.sumizuri.app.feature.settings.SettingsPageFrame
 import com.sumizuri.app.shared.resources.Res
@@ -51,6 +52,8 @@ import com.sumizuri.app.shared.resources.lock_pin_set
 import com.sumizuri.app.shared.resources.lock_pin_short
 import com.sumizuri.app.shared.resources.lock_prompt
 import com.sumizuri.app.shared.resources.save
+import com.sumizuri.app.shared.resources.search_history
+import com.sumizuri.app.shared.resources.search_history_hint
 import com.sumizuri.app.shared.resources.secure_screen
 import com.sumizuri.app.shared.resources.secure_screen_always
 import com.sumizuri.app.shared.resources.secure_screen_incognito
@@ -87,6 +90,7 @@ fun SecurityRoute(onBack: () -> Unit) {
     val prefs by lock.prefs.collectAsStateWithLifecycle(LockPrefs())
     val reader = viewModel { GlobalReaderViewModel(container.reading) }
     val reading by reader.settings.collectAsStateWithLifecycle()
+    val searchHistory by container.searchHistory.on.collectAsStateWithLifecycle(true)
     var pinDialog by remember { mutableStateOf(false) }
     var noSystemLock by remember { mutableStateOf(false) }
     // The lock of the phone is asked for once before it is turned on, so it is known to work.
@@ -178,6 +182,15 @@ fun SecurityRoute(onBack: () -> Unit) {
                         it.copy(incognito = on)
                     }
                 }, Res.string.incognito_mode_hint)
+            }
+            // Turning the history off also forgets what it kept.
+            padded {
+                SwitchSetting(Res.string.search_history, searchHistory, { on ->
+                    scope.launch {
+                        container.settings.setFlag(SettingKey.SearchHistory, on)
+                        if (!on) container.searchHistory.clearAll()
+                    }
+                }, Res.string.search_history_hint)
             }
         }
     }

@@ -1944,6 +1944,9 @@
     <string name="secure_screen_incognito">While incognito</string>
     <string name="secure_screen_always">Always</string>
     <string name="incognito_mode">Incognito mode</string>
+    <string name="search_history">Remember searches</string>
+    <string name="search_history_hint">Recent searches show under the search field while it is empty. They stay on this device, and none are kept while reading incognito.</string>
+    <string name="search_history_clear">Clear</string>
     <string name="incognito_mode_hint">Reading isn't saved to progress or history</string>
     <string name="update_skip_unread">Skip titles you're behind on</string>
     <string name="update_skip_unread_hint">Titles that still have unread chapters are not checked.</string>

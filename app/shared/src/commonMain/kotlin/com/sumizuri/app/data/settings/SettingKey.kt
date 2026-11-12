@@ -21,6 +21,9 @@ object SettingKey {
     // Whether the app opens on the page it was left on. Off, it opens on the library every time.
     const val ReopenPlace = "layout.reopenPlace"
 
+    // Whether the search fields keep the searches typed in them.
+    const val SearchHistory = "search.history"
+
     // Whether a wide window shows the title page with the cover standing on the left, or with the banner across the top.
     const val TitleSplit = "layout.titleSplit"
 
