@@ -21,6 +21,9 @@ data class TitleRow(
 // Where a title came from, which is what a refresh needs to ask the source again.
 data class TitleOrigin(val sourceId: String, val externalId: String)
 
+// The name of a saved title and its source, to find a title saved twice.
+data class TitleName(val id: Long, val name: String, val kind: Int, val sourceId: String)
+
 // How many titles of the library one source holds.
 data class SourceCount(val sourceId: String, val count: Int)
 

@@ -15,7 +15,8 @@ fun TitleRoute(titleId: Long, onBack: () -> Unit, onOpenChapter: (Long) -> Unit,
         TitleViewModel(titleId, container.library, container.sync, container.sources, container.session, container.focus, container.manager, container.solver, container.libraryPrefs, container.downloads, container.autoDownloads, container.seasonCovers, container.settings)
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val calls = remember(viewModel, onBack, onOpenChapter, onMigrate, onOpenComments) {
+    val guard = rememberDuplicateGuard()
+    val calls = remember(viewModel, onBack, onOpenChapter, onMigrate, onOpenComments, guard) {
         TitleCallbacks(
             onBack = onBack,
             onRefresh = viewModel::onRefresh,
@@ -30,7 +31,11 @@ fun TitleRoute(titleId: Long, onBack: () -> Unit, onOpenChapter: (Long) -> Unit,
             onFilter = viewModel::onFilter,
             onHideFacets = viewModel::onHideFacets,
             onSwitchVolumes = viewModel::onSwitchVolumes,
-            onToggleLibrary = viewModel::onToggleLibrary,
+            // A title out of the library is checked for one of the same name before it goes back in. Taking one out needs no question.
+            onToggleLibrary = {
+                val title = viewModel.state.value.title
+                if (title != null && !title.inLibrary) guard(title.name, title.kind, title.id, viewModel::onToggleLibrary) else viewModel.onToggleLibrary()
+            },
             onToggleFavorite = viewModel::onToggleFavorite,
             onMarkAll = viewModel.chapters::onMarkAll,
             onComments = onOpenComments,

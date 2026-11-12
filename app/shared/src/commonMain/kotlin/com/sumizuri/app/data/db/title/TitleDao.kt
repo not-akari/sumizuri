@@ -113,6 +113,10 @@ interface TitleDao {
     @Query("SELECT sourceId, externalId FROM title WHERE id = :id")
     suspend fun origin(id: Long): TitleOrigin?
 
+    // The names of the library, to warn before the same title is saved twice.
+    @Query("SELECT id, name, kind, sourceId FROM title WHERE inLibrary = 1")
+    suspend fun libraryNames(): List<TitleName>
+
     // The entries of one source that are in the library, read from the index alone.
     @Query("SELECT externalId FROM title WHERE sourceId = :sourceId AND inLibrary = 1")
     fun observeSavedKeys(sourceId: String): Flow<List<String>>

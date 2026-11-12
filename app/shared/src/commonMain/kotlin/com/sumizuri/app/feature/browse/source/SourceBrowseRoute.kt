@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.text.enumNamed
+import com.sumizuri.app.feature.title.rememberDuplicateGuard
 import com.sumizuri.app.source.model.SourceEntry
 import com.sumizuri.app.source.repo.InstalledSource
 import kotlinx.coroutines.flow.map
@@ -42,7 +43,9 @@ fun SourceBrowseRoute(
         }
     }.collectAsStateWithLifecycle(BrowseStyle.Grid)
     val scope = rememberCoroutineScope()
-    val actions = remember(viewModel, onBack, onOpenSaved, onOpenPreview, onEditCode) {
+    // A title of the same name in the library is asked about before the cover adds another.
+    val guard = rememberDuplicateGuard(onOpen = onOpenSaved)
+    val actions = remember(viewModel, onBack, onOpenSaved, onOpenPreview, onEditCode, guard) {
         SourceBrowseActions(
             onBack = onBack,
             onQuery = viewModel::onQuery,
@@ -66,7 +69,7 @@ fun SourceBrowseRoute(
             onPreference = viewModel::onPreference,
             onClosePreferences = viewModel::onClosePreferences,
             onEditCode = onEditCode,
-            onQuickAdd = viewModel::onQuickAdd,
+            onQuickAdd = { entry -> guard(entry.title, source.kind, -1L) { viewModel.onQuickAdd(entry) } },
             onImport = viewModel::onImport,
             onStyle = { scope.launch { container.settings.setText(SettingKey.BrowseStyle, it.name) } },
             onRemove = viewModel::onRemove,
