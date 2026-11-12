@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import com.sumizuri.app.core.AppBuild
 import com.sumizuri.app.core.log.AndroidLogSink
 import com.sumizuri.app.core.log.AppLog
+import com.sumizuri.app.core.log.CrashReport
 import com.sumizuri.app.data.AppContainer
 import com.sumizuri.app.data.db.databaseBuilder
 import com.sumizuri.app.data.db.legacyDatabaseFile
@@ -27,6 +28,7 @@ class SumizuriApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         AppLog.sink = AndroidLogSink()
+        CrashReport.install(filesDir.absolutePath.toPath())
         AppBuild.isDebug = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         // The check while the app is closed reaches the profiles through this.
         AndroidApp.context = this

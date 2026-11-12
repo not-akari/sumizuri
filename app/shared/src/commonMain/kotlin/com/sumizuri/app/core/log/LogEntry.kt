@@ -41,3 +41,16 @@ fun Throwable.briefTrace(): String {
 
 // An address without its query, which is enough to see where a request went and keeps tokens out of the log.
 fun String.withoutQuery(): String = substringBefore('?').substringBefore('#')
+
+private val WebAddress = Regex("""https?://[^\s"'<>()]+""")
+private val Bearer = Regex("""(?i)\bbearer\s+[^\s"',;]+""")
+private val SecretValue = Regex(
+    """(?i)\b(access_token|refresh_token|token|password|passwd|secret|api[_-]?key|apikey|authorization|cookie|signature|sig)(["']?\s*[:=]\s*["']?)([^\s"'&,;]+)""",
+)
+
+// The text with what could be private taken out: the query of every web address, and the value after a word such as token, password or key. Every line of the log passes through it, so a message that carries a whole address, such as the text of a network error, cannot leak a key.
+fun String.redacted(): String {
+    var text = if ("://" in this) WebAddress.replace(this) { it.value.withoutQuery() } else this
+    text = Bearer.replace(text, "Bearer (hidden)")
+    return SecretValue.replace(text) { "${it.groupValues[1]}${it.groupValues[2]}(hidden)" }
+}

@@ -5,6 +5,7 @@ package com.sumizuri.app
 import androidx.compose.ui.window.ComposeUIViewController
 import com.sumizuri.app.core.AppBuild
 import com.sumizuri.app.core.log.AppLog
+import com.sumizuri.app.core.log.CrashReport
 import com.sumizuri.app.core.log.IosLogSink
 import com.sumizuri.app.data.AppContainer
 import com.sumizuri.app.data.db.databaseBuilder
@@ -64,6 +65,7 @@ object IosApp {
         if (started) return
         started = true
         AppLog.sink = IosLogSink()
+        CrashReport.install(appFolder().toPath())
         AppBuild.isDebug = Platform.isDebugBinary
         UNUserNotificationCenter.currentNotificationCenter().delegate = shower
         val center = NSNotificationCenter.defaultCenter
