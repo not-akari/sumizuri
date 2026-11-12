@@ -117,6 +117,10 @@ interface TitleDao {
     @Query("SELECT externalId FROM title WHERE sourceId = :sourceId AND inLibrary = 1")
     fun observeSavedKeys(sourceId: String): Flow<List<String>>
 
+    // The details the person wrote by hand.
+    @Query("UPDATE title SET name = :name, author = :author, summary = :summary, status = :status, genres = :genres, updatedAt = :now WHERE id = :id")
+    suspend fun setDetails(id: Long, name: String, author: String, summary: String, status: Int, genres: String, now: Long)
+
     // The picture the person chose for the cover.
     @Query("UPDATE title SET coverUrl = :coverUrl, updatedAt = :now WHERE id = :id")
     suspend fun setCover(id: Long, coverUrl: String, now: Long)
