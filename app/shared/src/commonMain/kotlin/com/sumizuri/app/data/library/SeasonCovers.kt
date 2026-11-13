@@ -10,6 +10,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.sync.Mutex
@@ -84,7 +85,11 @@ class SeasonCovers(private val folder: Path) {
             val answers =
                 runCatching {
                     ask(batch)
-                }.onFailure { AppLog.warn(Tag, "season covers could not be looked up: ${it.message}") }.getOrNull()
+                }.onFailure {
+                    // A screen that closed stops the lookup, which is not a problem to report.
+                    if (it is CancellationException) throw it
+                    AppLog.warn(Tag, "season covers could not be looked up: ${it.message}")
+                }.getOrNull()
                     ?: break
             lock.withLock {
                 val now = nowMillis()
