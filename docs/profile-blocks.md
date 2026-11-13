@@ -1,4 +1,13 @@
-# Profile block scripts
+---
+title: Profile block scripts
+description: Change the blocks of the Sumizuri profile page, and write your own with formulas.
+eyebrow: Guide for tinkerers
+lead: Move, size and share the blocks of your profile page, or write your own with formulas and charts.
+facts:
+  - JSON scripts
+  - Formulas
+  - Charts
+---
 
 The profile page is made of blocks. Each block is a short **JSON script**: some values worked out with formulas, and a view that shows them. You can move, resize, add, remove and share blocks, and write your own.
 
@@ -82,7 +91,7 @@ Formulas use numbers, text in single quotes, `true` and `false`, and names.
 | Sums | `+ - * / %` and `^` for powers. `+` joins text when either side is text |
 | Comparisons | `== != < <= > >=`. Text compares without minding capitals |
 | Logic | `&&` (or `and`), `\|\|` (or `or`), `!` (or `not`), and `test ? a : b` |
-| Numbers | `round(x)`, `round(x, 1)`, `min`, `max`, `abs`, `floor`, `ceil`, `sqrt`, `pow`, `log`, `clamp(x, low, high)`, `percent(part, whole)` |
+| Numbers | `round(x)`, `round(x, 1)`, `min`, `max`, `abs`, `floor`, `ceil`, `sqrt`, `pow`, `log` (natural), `log10`, `exp`, `clamp(x, low, high)`, `percent(part, whole)`, `number(text)` to read a number from text |
 | Choosing | `if(test, a, b)` |
 | Text | `contains(text, 'word')`, `upper`, `lower`, `trim`, `len`, `text(x, 1)` for a number with one decimal |
 

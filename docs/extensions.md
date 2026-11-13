@@ -1,4 +1,14 @@
-# Writing Sumizuri extensions
+---
+title: Writing extensions
+description: Write a Sumizuri source in JavaScript, test it in the app and share it in a repo.
+eyebrow: Guide for developers
+heading: Writing Sumizuri extensions
+lead: Connect Sumizuri to an API with one JavaScript file. Here is how to write a source, test it in the app and share it with others.
+facts:
+  - Plain JavaScript
+  - Tested in the app
+  - Shared through repos
+---
 
 A source tells Sumizuri how to talk to one API. It lists and searches the titles there. It gets the chapters of a title. It gets the pages, text or videos of a chapter.
 
@@ -181,6 +191,8 @@ A novel source gives its words instead, as one text or as a list of paragraphs:
 return { text: ['First paragraph.', 'Second paragraph.'] };
 ```
 
+A paragraph that is only a picture, written as `![](https://.../art.jpg)`, shows as that picture among the words. This suits the art in a light novel.
+
 ### 3.5 Optional methods
 
 | Method | What it gives |
@@ -265,8 +277,11 @@ othersource/index.js
 | `hosts` | Optional. The only hosts the source may reach. |
 | `settingsSchema` | Optional. The settings page of the source. |
 | `status`, `statusNote` | Optional. Tells people a source is broken, and why. |
+| `imageHeaders` | Optional. Headers sent with every picture of the source, such as `{ "Sec-Fetch-Dest": "image" }` for a site whose pictures only load for a browser. |
 
 Each setting in `settingsSchema` has a `key`, a `label` and a `type`. The type is `toggle`, `select`, `multiSelect` or `text`. A setting can have a `default`. A `select` or `multiSelect` has `options` as `[{ value, label }]`. A `text` setting can have a `placeholder`.
+
+A repo can also sort its sources into folders by kind, such as `comics/mysource/index.js`. When a source is not at the top, the app looks for it in `anime`, `donghua`, `drama`, `western`, `comics`, `novels` and `mixed`.
 
 To add the repo, people paste its address in **Browse**, on the **Repos** tab. The address of the folder works, and so does the address of `versioning.json`.
 
@@ -327,3 +342,13 @@ A tag section with `single: true` lets the person pick one tag of it, or none:
 ### 6.4 Banner
 
 `mangaInfo` can have a `banner`, a wide picture shown behind the title page.
+
+### 6.5 A whole book
+
+A chapter that is a PDF or an EPUB file can point at the file in place of giving its pages:
+
+```js
+return { book: { url: 'https://.../volume-1.epub', headers: { Referer: 'https://example.com/' } } };
+```
+
+The app fetches the file through the source, so its address must be one the source may reach. A PDF shows as pages of pictures, and an EPUB as words. The app keeps the last few books, so opening one again does not fetch it again.

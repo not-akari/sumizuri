@@ -1,11 +1,16 @@
 ---
 title: Sync server
 description: Run your own Sumizuri sync server with Docker.
+eyebrow: Guide for self-hosters
+heading: Run your own sync server
+lead: Keep your library the same on every device, on a server you host yourself.
+facts:
+  - Docker on x86 or ARM
+  - SQLite or Postgres
+  - Locked before it is sent
 ---
 
-# Run your own sync server
-
-A sync server keeps your library the same on every device. You host it yourself. We do not run one for you.
+You host the server yourself. We do not run one for you.
 
 Your library is locked on your device before it is sent, so the server cannot read it. The server keeps your username, and the name, type, app version and last seen time of your devices.
 
@@ -33,9 +38,28 @@ Open `sumizuri.env` and change the parts in capitals.
 | `SUMIZURI_TRUST_PROXY` | Keep this `on` behind a reverse proxy, so the address of each person is read from the headers the proxy adds. Turn it `off` if the server is reached directly. |
 | `SUMIZURI_MAX_UPLOAD_MB` | The biggest batch the server takes, in MB. The default is 100. |
 | `SUMIZURI_NAME` | The name the app shows for your server. |
-| `SUMIZURI_SIGNUP_MODE` | Who can sign up. The example uses `invite`. |
+| `SUMIZURI_SIGNUP_MODE` | Who can sign up: `open` for anyone, `invite` for people with an invite from you, or `closed` for no one new. The example uses `invite`. |
 
 A live setting given here is locked in the app. Leave it out to change it from the app instead.
+
+These live settings are not in the example, and you can add them the same way:
+
+| Setting | What it does |
+| --- | --- |
+| `SUMIZURI_MIN_PASSWORD` | The shortest password allowed. The default is 10, and it can be 8 to 128. |
+| `SUMIZURI_WRONG_TRIES` | How many wrong passwords in a row before a pause of 15 minutes. The default is 5, and it can be 3 to 50. |
+| `SUMIZURI_USER_STORAGE_MB` | The most space each person may use, in MB. 0 means no limit, which is the default. |
+| `SUMIZURI_IDLE_DEVICE_DAYS` | Devices not seen for this many days are signed out. 0 means never, which is the default. |
+
+### Use Postgres
+
+The server keeps its data in one SQLite file in `/data`, which needs nothing else. For many people, or if you already run Postgres, point it at your database:
+
+```
+SUMIZURI_DATABASE_URL=postgres://USER:PASSWORD@db:5432/sumizuri
+```
+
+The user and password can also go in `SUMIZURI_DATABASE_USER` and `SUMIZURI_DATABASE_PASSWORD` instead. A `sqlite:` address keeps SQLite with another file name.
 
 ## 3. Start it
 

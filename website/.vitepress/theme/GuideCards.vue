@@ -4,7 +4,7 @@ import Glyph from './Glyph.vue'
 
 const guides = [
   { icon: 'code', title: 'Writing extensions', text: 'Connect Sumizuri to an API of your own.', href: '/extensions', tag: 'For developers' },
-  { icon: 'pages', title: 'Profile block scripts', text: 'Make your own blocks for the profile page.', href: '/profile-blocks', tag: 'For tinkerers' },
+  { icon: 'blocks', title: 'Profile block scripts', text: 'Make your own blocks for the profile page.', href: '/profile-blocks', tag: 'For tinkerers' },
   { icon: 'cloud', title: 'Run a sync server', text: 'Keep your library the same on every device.', href: '/sync-server', tag: 'For self-hosters' },
 ]
 </script>
