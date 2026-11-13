@@ -1,5 +1,7 @@
 package com.sumizuri.app.data.backup
 
+import com.sumizuri.app.data.share.ShareKind
+import com.sumizuri.app.data.share.shareHead
 import dev.whyoleg.cryptography.random.CryptographyRandom
 import okio.Buffer
 import okio.BufferedSink
@@ -53,7 +55,7 @@ suspend fun writePackedBackup(
     val compressed = packing.compression != BackupCompression.None
     val password = packing.password?.takeIf { it.isNotEmpty() }
     if (!compressed && password == null) {
-        system.sink(file).buffer().use { body(it) }
+        system.sink(file).buffer().use { wrapped(it, body) }
         return
     }
     val header = Buffer()
@@ -79,7 +81,14 @@ suspend fun writePackedBackup(
     var sink: Sink = raw
     if (password != null) sink = SealingSink(sink, backupCipher(password, salt, KeyIterations), nonce, headerBytes)
     if (compressed) sink = DeflaterSink(sink, Deflater(packing.compression.level, false))
-    sink.buffer().use { body(it) }
+    sink.buffer().use { wrapped(it, body) }
+}
+
+// A backup file is a file of the app that holds the backup, so the backup is written inside its shape.
+private suspend fun wrapped(out: BufferedSink, body: suspend (BufferedSink) -> Unit) {
+    out.writeUtf8(shareHead(ShareKind.Backup))
+    body(out)
+    out.writeUtf8("}")
 }
 
 // Unpacks a packed backup into a plain JSON file, opening it with the password when it has one.
