@@ -21,9 +21,11 @@ import com.sumizuri.app.data.download.Downloader
 import com.sumizuri.app.data.download.downloadFolder
 import com.sumizuri.app.data.library.CategoryRepository
 import com.sumizuri.app.data.library.ChapterCarry
+import com.sumizuri.app.data.library.CoverFiles
 import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.library.SeasonCovers
 import com.sumizuri.app.data.library.StatisticsRepository
+import com.sumizuri.app.data.library.coverFolder
 import com.sumizuri.app.data.local.localFolder
 import com.sumizuri.app.data.migration.MigrationPrefsRepository
 import com.sumizuri.app.data.migration.MigrationSession
@@ -83,6 +85,9 @@ class AppContainer(
     private val shared = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val library = LibraryRepository(database, shared)
+
+    // The covers the person chose from a file or another source, kept as files of this profile.
+    val coverFiles = CoverFiles(coverFolder(databasePath))
     val settings = SettingsRepository(database, shared)
 
     // The covers of the seasons of anime from AniList, kept beside the cache of pictures.

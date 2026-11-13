@@ -41,6 +41,8 @@ data class TitleCallbacks(
     val onRefresh: () -> Unit,
     val onSolve: () -> Unit,
     val onMigrate: () -> Unit,
+    // Opens the window that changes the details and the cover. The page sets it, since the window is its own.
+    val onEdit: () -> Unit = {},
     val onEnableSource: () -> Unit,
     val onToggleSort: () -> Unit,
     val onToggleGrid: () -> Unit,

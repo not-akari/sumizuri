@@ -15,6 +15,7 @@ import androidx.compose.material.icons.automirrored.outlined.Comment
 import androidx.compose.material.icons.filled.LibraryAddCheck
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.CenterFocusStrong
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.LibraryAdd
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Public
@@ -47,6 +48,7 @@ import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.comments_title
 import com.sumizuri.app.shared.resources.more
 import com.sumizuri.app.shared.resources.title_action_background
+import com.sumizuri.app.shared.resources.title_action_edit
 import com.sumizuri.app.shared.resources.title_action_move
 import com.sumizuri.app.shared.resources.title_action_web
 import com.sumizuri.app.shared.resources.title_add
@@ -76,6 +78,8 @@ internal fun PosterActions(
     // A title that cannot be reached has a button for moving it of its own.
     val move = !state.preview && state.readable
     val background = !state.preview && !title.coverUrl.isNullOrBlank()
+    // A saved title can have its details and cover changed by hand.
+    val edit = !state.preview
     // A title seen from a source is only read once it is saved, so saving it is the main button there.
     if (state.preview && !title.inLibrary) {
         Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -119,7 +123,7 @@ internal fun PosterActions(
                 calls.onComments(target)
             }, each.then(tile))
         }
-        if (web != null || move || background) {
+        if (web != null || move || background || edit) {
             var open by remember { mutableStateOf(false) }
             // The menu opens under its tile, so the two are in one box. It is a square with only its icon, so the library and the other buttons get the room.
             Box {
@@ -127,6 +131,12 @@ internal fun PosterActions(
                     open = true
                 }, Modifier.width(MoreWidth).then(tile), iconOnly = true)
                 DropdownMenu(open, { open = false }) {
+                    if (edit) {
+                        DropdownMenuItem({ Text(stringResource(Res.string.title_action_edit)) }, {
+                            open = false
+                            calls.onEdit()
+                        }, leadingIcon = { Icon(Icons.Outlined.Edit, null) })
+                    }
                     if (web != null) {
                         DropdownMenuItem({ Text(stringResource(Res.string.title_action_web)) }, {
                             open = false

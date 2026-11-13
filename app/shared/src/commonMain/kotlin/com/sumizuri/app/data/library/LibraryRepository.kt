@@ -4,7 +4,6 @@ import com.sumizuri.app.data.db.AppDatabase
 import com.sumizuri.app.data.db.chapter.FeedRow
 import com.sumizuri.app.data.db.chapter.UpdateRow
 import com.sumizuri.app.data.db.progress.ProgressEntity
-import com.sumizuri.app.data.db.setting.SettingEntity
 import com.sumizuri.app.data.db.title.SourceCount
 import com.sumizuri.app.data.db.title.TitleEntity
 import com.sumizuri.app.data.db.title.TitleKey
@@ -65,6 +64,9 @@ private const val ReadAgainMs = 30 * 60 * 1000L
 class LibraryRepository(private val db: AppDatabase, private val scope: CoroutineScope) {
     private val writer = ChapterWriter(db)
     private val places = ChapterPlaces(db)
+
+    // What the person changed by hand, which the sources leave as it is.
+    val edits = TitleEdits(db)
 
     // Titles load alone and the unread counts join in later, so the grid never waits for the counts. With repeated chapters hidden, each chapter number counts once, so the numbers on the covers match the list on the title page.
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -260,26 +262,10 @@ class LibraryRepository(private val db: AppDatabase, private val scope: Coroutin
     suspend fun addChapters(titleId: Long, chapters: List<SourceChapter>): List<Long> = writer.add(titleId, chapters)
 
     // Makes a picture the cover of a title, and keeps it there when the source says its own cover again.
-    suspend fun setCustomCover(titleId: Long, url: String) {
-        db.titles().setCover(titleId, url, nowMillis())
-        db.settings().put(SettingEntity(customCoverKey(titleId), "true"))
-    }
+    suspend fun setCustomCover(titleId: Long, url: String) = edits.setCustomCover(titleId, url)
 
-    private fun customCoverKey(titleId: Long) = "cover.custom.$titleId"
-
-    // Takes in what a source says about a title it already has. A cover the person chose is not replaced.
-    suspend fun applyDetails(titleId: Long, entry: SourceEntry) = db.titles().updateDetails(
-        id = titleId,
-        coverUrl = if (db.settings().get(customCoverKey(titleId)) == "true") null else entry.coverUrl,
-        status = statusFromText(entry.status).code,
-        summary = entry.description.orEmpty(),
-        author = entry.author.orEmpty(),
-        genres = entry.genres.joinToString("\n"),
-        rating = entry.rating,
-        webUrl = entry.webUrl,
-        volumesId = entry.volumesId,
-        now = nowMillis(),
-    )
+    // Takes in what a source says about a title it already has. A cover the person chose and the details they wrote are not replaced.
+    suspend fun applyDetails(titleId: Long, entry: SourceEntry) = edits.applyDetails(titleId, entry)
 
     // The id of the same title by volume, while the source offers one.
     fun volumesIdOf(titleId: Long): Flow<String?> = db.titles().observeVolumesId(titleId)
