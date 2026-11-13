@@ -33,7 +33,9 @@ fun PreviewRoute(
         )
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val calls = remember(viewModel, onBack, onSaved, onRead, onOpenComments) {
+    // A title of the same name in the library can be opened in place of the preview, as a saved one opens.
+    val guard = rememberDuplicateGuard(onOpen = onSaved)
+    val calls = remember(viewModel, onBack, onSaved, onRead, onOpenComments, guard) {
         TitleCallbacks(
             onBack = onBack,
             onRefresh = viewModel::onRefresh,
@@ -46,7 +48,7 @@ fun PreviewRoute(
             onToggleDuplicates = viewModel::onToggleDuplicates,
             onSort = viewModel::onSort,
             onSwitchVolumes = viewModel::onSwitchVolumes,
-            onToggleLibrary = { viewModel.onAdd(onSaved) },
+            onToggleLibrary = { guard(entry.title, source.kind, -1L) { viewModel.onAdd(onSaved) } },
             onToggleFavorite = {},
             onMarkAll = {},
             onComments = onOpenComments,

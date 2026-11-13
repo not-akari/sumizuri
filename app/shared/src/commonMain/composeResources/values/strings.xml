@@ -314,6 +314,10 @@
     <string name="extensions_file_reading">Reading the file...</string>
     <string name="extensions_trust">Sources are code written by other people. Only add a repo you trust.</string>
     <string name="add">Add</string>
+    <string name="duplicate_title">Already in your library</string>
+    <string name="duplicate_text">Your library has a title with the same name:</string>
+    <string name="duplicate_open_hint">Tap it to open it instead.</string>
+    <string name="duplicate_add">Add anyway</string>
     <string name="cancel">Cancel</string>
     <string name="repo_problem_address">The address must start with http:// or https://</string>
     <string name="repo_search_hint">Search this repo</string>
