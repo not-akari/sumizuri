@@ -32,12 +32,12 @@ import com.sumizuri.app.data.model.reader.ReaderQuality
 import com.sumizuri.app.data.model.reader.ReaderScale
 import com.sumizuri.app.data.model.reader.ReaderSettings
 import com.sumizuri.app.data.model.reader.ReaderTextAlign
-import com.sumizuri.app.data.model.reader.ReaderWidth
 import com.sumizuri.app.data.model.reader.ReaderZoomStart
 import com.sumizuri.app.feature.reader.controls.PageTurnSetting
 import com.sumizuri.app.feature.reader.controls.ReaderLight
 import com.sumizuri.app.feature.reader.controls.fill
 import com.sumizuri.app.feature.reader.controls.ink
+import com.sumizuri.app.feature.reader.controls.stripWidth
 import com.sumizuri.app.feature.reader.novel.novelStyle
 import com.sumizuri.app.feature.settings.GlobalReaderViewModel
 import com.sumizuri.app.feature.settings.SettingsPageFrame
@@ -83,7 +83,6 @@ import com.sumizuri.app.shared.resources.reader_scale
 import com.sumizuri.app.shared.resources.reader_text_align
 import com.sumizuri.app.shared.resources.reader_text_size
 import com.sumizuri.app.shared.resources.reader_warmth
-import com.sumizuri.app.shared.resources.reader_width
 import com.sumizuri.app.shared.resources.reader_wpm
 import com.sumizuri.app.shared.resources.reader_zoom_start
 import com.sumizuri.app.shared.resources.reading_group_screen
@@ -265,11 +264,7 @@ private fun MangaPart(settings: ReaderSettings, model: GlobalReaderViewModel) {
                 stringResource(it.label)
             }) { value -> model.update { it.copy(gap = value) } }
         }
-        padded {
-            ChoiceSetting(Res.string.reader_width, ReaderWidth.entries, settings.width, {
-                stringResource(it.label)
-            }) { value -> model.update { it.copy(width = value) } }
-        }
+        stripWidth(settings) { changed -> model.update { changed } }
     }
     SettingsSection(Res.string.manga_group_appearance) {
         padded {
