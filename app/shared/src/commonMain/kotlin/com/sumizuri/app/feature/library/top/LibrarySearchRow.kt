@@ -39,7 +39,14 @@ import org.jetbrains.compose.resources.stringResource
 internal fun LibrarySearchRow(query: String, onQuery: (String) -> Unit) {
     var help by remember { mutableStateOf(false) }
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        AppSearchBar(query, onQuery, stringResource(Res.string.library_search), Modifier.weight(1f), pauseMs = 150)
+        AppSearchBar(
+            query,
+            onQuery,
+            stringResource(Res.string.library_search),
+            Modifier.weight(1f),
+            pauseMs = 150,
+            historyPlace = "library",
+        )
         IconButton({
             help = true
         }) { Icon(Icons.AutoMirrored.Outlined.HelpOutline, stringResource(Res.string.library_search_help)) }

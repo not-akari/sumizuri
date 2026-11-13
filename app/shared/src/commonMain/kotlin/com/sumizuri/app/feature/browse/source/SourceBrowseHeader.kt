@@ -190,7 +190,12 @@ fun SourceBrowseHeader(state: SourceBrowseState, actions: SourceBrowseActions, o
         }
     }
     Column(Modifier.widthIn(max = ReadableWidth).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        AppSearchBar(state.query, actions.onQuery, stringResource(Res.string.browse_search, source.shownName()))
+        AppSearchBar(
+            state.query,
+            actions.onQuery,
+            stringResource(Res.string.browse_search, source.shownName()),
+            historyPlace = "source.${source.id}",
+        )
         // A source of files on the device says which files it reads, and on a computer the folder they can also be put in. A phone keeps that folder private, so there the files are added from the menu.
         state.localFolder?.let { folder ->
             val novels = source.kind == Kind.Novel

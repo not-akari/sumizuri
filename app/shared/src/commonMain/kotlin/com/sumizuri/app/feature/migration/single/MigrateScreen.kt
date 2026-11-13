@@ -101,7 +101,14 @@ fun MigrateScreen(
                     item { Note(stringResource(Res.string.migrate_no_sources)) }
                 }
                 if (state.candidates.isNotEmpty()) {
-                    item { AppSearchBar(state.query, onQuery, stringResource(Res.string.migrate_search_hint)) }
+                    item {
+                        AppSearchBar(
+                            state.query,
+                            onQuery,
+                            stringResource(Res.string.migrate_search_hint),
+                            historyPlace = "migrate",
+                        )
+                    }
                     item {
                         if (choosing) {
                             Column {

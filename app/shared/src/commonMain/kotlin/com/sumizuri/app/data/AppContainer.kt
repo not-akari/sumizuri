@@ -39,6 +39,7 @@ import com.sumizuri.app.data.settings.FeedPrefsRepository
 import com.sumizuri.app.data.settings.LibraryPrefsRepository
 import com.sumizuri.app.data.settings.PlayerPrefsRepository
 import com.sumizuri.app.data.settings.ReaderSettingsRepository
+import com.sumizuri.app.data.settings.SearchHistory
 import com.sumizuri.app.data.settings.SessionRepository
 import com.sumizuri.app.data.settings.SettingsRepository
 import com.sumizuri.app.data.settings.ThemeRepository
@@ -94,6 +95,9 @@ class AppContainer(
     val seasonCovers = SeasonCovers(FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "sumizuri_covers_meta")
     val session = SessionRepository(database)
     val reading = ReaderSettingsRepository(database)
+
+    // The searches typed lately, kept on this device for each place that searches.
+    val searchHistory = SearchHistory(settings, reading)
     val catalogs = CatalogRepository(database)
     val sources = SourceRepository(database)
     val hostStore = DatabaseHostStore(database)
