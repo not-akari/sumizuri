@@ -37,6 +37,8 @@ import com.sumizuri.app.shared.resources.settings_storage
 import com.sumizuri.app.shared.resources.settings_storage_hint
 import com.sumizuri.app.shared.resources.storage_anilist_season_covers
 import com.sumizuri.app.shared.resources.storage_anilist_season_covers_hint
+import com.sumizuri.app.shared.resources.storage_books
+import com.sumizuri.app.shared.resources.storage_books_kept
 import com.sumizuri.app.shared.resources.storage_clear
 import com.sumizuri.app.shared.resources.storage_clear_all
 import com.sumizuri.app.shared.resources.storage_copy_path
@@ -82,6 +84,7 @@ private val DiskSizes = listOf(64, 128, 256, 512, 1024, 2048)
 private val MemoryShares = listOf(10, 15, 25, 35, 50)
 private val PageSizes = listOf(32, 64, 128, 256, 512)
 private val KeepTimes = listOf(1, 5, 15, 30, 60, 180)
+private val BookCounts = listOf(3, 5, 10, 20)
 
 // The page for the storage of the app: the image cache and the reader page cache, each with how much it holds, its limits and a button to clear it, the size of the library database, and where the files are, which can be copied and, on a computer, opened in the file manager.
 @Composable
@@ -93,6 +96,7 @@ fun StorageRoute(onBack: () -> Unit) {
     val memoryPercent by settings.imageMemoryPercent.collectAsStateWithLifecycle()
     val pageMb by settings.pageMemoryMb.collectAsStateWithLifecycle()
     val keepMinutes by settings.pageKeepMinutes.collectAsStateWithLifecycle()
+    val booksKept by settings.booksKept.collectAsStateWithLifecycle()
     val aniListCovers by settings.aniListSeasonCovers.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     // Counted again after each clear.
@@ -191,6 +195,11 @@ fun StorageRoute(onBack: () -> Unit) {
                 ChoiceSetting(Res.string.storage_page_keep, KeepTimes, keepMinutes, {
                     stringResource(Res.string.storage_minutes, it)
                 }) { settings.onPageKeepMinutes(it) }
+            }
+            padded {
+                ChoiceSetting(Res.string.storage_books_kept, BookCounts, booksKept, {
+                    stringResource(Res.string.storage_books, it)
+                }) { settings.onBooksKept(it) }
             }
         }
         SettingsSection(Res.string.storage_group_data) {

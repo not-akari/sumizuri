@@ -43,6 +43,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsBytes
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
+import io.ktor.http.contentLength
 import io.ktor.http.HttpMethod
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -356,12 +357,20 @@ class HttpHost(
                 if (!response.status.isSuccess()) throw BridgeException("The file answered ${response.status.value}")
                 val channel = response.bodyAsChannel()
                 val buffer = ByteArray(64 * 1024)
+                var written = 0L
                 FileSystem.SYSTEM.sink(target).buffer().use { sink ->
                     while (true) {
                         val read = channel.readAvailable(buffer, 0, buffer.size)
                         if (read == -1) break
                         if (read > 0) sink.write(buffer, 0, read)
+                        written += read.coerceAtLeast(0)
                     }
+                }
+                // A connection that drops early ends the file like a whole one, so its size is checked. A packed reply is unpacked on the way, so its size says nothing.
+                val packed = response.headers[HttpHeaders.ContentEncoding]?.equals("identity", ignoreCase = true) == false
+                val expected = response.contentLength()
+                if (!packed && expected != null && written != expected) {
+                    throw BridgeException("The file was cut off after $written of $expected bytes")
                 }
                 null
             } ?: return

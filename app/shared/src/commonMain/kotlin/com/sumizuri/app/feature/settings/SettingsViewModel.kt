@@ -144,6 +144,14 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
             SettingKey.DefaultPageKeepMinutes,
         ).stateIn(viewModelScope, SharingStarted.Eagerly, SettingKey.DefaultPageKeepMinutes)
 
+    val booksKept: StateFlow<Int> = repository
+        .number(SettingKey.BooksKept, SettingKey.DefaultBooksKept)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, SettingKey.DefaultBooksKept)
+
+    fun onBooksKept(value: Int) {
+        viewModelScope.launch { repository.setNumber(SettingKey.BooksKept, value) }
+    }
+
     fun onImageDiskMb(value: Int) {
         viewModelScope.launch { repository.setNumber(SettingKey.ImageDiskMb, value) }
     }

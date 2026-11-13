@@ -84,6 +84,7 @@ import com.sumizuri.app.ui.controls.appShortcuts
 import com.sumizuri.app.ui.kit.cover.CoverFlight
 import com.sumizuri.app.ui.kit.cover.CoverFlightLayer
 import com.sumizuri.app.ui.kit.cover.LocalCoverFlight
+import com.sumizuri.app.data.local.FetchedBooks
 import com.sumizuri.app.ui.kit.image.PageCache
 import com.sumizuri.app.ui.kit.image.PageImages
 import com.sumizuri.app.ui.kit.image.coverImageLoader
@@ -137,6 +138,7 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
     val imageMemoryPercent by settings.imageMemoryPercent.collectAsStateWithLifecycle()
     val pageMemoryMb by settings.pageMemoryMb.collectAsStateWithLifecycle()
     val pageKeepMinutes by settings.pageKeepMinutes.collectAsStateWithLifecycle()
+    val booksKept by settings.booksKept.collectAsStateWithLifecycle()
     // The loader is made again when a size of the cache changes, and the one it replaces is shut down so it lets go of its files and memory.
     val loader = remember(container, imageDiskMb, imageMemoryPercent) { coverImageLoader(context, container.manager.images, imageDiskMb, imageMemoryPercent).also { SingletonImageLoader.setUnsafe(it) } }
     DisposableEffect(loader) { onDispose { loader.shutdown() } }
@@ -148,6 +150,7 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
         }
     }
     LaunchedEffect(pageMemoryMb, pageKeepMinutes) { PageCache.configure(pageMemoryMb * 1024L * 1024L, pageKeepMinutes * 60_000L) }
+    LaunchedEffect(booksKept) { FetchedBooks.kept = booksKept }
 
     AppBackgroundWork(container, loader)
     val perfOverlay by remember(container) { container.settings.flag(SettingKey.PerfOverlay, false) }.collectAsStateWithLifecycle(false)
