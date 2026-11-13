@@ -24,7 +24,9 @@ interface Source {
     suspend fun latest(page: Int = 1): SourceResult<List<SourceEntry>>
     suspend fun details(entry: SourceEntry): SourceResult<SourceEntry>
     suspend fun chapters(entry: SourceEntry): SourceResult<List<SourceChapter>>
-    suspend fun pages(chapter: SourceChapter): SourceResult<List<SourcePage>>
+
+    // With books off, a chapter that is a whole PDF or EPUB gives no pages, and the file is not fetched.
+    suspend fun pages(chapter: SourceChapter, books: Boolean = true): SourceResult<List<SourcePage>>
     suspend fun videos(chapter: SourceChapter): SourceResult<List<SourceVideo>>
 
     // The settings a search can use. Only a source that says it has filters has any.
