@@ -25,6 +25,7 @@ enum class SettingsTarget {
     Controls,
     Storage,
     Backup,
+    Import,
     Sync,
     SyncLink,
     SyncWhat,

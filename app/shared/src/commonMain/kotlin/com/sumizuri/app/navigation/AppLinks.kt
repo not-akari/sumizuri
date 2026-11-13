@@ -1,5 +1,7 @@
 package com.sumizuri.app.navigation
 
+import com.sumizuri.app.data.share.ImportSource
+import com.sumizuri.app.data.share.Incoming
 import io.ktor.http.Url
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,8 +34,10 @@ object AppLinks {
                 true
             }
 
-            "theme" -> {
-                theme.value = url.parameters["data"]?.trim()?.takeIf { it.isNotEmpty() } ?: return false
+            // A link that carries a file of the app, such as a theme or repos, opens it in the import page.
+            "import" -> {
+                Incoming.offer(ImportSource.Text(link.trim()))
+                imports.value++
                 true
             }
 
@@ -57,14 +61,10 @@ object AppLinks {
         repo.value = null
     }
 
-    private val theme = MutableStateFlow<String?>(null)
+    private val imports = MutableStateFlow(0)
 
-    // A theme a link carries, which waits for the person to say yes before it is added.
-    val sharedTheme: StateFlow<String?> = theme
-
-    fun themeTaken() {
-        theme.value = null
-    }
+    // Counts the links that carried a file, so the app opens the import page for each.
+    val importLinks: StateFlow<Int> = imports
 
     private val title = MutableStateFlow<TitleLink?>(null)
 

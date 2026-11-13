@@ -72,7 +72,7 @@ fun SettingsTargetRoute(target: SettingsTarget, onBack: () -> Unit, onOpen: (Set
         SettingsTarget.SyncAdminLog -> SyncAdminLogRoute(onBack)
         SettingsTarget.Security -> SecurityRoute(onBack)
         SettingsTarget.Network -> NetworkRoute(onBack)
-        SettingsTarget.Advanced -> AdvancedRoute(onBack) { onOpen(SettingsTarget.Performance) }
+        SettingsTarget.Advanced -> AdvancedRoute(onBack, { onOpen(SettingsTarget.Performance) }) { onOpen(SettingsTarget.Import) }
         SettingsTarget.Performance -> PerformanceRoute(onBack)
         SettingsTarget.Diagnostics -> DiagnosticsRoute(onBack) { onOpen(SettingsTarget.Logs) }
         SettingsTarget.About -> AboutRoute(onBack, onOpen)
@@ -81,6 +81,6 @@ fun SettingsTargetRoute(target: SettingsTarget, onBack: () -> Unit, onOpen: (Set
         SettingsTarget.Privacy -> PrivacyRoute(onBack)
         SettingsTarget.AppUpdate -> AppUpdateRoute(onBack)
         SettingsTarget.ChapterList -> ChapterListRoute(onBack)
-        SettingsTarget.LibraryDisplay, SettingsTarget.Shelves, SettingsTarget.Migration, SettingsTarget.Backup, SettingsTarget.Logs -> Unit
+        SettingsTarget.LibraryDisplay, SettingsTarget.Shelves, SettingsTarget.Migration, SettingsTarget.Backup, SettingsTarget.Import, SettingsTarget.Logs -> Unit
     }
 }

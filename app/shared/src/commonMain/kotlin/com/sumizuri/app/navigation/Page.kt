@@ -34,6 +34,9 @@ sealed interface Page {
     // Where a library is brought back from a backup file.
     data object Backup : Page
 
+    // The one page things come into the app through: files, links and pasted text.
+    data object Import : Page
+
     // The updates and the history as pages, for when the person took their tabs away.
     data object Updates : Page
     data object History : Page

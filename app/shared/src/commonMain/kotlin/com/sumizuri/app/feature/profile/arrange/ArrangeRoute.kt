@@ -18,6 +18,9 @@ import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.library.StatisticsRepository
 import com.sumizuri.app.data.model.FeedItem
 import com.sumizuri.app.data.model.stats.ReadingStats
+import com.sumizuri.app.data.share.ShareKind
+import com.sumizuri.app.data.share.readShared
+import com.sumizuri.app.data.share.textOfLink
 import com.sumizuri.app.feature.profile.BlockCalls
 import com.sumizuri.app.feature.profile.ShownBlock
 import com.sumizuri.app.feature.profile.blocks.GridColumns
@@ -102,9 +105,12 @@ class ArrangeViewModel(
         blocks.update { it.copy(blocks = it.blocks + block) }
     }
 
-    // Adds a block someone shared as text, and gives false when the text is no block.
+    // Adds a block someone shared as a link or text, and gives false when it holds no block.
     suspend fun onImport(text: String): Boolean {
-        val block = decodeBlock(text) ?: return false
+        val shared =
+            runCatching { readShared(textOfLink(text) ?: text) }.getOrNull()?.takeIf { it.kind == ShareKind.Block }
+                ?: return false
+        val block = decodeBlock(shared.data.toString()) ?: return false
         blocks.update { it.copy(blocks = it.blocks + block.copy(id = newBlockId())) }
         return true
     }

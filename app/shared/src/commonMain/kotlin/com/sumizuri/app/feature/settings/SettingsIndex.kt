@@ -15,6 +15,7 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.PieChart
 import androidx.compose.material.icons.outlined.PlayCircle
+import androidx.compose.material.icons.outlined.FileOpen
 import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material.icons.outlined.SystemUpdate
@@ -141,6 +142,8 @@ import com.sumizuri.app.shared.resources.settings_advanced_hint
 import com.sumizuri.app.shared.resources.settings_appearance
 import com.sumizuri.app.shared.resources.settings_backup
 import com.sumizuri.app.shared.resources.settings_backup_hint
+import com.sumizuri.app.shared.resources.settings_import_page
+import com.sumizuri.app.shared.resources.settings_import_page_hint
 import com.sumizuri.app.shared.resources.settings_compact_lists
 import com.sumizuri.app.shared.resources.settings_diagnostics
 import com.sumizuri.app.shared.resources.settings_diagnostics_hint
@@ -244,6 +247,7 @@ internal fun settingsPages(now: SettingsNow, opens: SettingsOpens): List<Setting
         // Data: what is kept and moved, the backups, and the tools that mend the library.
         add(page(SettingsGroup.Data, Icons.Outlined.Download, stringResource(Res.string.download_title), stringResource(Res.string.download_settings_hint), listOf(Res.string.download_queue_open, Res.string.download_pause, Res.string.download_retry_all, Res.string.download_wifi_only, Res.string.download_pages_at_once, Res.string.download_new, Res.string.download_new_limit, Res.string.download_skip_shelves, Res.string.download_ahead, Res.string.download_delete_after, Res.string.download_delete_on_mark, Res.string.download_keep_bookmarked), SettingsTarget.DownloadOptions))
         add(page(SettingsGroup.Data, Icons.Outlined.SettingsBackupRestore, stringResource(Res.string.settings_backup), stringResource(Res.string.settings_backup_hint), emptyList(), SettingsTarget.Backup))
+        add(page(SettingsGroup.Data, Icons.Outlined.FileOpen, stringResource(Res.string.settings_import_page), stringResource(Res.string.settings_import_page_hint), emptyList(), SettingsTarget.Import))
         add(page(SettingsGroup.Data, Icons.Outlined.PieChart, stringResource(Res.string.settings_storage), stringResource(Res.string.settings_storage_hint), listOf(Res.string.storage_image_cache, Res.string.storage_page_cache, Res.string.storage_path_database, Res.string.storage_path_images), SettingsTarget.Storage))
         add(page(SettingsGroup.Data, Icons.Outlined.SwapHoriz, stringResource(Res.string.mig_title), stringResource(Res.string.mig_subtitle), listOf(Res.string.mig_rule_strictness, Res.string.mig_rule_chapters, Res.string.mig_rule_compare_all, Res.string.mig_rule_try_address, Res.string.mig_rule_keep_old), SettingsTarget.Migration))
         if (now.unreachable > 0) add(page(SettingsGroup.Data, Icons.Outlined.LinkOff, stringResource(Res.string.settings_missing_sources), unreachable, emptyList(), SettingsTarget.MissingSources))
