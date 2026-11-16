@@ -43,6 +43,11 @@ Thumbs.db
 # The settings and data of a sync server run on this computer.
 sync/server/.env
 sync/server/data/
+
+# Files of keys and passwords anywhere, such as a .env for the website build. Only an example with no real values may be kept.
+.env
+.env.*
+!.env.example
 website/.vitepress/cache/
 website/.vitepress/dist/
 
