@@ -13,9 +13,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import com.sumizuri.app.ui.theme.LocalReduceMotion
 import com.sumizuri.app.ui.theme.LocalThemeSpec
 
-// Makes a piece shrink a little while it is pressed and grow a little while the pointer rests on it, by the amounts the theme sets. The piece must use the same interaction source for its clicks.
+// Makes a piece shrink a little while it is pressed and grow a little while the pointer rests on it, by the amounts the theme sets. A wide piece, such as a row, leaves the growing out. The piece must use the same interaction source for its clicks.
 @Composable
-fun Modifier.feedbackScale(source: MutableInteractionSource): Modifier {
+fun Modifier.feedbackScale(source: MutableInteractionSource, hover: Boolean = true): Modifier {
     if (LocalReduceMotion.current) return this
     val motion = LocalThemeSpec.current.options.motion
     val pressed by source.collectIsPressedAsState()
@@ -23,7 +23,7 @@ fun Modifier.feedbackScale(source: MutableInteractionSource): Modifier {
     val scale by animateFloatAsState(
         if (pressed) {
             motion.pressScale
-        } else if (hovered) {
+        } else if (hover && hovered) {
             motion.hoverScale
         } else {
             1f

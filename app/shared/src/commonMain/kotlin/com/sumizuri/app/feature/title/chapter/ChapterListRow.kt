@@ -52,7 +52,7 @@ import org.jetbrains.compose.resources.stringResource
 // The size of a button on a chapter row, smaller than usual so the name of the chapter keeps its room.
 internal val RowButton = 36.dp
 
-// One chapter as a row of the card that holds the chapters. A dot marks it as not read, a bar shows how far it was read, and buttons save it to the device and flip the bookmark and the read mark. While chapters are picked the row is a pick box instead.
+// One chapter as a row while chapters are picked, with a pick box at the start. Every other list uses the row in ChapterWideRow.
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ChapterListRow(
@@ -64,7 +64,6 @@ internal fun ChapterListRow(
     calls: ChapterCallbacks,
     place: CardPlace,
     modifier: Modifier = Modifier,
-    download: RowDownload? = null,
 ) {
     val colors = MaterialTheme.colorScheme
     val marks = rememberMarkColors()
@@ -94,7 +93,6 @@ internal fun ChapterListRow(
             )
             ChapterSubtitle(chapter, marks)
         }
-        if (!selecting && !preview) RowButtons(chapter, calls, download)
     }
 }
 
@@ -129,29 +127,5 @@ internal fun ChapterSubtitle(chapter: ChapterItem, marks: MarkColors, bar: Boole
     val progress = chapter.progress
     if (bar && !chapter.read && progress != null) {
         MarkBar(progress, marks.bar, Modifier.padding(top = 4.dp))
-    }
-}
-
-@Composable
-private fun RowButtons(chapter: ChapterItem, calls: ChapterCallbacks, download: RowDownload?) {
-    val colors = MaterialTheme.colorScheme
-    Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-        if (download != null) ChapterDownloadButton(chapter.id, download)
-        IconButton({ calls.onToggleBookmark(chapter.id, !chapter.bookmarked) }, Modifier.size(RowButton)) {
-            Icon(
-                if (chapter.bookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                stringResource(if (chapter.bookmarked) Res.string.bookmark_remove else Res.string.bookmark_add),
-                Modifier.size(18.dp),
-                tint = if (chapter.bookmarked) rememberMarkColors().bookmark else colors.onSurfaceVariant,
-            )
-        }
-        IconButton({ calls.onToggleRead(chapter.id, !chapter.read) }, Modifier.size(RowButton)) {
-            Icon(
-                if (chapter.read) Icons.Outlined.RemoveDone else Icons.Outlined.DoneAll,
-                stringResource(if (chapter.read) Res.string.title_mark_unread else Res.string.title_mark_read),
-                Modifier.size(18.dp),
-                tint = colors.onSurfaceVariant,
-            )
-        }
     }
 }

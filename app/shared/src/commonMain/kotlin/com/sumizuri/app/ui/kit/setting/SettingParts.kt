@@ -18,6 +18,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.ui.kit.input.AppSwitch
 import com.sumizuri.app.ui.motion.entrance
@@ -65,12 +66,16 @@ fun SwitchSetting(
     enabled: Boolean = true,
 ) {
     val tight = LocalCompactLists.current
+    // In a section card the whole row takes the tap, so its hover fills the row up to the edges of the card.
+    val inset = LocalRowInset.current
     Row(
         Modifier
+            .then(if (inset != null) Modifier.layoutId(FillsRow) else Modifier)
             .fillMaxWidth()
             .clickable(enabled = enabled) {
                 onChange(!checked)
-            }.padding(vertical = if (tight) 2.dp else 6.dp),
+            }.then(if (inset != null) Modifier.padding(inset) else Modifier)
+            .padding(vertical = if (tight) 2.dp else 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {

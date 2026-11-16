@@ -28,6 +28,7 @@ internal class ChapterWriter(private val db: AppDatabase) {
         }
         keepPlaces(titleId, chapters, places)
         keepNames(titleId, chapters, rows)
+        keepNumbers(titleId, chapters, rows, numbers)
         if (fresh.isEmpty()) return emptyList()
         val added = db.chapters().insertAll(
             fresh.map { index ->
@@ -72,6 +73,23 @@ internal class ChapterWriter(private val db: AppDatabase) {
             }.toMap()
         if (renamed.isEmpty()) return
         db.withWriteTransaction { for ((url, name) in renamed) db.chapters().setName(titleId, url, name) }
+    }
+
+    // Chapters saved with no number, before the number was read from the name, take the one they have now. A number above zero is never changed, so a chapter keeps its place and its marks.
+    private suspend fun keepNumbers(
+        titleId: Long,
+        chapters: List<SourceChapter>,
+        rows: List<ChapterPlaceInList>,
+        numbers: List<Double>,
+    ) {
+        val was = rows.associate { it.url to it.number }
+        val found = chapters.indices
+            .mapNotNull { index ->
+                val before = was[chapters[index].url] ?: return@mapNotNull null
+                if (before <= 0 && numbers[index] > 0) chapters[index].url to numbers[index] else null
+            }.toMap()
+        if (found.isEmpty()) return
+        db.withWriteTransaction { for ((url, number) in found) db.chapters().setNumber(titleId, url, number) }
     }
 
     // Chapters saved before their source gave seasons, or whose season moved, take the season the source gives now. Only the ones that differ are written.

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.library.SeasonCovers
+import com.sumizuri.app.data.migration.chapterNumbers
 import com.sumizuri.app.data.model.ChapterSort
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.settings.SessionRepository
@@ -235,24 +236,28 @@ class PreviewViewModel(
         coverUrl = details.coverUrl ?: listed.coverUrl,
     )
 
-    private fun items(list: List<SourceChapter>): List<ChapterItem> = list
-        .mapIndexed { index, chapter ->
-            val number = chapter.number ?: (list.size - index).toDouble()
-            ChapterItem(
-                key = "$index${chapter.url}",
-                id = index + 1L,
-                number = number,
-                name = chapter.title.takeIf { it.isNotBlank() },
-                at = chapter.uploadedAt ?: 0,
-                read = false,
-                season = chapter.season,
-                seasonName = chapter.seasonName,
-                seasonCoverUrl = chapter.seasonCoverUrl,
-                sourceOrder = index,
-                scanlator = chapter.scanlator?.trim()?.takeIf { it.isNotEmpty() },
-                language = chapter.language,
-                volume = chapter.volume,
-                tags = chapter.tags,
-            )
-        }.sortedByDescending { it.number }
+    // The numbers are worked out as they are when the title is saved, so the list looks the same before and after.
+    private fun items(list: List<SourceChapter>): List<ChapterItem> {
+        val numbers = chapterNumbers(list)
+        return list
+            .mapIndexed { index, chapter ->
+                val number = numbers[index]
+                ChapterItem(
+                    key = "$index${chapter.url}",
+                    id = index + 1L,
+                    number = number,
+                    name = chapter.title.takeIf { it.isNotBlank() },
+                    at = chapter.uploadedAt ?: 0,
+                    read = false,
+                    season = chapter.season,
+                    seasonName = chapter.seasonName,
+                    seasonCoverUrl = chapter.seasonCoverUrl,
+                    sourceOrder = index,
+                    scanlator = chapter.scanlator?.trim()?.takeIf { it.isNotEmpty() },
+                    language = chapter.language,
+                    volume = chapter.volume,
+                    tags = chapter.tags,
+                )
+            }.sortedByDescending { it.number }
+    }
 }

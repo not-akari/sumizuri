@@ -75,6 +75,7 @@ import com.sumizuri.app.navigation.PageStack
 import com.sumizuri.app.navigation.ShortcutActions
 import com.sumizuri.app.navigation.ShortcutsDialog
 import com.sumizuri.app.navigation.bar.NavAvatar
+import com.sumizuri.app.navigation.rememberBackInput
 import com.sumizuri.app.navigation.runShortcut
 import com.sumizuri.app.ui.UiRefreshRate
 import com.sumizuri.app.ui.controls.LocalAppGestures
@@ -259,10 +260,12 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                 if (place.restored && place.tab !in tabs) navigation.select(Destination.Library)
             }
             var shortcutsOpen by remember { mutableStateOf(false) }
+            val backInput = rememberBackInput()
             val actions = ShortcutActions(
                 refreshLibrary = { scope.launch { container.sync.refreshLibrary() } },
                 scrollToTop = { scope.launch { ScrollTops.toTop() } },
                 showShortcuts = { shortcutsOpen = true },
+                goBack = backInput::back,
             )
             val onShortcut: (AppShortcut) -> Boolean = { shortcut -> runShortcut(shortcut, place, navigation, tabs, actions) }
             // A second tap on the tab that is open does what the person chose for it.

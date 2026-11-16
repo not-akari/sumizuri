@@ -21,6 +21,9 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.intl.Locale
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import coil3.compose.LocalPlatformContext
 import com.sumizuri.app.data.model.ChapterPlace
 import com.sumizuri.app.data.model.controls.ReaderAction
@@ -126,6 +129,14 @@ private fun Reader(state: ReaderState, actions: ReaderActions, translator: Novel
         panel = which
     }
     LaunchedEffect(controls) { if (!controls) panel = DockPanel.None }
+    // Back folds an open panel first, and only then leaves the reader.
+    NavigationBackHandler(
+        rememberNavigationEventState(NavigationEventInfo.None),
+        isBackEnabled =
+        panel != DockPanel.None,
+    ) {
+        panel = DockPanel.None
+    }
     var auto by remember { mutableStateOf(false) }
     // The light follows the sliders at once and is saved when they are let go.
     var dim by remember(settings.dim) { mutableFloatStateOf(settings.dim) }

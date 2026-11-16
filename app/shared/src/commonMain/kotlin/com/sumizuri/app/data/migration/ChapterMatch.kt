@@ -5,13 +5,11 @@ import com.sumizuri.app.data.model.readChapterName
 import com.sumizuri.app.source.model.SourceChapter
 import kotlin.math.roundToLong
 
-// The number of each chapter as it is saved. A number the source does not give, or gives below zero as some do for none, is read from the name, and a chapter whose name has none takes its place in the list, counted from the end.
+// The number of each chapter as it is saved. Many sources give 0 or a number below zero when they have none, so a number above zero is taken as it is, and else the number in the name, such as 16 in Chapter 16. A chapter whose name has none keeps a 0 its source gave, and with nothing at all it takes its place in the list, counted from the end.
 fun chapterNumbers(chapters: List<SourceChapter>): List<Double> = chapters.mapIndexed { index, chapter ->
-    chapter.number?.takeIf {
-        it >=
-            0
-    }
+    chapter.number?.takeIf { it > 0 }
         ?: readChapterName(chapter.title).chapter
+        ?: chapter.number?.takeIf { it == 0.0 }
         ?: (chapters.size - index).toDouble()
 }
 

@@ -42,7 +42,7 @@ import org.jetbrains.compose.resources.stringResource
 
 // A chapter row that can be swiped. What a swipe to the right and a swipe to the left do is the person's choice, and a side set to nothing cannot be swiped. The row springs back after the action.
 @Composable
-internal fun SwipeableChapterRow(chapter: ChapterItem, kind: Kind, selected: Boolean, calls: ChapterCallbacks, place: CardPlace, download: RowDownload? = null) {
+internal fun SwipeableChapterRow(chapter: ChapterItem, kind: Kind, next: Boolean, calls: ChapterCallbacks, place: CardPlace, download: RowDownload? = null) {
     val gestures = LocalAppGestures.current
     val right = gestures.chapterSwipeRight
     val left = gestures.chapterSwipeLeft
@@ -62,7 +62,7 @@ internal fun SwipeableChapterRow(chapter: ChapterItem, kind: Kind, selected: Boo
         enableDismissFromStartToEnd = right != ChapterRowAction.None,
         enableDismissFromEndToStart = left != ChapterRowAction.None,
     ) {
-        ChapterListRow(chapter, kind, preview = false, selecting = false, selected = selected, calls = calls, place = place, download = download)
+        ChapterWideRow(chapter, kind, preview = false, next = next, calls = calls, place = place, download = download)
     }
 }
 

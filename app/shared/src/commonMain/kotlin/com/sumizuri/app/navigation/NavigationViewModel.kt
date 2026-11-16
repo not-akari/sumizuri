@@ -50,18 +50,42 @@ class NavigationViewModel(
         mutableState.update { opened ?: NavigationState(restored = true) }
     }
 
-    // Choosing a tab closes every page that was open over the old one.
-    fun select(tab: Destination) = mutableState.update { NavigationState(tab, restored = true) }
+    // The pages back closed, the newest last, which forward opens again. Going anywhere new forgets them, as a browser does.
+    private var closed = emptyList<Page>()
 
-    fun push(page: Page) = mutableState.update { it.copy(pages = it.pages + page) }
+    // Choosing a tab closes every page that was open over the old one.
+    fun select(tab: Destination) {
+        closed = emptyList()
+        mutableState.update { NavigationState(tab, restored = true) }
+    }
+
+    fun push(page: Page) {
+        closed = emptyList()
+        mutableState.update { it.copy(pages = it.pages + page) }
+    }
 
     // Swaps the page on top, for example a preview that became a saved title.
-    fun replaceTop(page: Page) = mutableState.update { it.copy(pages = it.pages.dropLast(1) + page) }
+    fun replaceTop(page: Page) {
+        closed = emptyList()
+        mutableState.update { it.copy(pages = it.pages.dropLast(1) + page) }
+    }
 
-    fun pop() = mutableState.update { it.copy(pages = it.pages.dropLast(1)) }
+    fun pop() {
+        mutableState.value.top?.let { closed = closed + it }
+        mutableState.update { it.copy(pages = it.pages.dropLast(1)) }
+    }
+
+    // Opens again the page back closed last, and gives false when there is none.
+    fun forward(): Boolean {
+        val page = closed.lastOrNull() ?: return false
+        closed = closed.dropLast(1)
+        mutableState.update { it.copy(pages = it.pages + page) }
+        return true
+    }
 
     // Closes the page that moved a title. When the page under it is the title that was moved, that page becomes the moved title, so back leads to where the title was opened from. Under any other page, such as a list of titles that wait for a source, only the moving page closes and that page stays as it was.
     fun moved(oldId: Long, newId: Long) = mutableState.update { now ->
+        closed = emptyList()
         val rest = now.pages.dropLast(1)
         now.copy(pages = if (rest.lastOrNull() == Page.Saved(oldId)) rest.dropLast(1) + Page.Saved(newId) else rest)
     }

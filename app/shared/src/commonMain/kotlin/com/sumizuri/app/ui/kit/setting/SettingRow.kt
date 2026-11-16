@@ -1,8 +1,8 @@
 package com.sumizuri.app.ui.kit.setting
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,12 +11,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import com.sumizuri.app.ui.kit.card.AppCard
 import com.sumizuri.app.ui.kit.card.ListChevron
 import com.sumizuri.app.ui.motion.entrance
@@ -88,7 +92,34 @@ class SettingsRows {
 
     // A control that has no padding of its own, such as a switch, a slider or a picker.
     fun padded(content: @Composable () -> Unit) {
-        items += { Box(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp)) { content() } }
+        items += { PaddedRow(content) }
+    }
+}
+
+// The room a control keeps from the edges of its section card.
+internal val RowInset = PaddingValues(horizontal = 14.dp, vertical = 4.dp)
+
+// Inside a section card, the room the row around a control keeps, which a control that takes taps on its whole row keeps inside instead.
+internal val LocalRowInset = compositionLocalOf<PaddingValues?> { null }
+
+// The mark of a control that takes taps on its whole row.
+internal object FillsRow
+
+// A control with room around it, unless it is marked as filling its row: then it gets the whole row and keeps the room inside itself, so its hover fills the row up to the edges of the card.
+@Composable
+private fun PaddedRow(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalRowInset provides RowInset) {
+        Layout(content, Modifier.fillMaxWidth()) { measurables, constraints ->
+            val fills = measurables.any { it.layoutId == FillsRow }
+            val side = if (fills) 0 else RowInset.calculateLeftPadding(layoutDirection).roundToPx()
+            val edge = if (fills) 0 else RowInset.calculateTopPadding().roundToPx()
+            val inner = constraints.copy(minWidth = 0, minHeight = 0).offset(-2 * side, -2 * edge)
+            val placeables = measurables.map { it.measure(inner) }
+            val height = (placeables.maxOfOrNull { it.height } ?: 0) + 2 * edge
+            layout(constraints.maxWidth, height.coerceIn(constraints.minHeight, constraints.maxHeight)) {
+                placeables.forEach { it.place(side, edge) }
+            }
+        }
     }
 }
 

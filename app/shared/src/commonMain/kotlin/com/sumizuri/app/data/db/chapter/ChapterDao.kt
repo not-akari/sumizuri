@@ -158,8 +158,8 @@ interface ChapterDao {
         tags: String?,
     )
 
-    // The addresses of the chapters a title already has with their places in the list of the source and their names.
-    @Query("SELECT url, sourceOrder, name FROM chapter WHERE titleId = :titleId")
+    // The addresses of the chapters a title already has with their places in the list of the source, their names and their numbers.
+    @Query("SELECT url, sourceOrder, name, number FROM chapter WHERE titleId = :titleId")
     suspend fun placesOf(titleId: Long): List<ChapterPlaceInList>
 
     @Query("UPDATE chapter SET sourceOrder = :sourceOrder WHERE titleId = :titleId AND url = :url")
@@ -167,6 +167,9 @@ interface ChapterDao {
 
     @Query("UPDATE chapter SET name = :name WHERE titleId = :titleId AND url = :url")
     suspend fun setName(titleId: Long, url: String, name: String?)
+
+    @Query("UPDATE chapter SET number = :number WHERE titleId = :titleId AND url = :url")
+    suspend fun setNumber(titleId: Long, url: String, number: Double)
 
     // A chapter already saved for the title is kept as it is.
     @Insert(onConflict = OnConflictStrategy.IGNORE)
