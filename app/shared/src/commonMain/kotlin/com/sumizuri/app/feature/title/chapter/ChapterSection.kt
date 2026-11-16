@@ -125,9 +125,10 @@ internal fun LazyListScope.chapterSection(
                 }
                 val picked = chapter.id in state.selected
                 val place = CardPlace(index, model.shown.size)
-                if (state.selecting || (state.preview && !wideRows)) {
+                // Picking has its own rows with pick boxes. Every other list uses one kind of row, so a phone and a computer look alike, and a phone can swipe a saved chapter.
+                if (state.selecting) {
                     ChapterListRow(chapter, title.kind, state.preview, state.selecting, picked, calls.chapters, place)
-                } else if (wideRows) {
+                } else if (wideRows || state.preview) {
                     ChapterWideRow(
                         chapter,
                         title.kind,
@@ -141,7 +142,7 @@ internal fun LazyListScope.chapterSection(
                     SwipeableChapterRow(
                         chapter,
                         title.kind,
-                        picked,
+                        chapter.id == state.target?.id,
                         calls.chapters,
                         place,
                         calls.downloads?.let {

@@ -43,6 +43,7 @@ import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.text.numberText
 import com.sumizuri.app.feature.title.ChapterCallbacks
 import com.sumizuri.app.feature.title.ChapterItem
+import com.sumizuri.app.playback.touchPlayer
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.bookmark_add
 import com.sumizuri.app.shared.resources.bookmark_remove
@@ -57,10 +58,10 @@ import com.sumizuri.app.ui.kit.cover.rememberMarkColors
 import com.sumizuri.app.ui.text.numberedUnit
 import org.jetbrains.compose.resources.stringResource
 
-// The room the buttons at the end of a row keep, so the row does not shift when they show.
+// The room the buttons at the end of a row keep under a mouse, so the row does not shift when they show.
 private val ActionsWidth = RowButton * 3
 
-// One chapter as a roomy row for a mouse. A round mark at the start tells its state: next to read, part read with a ring, read with a tick, or new with a dot. The next one is tinted and tagged. Its buttons show while the pointer is over it, and a bookmark or a download stays shown.
+// One chapter as a row, the same on a phone and on a computer. A round mark at the start tells its state: next to read, part read with a ring, read with a tick, or new with a dot. The next one is tinted and tagged. Under a mouse its buttons show while the pointer is over it. A touch screen has no pointer to rest, so there the download button always shows, and reading and bookmarks are a swipe away.
 @Composable
 internal fun ChapterWideRow(
     chapter: ChapterItem,
@@ -94,7 +95,8 @@ internal fun ChapterWideRow(
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = if (chapter.read) FontWeight.Normal else FontWeight.SemiBold,
                     color = if (chapter.read) colors.onSurfaceVariant else colors.onSurface,
-                    maxLines = 1,
+                    // A phone has less room across, so a long name takes a second line there.
+                    maxLines = if (touchPlayer) 2 else 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 if (next) {
@@ -126,8 +128,12 @@ private fun RowActions(
     marks: MarkColors,
 ) {
     val colors = MaterialTheme.colorScheme
-    Row(Modifier.width(ActionsWidth), horizontalArrangement = Arrangement.End) {
-        if (download != null && (hovered || download.entity != null)) ChapterDownloadButton(chapter.id, download)
+    Row(if (touchPlayer) Modifier else Modifier.width(ActionsWidth), horizontalArrangement = Arrangement.End) {
+        if (download != null &&
+            (hovered || touchPlayer || download.entity != null)
+        ) {
+            ChapterDownloadButton(chapter.id, download)
+        }
         if (hovered || chapter.bookmarked) {
             IconButton({ calls.onToggleBookmark(chapter.id, !chapter.bookmarked) }, Modifier.size(RowButton)) {
                 Icon(
