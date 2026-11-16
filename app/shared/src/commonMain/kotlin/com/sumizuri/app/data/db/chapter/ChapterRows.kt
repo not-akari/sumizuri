@@ -66,5 +66,5 @@ data class ChapterSlot(
     val tags: String? = null,
 )
 
-// The place a saved chapter has in the list of its source, and its name, by its address.
-data class ChapterPlaceInList(val url: String, val sourceOrder: Int, val name: String?)
+// The place a saved chapter has in the list of its source, its name and its number, by its address.
+data class ChapterPlaceInList(val url: String, val sourceOrder: Int, val name: String?, val number: Double)
