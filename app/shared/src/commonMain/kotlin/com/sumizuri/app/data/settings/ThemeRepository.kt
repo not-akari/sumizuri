@@ -52,7 +52,7 @@ class ThemeRepository(private val db: AppDatabase) {
 
     suspend fun delete(id: String) = db.settings().delete(CustomPrefix + id)
 
-    // A theme as the content of a file of the app. Only what differs from the values every theme starts with is in it, so a link that carries it stays short.
+    // A theme as the content of a file of the app. Only what differs from the values every theme starts with is in it, so the file stays short.
     fun toData(theme: AppThemeSpec): JsonElement = DataJson.encodeToJsonElement(AppThemeSpec.serializer(), theme)
 
     // The theme the content of a file holds, or null when it holds none.

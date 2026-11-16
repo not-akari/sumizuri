@@ -243,11 +243,6 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                 }
             }
 
-            // A link that carries a file opens the import page, which shows what is in it.
-            val importLinks by AppLinks.importLinks.collectAsStateWithLifecycle()
-            LaunchedEffect(importLinks, place.restored) {
-                if (importLinks > 0 && place.restored) navigation.push(Page.Import)
-            }
 
             // Back closes the top page, and on a tab other than the library it goes to the library first. A back gesture of the system moves the top page with the finger, and one given up lets the page slide back.
             val backState = rememberNavigationEventState(NavigationEventInfo.None)

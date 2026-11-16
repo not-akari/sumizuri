@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FileOpen
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -37,6 +40,8 @@ import com.sumizuri.app.data.blocks.BlockContext
 import com.sumizuri.app.data.blocks.BlockTemplate
 import com.sumizuri.app.data.blocks.ScriptResult
 import com.sumizuri.app.data.blocks.runScript
+import com.sumizuri.app.data.share.ShareKind
+import com.sumizuri.app.data.share.readSharedFile
 import com.sumizuri.app.feature.profile.BlockCalls
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.add
@@ -45,11 +50,13 @@ import com.sumizuri.app.shared.resources.blocks_add_ready
 import com.sumizuri.app.shared.resources.blocks_add_tab_import
 import com.sumizuri.app.shared.resources.blocks_add_tab_templates
 import com.sumizuri.app.shared.resources.blocks_classic
-import com.sumizuri.app.shared.resources.blocks_import
-import com.sumizuri.app.shared.resources.blocks_import_bad
-import com.sumizuri.app.shared.resources.blocks_import_hint
+import com.sumizuri.app.shared.resources.blocks_import_file
+import com.sumizuri.app.shared.resources.blocks_import_file_bad
+import com.sumizuri.app.shared.resources.blocks_import_file_hint
 import com.sumizuri.app.shared.resources.blocks_starters
+import com.sumizuri.app.ui.kit.card.AppListRow
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
+import com.sumizuri.app.ui.kit.input.rememberFilePicker
 import com.sumizuri.app.ui.kit.page.AppSheet
 import com.sumizuri.app.ui.kit.setting.PartTabs
 import kotlinx.coroutines.Dispatchers
@@ -175,30 +182,21 @@ private fun sizeLine(template: BlockTemplate): String = if (template.h >
     stringResource(Res.string.blocks_add_ready, template.w)
 }
 
+// A block someone sent as a .sumizuri file, opened from the device and added at once.
 @Composable
 private fun ImportBlock(calls: BlockCalls, onDismiss: () -> Unit) {
-    var shared by remember { mutableStateOf("") }
     var bad by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    AppSectionLabel(stringResource(Res.string.blocks_import))
-    OutlinedTextField(
-        shared,
-        {
-            shared = it
-            bad = false
-        },
-        Modifier.fillMaxWidth(),
-        placeholder = { Text(stringResource(Res.string.blocks_import_hint)) },
-        isError = bad,
-        supportingText = if (bad) ({ Text(stringResource(Res.string.blocks_import_bad)) }) else null,
-        minLines = 3,
-        maxLines = 8,
-    )
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-        TextButton({
-            scope.launch {
-                if (calls.onImport(shared)) onDismiss() else bad = true
-            }
-        }, enabled = shared.isNotBlank()) { Text(stringResource(Res.string.add)) }
+    val pick = rememberFilePicker { path ->
+        scope.launch {
+            val thing = readSharedFile(path, ShareKind.Block)
+            if (thing != null && calls.onImport(thing.data)) onDismiss() else bad = true
+        }
     }
+    AppListRow(
+        stringResource(Res.string.blocks_import_file),
+        subtitle = stringResource(if (bad) Res.string.blocks_import_file_bad else Res.string.blocks_import_file_hint),
+        leading = { Icon(Icons.Outlined.FileOpen, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+        onClick = pick,
+    )
 }

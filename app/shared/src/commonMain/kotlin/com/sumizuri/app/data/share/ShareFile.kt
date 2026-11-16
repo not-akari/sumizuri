@@ -1,11 +1,15 @@
 package com.sumizuri.app.data.share
 
 import com.sumizuri.app.BuildInfo
+import com.sumizuri.app.data.model.Repo
 import com.sumizuri.app.data.text.nowMillis
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
@@ -33,7 +37,7 @@ enum class ShareKind(val id: String) {
 // A file of the app as it was read: what it holds, its content, and when it was made.
 data class SharedThing(val kind: ShareKind, val data: JsonElement, val made: Long?)
 
-// Why a text or a file could not be read as a file of the app.
+// Why a file could not be read as a file of the app.
 enum class ShareProblem { NotOurs, Newer, Damaged }
 
 class ShareUnreadable(val problem: ShareProblem, cause: Throwable? = null) : Exception(problem.name, cause)
@@ -60,13 +64,33 @@ fun readShared(text: String): SharedThing {
     return readShared(root)
 }
 
-fun readShared(root: JsonObject): SharedThing {
+private fun readShared(root: JsonObject): SharedThing {
     val version = (root["sumizuri"] as? JsonPrimitive)?.intOrNull ?: throw ShareUnreadable(ShareProblem.NotOurs)
     if (version > ShapeVersion) throw ShareUnreadable(ShareProblem.Newer)
     val type = (root["type"] as? JsonPrimitive)?.content
     val kind = ShareKind.entries.firstOrNull { it.id == type } ?: throw ShareUnreadable(ShareProblem.Newer)
     val data = root["data"] ?: throw ShareUnreadable(ShareProblem.Damaged)
     return SharedThing(kind, data, (root["made"] as? JsonPrimitive)?.longOrNull)
+}
+
+// A repo in a file of repos.
+data class SharedRepo(val url: String, val name: String)
+
+// The repos a person added, as the content of a file of repos.
+fun reposData(repos: List<Repo>): JsonElement = buildJsonArray {
+    for (repo in repos) {
+        addJsonObject {
+            put("url", repo.url)
+            put("name", repo.name)
+        }
+    }
+}
+
+// The repos a file of repos holds.
+fun reposOf(thing: SharedThing): List<SharedRepo> = (thing.data as? JsonArray).orEmpty().mapNotNull { item ->
+    val row = item as? JsonObject ?: return@mapNotNull null
+    val url = (row["url"] as? JsonPrimitive)?.content ?: return@mapNotNull null
+    SharedRepo(url, (row["name"] as? JsonPrimitive)?.content ?: url)
 }
 
 // A plain name for a file of this kind, such as Midnight.sumizuri, with the marks a file name cannot have taken out.

@@ -34,8 +34,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="sumizuri" android:host="add-repo" />
-                <!-- A link that carries a file of the app, such as a theme, a block or repos, which opens in the import page. -->
-                <data android:scheme="sumizuri" android:host="import" />
             </intent-filter>
         </activity>
         <!-- The app in the launcher, one entry for each icon. Made by scripts/app-icons.js. -->

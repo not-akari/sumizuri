@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.share.ShareKind
+import com.sumizuri.app.data.share.reposData
 import com.sumizuri.app.feature.browse.extensions.ExtensionsRoute
 import com.sumizuri.app.feature.browse.repo.RemoveSourceDialog
 import com.sumizuri.app.feature.share.ShareDialog
@@ -55,9 +56,6 @@ import com.sumizuri.app.ui.kit.page.PageTopBar
 import com.sumizuri.app.ui.kit.page.ReadableColumn
 import com.sumizuri.app.ui.kit.setting.PartTabs
 import kotlinx.coroutines.flow.drop
-import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.put
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -136,16 +134,7 @@ private fun AddMenu(actions: BrowseHubActions) {
         .collectAsStateWithLifecycle(emptyList())
     var sharing by remember { mutableStateOf(false) }
     if (sharing) {
-        val data = remember(repos) {
-            buildJsonArray {
-                for (repo in repos) {
-                    addJsonObject {
-                        put("url", repo.url)
-                        put("name", repo.name)
-                    }
-                }
-            }
-        }
+        val data = remember(repos) { reposData(repos) }
         val name = stringResource(Res.string.share_kind_repos)
         ShareDialog(stringResource(Res.string.share_title, name), "Sumizuri repos", ShareKind.Repos, data) {
             sharing =

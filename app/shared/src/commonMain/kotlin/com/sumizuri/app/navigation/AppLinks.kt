@@ -1,7 +1,5 @@
 package com.sumizuri.app.navigation
 
-import com.sumizuri.app.data.share.ImportSource
-import com.sumizuri.app.data.share.Incoming
 import io.ktor.http.Url
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,13 +32,6 @@ object AppLinks {
                 true
             }
 
-            // A link that carries a file of the app, such as a theme or repos, opens it in the import page.
-            "import" -> {
-                Incoming.offer(ImportSource.Text(link.trim()))
-                imports.value++
-                true
-            }
-
             // A title from a notice of new chapters, to open or to read on from where it was left.
             "title" -> {
                 val id = url.parameters["id"]?.toLongOrNull() ?: return false
@@ -60,11 +51,6 @@ object AppLinks {
     fun repoTaken() {
         repo.value = null
     }
-
-    private val imports = MutableStateFlow(0)
-
-    // Counts the links that carried a file, so the app opens the import page for each.
-    val importLinks: StateFlow<Int> = imports
 
     private val title = MutableStateFlow<TitleLink?>(null)
 

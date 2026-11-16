@@ -43,7 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.blocks.BlockView
-import com.sumizuri.app.data.blocks.encodeBlock
+import com.sumizuri.app.data.blocks.blockData
 import com.sumizuri.app.data.share.ShareKind
 import com.sumizuri.app.feature.profile.BlockCalls
 import com.sumizuri.app.feature.profile.ShownBlock
@@ -72,7 +72,6 @@ import com.sumizuri.app.ui.kit.card.AppCard
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
 import com.sumizuri.app.ui.kit.dialog.ConfirmDialog
 import com.sumizuri.app.ui.kit.page.AppSheet
-import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.stringResource
 
 // The sizes a block can be set to: columns by rows, then the widths that fit their content, shown with ↕.
@@ -151,7 +150,7 @@ internal fun BlockActions(item: ShownBlock, calls: BlockCalls, onRemoved: () -> 
     SmallAction(Icons.Outlined.Delete, stringResource(Res.string.remove), scheme.error) { removing = true }
     if (sharing) {
         val name = item.name()
-        val data = remember(item.block) { Json.parseToJsonElement(encodeBlock(item.block)) }
+        val data = remember(item.block) { blockData(item.block) }
         ShareDialog(stringResource(Res.string.share_title, name), name, ShareKind.Block, data) { sharing = false }
     }
     if (removing) {

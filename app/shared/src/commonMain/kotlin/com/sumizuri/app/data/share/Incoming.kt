@@ -1,8 +1,9 @@
 package com.sumizuri.app.data.share
 
 import com.sumizuri.app.data.backup.BackupApp
+import com.sumizuri.app.data.backup.HeadSize
 import com.sumizuri.app.data.backup.isPackedBackup
-import com.sumizuri.app.data.backup.sniffBackup
+import com.sumizuri.app.data.backup.sniffHead
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,40 +14,20 @@ import okio.Path
 import okio.buffer
 import okio.use
 
-// The most text of a file that is read to see what it holds, short of a backup, which is read by the backup page.
+// The most a file that is not a backup may weigh, so a large file of something else is never read whole.
 private const val SmallMost = 4L * 1024 * 1024
 
-// Something to import: a file on the device, or a text or link the person pasted or tapped.
-sealed interface ImportSource {
-    data class File(val path: Path) : ImportSource
-
-    data class Text(val text: String) : ImportSource
-}
-
-// What an import turned out to be: a backup for the backup page, which reads it itself, or a smaller thing read here.
+// What a file turned out to be: a backup for the backup page, which reads it itself, or a smaller thing read here.
 sealed interface Identified {
     data class Backup(val path: Path) : Identified
 
     data class Small(val thing: SharedThing) : Identified
 }
 
-// What waits to be imported, set by a link, a file the system opened the app with, or a file picked in the app, and taken by the page that shows it.
+// A backup the import page found, held until the backup page takes it.
 object Incoming {
-    private val waiting = MutableStateFlow<ImportSource?>(null)
-    val source: StateFlow<ImportSource?> = waiting
-
     private val backupFile = MutableStateFlow<Path?>(null)
-
-    // A backup the import page found, for the backup page to read.
     val backup: StateFlow<Path?> = backupFile
-
-    fun offer(source: ImportSource) {
-        waiting.value = source
-    }
-
-    fun taken() {
-        waiting.value = null
-    }
 
     fun offerBackup(path: Path) {
         backupFile.value = path
@@ -57,27 +38,34 @@ object Incoming {
     }
 }
 
-// Tells what an import holds. A packed file, a backup of another app, or a file of the app that holds a backup is a backup. Throws when it is none of the things the app reads.
-suspend fun identify(source: ImportSource): Identified = withContext(Dispatchers.IO) {
-    when (source) {
-        is ImportSource.Text -> Identified.Small(readShared(textOfLink(source.text) ?: source.text))
+// Tells what a file holds from its first bytes, read once: a packed file, a backup of another app, or a file of the app that names itself a backup is a backup. Throws when it is none of the things the app reads.
+suspend fun identify(path: Path): Identified = withContext(Dispatchers.IO) {
+    val size = FileSystem.SYSTEM.metadataOrNull(path)?.size ?: 0L
+    FileSystem.SYSTEM.source(path).buffer().use { source ->
+        val head = source.peek().let { peek ->
+            peek.request(HeadSize)
+            peek.buffer.readByteArray(minOf(peek.buffer.size, HeadSize))
+        }
+        val app = sniffHead(head)
+        val backup = isPackedBackup(head) || (app != null && app != BackupApp.Sumizuri) || namesBackup(head)
+        when {
+            backup -> Identified.Backup(path)
 
-        is ImportSource.File -> {
-            if (sniffBackup(source.path).let {
-                    it == BackupApp.Mihon || it == BackupApp.Mangayomi
-                }
-            ) {
-                return@withContext Identified.Backup(source.path)
+            size > SmallMost -> throw ShareUnreadable(ShareProblem.NotOurs)
+
+            else -> {
+                val thing = readShared(source.readUtf8())
+                if (thing.kind == ShareKind.Backup) Identified.Backup(path) else Identified.Small(thing)
             }
-            val head = FileSystem.SYSTEM.source(source.path).buffer().use {
-                it.peek().readByteArray(minOf(16L, sizeOf(source.path)))
-            }
-            if (isPackedBackup(head)) return@withContext Identified.Backup(source.path)
-            if (sizeOf(source.path) > SmallMost) return@withContext Identified.Backup(source.path)
-            val thing = readShared(FileSystem.SYSTEM.read(source.path) { readUtf8() })
-            if (thing.kind == ShareKind.Backup) Identified.Backup(source.path) else Identified.Small(thing)
         }
     }
 }
 
-private fun sizeOf(path: Path): Long = FileSystem.SYSTEM.metadataOrNull(path)?.size ?: 0L
+// The file of the app of this kind at the path, or null when it is something else or cannot be read.
+suspend fun readSharedFile(path: Path, kind: ShareKind): SharedThing? = withContext(Dispatchers.IO) {
+    runCatching { readShared(FileSystem.SYSTEM.read(path) { readUtf8() }) }.getOrNull()?.takeIf { it.kind == kind }
+}
+
+// A file of the app names its kind before its content, so a backup says so in its first bytes.
+private fun namesBackup(head: ByteArray): Boolean =
+    head.decodeToString().contains("\"type\":\"${ShareKind.Backup.id}\"")

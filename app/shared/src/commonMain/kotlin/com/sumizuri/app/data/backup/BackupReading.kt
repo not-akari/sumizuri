@@ -13,7 +13,7 @@ import okio.use
 import org.jetbrains.compose.resources.StringResource
 
 // How many bytes at the start of a file are enough to tell what it is.
-private const val HeadSize = 512L
+const val HeadSize = 512L
 
 // Tells which app a backup file came from by its first bytes: a packed backup of this app starts with its name, gzip is Mihon, zip is Mangayomi, and text that begins with a brace is Sumizuri. Null when it is none of them.
 fun sniffBackup(file: Path, system: FileSystem = FileSystem.SYSTEM): BackupApp? {
@@ -25,6 +25,11 @@ fun sniffBackup(file: Path, system: FileSystem = FileSystem.SYSTEM): BackupApp? 
     } catch (error: Exception) {
         return null
     }
+    return sniffHead(head)
+}
+
+// The same, from the first bytes of a file already read.
+fun sniffHead(head: ByteArray): BackupApp? {
     if (isPackedBackup(head)) return BackupApp.Sumizuri
     if (head.size >= 2 && head[0] == 0x1f.toByte() && head[1] == 0x8b.toByte()) return BackupApp.Mihon
     if (head.size >= 2 && head[0] == 'P'.code.toByte() && head[1] == 'K'.code.toByte()) return BackupApp.Mangayomi

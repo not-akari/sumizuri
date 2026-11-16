@@ -135,9 +135,10 @@ fun SettingsRoute(
 
                             SettingsTarget.Logs -> LogsRoute(onBack = back)
 
-                            SettingsTarget.Import -> ImportRoute(
-                                onBack = back,
-                            ) { push(PaneEntry.Target(SettingsTarget.Backup)) }
+                            SettingsTarget.Import -> {
+                                val backup = { push(PaneEntry.Target(SettingsTarget.Backup)) }
+                                ImportRoute(back, backup, backup)
+                            }
 
                             SettingsTarget.Migration -> MigrationRoute(
                                 emptyList(),

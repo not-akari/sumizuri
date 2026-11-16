@@ -7,10 +7,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.backup_restore_hint
 import com.sumizuri.app.shared.resources.backup_restore_title
-import com.sumizuri.app.ui.kit.card.ListChevron
 import com.sumizuri.app.ui.kit.input.rememberFilePicker
-import com.sumizuri.app.ui.kit.setting.SettingIcon
-import com.sumizuri.app.ui.kit.setting.SettingRow
+import com.sumizuri.app.ui.kit.setting.SettingLinkRow
 import okio.Path
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -26,8 +24,5 @@ internal fun RestoreRow(onPicked: (Path) -> Unit) {
 
 // One way to make or bring back a backup: its icon, what it does, and an arrow.
 @Composable
-internal fun BackupRow(title: StringResource, hint: StringResource, icon: ImageVector, onClick: () -> Unit) {
-    SettingRow(stringResource(title), subtitle = stringResource(hint), subtitleLines = 3, leading = {
-        SettingIcon(icon)
-    }, trailing = { ListChevron() }, onClick = onClick)
-}
+internal fun BackupRow(title: StringResource, hint: StringResource, icon: ImageVector, onClick: () -> Unit) =
+    SettingLinkRow(icon, stringResource(title), stringResource(hint), onClick)

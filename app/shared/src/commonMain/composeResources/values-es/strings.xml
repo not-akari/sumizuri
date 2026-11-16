@@ -2319,9 +2319,6 @@
     <string name="blocks_edit">Editar bloques</string>
     <string name="blocks_empty">Agrega una vista al script para mostrar algo aquí.</string>
     <string name="blocks_goal">Meta mensual</string>
-    <string name="blocks_import">Pegar un bloque compartido</string>
-    <string name="blocks_import_bad">Ese texto no es un bloque.</string>
-    <string name="blocks_import_hint">Un bloque copiado con Copiar para compartir</string>
     <string name="blocks_recent">Leídos recientemente</string>
     <string name="blocks_starters">Bloques iniciales</string>
     <string name="blocks_top_genres">Géneros principales</string>

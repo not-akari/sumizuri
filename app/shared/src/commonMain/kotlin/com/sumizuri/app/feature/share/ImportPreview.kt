@@ -2,6 +2,7 @@ package com.sumizuri.app.feature.share
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -16,6 +17,7 @@ import com.sumizuri.app.data.blocks.decodeBlock
 import com.sumizuri.app.data.settings.settingsCount
 import com.sumizuri.app.data.share.ShareKind
 import com.sumizuri.app.data.share.SharedThing
+import com.sumizuri.app.data.share.reposOf
 import com.sumizuri.app.data.text.dateText
 import com.sumizuri.app.feature.theme.ThemeCard
 import com.sumizuri.app.shared.resources.Res
@@ -33,6 +35,7 @@ import com.sumizuri.app.shared.resources.take_repos
 import com.sumizuri.app.shared.resources.take_settings
 import com.sumizuri.app.shared.resources.take_theme
 import com.sumizuri.app.ui.kit.card.AppCard
+import com.sumizuri.app.ui.theme.spec.AppThemeSpec
 import kotlinx.serialization.json.jsonObject
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
@@ -40,8 +43,8 @@ import org.jetbrains.compose.resources.stringResource
 
 // What a file holds, shown before it is taken: the theme drawn in its colors, the repos by name, or how many settings or what block it is.
 @Composable
-internal fun ImportPreview(thing: SharedThing, model: ImportViewModel) {
-    AppCard {
+internal fun ImportPreview(thing: SharedThing, theme: AppThemeSpec?) {
+    AppCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(kindName(thing.kind)), style = MaterialTheme.typography.titleMedium)
             thing.made?.let {
@@ -52,7 +55,7 @@ internal fun ImportPreview(thing: SharedThing, model: ImportViewModel) {
                 )
             }
             when (thing.kind) {
-                ShareKind.Theme -> model.themeOf(thing)?.let { theme ->
+                ShareKind.Theme -> if (theme != null) {
                     val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
                     ThemeCard(
                         theme,
@@ -70,7 +73,7 @@ internal fun ImportPreview(thing: SharedThing, model: ImportViewModel) {
                 }
 
                 ShareKind.Block -> {
-                    val block = remember(thing) { decodeBlock(thing.data.toString()) }
+                    val block = remember(thing) { decodeBlock(thing.data) }
                     Text(stringResource(Res.string.import_block, block?.w ?: 0))
                 }
 

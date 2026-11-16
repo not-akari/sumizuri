@@ -65,7 +65,10 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
 
         Page.Backup -> BackupRoute(onBack = navigation::pop, onMigrate = { navigation.push(Page.Migration(it)) })
 
-        Page.Import -> ImportRoute(onBack = navigation::pop) { navigation.replaceTop(Page.Backup) }
+        Page.Import -> ImportRoute(
+            navigation::pop,
+            { navigation.push(Page.Backup) },
+        ) { navigation.replaceTop(Page.Backup) }
 
         is Page.SettingsPage -> SettingsTargetRoute(page.target, navigation::pop, {
             navigation.push(pageOf(it))

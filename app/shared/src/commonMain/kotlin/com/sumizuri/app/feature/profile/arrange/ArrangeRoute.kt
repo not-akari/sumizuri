@@ -18,9 +18,6 @@ import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.library.StatisticsRepository
 import com.sumizuri.app.data.model.FeedItem
 import com.sumizuri.app.data.model.stats.ReadingStats
-import com.sumizuri.app.data.share.ShareKind
-import com.sumizuri.app.data.share.readShared
-import com.sumizuri.app.data.share.textOfLink
 import com.sumizuri.app.feature.profile.BlockCalls
 import com.sumizuri.app.feature.profile.ShownBlock
 import com.sumizuri.app.feature.profile.blocks.GridColumns
@@ -33,6 +30,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonElement
 
 // What the page of the blocks shows: the blocks with what they show, and what a preview of the page needs.
 class ArrangeState(
@@ -105,12 +103,9 @@ class ArrangeViewModel(
         blocks.update { it.copy(blocks = it.blocks + block) }
     }
 
-    // Adds a block someone shared as a link or text, and gives false when it holds no block.
-    suspend fun onImport(text: String): Boolean {
-        val shared =
-            runCatching { readShared(textOfLink(text) ?: text) }.getOrNull()?.takeIf { it.kind == ShareKind.Block }
-                ?: return false
-        val block = decodeBlock(shared.data.toString()) ?: return false
+    // Adds the block of a file someone shared, and gives false when it holds no block.
+    suspend fun onImport(data: JsonElement): Boolean {
+        val block = decodeBlock(data) ?: return false
         blocks.update { it.copy(blocks = it.blocks + block.copy(id = newBlockId())) }
         return true
     }

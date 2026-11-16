@@ -13,10 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.ui.kit.card.AppCard
+import com.sumizuri.app.ui.kit.card.ListChevron
 import com.sumizuri.app.ui.motion.entrance
 import com.sumizuri.app.ui.theme.LocalCompactLists
 import org.jetbrains.compose.resources.StringResource
@@ -148,4 +150,12 @@ fun SettingsHeading(text: String) {
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
+}
+
+// A row that leads somewhere: its icon, its name with a line under it, and an arrow.
+@Composable
+fun SettingLinkRow(icon: ImageVector, title: String, hint: String, onClick: () -> Unit) {
+    SettingRow(title, subtitle = hint, subtitleLines = 3, leading = {
+        SettingIcon(icon)
+    }, trailing = { ListChevron() }, onClick = onClick)
 }
