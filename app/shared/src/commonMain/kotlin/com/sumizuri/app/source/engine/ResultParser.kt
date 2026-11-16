@@ -125,6 +125,8 @@ internal object ResultParser {
             audioTracks = tracks(video["audio"]),
             intro = range(video["intro"]),
             outro = range(video["outro"]),
+            type = text(video, "type")?.lowercase(),
+            server = text(video, "server"),
         )
     }
 

@@ -12,6 +12,10 @@ data class SourceVideo(
     val outro: TimeRange? = null,
     // The sound that goes with this video when it is kept in a playlist of its own, as an HLS quality often has it.
     val pairedAudio: SourceTrack? = null,
+    // "embed" for the address of a player page that has to be opened to find the stream, null for a stream.
+    val type: String? = null,
+    // The name of the server or host the video comes from, when the source says it.
+    val server: String? = null,
 )
 
 // One page of a manga, or one block of text in a novel.

@@ -21,7 +21,7 @@ internal fun mediaOf(video: SourceVideo, extraSubtitles: List<PlayerTrack>): Pla
     val subtitles = video.subtitles.mapIndexed { at, one -> PlayerTrack("sub$at", one.label, one.language, one.url) }
     val audios = video.audioTracks.mapIndexed { at, one -> PlayerTrack("aud$at", one.label, one.language, one.url) }
     val paired = video.pairedAudio?.let { PlayerTrack("paired", it.label, it.language, it.url) }
-    return PlayerMedia(video.url, video.headers, subtitles + extraSubtitles, audios, paired)
+    return PlayerMedia(video.url, video.headers, subtitles + extraSubtitles, audios, paired, video.type)
 }
 
 // What the screen tells the person when the engine stops on a problem.

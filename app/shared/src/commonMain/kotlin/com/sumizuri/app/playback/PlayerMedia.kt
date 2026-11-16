@@ -23,6 +23,8 @@ data class PlayerMedia(
     val subtitles: List<PlayerTrack> = emptyList(),
     val audios: List<PlayerTrack> = emptyList(),
     val pairedAudio: PlayerTrack? = null,
+    // What the source says the address is ("hls", "mp4"), for an address whose ending does not tell.
+    val type: String? = null,
 )
 
 // How the picture fills the screen: whole with bars, cropped to fill, or stretched out of shape.
