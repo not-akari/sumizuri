@@ -324,12 +324,8 @@
     <string name="settings_file_hint">El bloqueo, el PIN y lo que se eligió para títulos individuales no se guardan en el archivo.</string>
     <string name="settings_export">Exportar ajustes</string>
     <string name="settings_export_hint">Guarda todas tus opciones en un archivo pequeño</string>
-    <string name="settings_export_done">Se guardaron los ajustes.</string>
-    <string name="settings_export_failed">No se pudieron guardar los ajustes.</string>
     <string name="settings_import">Importar ajustes</string>
     <string name="settings_import_hint">Recupera las opciones desde un archivo de ajustes</string>
-    <string name="settings_import_done">Se importaron %1$d ajustes.</string>
-    <string name="settings_import_failed">Este no es un archivo de ajustes de Sumizuri.</string>
     <string name="settings_new">Nuevo</string>
     <string name="gesture_group_covers">Portadas en la biblioteca</string>
     <string name="gesture_group_chapters">Capítulos</string>
@@ -2006,7 +2002,6 @@
     <string name="theme_ready_made">Temas incluidos</string>
     <string name="theme_edit">Editar</string>
     <string name="theme_customize">Personalizar</string>
-    <string name="theme_copy_text">Copiar como texto</string>
     <string name="theme_delete">Borrar</string>
     <string name="theme_duplicate">Duplicar</string>
     <string name="choice_layoutdensity_compact">Compacto</string>
@@ -2324,11 +2319,7 @@
     <string name="blocks_edit">Editar bloques</string>
     <string name="blocks_empty">Agrega una vista al script para mostrar algo aquí.</string>
     <string name="blocks_goal">Meta mensual</string>
-    <string name="blocks_import">Pegar un bloque compartido</string>
-    <string name="blocks_import_bad">Ese texto no es un bloque.</string>
-    <string name="blocks_import_hint">Un bloque copiado con Copiar para compartir</string>
     <string name="blocks_recent">Leídos recientemente</string>
-    <string name="blocks_share">Copiar para compartir</string>
     <string name="blocks_starters">Bloques iniciales</string>
     <string name="blocks_top_genres">Géneros principales</string>
     <string name="blocks_weekdays">Lectura por día de la semana</string>
@@ -2615,10 +2606,6 @@
     <string name="file_kind_pictures">Imágenes</string>
     <string name="file_kind_subtitles">Subtítulos</string>
     <string name="reading_group_bedtime">Hora de dormir</string>
-    <string name="theme_copy_link">Copiar enlace</string>
-    <string name="theme_link_title">¿Agregar este tema?</string>
-    <string name="theme_link_add">Agregar y usar</string>
-    <string name="theme_link_bad">Este enlace no trae ningún tema.</string>
     <string name="choice_accentsource_theme">Este tema</string>
     <string name="choice_accentsource_system">Sistema</string>
     <string name="choice_accentsource_clock">Hora del día</string>

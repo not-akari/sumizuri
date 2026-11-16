@@ -63,7 +63,6 @@ import com.sumizuri.app.feature.settings.SettingsViewModel
 import com.sumizuri.app.feature.settings.controls.ControlsViewModel
 import com.sumizuri.app.feature.settings.system.perfDetails
 import com.sumizuri.app.feature.sync.HandoffNotice
-import com.sumizuri.app.feature.theme.ThemeLinkDialog
 import com.sumizuri.app.feature.theme.ThemeViewModel
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.navigation.Destination
@@ -244,8 +243,6 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                 }
             }
 
-            // A link with a theme in it asks whether to add that theme.
-            val sharedTheme by AppLinks.sharedTheme.collectAsStateWithLifecycle()
 
             // Back closes the top page, and on a tab other than the library it goes to the library first. A back gesture of the system moves the top page with the finger, and one given up lets the page slide back.
             val backState = rememberNavigationEventState(NavigationEventInfo.None)
@@ -353,7 +350,6 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                     }
                     }
                     if (locked == false && shortcutsOpen) ShortcutsDialog(gestures) { shortcutsOpen = false }
-                    if (locked == false) sharedTheme?.let { ThemeLinkDialog(it, AppLinks::themeTaken) }
                 }
             }
         }

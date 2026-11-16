@@ -24,6 +24,7 @@ import com.sumizuri.app.feature.migration.MigrationRoute
 import com.sumizuri.app.feature.migration.single.MigrateRoute
 import com.sumizuri.app.feature.settings.controls.ControlsPage
 import com.sumizuri.app.feature.settings.controls.ControlsRoute
+import com.sumizuri.app.feature.share.ImportRoute
 import com.sumizuri.app.feature.theme.ThemeViewModel
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.settings_language_system
@@ -133,6 +134,11 @@ fun SettingsRoute(
                             ) { ids -> push(PaneEntry.Migration(ids)) }
 
                             SettingsTarget.Logs -> LogsRoute(onBack = back)
+
+                            SettingsTarget.Import -> {
+                                val backup = { push(PaneEntry.Target(SettingsTarget.Backup)) }
+                                ImportRoute(back, backup, backup)
+                            }
 
                             SettingsTarget.Migration -> MigrationRoute(
                                 emptyList(),

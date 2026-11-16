@@ -15,13 +15,11 @@ import com.sumizuri.app.data.backup.BackupWriter
 import com.sumizuri.app.data.backup.ImportedBackup
 import com.sumizuri.app.data.backup.SourceMatcher
 import com.sumizuri.app.data.backup.backupFileName
-import com.sumizuri.app.data.backup.decryptBackup
-import com.sumizuri.app.data.backup.looksEncrypted
 import com.sumizuri.app.data.backup.packedNeedsPassword
+import com.sumizuri.app.data.backup.readBackupFile
 import com.sumizuri.app.data.backup.readBackupText
 import com.sumizuri.app.data.backup.readMangayomiBackup
 import com.sumizuri.app.data.backup.readMihonBackup
-import com.sumizuri.app.data.backup.readSumizuriBackup
 import com.sumizuri.app.data.backup.sniffBackup
 import com.sumizuri.app.data.backup.unpackBackup
 import com.sumizuri.app.data.backup.writePackedBackup
@@ -61,8 +59,7 @@ class BackupViewModel(
     private val mutableChoices = MutableStateFlow(MakeChoices())
     val choices: StateFlow<MakeChoices> = mutableChoices
 
-    // What is waiting for the person: the envelope or the packed file of a backup with a password, or a backup that is read.
-    private var envelope: String? = null
+    // What is waiting for the person: the packed file of a backup with a password, or a backup that is read.
     private var sealed: Path? = null
     private var ready: ImportedBackup? = null
     private var cancelled = false
@@ -98,15 +95,7 @@ class BackupViewModel(
 
                         false -> offer(withContext(Dispatchers.IO) { unpacked(file, null) })
 
-                        null -> {
-                            val text = withContext(Dispatchers.IO) { readBackupText(file) }
-                            if (looksEncrypted(text)) {
-                                envelope = text
-                                mutable.value = BackupState.Password(wrong = false)
-                            } else {
-                                offer(withContext(Dispatchers.IO) { readSumizuriBackup(text) })
-                            }
-                        }
+                        null -> offer(withContext(Dispatchers.IO) { readBackupFile(readBackupText(file)) })
                     }
 
                     BackupApp.Mihon -> run(withContext(Dispatchers.IO) { readMihonBackup(file) }, withSettings = false)
@@ -129,23 +118,12 @@ class BackupViewModel(
     }
 
     fun onPassword(password: String) {
-        val file = sealed
-        val text = envelope
-        if (file == null && text == null) return
+        val file = sealed ?: return
         mutable.value = BackupState.Reading
         viewModelScope.launch {
             try {
-                val backup = withContext(Dispatchers.IO) {
-                    if (file !=
-                        null
-                    ) {
-                        unpacked(file, password)
-                    } else {
-                        readSumizuriBackup(decryptBackup(text!!, password))
-                    }
-                }
+                val backup = withContext(Dispatchers.IO) { unpacked(file, password) }
                 sealed = null
-                envelope = null
                 offer(backup)
             } catch (error: CancellationException) {
                 throw error
@@ -167,7 +145,7 @@ class BackupViewModel(
         val plain = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "sumizuri-restore.json"
         try {
             unpackBackup(file, plain, password)
-            return readSumizuriBackup(readBackupText(plain))
+            return readBackupFile(readBackupText(plain))
         } finally {
             runCatching { FileSystem.SYSTEM.delete(plain) }
         }
@@ -184,7 +162,6 @@ class BackupViewModel(
 
     // Closes a window, or gives up on a file that waits.
     fun onDismiss() {
-        envelope = null
         sealed = null
         ready = null
         mutable.value = BackupState.Idle
@@ -198,7 +175,6 @@ class BackupViewModel(
 
     private fun run(backup: ImportedBackup, withSettings: Boolean) {
         ready = null
-        envelope = null
         cancelled = false
         mutable.value = BackupState.Running(matching = false, done = 0, total = backup.titles.size, cancelling = false)
         viewModelScope.launch {

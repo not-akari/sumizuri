@@ -43,7 +43,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.blocks.BlockView
-import com.sumizuri.app.data.blocks.encodeBlock
+import com.sumizuri.app.data.blocks.blockData
+import com.sumizuri.app.data.share.ShareKind
 import com.sumizuri.app.feature.profile.BlockCalls
 import com.sumizuri.app.feature.profile.ShownBlock
 import com.sumizuri.app.feature.profile.blocks.MostRows
@@ -52,23 +53,24 @@ import com.sumizuri.app.feature.profile.blocks.icon
 import com.sumizuri.app.feature.profile.blocks.kindName
 import com.sumizuri.app.feature.profile.blocks.name
 import com.sumizuri.app.feature.profile.blocks.size
+import com.sumizuri.app.feature.share.ShareDialog
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.blocks_duplicate
 import com.sumizuri.app.shared.resources.blocks_edit_script
 import com.sumizuri.app.shared.resources.blocks_remove_message
 import com.sumizuri.app.shared.resources.blocks_remove_title
 import com.sumizuri.app.shared.resources.blocks_reorder
-import com.sumizuri.app.shared.resources.blocks_share
 import com.sumizuri.app.shared.resources.blocks_size
 import com.sumizuri.app.shared.resources.blocks_size_content
 import com.sumizuri.app.shared.resources.blocks_size_height
 import com.sumizuri.app.shared.resources.blocks_size_rows
 import com.sumizuri.app.shared.resources.blocks_size_width
 import com.sumizuri.app.shared.resources.remove
+import com.sumizuri.app.shared.resources.share_action
+import com.sumizuri.app.shared.resources.share_title
 import com.sumizuri.app.ui.kit.card.AppCard
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
 import com.sumizuri.app.ui.kit.dialog.ConfirmDialog
-import com.sumizuri.app.ui.kit.input.rememberCopyText
 import com.sumizuri.app.ui.kit.page.AppSheet
 import org.jetbrains.compose.resources.stringResource
 
@@ -134,8 +136,8 @@ internal fun BlockRow(
 @Composable
 internal fun BlockActions(item: ShownBlock, calls: BlockCalls, onRemoved: () -> Unit = {}) {
     val scheme = MaterialTheme.colorScheme
-    val copy = rememberCopyText()
     var removing by remember { mutableStateOf(false) }
+    var sharing by remember { mutableStateOf(false) }
     val id = item.block.id
     val (w, h) = item.size
     val choices = Sizes.filter { (cw, ch) -> item.fit.allows(cw, ch) }
@@ -143,9 +145,14 @@ internal fun BlockActions(item: ShownBlock, calls: BlockCalls, onRemoved: () -> 
     if (item.view !is BlockView.Classic) {
         SmallAction(Icons.Outlined.Edit, stringResource(Res.string.blocks_edit_script)) { calls.onEdit(id) }
         SmallAction(Icons.Outlined.AddToPhotos, stringResource(Res.string.blocks_duplicate)) { calls.onDuplicate(id) }
-        SmallAction(Icons.Outlined.Share, stringResource(Res.string.blocks_share)) { copy(encodeBlock(item.block)) }
+        SmallAction(Icons.Outlined.Share, stringResource(Res.string.share_action)) { sharing = true }
     }
     SmallAction(Icons.Outlined.Delete, stringResource(Res.string.remove), scheme.error) { removing = true }
+    if (sharing) {
+        val name = item.name()
+        val data = remember(item.block) { blockData(item.block) }
+        ShareDialog(stringResource(Res.string.share_title, name), name, ShareKind.Block, data) { sharing = false }
+    }
     if (removing) {
         ConfirmDialog(
             title = stringResource(Res.string.blocks_remove_title),

@@ -15,9 +15,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.settings.SettingsRepository
-import com.sumizuri.app.data.settings.exportText
-import com.sumizuri.app.data.settings.importText
+import com.sumizuri.app.data.settings.exportData
+import com.sumizuri.app.data.share.ShareKind
 import com.sumizuri.app.feature.settings.SettingsPageFrame
+import com.sumizuri.app.feature.share.ShareDialog
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.advanced_group_developer
 import com.sumizuri.app.shared.resources.advanced_reset_action
@@ -39,31 +40,23 @@ import com.sumizuri.app.shared.resources.perf_overlay_level
 import com.sumizuri.app.shared.resources.settings_advanced
 import com.sumizuri.app.shared.resources.settings_advanced_hint
 import com.sumizuri.app.shared.resources.settings_export
-import com.sumizuri.app.shared.resources.settings_export_done
-import com.sumizuri.app.shared.resources.settings_export_failed
 import com.sumizuri.app.shared.resources.settings_export_hint
 import com.sumizuri.app.shared.resources.settings_file_hint
 import com.sumizuri.app.shared.resources.settings_file_title
 import com.sumizuri.app.shared.resources.settings_import
-import com.sumizuri.app.shared.resources.settings_import_done
-import com.sumizuri.app.shared.resources.settings_import_failed
 import com.sumizuri.app.shared.resources.settings_import_hint
+import com.sumizuri.app.shared.resources.share_kind_settings
+import com.sumizuri.app.shared.resources.share_title
 import com.sumizuri.app.ui.kit.card.ListChevron
 import com.sumizuri.app.ui.kit.dialog.ConfirmDialog
-import com.sumizuri.app.ui.kit.input.rememberFilePicker
-import com.sumizuri.app.ui.kit.input.rememberFileSaver
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okio.FileSystem
+import kotlinx.serialization.json.JsonObject
 import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 
 // What a reset takes back.
@@ -85,61 +78,41 @@ private suspend fun SettingsRepository.apply(reset: Reset) = when (reset) {
     Reset.Library -> reset("library.")
 }
 
-// The name a saved file of settings is offered under.
-private const val SettingsFileName = "sumizuri-settings.json"
-
 // The page of what is rarely needed: keeping the settings in a file and bringing them back, taking the choices of a part of the app back to how they were, and the tools that measure the app. Titles, shelves and reading progress are never touched.
 @Composable
-fun AdvancedRoute(onBack: () -> Unit, onPerformance: () -> Unit) {
+fun AdvancedRoute(onBack: () -> Unit, onPerformance: () -> Unit, onImport: () -> Unit) {
     val settings = LocalAppContainer.current.settings
     val scope = rememberCoroutineScope()
     var asked by remember { mutableStateOf<Reset?>(null) }
-    // What the last export or import did, said under the group.
-    var note by remember { mutableStateOf<String?>(null) }
+    // The settings being shared, once they are read.
+    var sharing by remember { mutableStateOf<JsonObject?>(null) }
     val overlay by remember(
         settings,
     ) { settings.flag(SettingKey.PerfOverlay, false) }.collectAsStateWithLifecycle(false)
     val level by remember(settings) { settings.text(SettingKey.PerfOverlayLevel) }.collectAsStateWithLifecycle(null)
-    val exportDone = stringResource(Res.string.settings_export_done)
-    val exportFailed = stringResource(Res.string.settings_export_failed)
-    val save = rememberFileSaver { saved -> note = if (saved) exportDone else exportFailed }
-    val pick = rememberFilePicker { file ->
-        scope.launch {
-            val text =
-                withContext(Dispatchers.IO) { runCatching { FileSystem.SYSTEM.read(file) { readUtf8() } }.getOrNull() }
-            val kept = text?.let { settings.importText(it) }
-            note =
-                if (kept ==
-                    null
-                ) {
-                    getString(Res.string.settings_import_failed)
-                } else {
-                    getString(Res.string.settings_import_done, kept)
-                }
+    sharing?.let { data ->
+        ShareDialog(
+            stringResource(Res.string.share_title, stringResource(Res.string.share_kind_settings)),
+            "Sumizuri settings",
+            ShareKind.Settings,
+            data,
+        ) {
+            sharing =
+                null
         }
     }
     SettingsPageFrame(Res.string.settings_advanced, onBack, subtitle = Res.string.settings_advanced_hint) {
         // Every choice in one small file, to keep or to carry to another device. The lock, the place in the app and what titles chose for themselves stay out.
         SettingsSection(
             stringResource(Res.string.settings_file_title),
-            note ?: stringResource(Res.string.settings_file_hint),
+            stringResource(Res.string.settings_file_hint),
         ) {
             row {
                 SettingRow(
                     stringResource(Res.string.settings_export),
                     subtitle = stringResource(Res.string.settings_export_hint),
                     leading = { SettingIcon(Icons.Outlined.FileUpload) },
-                    onClick = {
-                        scope.launch {
-                            val text = settings.exportText()
-                            val file = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / SettingsFileName
-                            val written =
-                                withContext(
-                                    Dispatchers.IO,
-                                ) { runCatching { FileSystem.SYSTEM.write(file) { writeUtf8(text) } }.isSuccess }
-                            if (written) save(SettingsFileName, file) else note = exportFailed
-                        }
-                    },
+                    onClick = { scope.launch { sharing = settings.exportData() } },
                 )
             }
             row {
@@ -147,7 +120,7 @@ fun AdvancedRoute(onBack: () -> Unit, onPerformance: () -> Unit) {
                     stringResource(Res.string.settings_import),
                     subtitle = stringResource(Res.string.settings_import_hint),
                     leading = { SettingIcon(Icons.Outlined.FileDownload) },
-                    onClick = pick,
+                    onClick = onImport,
                 )
             }
         }

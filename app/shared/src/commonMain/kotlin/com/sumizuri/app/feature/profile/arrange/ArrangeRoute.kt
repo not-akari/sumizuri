@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonElement
 
 // What the page of the blocks shows: the blocks with what they show, and what a preview of the page needs.
 class ArrangeState(
@@ -102,9 +103,9 @@ class ArrangeViewModel(
         blocks.update { it.copy(blocks = it.blocks + block) }
     }
 
-    // Adds a block someone shared as text, and gives false when the text is no block.
-    suspend fun onImport(text: String): Boolean {
-        val block = decodeBlock(text) ?: return false
+    // Adds the block of a file someone shared, and gives false when it holds no block.
+    suspend fun onImport(data: JsonElement): Boolean {
+        val block = decodeBlock(data) ?: return false
         blocks.update { it.copy(blocks = it.blocks + block.copy(id = newBlockId())) }
         return true
     }

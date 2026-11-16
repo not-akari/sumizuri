@@ -13,6 +13,7 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.FileOpen
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -31,15 +32,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sumizuri.app.data.LocalAppContainer
+import com.sumizuri.app.data.share.ShareKind
+import com.sumizuri.app.data.share.reposData
 import com.sumizuri.app.feature.browse.extensions.ExtensionsRoute
 import com.sumizuri.app.feature.browse.repo.RemoveSourceDialog
+import com.sumizuri.app.feature.share.ShareDialog
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.browse_add
+import com.sumizuri.app.shared.resources.browse_share_repos
 import com.sumizuri.app.shared.resources.browse_title
 import com.sumizuri.app.shared.resources.ext_edit_new_row
 import com.sumizuri.app.shared.resources.extensions_add_file
 import com.sumizuri.app.shared.resources.extensions_add_repo
 import com.sumizuri.app.shared.resources.global_search_title
+import com.sumizuri.app.shared.resources.share_kind_repos
+import com.sumizuri.app.shared.resources.share_title
 import com.sumizuri.app.shared.resources.sources_count
 import com.sumizuri.app.shared.resources.sources_updates_notice
 import com.sumizuri.app.ui.kit.page.PageGutter
@@ -117,10 +126,21 @@ private fun subtitle(state: BrowseHubState): String {
         pluralStringResource(Res.plurals.sources_updates_notice, state.updateCount, state.updateCount).lowercase()
 }
 
-// The ways to get more sources, under one button in the bar.
+// The ways to get more sources, under one button in the bar, and sharing the repos the person added.
 @Composable
 private fun AddMenu(actions: BrowseHubActions) {
     var open by remember { mutableStateOf(false) }
+    val repos by LocalAppContainer.current.repos.repos
+        .collectAsStateWithLifecycle(emptyList())
+    var sharing by remember { mutableStateOf(false) }
+    if (sharing) {
+        val data = remember(repos) { reposData(repos) }
+        val name = stringResource(Res.string.share_kind_repos)
+        ShareDialog(stringResource(Res.string.share_title, name), "Sumizuri repos", ShareKind.Repos, data) {
+            sharing =
+                false
+        }
+    }
     Box {
         IconButton({ open = true }) { Icon(Icons.Outlined.Add, stringResource(Res.string.browse_add)) }
         DropdownMenu(open, { open = false }) {
@@ -135,6 +155,12 @@ private fun AddMenu(actions: BrowseHubActions) {
             AddItem(Res.string.ext_edit_new_row, Icons.Outlined.Code) {
                 open = false
                 actions.onNewSource()
+            }
+            if (repos.isNotEmpty()) {
+                AddItem(Res.string.browse_share_repos, Icons.Outlined.Share) {
+                    open = false
+                    sharing = true
+                }
             }
         }
     }

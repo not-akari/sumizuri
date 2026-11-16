@@ -8,6 +8,10 @@ import com.sumizuri.app.data.db.value.SourceValueEntity
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.Status
 import com.sumizuri.app.data.model.library.LibrarySortField
+import com.sumizuri.app.data.share.ShareKind
+import com.sumizuri.app.data.share.ShareProblem
+import com.sumizuri.app.data.share.ShareUnreadable
+import com.sumizuri.app.data.share.readShared
 import com.sumizuri.app.data.text.localOffsetMillis
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -28,6 +32,30 @@ fun readSumizuriBackup(text: String): ImportedBackup {
     } catch (error: Exception) {
         throw BackupUnreadable(BackupProblem.NotBackup, error)
     }
+    return readSumizuriBackup(root)
+}
+
+// Reads a backup file, which is a file of the app that holds a backup.
+fun readBackupFile(text: String): ImportedBackup {
+    val shared = try {
+        readShared(text)
+    } catch (error: ShareUnreadable) {
+        throw BackupUnreadable(
+            if (error.problem ==
+                ShareProblem.Newer
+            ) {
+                BackupProblem.NewerVersion
+            } else {
+                BackupProblem.NotBackup
+            },
+            error,
+        )
+    }
+    if (shared.kind != ShareKind.Backup) throw BackupUnreadable(BackupProblem.NotBackup)
+    return readSumizuriBackup(shared.data as? JsonObject ?: throw BackupUnreadable(BackupProblem.Damaged))
+}
+
+fun readSumizuriBackup(root: JsonObject): ImportedBackup {
     val version =
         (root["backupVersion"] as? JsonPrimitive)?.intOrNull ?: throw BackupUnreadable(BackupProblem.NotBackup)
     if (version > SumizuriBackupVersion) throw BackupUnreadable(BackupProblem.NewerVersion)

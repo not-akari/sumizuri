@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -26,11 +27,12 @@ fun decodeLayout(text: String): BlockLayout? =
 
 fun encodeLayout(layout: BlockLayout): String = BlockJson.encodeToString(BlockLayout.serializer(), layout)
 
-// One block as JSON, which is how a block is shared with other people.
-fun encodeBlock(block: ProfileBlock): String = BlockJson.encodeToString(ProfileBlock.serializer(), block)
+// One block as the content of a file of the app, which is how a block is shared with other people.
+fun blockData(block: ProfileBlock): JsonElement = BlockJson.encodeToJsonElement(ProfileBlock.serializer(), block)
 
-fun decodeBlock(text: String): ProfileBlock? = runCatching {
-    BlockJson.decodeFromString(ProfileBlock.serializer(), text.trim())
+// The block the content of a file holds, or null when it holds none.
+fun decodeBlock(data: JsonElement): ProfileBlock? = runCatching {
+    BlockJson.decodeFromJsonElement(ProfileBlock.serializer(), data)
 }.getOrNull()
 
 // The blocks of the profile page, kept with the settings of the profile. A profile that never changed them gets the page as it was before blocks.

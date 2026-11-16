@@ -49,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -160,19 +161,25 @@ internal fun Fact(icon: ImageVector, text: String, modifier: Modifier = Modifier
     }
 }
 
-// A card that tells something to keep in mind, such as the app being open.
+// A card that tells something to keep in mind, such as the app being open, or how something went, in the color that says so.
 @Composable
-internal fun Notice(text: String, modifier: Modifier = Modifier) {
+internal fun Notice(
+    text: String,
+    modifier: Modifier = Modifier,
+    icon: ImageVector = Icons.Outlined.Info,
+    tint: Color = MaterialTheme.colorScheme.primary,
+    fill: Color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f),
+) {
     Row(
         modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f))
+            .background(fill)
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Icon(Icons.Outlined.Info, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
+        Icon(icon, null, Modifier.size(20.dp), tint = tint)
         Text(text, style = MaterialTheme.typography.bodyMedium)
     }
 }

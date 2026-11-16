@@ -24,6 +24,7 @@ import com.sumizuri.app.feature.settings.SettingsRoute
 import com.sumizuri.app.feature.settings.SettingsTarget
 import com.sumizuri.app.feature.settings.SettingsTargetRoute
 import com.sumizuri.app.feature.settings.controls.ControlsRoute
+import com.sumizuri.app.feature.share.ImportRoute
 import com.sumizuri.app.feature.theme.ThemeEditorRoute
 import com.sumizuri.app.feature.title.PreviewRoute
 import com.sumizuri.app.feature.title.TitleRoute
@@ -63,6 +64,11 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
         Page.LibraryDisplay -> LibraryDisplayRoute(onBack = navigation::pop)
 
         Page.Backup -> BackupRoute(onBack = navigation::pop, onMigrate = { navigation.push(Page.Migration(it)) })
+
+        Page.Import -> ImportRoute(
+            navigation::pop,
+            { navigation.push(Page.Backup) },
+        ) { navigation.replaceTop(Page.Backup) }
 
         is Page.SettingsPage -> SettingsTargetRoute(page.target, navigation::pop, {
             navigation.push(pageOf(it))
@@ -158,6 +164,7 @@ private fun pageOf(target: SettingsTarget): Page = when (target) {
     SettingsTarget.LibraryDisplay -> Page.LibraryDisplay
     SettingsTarget.Shelves -> Page.Shelves
     SettingsTarget.Backup -> Page.Backup
+    SettingsTarget.Import -> Page.Import
     SettingsTarget.Logs -> Page.Logs
     SettingsTarget.Migration -> Page.Migration(emptyList())
     else -> Page.SettingsPage(target)

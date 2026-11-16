@@ -2,7 +2,6 @@ package com.sumizuri.app.data.settings
 
 import com.sumizuri.app.data.db.AppDatabase
 import com.sumizuri.app.data.db.setting.SettingEntity
-import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.ui.theme.spec.AppThemeSpec
 import com.sumizuri.app.ui.theme.spec.ThemePresets
 import kotlinx.coroutines.flow.Flow
@@ -10,8 +9,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlinx.serialization.json.JsonElement
 
 private const val ActiveKey = "theme.active"
 private const val CustomPrefix = "theme.custom."
@@ -54,33 +52,17 @@ class ThemeRepository(private val db: AppDatabase) {
 
     suspend fun delete(id: String) = db.settings().delete(CustomPrefix + id)
 
-    // The text of a theme as a file, and a theme read from such a text, or null when it cannot be read.
-    fun toText(theme: AppThemeSpec): String = ThemeJson.encodeToString(AppThemeSpec.serializer(), theme)
+    // A theme as the content of a file of the app. Only what differs from the values every theme starts with is in it, so the file stays short.
+    fun toData(theme: AppThemeSpec): JsonElement = DataJson.encodeToJsonElement(AppThemeSpec.serializer(), theme)
 
-    fun fromText(text: String): AppThemeSpec? =
-        runCatching { ThemeJson.decodeFromString<AppThemeSpec>(text) }.getOrNull()
-
-    // A link that carries the theme, to send to someone. Only what differs from the values every theme starts with is in it, so the link stays short.
-    @OptIn(ExperimentalEncodingApi::class)
-    fun toLink(theme: AppThemeSpec): String {
-        val json = LinkJson.encodeToString(AppThemeSpec.serializer(), theme)
-        return "${AppLinks.Scheme}://theme?data=" + LinkBase64.encode(json.encodeToByteArray())
-    }
-
-    // The theme a link carries, or null when the link holds none.
-    @OptIn(ExperimentalEncodingApi::class)
-    fun fromLink(data: String): AppThemeSpec? = runCatching {
-        LinkJson.decodeFromString<AppThemeSpec>(LinkBase64.decode(data).decodeToString())
-    }.getOrNull()
+    // The theme the content of a file holds, or null when it holds none.
+    fun fromData(data: JsonElement): AppThemeSpec? =
+        runCatching { DataJson.decodeFromJsonElement(AppThemeSpec.serializer(), data) }.getOrNull()
 }
 
-// Themes in links leave out the values every theme starts with.
-private val LinkJson = Json {
+// Shared themes leave out the values every theme starts with.
+private val DataJson = Json {
     ignoreUnknownKeys = true
     encodeDefaults = false
     coerceInputValues = true
 }
-
-// The letters of a link, with no padding at the end, which links do not like.
-@OptIn(ExperimentalEncodingApi::class)
-private val LinkBase64 = Base64.UrlSafe.withPadding(Base64.PaddingOption.ABSENT_OPTIONAL)

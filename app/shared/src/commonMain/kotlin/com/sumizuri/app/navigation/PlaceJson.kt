@@ -54,6 +54,8 @@ internal object PlaceJson {
 
                                 Page.Backup -> put("type", "backup")
 
+                                Page.Import -> put("type", "import")
+
                                 Page.Updates -> put("type", "updates")
 
                                 is Page.ThemeEditor -> {
@@ -156,6 +158,8 @@ internal object PlaceJson {
                 "settings" -> Page.Settings
 
                 "backup" -> Page.Backup
+
+                "import" -> Page.Import
 
                 "updates" -> Page.Updates
 

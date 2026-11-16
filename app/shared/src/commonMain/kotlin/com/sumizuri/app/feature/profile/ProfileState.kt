@@ -10,6 +10,7 @@ import com.sumizuri.app.data.blocks.runScript
 import com.sumizuri.app.data.model.FeedItem
 import com.sumizuri.app.data.model.stats.ReadingStats
 import com.sumizuri.app.data.profile.Profile
+import kotlinx.serialization.json.JsonElement
 
 // What the profile page shows: the readers of this device, the one that is open, how its reading adds up, the titles it read last, and the blocks of the page with what each shows.
 data class ProfileState(
@@ -49,7 +50,7 @@ class BlockCalls(
     val onRemove: (String) -> Unit,
     val onDuplicate: (String) -> Unit,
     val onAdd: (BlockTemplate) -> Unit,
-    val onImport: suspend (String) -> Boolean,
+    val onImport: suspend (JsonElement) -> Boolean,
     val onEdit: (String) -> Unit,
     val onPreset: (ProfilePreset) -> Unit,
 )

@@ -3,6 +3,7 @@ package com.sumizuri.app.data.backup
 import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.settings.SettingsRepository
+import com.sumizuri.app.data.share.ShareEnding
 import com.sumizuri.app.data.text.localOffsetMillis
 import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.data.work.BusyKind
@@ -20,10 +21,10 @@ import okio.Path
 import okio.Path.Companion.toPath
 import kotlin.time.Instant
 
-// The ending of a backup file of this app.
-const val BackupEnding = ".sumizuribackup"
+// The ending of a backup file of this app, which is the ending of every file of the app.
+const val BackupEnding = ShareEnding
 
-// A name that sorts by date, such as sumizuri_backup_2026-10-06_213005.sumizuribackup, in the time of this device, to the second so two backups never share one.
+// A name that sorts by date, such as sumizuri_backup_2026-10-06_213005.sumizuri, in the time of this device, to the second so two backups never share one.
 fun backupFileName(now: Long = nowMillis()): String {
     val local = Instant.fromEpochMilliseconds(now + localOffsetMillis(now)).toString()
     return "sumizuri_backup_${local.substring(

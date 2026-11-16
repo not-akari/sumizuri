@@ -32,11 +32,6 @@ object AppLinks {
                 true
             }
 
-            "theme" -> {
-                theme.value = url.parameters["data"]?.trim()?.takeIf { it.isNotEmpty() } ?: return false
-                true
-            }
-
             // A title from a notice of new chapters, to open or to read on from where it was left.
             "title" -> {
                 val id = url.parameters["id"]?.toLongOrNull() ?: return false
@@ -55,15 +50,6 @@ object AppLinks {
 
     fun repoTaken() {
         repo.value = null
-    }
-
-    private val theme = MutableStateFlow<String?>(null)
-
-    // A theme a link carries, which waits for the person to say yes before it is added.
-    val sharedTheme: StateFlow<String?> = theme
-
-    fun themeTaken() {
-        theme.value = null
     }
 
     private val title = MutableStateFlow<TitleLink?>(null)

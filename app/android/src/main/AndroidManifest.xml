@@ -34,8 +34,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="sumizuri" android:host="add-repo" />
-                <!-- A theme someone shared as a link, which asks to add that theme. -->
-                <data android:scheme="sumizuri" android:host="theme" />
             </intent-filter>
         </activity>
         <!-- The app in the launcher, one entry for each icon. Made by scripts/app-icons.js. -->

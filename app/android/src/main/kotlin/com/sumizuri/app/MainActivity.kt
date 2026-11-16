@@ -47,7 +47,9 @@ class MainActivity : ComponentActivity() {
         val profiles = (application as SumizuriApplication).profiles
         // A shortcut asks again only when the app is started by it, not when it comes back after a turn of the screen.
         if (savedInstanceState == null) requestedTab = requestedTabOf(intent.getStringExtra("tab"))
-        if (savedInstanceState == null) AppLinks.open(intent.dataString)
+        // A link the app was first opened with is not opened again when the app comes back from the recent apps.
+        val fromHistory = intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
+        if (savedInstanceState == null && !fromHistory) AppLinks.open(intent.dataString)
         setContent {
             val mini = MiniPlayerControl(inPicture, enter = ::enterPicture, exit = {})
             CompositionLocalProvider(LocalMiniPlayer provides mini) {
