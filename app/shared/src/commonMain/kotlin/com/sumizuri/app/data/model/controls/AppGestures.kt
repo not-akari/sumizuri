@@ -66,6 +66,7 @@ data class AppGestures(
             AppShortcut.RefreshLibrary to listOf(KeyChord("F5"), KeyChord("R", ctrl = true)),
             AppShortcut.OpenSettings to listOf(KeyChord("Comma", ctrl = true)),
             AppShortcut.GoBack to listOf(KeyChord("Left", alt = true), KeyChord("Mouse4")),
+            AppShortcut.GoForward to listOf(KeyChord("Right", alt = true), KeyChord("Mouse5")),
             AppShortcut.ShowShortcuts to listOf(KeyChord("F1"), KeyChord("Slash", ctrl = true)),
         )
     }

@@ -476,6 +476,7 @@
     <string name="shortcut_search">Search</string>
     <string name="shortcut_settings">Open settings</string>
     <string name="shortcut_back">Go back</string>
+    <string name="shortcut_forward">Go forward</string>
     <string name="chapter_action_toggle_read">Toggle read</string>
     <string name="chapter_action_bookmark">Bookmark</string>
     <string name="chapter_action_select">Select</string>

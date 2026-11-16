@@ -2,6 +2,7 @@ package com.sumizuri.app.data.model.controls
 
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.shortcut_back
+import com.sumizuri.app.shared.resources.shortcut_forward
 import com.sumizuri.app.shared.resources.shortcut_go_browse
 import com.sumizuri.app.shared.resources.shortcut_go_history
 import com.sumizuri.app.shared.resources.shortcut_go_library
@@ -30,5 +31,6 @@ enum class AppShortcut(val label: StringResource) {
     RefreshLibrary(Res.string.shortcut_refresh),
     OpenSettings(Res.string.shortcut_settings),
     GoBack(Res.string.shortcut_back),
+    GoForward(Res.string.shortcut_forward),
     ShowShortcuts(Res.string.shortcut_help),
 }
