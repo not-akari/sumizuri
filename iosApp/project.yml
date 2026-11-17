@@ -36,6 +36,14 @@ targets:
         # Where the Kotlin framework is put by the Gradle task below.
         FRAMEWORK_SEARCH_PATHS: "$(inherited) $(SRCROOT)/../app/shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
         OTHER_LDFLAGS: "$(inherited) -framework Shared"
+      configs:
+        # A release build drops the names of its functions and the debug notes on the way, which only debugging needs and which were close to a third of the app. Xcode only does this when it installs a build, so it is asked to here too, and the names stay in the dSYM Xcode makes next to the app.
+        Release:
+          DEPLOYMENT_POSTPROCESSING: YES
+          STRIP_INSTALLED_PRODUCT: YES
+          STRIP_STYLE: all
+          COPY_PHASE_STRIP: YES
+          DEAD_CODE_STRIPPING: YES
     preBuildScripts:
       - name: Build the Kotlin framework
         basedOnDependencyAnalysis: false
