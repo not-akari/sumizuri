@@ -292,7 +292,10 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
             val flight = remember { CoverFlight() }
             CompositionLocalProvider(LocalOpenSite provides openSite, LocalPageMotion provides pageMotion, LocalStagger provides stagger, LocalCoverFlight provides flight) {
                 if (!lookRead || !themeRead) StartBackdrop()
-                if (lookRead && themeRead) SumizuriTheme(themeMode, theme, oled, oledGlow) {
+                if (lookRead && themeRead) {
+                    // A new language rebuilds the screens once, so the words already shown are read again in it at once.
+                    key(language.code) {
+                        SumizuriTheme(themeMode, theme, oled, oledGlow) {
                     val tabMs = pageMotion.pageMs()
                     val shift = rememberMotionShift()
                     val locked by container.lock.locked.collectAsStateWithLifecycle()
@@ -353,6 +356,8 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                     }
                     }
                     if (locked == false && shortcutsOpen) ShortcutsDialog(gestures) { shortcutsOpen = false }
+                }
+                    }
                 }
             }
         }

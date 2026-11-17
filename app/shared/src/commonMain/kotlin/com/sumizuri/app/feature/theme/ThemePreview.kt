@@ -109,7 +109,7 @@ internal fun ThemePreview(
 ) {
     // The titles of the library when it has any, so the preview looks like the app as it is.
     val shown = titles.ifEmpty { Samples }
-    SumizuriTheme(if (dark) ThemeMode.Dark else ThemeMode.Light, spec) {
+    SumizuriTheme(if (dark) ThemeMode.Dark else ThemeMode.Light, spec, fade = false) {
         if (desktop) {
             DesktopPage(
                 modifier.heightIn(min = height),
