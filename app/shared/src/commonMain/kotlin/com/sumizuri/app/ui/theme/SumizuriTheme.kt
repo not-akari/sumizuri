@@ -16,6 +16,8 @@ fun SumizuriTheme(
     themeSpec: AppThemeSpec,
     oled: Boolean = false,
     oledGlow: Boolean = false,
+    // Whether a change of look fades from the old one, which a preview that changes as a slider moves leaves out.
+    fade: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val dark = when (mode) {
@@ -37,10 +39,11 @@ fun SumizuriTheme(
     val scheme = remember(spec, dark) { spec.colorScheme(dark) }
     val shapes = remember(spec.shapes) { spec.shapes.toMaterial() }
     CompositionLocalProvider(LocalThemeSpec provides spec) {
-        val shown = animatedColorScheme(scheme)
-        MaterialTheme(colorScheme = shown, shapes = shapes, typography = themedTypography(spec.options.typography)) {
+        MaterialTheme(colorScheme = scheme, shapes = shapes, typography = themedTypography(spec.options.typography)) {
             // Text that is not on a Material surface takes the color of the page text, since the default would be black.
-            CompositionLocalProvider(LocalContentColor provides shown.onBackground, content = content)
+            CompositionLocalProvider(LocalContentColor provides scheme.onBackground) {
+                if (fade) ThemeFade(scheme, content) else content()
+            }
         }
     }
 }

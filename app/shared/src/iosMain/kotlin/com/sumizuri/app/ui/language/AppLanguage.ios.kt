@@ -2,7 +2,7 @@ package com.sumizuri.app.ui.language
 
 import platform.Foundation.*
 
-// The system reads the languages an app asks for when it starts, so the choice is kept for the next start. null goes back to the languages of the system.
+// The words are looked up in the languages the app asks for, which the system also reads when the app starts, so the choice shows at once and stays for the next start. null goes back to the languages of the system.
 actual fun applyAppLanguage(code: String?) {
     val defaults = NSUserDefaults.standardUserDefaults
     if (code ==
