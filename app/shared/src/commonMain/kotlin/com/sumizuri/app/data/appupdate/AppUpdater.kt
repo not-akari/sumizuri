@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +34,9 @@ import okio.buffer
 import okio.use
 
 private const val Tag = "appupdate"
+
+// How long Install stays waiting after the setup opened, long enough for its window to show.
+private const val OpenedHoldMs = 15_000L
 private const val Prefix = "appupdate."
 private const val AutoCheckKey = "appupdate.autoCheck"
 private const val PrereleaseKey = "appupdate.prerelease"
@@ -101,6 +105,11 @@ class AppUpdater(private val settings: SettingsRepository, private val scope: Co
     private val mutableDownload = MutableStateFlow<UpdateDownload?>(null)
     val download: StateFlow<UpdateDownload?> = mutableDownload
     private var downloading: Job? = null
+
+    private val mutableOpening = MutableStateFlow(false)
+
+    // Whether the setup is being opened, or opened a moment ago, while Install does nothing more, so one press opens one setup.
+    val opening: StateFlow<Boolean> = mutableOpening
 
     // Every release the last check read, to show the notes of this version too.
     private var known: List<AppRelease> = emptyList()
@@ -213,10 +222,23 @@ class AppUpdater(private val settings: SettingsRepository, private val scope: Co
         mutableDownload.value = null
     }
 
-    // Hands the saved file to the system to install.
+    // Hands the saved file to the system to install. A press while the setup is opening, or soon after it opened, does nothing, as opening takes a few seconds on Windows.
     suspend fun install(): InstallResult {
         val file = mutableDownload.value?.file ?: return InstallResult.Failed
-        return withContext(Dispatchers.Main) { UpdateInstaller.install(file) }
+        if (!mutableOpening.compareAndSet(expect = false, update = true)) return InstallResult.Started
+        var started = false
+        try {
+            return withContext(Dispatchers.Main) { UpdateInstaller.install(file) }.also { started = it == InstallResult.Started }
+        } finally {
+            if (started) {
+                scope.launch {
+                    delay(OpenedHoldMs)
+                    mutableOpening.value = false
+                }
+            } else {
+                mutableOpening.value = false
+            }
+        }
     }
 
     // The releases of the repo, or its tags when it has no releases.

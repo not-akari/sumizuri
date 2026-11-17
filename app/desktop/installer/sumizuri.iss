@@ -26,6 +26,8 @@ PrivilegesRequired=lowest
 CreateAppDir=no
 Uninstallable=no
 CloseApplications=no
+; A second copy of this setup, opened while one is running, says so and ends, so pressing Install or the file again never opens it twice.
+SetupMutex=SumizuriSetup
 ShowLanguageDialog=no
 SetupArchitecture=x64
 ArchitecturesAllowed=x64compatible

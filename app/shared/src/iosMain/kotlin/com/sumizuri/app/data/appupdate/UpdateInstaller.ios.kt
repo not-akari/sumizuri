@@ -9,5 +9,5 @@ actual object UpdateInstaller {
 
     actual fun folder(): Path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "sumizuri-updates"
 
-    actual fun install(file: String): InstallResult = InstallResult.Failed
+    actual suspend fun install(file: String): InstallResult = InstallResult.Failed
 }

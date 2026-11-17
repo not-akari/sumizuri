@@ -29,7 +29,7 @@ actual object UpdateInstaller {
 
     actual fun folder(): Path = File(AndroidApp.context.cacheDir, "updates").toOkioPath()
 
-    actual fun install(file: String): InstallResult {
+    actual suspend fun install(file: String): InstallResult {
         val context = AndroidApp.context
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !context.packageManager.canRequestPackageInstalls()) {
             val allow = Intent(

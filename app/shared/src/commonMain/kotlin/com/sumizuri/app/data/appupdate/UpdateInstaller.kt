@@ -10,5 +10,5 @@ expect object UpdateInstaller {
     fun folder(): Path
 
     // Opens the installer of the system with the file. On a phone that does not let the app install yet, it opens the setting that allows it.
-    fun install(file: String): InstallResult
+    suspend fun install(file: String): InstallResult
 }
