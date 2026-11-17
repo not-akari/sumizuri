@@ -60,6 +60,7 @@ import com.sumizuri.app.shared.resources.appupdate_no_file
 import com.sumizuri.app.shared.resources.appupdate_no_notes
 import com.sumizuri.app.shared.resources.appupdate_no_source
 import com.sumizuri.app.shared.resources.appupdate_not_found
+import com.sumizuri.app.shared.resources.appupdate_opening
 import com.sumizuri.app.shared.resources.appupdate_source
 import com.sumizuri.app.shared.resources.appupdate_source_hint
 import com.sumizuri.app.shared.resources.appupdate_source_invalid
@@ -183,6 +184,8 @@ internal fun DownloadPart(
     onDownload: () -> Unit,
     onCancel: () -> Unit,
     onInstall: () -> Unit,
+    // While the setup opens the button waits, so it is not opened twice.
+    opening: Boolean = false,
 ) {
     Column(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         when {
@@ -205,8 +208,8 @@ internal fun DownloadPart(
                 InkButton(onDownload, Modifier.fillMaxWidth()) { Text(stringResource(Res.string.appupdate_download)) }
             }
 
-            download.finished -> InkButton(onInstall, Modifier.fillMaxWidth()) {
-                Text(stringResource(Res.string.appupdate_install))
+            download.finished -> InkButton(onInstall, Modifier.fillMaxWidth(), enabled = !opening) {
+                Text(stringResource(if (opening) Res.string.appupdate_opening else Res.string.appupdate_install))
             }
 
             else -> {

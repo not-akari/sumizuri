@@ -2082,6 +2082,7 @@
     <string name="appupdate_cancel_download">Stop</string>
     <string name="appupdate_download_failed">The download failed.</string>
     <string name="appupdate_install">Install</string>
+    <string name="appupdate_opening">Opening the setup…</string>
     <string name="appupdate_install_permission">Allow Sumizuri to install apps, then tap Install again.</string>
     <string name="appupdate_install_failed">Could not open the installer.</string>
     <string name="appupdate_no_file">This version has no file for this device. Open the release page to get it.</string>

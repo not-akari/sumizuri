@@ -56,6 +56,7 @@ fun AppUpdateRoute(onBack: () -> Unit) {
     val updater = LocalAppContainer.current.updater
     val state by updater.state.collectAsStateWithLifecycle()
     val download by updater.download.collectAsStateWithLifecycle()
+    val opening by updater.opening.collectAsStateWithLifecycle()
     val prefs by remember(updater) { updater.prefs }.collectAsStateWithLifecycle(UpdatePrefs())
     val scope = rememberCoroutineScope()
     val openSite = LocalOpenSite.current
@@ -90,6 +91,7 @@ fun AppUpdateRoute(onBack: () -> Unit) {
                                 }
                             }
                         },
+                        opening = opening,
                     )
                 }
                 if (latest.pageUrl.isNotBlank()) {
