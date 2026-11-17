@@ -2770,4 +2770,5 @@
     <string name="search_history">Recordar búsquedas</string>
     <string name="search_history_hint">Las búsquedas recientes salen debajo del campo de búsqueda mientras está vacío. Se quedan en este dispositivo y no se guarda ninguna al leer en modo incógnito.</string>
     <string name="search_history_clear">Borrar</string>
+    <string name="appupdate_opening">Abriendo el setup. . .</string>
 </resources>
