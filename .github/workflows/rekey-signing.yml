@@ -1,0 +1,48 @@
+# Puts the release key into a new keystore with a password the owner chose, once. The key stays the same, so every install keeps updating. It runs when the rekey-signing branch is pushed, then the draft release holds the new keystore, and the draft, the ANDROID_KEYSTORE_NEW_PASSWORD secret and this branch get deleted.
+name: Rekey signing
+
+on:
+  push:
+    branches: [rekey-signing]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rekey:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Make the new keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          OLD_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          OLD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          NEW_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_NEW_PASSWORD }}
+          # The fingerprint of the key every release is signed with, which the new keystore must hold.
+          EXPECTED: EB:D5:B4:77:CE:34:B6:5F:78:4C:CB:B3:F1:B5:18:5C:8D:69:9F:7B:DB:07:49:19:4C:FE:C5:7B:09:E8:2C:3B
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          umask 077
+          if [ -z "$NEW_PASSWORD" ]; then echo "Set the ANDROID_KEYSTORE_NEW_PASSWORD secret first."; exit 1; fi
+          work="$RUNNER_TEMP/rekey"
+          mkdir -p "$work"
+          # The old keystore is taken apart on the runner only, and everything is wiped when the step ends, also when it fails.
+          trap 'rm -rf "$work"' EXIT
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$work/old.jks"
+          # Passwords go to keytool through the environment, never on the command line, so they are in no log.
+          keytool -importkeystore -noprompt \
+            -srckeystore "$work/old.jks" -srcstoretype PKCS12 -srcalias "$KEY_ALIAS" \
+            -srcstorepass:env OLD_STORE_PASSWORD -srckeypass:env OLD_KEY_PASSWORD \
+            -destkeystore "$work/sumizuri-release.jks" -deststoretype PKCS12 -destalias "$KEY_ALIAS" \
+            -deststorepass:env NEW_PASSWORD -destkeypass:env NEW_PASSWORD > /dev/null
+          # The new keystore must open with the new password and hold the same key, or nothing is kept.
+          found="$(keytool -list -v -keystore "$work/sumizuri-release.jks" -storepass:env NEW_PASSWORD -alias "$KEY_ALIAS" | sed -n 's/^[[:space:]]*SHA256: //p')"
+          echo "Fingerprint of the new keystore: $found"
+          if [ "$found" != "$EXPECTED" ]; then echo "The fingerprint does not match the release key, so nothing was kept."; exit 1; fi
+          # A draft release is seen only by people who can push to the repo, never by the public.
+          gh release create "rekey-$GITHUB_RUN_ID" "$work/sumizuri-release.jks" --repo "$GITHUB_REPOSITORY" --draft --target "$GITHUB_SHA" \
+            --title "Signing keystore (private draft, delete after download)" \
+            --notes "The release key in a keystore with the new password. Download it, update the signing secrets, then delete this draft."
