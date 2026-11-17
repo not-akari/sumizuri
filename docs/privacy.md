@@ -42,7 +42,7 @@ This website has no cookies, no analytics and no sign-in, and it loads no fonts 
 
 - **The download page** asks GitHub for the newest version of the app when you open it. That request is made from your browser, so GitHub sees your IP address, as with any page that links to a file on GitHub. The answer is kept in your browser for a few minutes, so the page does not ask again. Nothing about it is sent to us.
 - **To suggest the right file,** the page reads what kind of device and processor your browser reports. That stays in your browser and is not sent anywhere.
-- **Hosting.** The site is served by Firebase Hosting, which is run by Google. Like any web host, it keeps ordinary server logs of requests, such as the address asked for and your IP address. We do not use them for anything.
+- **Hosting.** The site is served by Firebase Hosting, which is run by Google, and reaches you through Cloudflare, which runs the domain. Like any web host, both keep ordinary server logs of requests, such as the address asked for and your IP address. We do not use them for anything.
 
 ## If you contact us
 
