@@ -16,6 +16,12 @@ defaults:
   run:
     shell: bash
 
+# The keys of the build, from the settings of the repo, as a secret or a variable. A pull request from a fork gets none, and the app builds without them.
+env:
+  ANILIST_CLIENT_ID: ${{ secrets.ANILIST_CLIENT_ID || vars.ANILIST_CLIENT_ID }}
+  MAL_CLIENT_ID: ${{ secrets.MAL_CLIENT_ID || vars.MAL_CLIENT_ID }}
+  MANGABAKA_CLIENT_ID: ${{ secrets.MANGABAKA_CLIENT_ID || vars.MANGABAKA_CLIENT_ID }}
+
 jobs:
   # On a version tag, makes the release as a draft first, so each build puts its files straight on it and nobody sees it half done.
   start:

@@ -2,7 +2,6 @@ package com.sumizuri.app.feature.sync.data
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,14 +17,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.backup.ImportedTitle
-import com.sumizuri.app.data.model.Status
-import com.sumizuri.app.data.model.Title
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.sync_bring
 import com.sumizuri.app.shared.resources.sync_on_device
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
-import com.sumizuri.app.ui.kit.cover.CoverArt
-import com.sumizuri.app.ui.kit.setting.SettingRow
+import com.sumizuri.app.ui.kit.sync.CoverRow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -77,23 +73,13 @@ internal fun rememberOnDevice(titles: List<ImportedTitle>): State<OnDevice?> {
 @Composable
 internal fun CopyTitleRow(title: ImportedTitle, subtitle: String, device: OnDevice?) {
     val here = device?.has(title) == true
-    val shown = Title(
-        id = 0,
-        name = title.name,
-        kind = title.kind,
-        coverUrl = device?.cover(title) ?: title.coverUrl,
-        unread = 0,
-        status = title.status ?: Status.Unknown,
-        summary = "",
-        inLibrary = here,
-        sourceId = title.sourceId.orEmpty(),
-    )
-    SettingRow(
+    CoverRow(
         title.name,
-        subtitle = subtitle,
-        leading = { CoverArt(shown, Modifier.width(40.dp), letterSize = 16) },
+        title.kind,
+        device?.cover(title) ?: title.coverUrl,
+        subtitle,
         trailing = {
-            if (device == null) return@SettingRow
+            if (device == null) return@CoverRow
             if (here) {
                 Text(
                     stringResource(Res.string.sync_on_device),

@@ -23,6 +23,7 @@ import com.sumizuri.app.data.sync.UpdatePlan
 import com.sumizuri.app.data.sync.UpdatePlatform
 import com.sumizuri.app.data.sync.rememberNoticePermission
 import com.sumizuri.app.data.text.nowMillis
+import com.sumizuri.app.data.tracker.TrackerPlatform
 import com.sumizuri.app.feature.sync.account.DefaultSyncMinutes
 import com.sumizuri.app.ui.kit.cover.CoverMemo
 import kotlinx.coroutines.delay
@@ -91,6 +92,30 @@ internal fun AppBackgroundWork(container: AppContainer, loader: ImageLoader) {
             delay(if (minutes > 0) minutes * 60_000L else DueLookEveryMs)
             if (minutes > 0) container.librarySync.syncAuto()
         }
+    }
+    // Keeps the linked titles in step with the trackers as often as chosen while the app stays open.
+    LaunchedEffect(container) {
+        val settings = container.settings
+        delay(StartQuietMs + StaggerMs * 2)
+        while (true) {
+            val minutes = settings.number(SettingKey.TrackerEveryMinutes, SettingKey.DefaultTrackerMinutes).first()
+            if (minutes > 0) {
+                awaitQuiet()
+                container.trackerSync.syncAll(auto = true)
+            }
+            delay(if (minutes > 0) minutes * 60_000L else DueLookEveryMs)
+        }
+    }
+    // And the sync of the trackers while the app is closed is planned again whenever one of its rules changes.
+    LaunchedEffect(container) {
+        val settings = container.settings
+        combine(
+            settings.number(SettingKey.TrackerEveryMinutes, SettingKey.DefaultTrackerMinutes),
+            settings.flag(SettingKey.TrackerBackground, true),
+            settings.flag(SettingKey.TrackerWifiOnly, false),
+        ) { minutes, background, wifi -> Triple(minutes, background, wifi) }
+            .distinctUntilChanged()
+            .collect { (minutes, background, wifi) -> TrackerPlatform.plan(minutes, background, wifi) }
     }
     // While the app is open it looks every minute whether another device synced, and if so syncs, so changes arrive quickly without a whole sync each time.
     LaunchedEffect(container) {

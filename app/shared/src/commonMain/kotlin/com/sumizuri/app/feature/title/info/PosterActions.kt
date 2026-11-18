@@ -2,6 +2,7 @@ package com.sumizuri.app.feature.title.info
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,6 +45,7 @@ import com.sumizuri.app.data.model.Title
 import com.sumizuri.app.feature.title.TitleCallbacks
 import com.sumizuri.app.feature.title.TitleState
 import com.sumizuri.app.feature.title.layout.TileHeight
+import com.sumizuri.app.feature.trackers.TrackerStrip
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.comments_title
 import com.sumizuri.app.shared.resources.more
@@ -97,67 +99,71 @@ internal fun PosterActions(
         }
         return
     }
-    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        val each = Modifier.weight(1f)
-        val tile = if (fixedHeight) Modifier.height(TileHeight) else Modifier
-        // The library has an icon of its own, so the heart is not mistaken for the favourite, which is the star everywhere.
-        PosterAction(
-            icon = if (saved) Icons.Filled.LibraryAddCheck else Icons.Outlined.LibraryAdd,
-            label = stringResource(if (saved) Res.string.title_in_library else Res.string.title_add),
-            onClick = calls.onToggleLibrary,
-            modifier = each.then(tile),
-            active = saved,
-            enabled = saved || !state.loading || !state.preview,
-        )
-        if (saved && state.favoritesEnabled) {
+    // A saved title shows its trackers under the buttons.
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val each = Modifier.weight(1f)
+            val tile = if (fixedHeight) Modifier.height(TileHeight) else Modifier
+            // The library has an icon of its own, so the heart is not mistaken for the favourite, which is the star everywhere.
             PosterAction(
-                icon = if (title.favorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                label = stringResource(Res.string.title_favorite),
-                onClick = calls.onToggleFavorite,
+                icon = if (saved) Icons.Filled.LibraryAddCheck else Icons.Outlined.LibraryAdd,
+                label = stringResource(if (saved) Res.string.title_in_library else Res.string.title_add),
+                onClick = calls.onToggleLibrary,
                 modifier = each.then(tile),
-                active = title.favorite,
+                active = saved,
+                enabled = saved || !state.loading || !state.preview,
             )
-        }
-        state.comments?.let { target ->
-            PosterAction(Icons.AutoMirrored.Outlined.Comment, stringResource(Res.string.comments_title), {
-                calls.onComments(target)
-            }, each.then(tile))
-        }
-        if (web != null || move || background || edit) {
-            var open by remember { mutableStateOf(false) }
-            // The menu opens under its tile, so the two are in one box. It is a square with only its icon, so the library and the other buttons get the room.
-            Box {
-                PosterAction(Icons.Outlined.MoreHoriz, stringResource(Res.string.more), {
-                    open = true
-                }, Modifier.width(MoreWidth).then(tile), iconOnly = true)
-                DropdownMenu(open, { open = false }) {
-                    if (edit) {
-                        DropdownMenuItem({ Text(stringResource(Res.string.title_action_edit)) }, {
-                            open = false
-                            calls.onEdit()
-                        }, leadingIcon = { Icon(Icons.Outlined.Edit, null) })
-                    }
-                    if (web != null) {
-                        DropdownMenuItem({ Text(stringResource(Res.string.title_action_web)) }, {
-                            open = false
-                            openSite(web)
-                        }, leadingIcon = { Icon(Icons.Outlined.Public, null) })
-                    }
-                    if (move) {
-                        DropdownMenuItem({ Text(stringResource(Res.string.title_action_move)) }, {
-                            open = false
-                            calls.onMigrate()
-                        }, leadingIcon = { Icon(Icons.Outlined.SwapHoriz, null) })
-                    }
-                    if (background) {
-                        DropdownMenuItem({ Text(stringResource(Res.string.title_action_background)) }, {
-                            open = false
-                            onBackground()
-                        }, leadingIcon = { Icon(Icons.Outlined.CenterFocusStrong, null) })
+            if (saved && state.favoritesEnabled) {
+                PosterAction(
+                    icon = if (title.favorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                    label = stringResource(Res.string.title_favorite),
+                    onClick = calls.onToggleFavorite,
+                    modifier = each.then(tile),
+                    active = title.favorite,
+                )
+            }
+            state.comments?.let { target ->
+                PosterAction(Icons.AutoMirrored.Outlined.Comment, stringResource(Res.string.comments_title), {
+                    calls.onComments(target)
+                }, each.then(tile))
+            }
+            if (web != null || move || background || edit) {
+                var open by remember { mutableStateOf(false) }
+                // The menu opens under its tile, so the two are in one box. It is a square with only its icon, so the library and the other buttons get the room.
+                Box {
+                    PosterAction(Icons.Outlined.MoreHoriz, stringResource(Res.string.more), {
+                        open = true
+                    }, Modifier.width(MoreWidth).then(tile), iconOnly = true)
+                    DropdownMenu(open, { open = false }) {
+                        if (edit) {
+                            DropdownMenuItem({ Text(stringResource(Res.string.title_action_edit)) }, {
+                                open = false
+                                calls.onEdit()
+                            }, leadingIcon = { Icon(Icons.Outlined.Edit, null) })
+                        }
+                        if (web != null) {
+                            DropdownMenuItem({ Text(stringResource(Res.string.title_action_web)) }, {
+                                open = false
+                                openSite(web)
+                            }, leadingIcon = { Icon(Icons.Outlined.Public, null) })
+                        }
+                        if (move) {
+                            DropdownMenuItem({ Text(stringResource(Res.string.title_action_move)) }, {
+                                open = false
+                                calls.onMigrate()
+                            }, leadingIcon = { Icon(Icons.Outlined.SwapHoriz, null) })
+                        }
+                        if (background) {
+                            DropdownMenuItem({ Text(stringResource(Res.string.title_action_background)) }, {
+                                open = false
+                                onBackground()
+                            }, leadingIcon = { Icon(Icons.Outlined.CenterFocusStrong, null) })
+                        }
                     }
                 }
             }
         }
+        if (saved) TrackerStrip(title)
     }
 }
 

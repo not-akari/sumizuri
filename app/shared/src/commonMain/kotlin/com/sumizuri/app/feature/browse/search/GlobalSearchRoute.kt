@@ -13,13 +13,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun GlobalSearchRoute(
     initial: String,
+    kind: Int?,
     onBack: () -> Unit,
     onOpenSaved: (Long) -> Unit,
     onOpenPreview: (InstalledSource, SourceEntry) -> Unit,
 ) {
     val container = LocalAppContainer.current
     val viewModel =
-        viewModel { GlobalSearchViewModel(initial, container.sources, container.manager, container.library) }
+        viewModel { GlobalSearchViewModel(initial, kind, container.sources, container.manager, container.library) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     GlobalSearchScreen(state, onBack, viewModel::onQuery, viewModel::onKind) { source, entry ->

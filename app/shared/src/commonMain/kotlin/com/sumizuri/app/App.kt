@@ -47,12 +47,14 @@ import com.sumizuri.app.core.perf.PerfWatch
 import com.sumizuri.app.core.perf.reportActivity
 import com.sumizuri.app.data.AppContainer
 import com.sumizuri.app.data.LocalAppContainer
+import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.controls.AppShortcut
 import com.sumizuri.app.data.model.controls.NavDoubleTapAction
 import com.sumizuri.app.data.model.library.LibraryPrefs
 import com.sumizuri.app.data.profile.LocalProfiles
 import com.sumizuri.app.data.profile.ProfileHost
 import com.sumizuri.app.data.profile.ProfileStoreOwner
+import com.sumizuri.app.data.tracker.TrackerId
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.feature.appupdate.AppUpdateNotices
@@ -63,12 +65,14 @@ import com.sumizuri.app.feature.settings.SettingsViewModel
 import com.sumizuri.app.feature.settings.controls.ControlsViewModel
 import com.sumizuri.app.feature.settings.system.perfDetails
 import com.sumizuri.app.feature.sync.HandoffNotice
+import com.sumizuri.app.feature.trackers.TrackerRemovePrompt
 import com.sumizuri.app.feature.theme.ThemeViewModel
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.navigation.Destination
 import com.sumizuri.app.navigation.KeptTabs
 import com.sumizuri.app.navigation.MainScaffold
 import com.sumizuri.app.navigation.NavigationViewModel
+import com.sumizuri.app.navigation.LocalSearchSources
 import com.sumizuri.app.navigation.Page
 import com.sumizuri.app.navigation.PageBack
 import com.sumizuri.app.navigation.PageStack
@@ -236,6 +240,13 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                 val chapter = if (link.read) continueChapterOf(container.library, link.id) else null
                 navigation.push(chapter?.let { Page.Reader(it) } ?: Page.Saved(link.id))
             }
+            // A tracker that sent the person back with a token signs this profile in. The page the person left shows how it went.
+            val linkedTrack by AppLinks.trackSignIn.collectAsStateWithLifecycle()
+            LaunchedEffect(linkedTrack) {
+                val link = linkedTrack ?: return@LaunchedEffect
+                AppLinks.trackTaken()
+                TrackerId.of(link.tracker)?.let { container.trackers.finish(it, link.answer) }
+            }
             val linkedUpdates by AppLinks.openUpdates.collectAsStateWithLifecycle()
             LaunchedEffect(linkedUpdates, place.restored) {
                 if (linkedUpdates && place.restored) {
@@ -290,7 +301,7 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
             val openSite: (String) -> Unit = { address -> if (webInApp) navigation.push(Page.Web(address)) else runCatching { uriHandler.openUri(address) } }
             // A cover tapped in the library flies to its place on the page of the title.
             val flight = remember { CoverFlight() }
-            CompositionLocalProvider(LocalOpenSite provides openSite, LocalPageMotion provides pageMotion, LocalStagger provides stagger, LocalCoverFlight provides flight) {
+            CompositionLocalProvider(LocalOpenSite provides openSite, LocalSearchSources provides { words: String, kind: Kind? -> navigation.push(Page.GlobalSearch(words, kind?.code)) }, LocalPageMotion provides pageMotion, LocalStagger provides stagger, LocalCoverFlight provides flight) {
                 if (!lookRead || !themeRead) StartBackdrop()
                 if (lookRead && themeRead) {
                     // A new language rebuilds the screens once, so the words already shown are read again in it at once.
@@ -332,6 +343,8 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                                             onDismiss = { container.librarySync.handoff.value = null },
                                             Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)).padding(12.dp),
                                         )
+                                        // What happens to the entries on the trackers of titles just taken out of the library.
+                                        TrackerRemovePrompt()
                                         // A new version of the app at the top for five seconds, and the notes of this one once after an update.
                                         AppUpdateNotices({ navigation.push(Page.SettingsPage(SettingsTarget.AppUpdate)) }, Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)).padding(12.dp))
                                         // The first steps after installing, over everything until they are gone through or skipped, then fading away to the library.

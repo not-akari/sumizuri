@@ -32,6 +32,8 @@ You need JDK 21, and the Android SDK for the Android app. Android Studio brings 
 
 The iPhone and iPad app needs a Mac with Xcode and XcodeGen. The [README](README.md#build) says how to build it.
 
+Some parts of the app need a key from an outside service, such as the client id of AniList. Copy `.env.example` to `.env` and fill in your own keys. The `.env` file is never kept in git. Without a key the app still builds, and the part that needs it is turned off.
+
 ## Rules for code
 
 - **Format.** Run `./gradlew spotlessApply` before you commit. The checks fail on code that is not formatted.

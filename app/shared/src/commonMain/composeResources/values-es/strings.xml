@@ -600,7 +600,6 @@
     <string name="sync_copy_refresh">Volver a traer</string>
     <string name="sync_copy_packing">Empaquetando %1$d de %2$d títulos</string>
     <string name="sync_library_title_line">%1$s · leídos %2$d de %3$d</string>
-    <string name="sync_library_more">Se muestran %1$d de %2$d. Busca para encontrar el resto.</string>
     <string name="sync_updates_none">No hay capítulos nuevos sin leer en la copia del servidor.</string>
     <string name="sync_history_none">No hay historial de lectura en la copia del servidor.</string>
     <string name="sync_chapter_line">%1$s · %2$s</string>

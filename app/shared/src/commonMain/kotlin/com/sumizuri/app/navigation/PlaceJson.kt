@@ -96,6 +96,7 @@ internal object PlaceJson {
                                 is Page.GlobalSearch -> {
                                     put("type", "global_search")
                                     put("query", page.query)
+                                    page.kind?.let { put("kind", it.toString()) }
                                 }
 
                                 is Page.BlockScript -> {
@@ -177,7 +178,7 @@ internal object PlaceJson {
 
                 "web" -> text("url")?.let { Page.Web(it) }
 
-                "global_search" -> Page.GlobalSearch(text("query").orEmpty())
+                "global_search" -> Page.GlobalSearch(text("query").orEmpty(), text("kind")?.toIntOrNull())
 
                 "block_script" -> text("block")?.let { Page.BlockScript(it) }
 

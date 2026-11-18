@@ -8,6 +8,7 @@ import com.sumizuri.app.data.db.value.SourceValueEntity
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.Status
 import com.sumizuri.app.data.model.library.LibrarySortField
+import com.sumizuri.app.data.tracker.ImportedTrack
 
 // The apps a backup can come from.
 enum class BackupApp { Sumizuri, Mihon, Mangayomi }
@@ -51,6 +52,8 @@ data class ImportedTitle(
     val genres: List<String> = emptyList(),
     val rating: Double? = null,
     val webUrl: String? = null,
+    // The trackers the title is linked to, from backups of this app.
+    val trackers: List<ImportedTrack> = emptyList(),
 )
 
 // A shelf of a backup. A rule is only there when the backup had one switched on.

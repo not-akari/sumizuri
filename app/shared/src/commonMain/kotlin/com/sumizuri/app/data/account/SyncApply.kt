@@ -12,6 +12,8 @@ import com.sumizuri.app.data.db.setting.SettingEntity
 import com.sumizuri.app.data.library.CategoryRepository
 import com.sumizuri.app.data.library.ChapterCarry
 import com.sumizuri.app.data.text.nowMillis
+import com.sumizuri.app.data.tracker.LinkSync
+import com.sumizuri.app.data.tracker.linkOf
 import kotlinx.coroutines.flow.MutableStateFlow
 
 // Writes what a merge settled into the library of this device: titles it does not have yet, whether each is in the library or a favorite, its shelves, and the marks on its chapters. Only what differs from this device is written, and the count of titles that changed comes back.
@@ -73,6 +75,11 @@ class SyncApply(
             }
         }
         for (key in merged.settings.keys + local.settings.keys) {
+            // A link to a tracker goes to the table of links, not the settings.
+            LinkSync.parts(key)?.let { (tracker, titleKey) ->
+                if (merged.settings[key] != local.settings[key]) applyLink(tracker, titleKey, merged.settings[key])
+                continue
+            }
             // A setting of this device is never changed by a sync.
             if (!syncsAcrossDevices(key)) continue
             val want = merged.settings[key]
@@ -81,6 +88,19 @@ class SyncApply(
         }
         furthest?.let { (id, _) -> handoff.value = id }
         return changed
+    }
+
+    // Puts in or takes out the link of a title another device linked or unlinked. A link this device has to the same entry is left as it is.
+    private suspend fun applyLink(tracker: String, titleKey: String, value: String?) {
+        val titleId = db.titles().findId(titleKey.substringBefore('\n'), titleKey.substringAfter('\n')) ?: return
+        if (value == null) {
+            db.trackerLinks().delete(titleId, tracker)
+            return
+        }
+        val track = LinkSync.track(tracker, value) ?: return
+        if (db.trackerLinks().get(titleId, tracker)?.remoteId == track.remoteId) return
+        val kind = db.titles().get(titleId)?.kind ?: 0
+        db.trackerLinks().put(track.linkOf(titleId, kind))
     }
 
     private suspend fun write(

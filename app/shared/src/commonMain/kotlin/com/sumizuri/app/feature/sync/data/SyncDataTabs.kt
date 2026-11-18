@@ -7,6 +7,8 @@ import androidx.compose.material.icons.outlined.CloudUpload
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.backup.ImportedChapter
@@ -24,7 +26,6 @@ import com.sumizuri.app.shared.resources.sync_copy_refresh
 import com.sumizuri.app.shared.resources.sync_copy_section
 import com.sumizuri.app.shared.resources.sync_copy_upload
 import com.sumizuri.app.shared.resources.sync_history_none
-import com.sumizuri.app.shared.resources.sync_library_more
 import com.sumizuri.app.shared.resources.sync_library_title_line
 import com.sumizuri.app.shared.resources.sync_tab_history
 import com.sumizuri.app.shared.resources.sync_tab_library
@@ -35,12 +36,11 @@ import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
+import com.sumizuri.app.ui.kit.sync.ListStep
+import com.sumizuri.app.ui.kit.sync.MoreRows
 import com.sumizuri.app.ui.text.agoText
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-
-// The most titles the library list shows at once, so a big library stays quick to draw.
-private const val TitleLimit = 300
 
 // What the server holds of this profile's library and when it came, with the buttons to send it again or fetch it again.
 @Composable
@@ -90,8 +90,9 @@ internal fun LibraryData(home: SyncHome, linked: Boolean, wide: Boolean, onUploa
 private fun LibraryList(copy: ServerCopy) {
     val found = copy.library
     val device by rememberOnDevice(found)
+    var count by rememberSaveable { mutableIntStateOf(ListStep) }
     SettingsSection(Res.string.sync_tab_library) {
-        for (title in found.take(TitleLimit)) {
+        for (title in found.take(count)) {
             row {
                 val read = title.chapters.count { it.read }
                 CopyTitleRow(
@@ -106,11 +107,7 @@ private fun LibraryList(copy: ServerCopy) {
                 )
             }
         }
-        if (found.size >
-            TitleLimit
-        ) {
-            padded { Note(stringResource(Res.string.sync_library_more, TitleLimit, found.size)) }
-        }
+        if (found.size > count) padded { MoreRows(found.size - count) { count += ListStep } }
     }
 }
 

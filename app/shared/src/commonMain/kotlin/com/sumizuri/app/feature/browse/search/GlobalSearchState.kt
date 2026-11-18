@@ -11,7 +11,10 @@ data class GlobalSearchState(
     val kinds: List<Kind> = emptyList(),
     val kind: Kind? = null,
     val results: List<SourceResults> = emptyList(),
-)
+) {
+    // No source that is on can search the kind picked, or any kind, so the page says so instead of staying blank.
+    val noSources: Boolean get() = loaded && (kinds.isEmpty() || (kind != null && kind !in kinds))
+}
 
 // What one source answered: its first results, the addresses of those already in the library, or the message of the source when it could not be searched. Loading until it answers.
 data class SourceResults(

@@ -30,6 +30,7 @@ private const val PerSource = 12
 // Searches every installed source that is on for the words, of every kind or of one, a few sources at once, and shows each answer as it comes. The sources used last are asked first.
 class GlobalSearchViewModel(
     initial: String,
+    private val initialKind: Int?,
     private val sources: SourceRepository,
     private val manager: SourceManager,
     private val library: LibraryRepository,
@@ -44,8 +45,8 @@ class GlobalSearchViewModel(
         viewModelScope.launch {
             installed = sources.installed.first().filter { it.enabled }
             val kinds = Kind.entries.filter { kind -> installed.any { it.kind == kind } }
-            // It starts in every kind, so manga, novels and anime are all found by one search.
-            mutable.update { it.copy(loaded = true, kinds = kinds, kind = null) }
+            // It starts in every kind, so manga, novels and anime are all found by one search, unless the page that opened it asked for one.
+            mutable.update { it.copy(loaded = true, kinds = kinds, kind = initialKind?.let(Kind::fromCode)) }
             if (mutable.value.query.isNotBlank()) restart(0)
         }
     }

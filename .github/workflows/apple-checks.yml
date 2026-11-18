@@ -22,6 +22,12 @@ concurrency:
 permissions:
   contents: read
 
+# The keys of the build, from the settings of the repo, as a secret or a variable. A pull request from a fork gets none, and the app builds without them.
+env:
+  ANILIST_CLIENT_ID: ${{ secrets.ANILIST_CLIENT_ID || vars.ANILIST_CLIENT_ID }}
+  MAL_CLIENT_ID: ${{ secrets.MAL_CLIENT_ID || vars.MAL_CLIENT_ID }}
+  MANGABAKA_CLIENT_ID: ${{ secrets.MANGABAKA_CLIENT_ID || vars.MANGABAKA_CLIENT_ID }}
+
 jobs:
   # The Kotlin framework for the simulator of Apple silicon, and the whole app on it. It needs no signing.
   iphone-simulator:

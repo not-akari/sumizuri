@@ -1,5 +1,6 @@
 package com.sumizuri.app.data.backup
 
+import com.sumizuri.app.data.tracker.linkOf
 import androidx.room3.withWriteTransaction
 import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.data.db.AppDatabase
@@ -147,6 +148,10 @@ class BackupRestorer(
         if (bookmarked.isNotEmpty()) db.chapters().setBookmarkedMany(bookmarked, true)
         val on = title.shelves.mapNotNull { name -> shelfIds[key(name, title.kind.code)] ?: shelfIds[key(name, -1)] }.toSet()
         if (on.isNotEmpty()) shelves.change(listOf(id), on, emptySet())
+        // The trackers of the title, where it has no link to them yet.
+        for (track in title.trackers) {
+            if (db.trackerLinks().get(id, track.tracker) == null) db.trackerLinks().put(track.linkOf(id, title.kind.code))
+        }
     }
 
     private fun key(name: String, kind: Int) = name.trim().lowercase() + "|" + kind

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The MAL letters from the icon of MyAnimeList, drawn white on the blue tile of TrackerLogo. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M9.8,124.96 L9.8,57.81 L25.93,57.81 L40.27,78.35 L54.7,57.81 L70.92,57.81 L70.92,124.96 L54.62,124.96 L54.62,84.3 L40.36,102.8 L26.18,84.21 L26.18,124.96 L9.8,124.96 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M145.48,57.97 L161.65,57.97 L161.65,110.56 L184.2,110.56 L180.51,124.8 L145.48,124.8 L145.48,57.97 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M132,57.48h-14.13c-5.73,0-25.68,0-34.51,22.03-4.62,11.53-6.88,33.57,6.11,55.01l13.5-9.85s-5.35-7.64-7.55-22.24h20.2l.17,22.24h18.16v-50.76h-18v14.26l-17.15-.17s2.89-16.81,20.08-16.3h17.1l-3.99-14.22h0Z" />
+</vector>

@@ -166,7 +166,14 @@ class LibraryRepository(private val db: AppDatabase, private val scope: Coroutin
     suspend fun removeFromLibrary(ids: Collection<Long>) {
         val now = nowMillis()
         for (part in ids.chunked(BulkChunk)) db.titles().setInLibraryMany(part, false, now)
+        onRemoved?.invoke(ids.toList())
     }
+
+    // Told when titles leave the library, so the trackers can ask about their entries.
+    var onRemoved: ((List<Long>) -> Unit)? = null
+
+    // Told when titles come into the library, so the trackers can find them.
+    var onAdded: ((List<Long>) -> Unit)? = null
 
     // The titles the user has added.
     private val sharedLibrary = withCounts(db.titles().observeLibrary()).shareIn(scope, SharingStarted.WhileSubscribed(ShareKeepMs), replay = 1)
@@ -234,6 +241,7 @@ class LibraryRepository(private val db: AppDatabase, private val scope: Coroutin
     suspend fun addFromSource(sourceId: String, kind: Kind, entry: SourceEntry, chapters: List<SourceChapter>, inLibrary: Boolean = true): Long {
         val now = nowMillis()
         val existing = db.titles().findId(sourceId, entry.url)
+        val wasIn = existing?.let { db.titles().get(it)?.inLibrary } == true
         val id = existing ?: db.titles().insert(
             TitleEntity(
                 sourceId = sourceId,
@@ -255,6 +263,7 @@ class LibraryRepository(private val db: AppDatabase, private val scope: Coroutin
         )
         if (existing != null && inLibrary) db.titles().setInLibrary(id, true, now)
         addChapters(id, chapters)
+        if (inLibrary && !wasIn) onAdded?.invoke(listOf(id))
         return id
     }
 
@@ -309,7 +318,10 @@ class LibraryRepository(private val db: AppDatabase, private val scope: Coroutin
 
     suspend fun chapterIdOf(titleId: Long, url: String): Long? = db.chapters().idOfUrl(titleId, url)
 
-    suspend fun setInLibrary(id: Long, inLibrary: Boolean) = db.titles().setInLibrary(id, inLibrary, nowMillis())
+    suspend fun setInLibrary(id: Long, inLibrary: Boolean) {
+        db.titles().setInLibrary(id, inLibrary, nowMillis())
+        if (!inLibrary) onRemoved?.invoke(listOf(id)) else onAdded?.invoke(listOf(id))
+    }
 
     suspend fun setBookmarked(chapterId: Long, bookmarked: Boolean) = db.chapters().setBookmarked(chapterId, bookmarked)
 

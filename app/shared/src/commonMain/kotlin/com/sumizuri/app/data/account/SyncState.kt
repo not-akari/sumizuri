@@ -1,6 +1,7 @@
 package com.sumizuri.app.data.account
 
 import com.sumizuri.app.data.backup.ImportedBackup
+import com.sumizuri.app.data.tracker.LinkSync
 import kotlinx.serialization.Serializable
 
 // What sync keeps of one chapter: the person's own marks on it, never its name or pictures.
@@ -50,6 +51,13 @@ fun SyncState.only(parts: SyncParts): SyncState = SyncState(
 // A title is the same on every device when its source and its address on the source are the same.
 fun syncKey(sourceId: String, url: String): String = sourceId + "\n" + url
 
+// The links of the titles to the trackers, under their own names beside the settings.
+private fun linksOf(backup: ImportedBackup): Map<String, String> = backup.titles
+    .flatMap { title ->
+        val source = title.sourceId ?: return@flatMap emptyList()
+        title.trackers.map { LinkSync.key(it.tracker, syncKey(source, title.url)) to LinkSync.value(it) }
+    }.toMap()
+
 // The sync view of a backup of this app.
 fun stateOf(backup: ImportedBackup): SyncState = SyncState(
     backup.titles
@@ -76,7 +84,7 @@ fun stateOf(backup: ImportedBackup): SyncState = SyncState(
     backup.extras
         ?.settings
         .orEmpty()
-        .filterKeys(::syncsAcrossDevices),
+        .filterKeys(::syncsAcrossDevices) + linksOf(backup),
     backup.extras
         ?.sources
         .orEmpty()
