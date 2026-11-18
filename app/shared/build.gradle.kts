@@ -130,19 +130,48 @@ dependencies {
     add("kspIosSimulatorArm64", libs.androidx.room3.compiler)
 }
 
-// The version and the address of the releases from the project settings, written into a small Kotlin file so the screens can show them and the updater can check them.
+// A key of the build, such as the id an outside service gives the app. It comes from the environment, which is how a build on GitHub gets it, or else from the .env file at the top of the project, which is never kept in git. Empty when neither has it, and the part of the app that needs it says so.
+fun buildKey(name: String) = providers.environmentVariable(name).filter { it.isNotBlank() }.orElse(
+    providers
+        .fileContents(rootProject.layout.projectDirectory.file(".env"))
+        .asText
+        .map { text ->
+            text
+                .lineSequence()
+                .map { it.trim() }
+                .firstOrNull { it.startsWith("$name=") }
+                ?.substringAfter("=")
+                ?.trim()
+                ?.trim('"')
+                .orEmpty()
+        }.orElse(""),
+)
+
+// The version, the address of the releases and the keys of the build, written into a small Kotlin file so the screens can show them and the app can use them.
 val generateBuildInfo = tasks.register("generateBuildInfo") {
     val version = providers.gradleProperty("app.version")
     val updateRepo = providers.gradleProperty("app.updateRepo").orElse("")
+    // Only letters and digits are taken, so nothing in the key can break the file it is written into.
+    val aniListClientId = buildKey("ANILIST_CLIENT_ID").map { key -> key.filter { it.isLetterOrDigit() } }
+    val malClientId = buildKey("MAL_CLIENT_ID").map { key -> key.filter { it.isLetterOrDigit() } }
+    val mangaBakaClientId = buildKey("MANGABAKA_CLIENT_ID").map { key ->
+        key.filter {
+            it.isLetterOrDigit() || it == '-' ||
+                it == '_'
+        }
+    }
     val folder = layout.buildDirectory.dir("generated/buildInfo")
     inputs.property("version", version)
     inputs.property("updateRepo", updateRepo)
+    inputs.property("aniListClientId", aniListClientId)
+    inputs.property("malClientId", malClientId)
+    inputs.property("mangaBakaClientId", mangaBakaClientId)
     outputs.dir(folder)
     doLast {
         val file = folder.get().file("com/sumizuri/app/BuildInfo.kt").asFile
         file.parentFile.mkdirs()
         file.writeText(
-            "package com.sumizuri.app\n\n// Written by the build.\nobject BuildInfo {\n    const val Version = \"${version.get()}\"\n\n    // The GitHub or GitLab repo whose releases the updater checks, empty until one is set.\n    const val UpdateRepo = \"${updateRepo.get()}\"\n}\n",
+            "package com.sumizuri.app\n\n// Written by the build.\nobject BuildInfo {\n    const val Version = \"${version.get()}\"\n\n    // The GitHub or GitLab repo whose releases the updater checks, empty until one is set.\n    const val UpdateRepo = \"${updateRepo.get()}\"\n\n    // The id AniList gives the app for signing in, empty in a build made without one.\n    const val AniListClientId = \"${aniListClientId.get()}\"\n\n    // The id MyAnimeList gives the app for signing in, empty in a build made without one.\n    const val MalClientId = \"${malClientId.get()}\"\n\n    // The id MangaBaka gives the app for signing in, empty in a build made without one, which then signs in with a token instead.\n    const val MangaBakaClientId = \"${mangaBakaClientId.get()}\"\n}\n",
         )
     }
 }
