@@ -5,11 +5,15 @@ import com.sumizuri.app.data.db.category.CategoryEntity
 import com.sumizuri.app.data.db.chapter.ChapterEntity
 import com.sumizuri.app.data.db.progress.ProgressEntity
 import com.sumizuri.app.data.db.title.TitleEntity
+import com.sumizuri.app.data.db.tracker.TrackerLinkEntity
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.Status
 import com.sumizuri.app.data.text.nowMillis
+import com.sumizuri.app.data.tracker.ImportedTrack
+import com.sumizuri.app.data.tracker.carried
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -44,6 +48,7 @@ class BackupWriter(private val db: AppDatabase) {
         val titles = db.titles().everything()
         val onShelves = db.categories().memberships().groupBy({ it.titleId }, { it.categoryId })
         val sources = db.sources().observeAll().first()
+        val links = db.trackerLinks().everything().groupBy { it.titleId }
         val head = buildJsonObject {
             put("backupVersion", SumizuriBackupVersion)
             put("createdAt", Instant.fromEpochMilliseconds(nowMillis()).toString())
@@ -155,6 +160,7 @@ class BackupWriter(private val db: AppDatabase) {
                 onShelves[title.id].orEmpty().mapNotNull { shelfNames[it] },
                 source?.name ?: ImportedSources.nameOf(title.sourceId),
                 source?.baseUrl,
+                links[title.id].orEmpty(),
             )
             if (index > 0) out.writeUtf8(",")
             out.writeUtf8(entry.toString())
@@ -186,6 +192,7 @@ class BackupWriter(private val db: AppDatabase) {
         shelves: List<String>,
         sourceName: String?,
         sourceUrl: String?,
+        links: List<TrackerLinkEntity>,
     ): JsonObject = buildJsonObject {
         put("title", title.name)
         put("externalId", title.externalId)
@@ -212,6 +219,16 @@ class BackupWriter(private val db: AppDatabase) {
         )
         put("rating", title.rating)
         put("webUrl", title.webUrl)
+        if (links.isNotEmpty()) {
+            put(
+                "trackers",
+                JsonArray(
+                    links.map {
+                        Json.encodeToJsonElement(ImportedTrack.serializer(), it.carried())
+                    },
+                ),
+            )
+        }
         put(
             "chapters",
             JsonArray(

@@ -29,6 +29,8 @@ import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.all
 import com.sumizuri.app.shared.resources.global_search_hint
 import com.sumizuri.app.shared.resources.global_search_intro
+import com.sumizuri.app.shared.resources.global_search_no_sources
+import com.sumizuri.app.shared.resources.global_search_no_sources_kind
 import com.sumizuri.app.shared.resources.global_search_none
 import com.sumizuri.app.shared.resources.global_search_title
 import com.sumizuri.app.source.model.SourceEntry
@@ -96,7 +98,21 @@ internal fun GlobalSearchScreen(
                 contentPadding = PaddingValues(start = PageGutter, end = PageGutter, top = 16.dp, bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp),
             ) {
-                if (state.query.isBlank()) {
+                if (state.noSources) {
+                    item(key = "none") {
+                        Text(
+                            state.kind?.let {
+                                stringResource(
+                                    Res.string.global_search_no_sources_kind,
+                                    stringResource(it.label),
+                                )
+                            }
+                                ?: stringResource(Res.string.global_search_no_sources),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.outline,
+                        )
+                    }
+                } else if (state.query.isBlank()) {
                     item(key = "intro") {
                         Text(
                             stringResource(Res.string.global_search_intro),

@@ -30,6 +30,7 @@ data class ShownBlock(val block: ProfileBlock, val view: BlockView, val title: S
 class ProfileCalls(
     val onOpenSettings: () -> Unit,
     val onOpenSync: () -> Unit,
+    val onOpenTrackers: () -> Unit,
     val onOpenMissing: () -> Unit,
     val onOpenTitle: (Long) -> Unit,
     val onSwitch: (Long) -> Unit,

@@ -62,8 +62,8 @@ sealed interface Page {
     // An entry of a source that is not saved yet.
     data class Preview(val source: InstalledSource, val entry: SourceEntry) : Page
 
-    // The search of every installed source at once, started with these words.
-    data class GlobalSearch(val query: String = "") : Page
+    // The search of every installed source at once, started with these words, and in one kind when its code is given.
+    data class GlobalSearch(val query: String = "", val kind: Int? = null) : Page
 
     // The editor of an extension: the code of an installed source, or a new one started from the template of this engine when there is no id.
     data class ExtensionEditor(val sourceId: String?) : Page

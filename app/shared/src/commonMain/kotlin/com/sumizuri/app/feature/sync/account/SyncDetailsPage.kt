@@ -1,8 +1,6 @@
 package com.sumizuri.app.feature.sync.account
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,7 +13,6 @@ import com.sumizuri.app.data.account.SyncConflict
 import com.sumizuri.app.data.account.SyncRun
 import com.sumizuri.app.data.profile.LocalProfiles
 import com.sumizuri.app.feature.settings.SettingsPageFrame
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.feature.sync.Problem
 import com.sumizuri.app.feature.sync.Working
 import com.sumizuri.app.shared.resources.Res
@@ -41,7 +38,8 @@ import com.sumizuri.app.ui.kit.dialog.ConfirmDialog
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
-import com.sumizuri.app.ui.text.agoText
+import com.sumizuri.app.ui.kit.sync.RunLogRow
+import com.sumizuri.app.ui.kit.sync.RunLogSection
 import org.jetbrains.compose.resources.stringResource
 
 // The syncs of this profile, newest first, with what each did or why it failed, and the way to sync again from scratch.
@@ -56,40 +54,25 @@ internal fun SyncDetailsRoute(onBack: () -> Unit) {
         val run by model.syncRun.collectAsStateWithLifecycle()
         val history by model.syncHistory.collectAsStateWithLifecycle(emptyList())
         var asking by remember { mutableStateOf(false) }
-        SettingsSection(Res.string.sync_history_section) {
-            if (history.isEmpty()) padded { Note(stringResource(Res.string.sync_history_empty)) }
-            for (entry in history) {
-                row {
-                    SettingRow(
-                        agoText(entry.at),
-                        subtitle = (
-                            listOf(
-                                when {
-                                    !entry.ok -> entry.message
+        // Each sync says what it did, or why it failed, and the conflicts it settled under it.
+        RunLogSection(
+            stringResource(Res.string.sync_history_section),
+            stringResource(Res.string.sync_history_empty),
+            history.map { entry ->
+                val head = when {
+                    !entry.ok -> entry.message
 
-                                    entry.sent -> stringResource(
-                                        Res.string.sync_history_sent,
-                                        entry.changedHere,
-                                        (
-                                            entry.bytes /
-                                                1024
-                                            ).toInt(),
-                                    )
-
-                                    else -> stringResource(Res.string.sync_history_kept, entry.changedHere)
-                                },
-                            ) + entry.conflicts.map { conflictLine(it) }
-                            ).joinToString("\n"),
-                        subtitleLines = 2 + entry.conflicts.size,
-                        leading = {
-                            SettingIcon(
-                                if (entry.ok) Icons.Outlined.CheckCircle else Icons.Outlined.ErrorOutline,
-                            )
-                        },
+                    entry.sent -> stringResource(
+                        Res.string.sync_history_sent,
+                        entry.changedHere,
+                        (entry.bytes / 1024).toInt(),
                     )
+
+                    else -> stringResource(Res.string.sync_history_kept, entry.changedHere)
                 }
-            }
-        }
+                RunLogRow(entry.at, entry.ok, listOf(head) + entry.conflicts.map { conflictLine(it) })
+            },
+        )
         SettingsSection {
             row {
                 SettingRow(

@@ -15,11 +15,15 @@ private const val AnswerMs = 2_000
 // One copy of the app opens a library. A second start, such as a clicked sumizuri link, hands what it was started with to the copy that runs and ends, so the library is never opened twice.
 internal object SingleInstance {
     // The copy that runs writes the port it listens on and a secret beside the library, so a stale file or another program is never taken for it.
-    private fun file(folder: File) = File(folder, "instance.port")
+    private fun file(folder: File, name: String) = File(folder, name)
+
+    // The name of the file of the installed app, and the one of a run from the build, which listens apart so the two never take the starts of the other.
+    const val AppFile = "instance.port"
+    const val BuildFile = "build.port"
 
     // Gives the copy that runs the link, or an empty line to just come forward. True when it answered, and this start should end.
-    fun handOver(folder: File, link: String?): Boolean {
-        val (port, secret) = file(folder)
+    fun handOver(folder: File, link: String?, name: String = AppFile): Boolean {
+        val (port, secret) = file(folder, name)
             .takeIf { it.isFile }
             ?.readText()
             ?.trim()
@@ -40,13 +44,13 @@ internal object SingleInstance {
     }
 
     // Listens for later starts on this computer only. Each one that knows the secret is passed on with the link it brought, which is empty when it had none.
-    fun listen(folder: File, onStart: (String) -> Unit) {
+    fun listen(folder: File, name: String = AppFile, onStart: (String) -> Unit) {
         val server = runCatching { ServerSocket(0, 8, InetAddress.getLoopbackAddress()) }.getOrElse {
             AppLog.warn("app", "could not listen for later starts: ${it.message}")
             return
         }
         val secret = UUID.randomUUID().toString()
-        val target = file(folder)
+        val target = file(folder, name)
         runCatching { target.writeText("${server.localPort} $secret") }
         Runtime.getRuntime().addShutdownHook(
             Thread {

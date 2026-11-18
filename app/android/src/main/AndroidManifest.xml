@@ -34,6 +34,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="sumizuri" android:host="add-repo" />
+                <!-- A tracking site sends the person back here after they allowed the app, with the token that signs them in. -->
+                <data android:scheme="sumizuri" android:host="track" />
             </intent-filter>
         </activity>
         <!-- The app in the launcher, one entry for each icon. Made by scripts/app-icons.js. -->

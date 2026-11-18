@@ -130,6 +130,7 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
 
         is Page.GlobalSearch -> GlobalSearchRoute(
             initial = page.query,
+            kind = page.kind,
             onBack = navigation::pop,
             onOpenSaved = { navigation.push(Page.Saved(it)) },
             onOpenPreview = { source, entry -> navigation.push(Page.Preview(source, entry)) },

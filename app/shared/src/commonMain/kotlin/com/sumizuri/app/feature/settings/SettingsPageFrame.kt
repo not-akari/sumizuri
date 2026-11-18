@@ -1,5 +1,6 @@
 package com.sumizuri.app.feature.settings
 
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +33,9 @@ import com.sumizuri.app.ui.kit.page.PageTopBar
 import com.sumizuri.app.ui.kit.page.ReadableColumn
 import com.sumizuri.app.ui.kit.page.ReadableWidth
 import com.sumizuri.app.ui.kit.page.pageScroll
+import com.sumizuri.app.ui.kit.scroll.LocalScrollTarget
 import com.sumizuri.app.ui.kit.scroll.PullRefresh
+import com.sumizuri.app.ui.kit.scroll.scrollFrom
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -55,7 +59,13 @@ internal fun SettingsPageFrame(
     val beside = LocalSettingsBeside.current
     val frame: @Composable (@Composable () -> Unit) -> Unit = { inner ->
         if (beside) {
-            Box(Modifier.fillMaxSize().padding(start = 12.dp)) { Box(Modifier.widthIn(max = maxWidth)) { inner() } }
+            // The wheel scrolls the page from the empty space beside it too.
+            var target by remember { mutableStateOf<ScrollableState?>(null) }
+            CompositionLocalProvider(LocalScrollTarget provides { target = it }) {
+                Box(Modifier.fillMaxSize().scrollFrom { target }.padding(start = 12.dp)) {
+                    Box(Modifier.widthIn(max = maxWidth)) { inner() }
+                }
+            }
         } else {
             ReadableColumn(maxWidth) { inner() }
         }

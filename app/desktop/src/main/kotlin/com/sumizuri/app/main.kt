@@ -34,6 +34,7 @@ import com.sumizuri.app.data.sync.DesktopFront
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.playback.LocalFullscreen
 import com.sumizuri.app.playback.LocalMiniPlayer
+import com.sumizuri.app.setup.BuildLinks
 import com.sumizuri.app.setup.ClassArchive
 import com.sumizuri.app.setup.LaunchSplash
 import com.sumizuri.app.setup.SetupMode
@@ -98,7 +99,12 @@ fun main(args: Array<String>) {
     val folder = InstallSettings.dataFolder()
     // A sumizuri link the app was opened with, such as from an Open in Sumizuri button. When a copy already runs on this library, it gets the link and comes forward, and this start ends. A run from the build always opens its own window.
     val link = args.firstOrNull { it.startsWith("${AppLinks.Scheme}:", ignoreCase = true) }
-    if (!AppBuild.isDebug && SingleInstance.handOver(folder, link)) exitProcess(0)
+    if (AppBuild.isDebug) {
+        // A run of the build that a link started, while another run of the build is open, gives it the link and ends.
+        if (link != null && SingleInstance.handOver(folder, link, SingleInstance.BuildFile)) exitProcess(0)
+    } else if (SingleInstance.handOver(folder, link)) {
+        exitProcess(0)
+    }
     AppLinks.open(link)
     val sink = FileLogSink(File(folder, "logs/sumizuri.log"))
     AppLog.sink = sink
@@ -125,6 +131,13 @@ fun main(args: Array<String>) {
         System.getProperty("compose.application.resources.dir")?.let { resources ->
             thread(isDaemon = true, name = "splash-look") { LaunchSplash.follow(File(resources)) }
         }
+    } else {
+        // A run of the build takes the sumizuri links while it is open, so signing in to a tracker comes back to it and not to the installed app.
+        SingleInstance.listen(folder, SingleInstance.BuildFile) { later ->
+            AppLinks.open(later)
+            Forward.value++
+        }
+        thread(isDaemon = true, name = "build-links") { BuildLinks.take(File(folder, "build-links.args")) }
     }
     // The app does not end the process itself, so the browser can be shut down first, away from the window thread it needs.
     application(exitProcessOnExit = false) {

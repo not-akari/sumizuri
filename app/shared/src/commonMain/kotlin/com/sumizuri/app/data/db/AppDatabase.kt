@@ -15,6 +15,8 @@ import com.sumizuri.app.data.db.cookie.CookieDao
 import com.sumizuri.app.data.db.cookie.CookieEntity
 import com.sumizuri.app.data.db.download.DownloadDao
 import com.sumizuri.app.data.db.download.DownloadEntity
+import com.sumizuri.app.data.db.tracker.TrackerLinkDao
+import com.sumizuri.app.data.db.tracker.TrackerLinkEntity
 import com.sumizuri.app.data.db.log.LogDao
 import com.sumizuri.app.data.db.log.LogRow
 import com.sumizuri.app.data.db.progress.ProgressDao
@@ -34,8 +36,8 @@ import kotlinx.coroutines.IO
 
 // When a table changes, raise the version, export the new schema and add a migration.
 @Database(
-    entities = [TitleEntity::class, ChapterEntity::class, ProgressEntity::class, SettingEntity::class, SourceEntity::class, SourceValueEntity::class, CookieEntity::class, LogRow::class, RepoEntity::class, CategoryEntity::class, TitleCategoryEntity::class, DownloadEntity::class],
-    version = 18,
+    entities = [TitleEntity::class, ChapterEntity::class, ProgressEntity::class, SettingEntity::class, SourceEntity::class, SourceValueEntity::class, CookieEntity::class, LogRow::class, RepoEntity::class, CategoryEntity::class, TitleCategoryEntity::class, DownloadEntity::class, TrackerLinkEntity::class],
+    version = 19,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -54,6 +56,7 @@ import kotlinx.coroutines.IO
         AutoMigration(from = 15, to = 16),
         AutoMigration(from = 16, to = 17),
         AutoMigration(from = 17, to = 18),
+        AutoMigration(from = 18, to = 19),
     ],
 )
 @ConstructedBy(AppDatabaseConstructor::class)
@@ -69,6 +72,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun repos(): RepoDao
     abstract fun categories(): CategoryDao
     abstract fun downloads(): DownloadDao
+    abstract fun trackerLinks(): TrackerLinkDao
 }
 
 // Room writes the platform versions of this itself.

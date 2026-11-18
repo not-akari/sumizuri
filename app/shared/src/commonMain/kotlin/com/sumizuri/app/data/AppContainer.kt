@@ -51,6 +51,12 @@ import com.sumizuri.app.data.storage.DatabaseLogSink
 import com.sumizuri.app.data.storage.StorageRepository
 import com.sumizuri.app.data.sync.TitleSync
 import com.sumizuri.app.data.text.nowMillis
+import com.sumizuri.app.data.tracker.AniListClient
+import com.sumizuri.app.data.tracker.TrackerAccounts
+import com.sumizuri.app.data.tracker.TrackerApis
+import com.sumizuri.app.data.tracker.TrackerSync
+import com.sumizuri.app.data.tracker.TrackerUse
+import com.sumizuri.app.data.tracker.Trackers
 import com.sumizuri.app.feature.title.chapter.ChapterPictures
 import com.sumizuri.app.source.SourceManager
 import com.sumizuri.app.source.browser.ChallengeSolver
@@ -132,6 +138,16 @@ class AppContainer(
     val chapterPictures = ChapterPictures(library, sources, manager, downloads)
     val lock = AppLock(settings, shared)
     val updater = AppUpdater(settings, work)
+
+    // The tracking sites this profile is signed in to.
+    private val trackerAccounts = TrackerAccounts(settings, work)
+    private val trackerApis = TrackerApis(AniListClient())
+
+    // Keeps the linked titles the same as their entries on the trackers.
+    val trackerSync = TrackerSync(database, trackerAccounts, settings, trackerApis, TrackerUse(settings), work)
+    val trackers = Trackers(trackerAccounts, work, trackerApis, trackerSync::forget, trackerSync::afterSignIn)
+        // A token that ends soon is renewed by its tracker before it is used.
+        .also { trackers -> trackerAccounts.renewer = trackers::renew }
     val sync = TitleSync(library, sources, manager, settings, carry, autoDownloads)
     val updates = SourceUpdates(sources, repos, manager.repos, settings)
     val focus = CoverFocusRepository(database)
@@ -170,7 +186,12 @@ class AppContainer(
 
     init {
         // Reading asks for a sync a little later, which waits while the reading goes on.
-        library.onReading = librarySync::syncSoon
+        library.onReading = {
+            librarySync.syncSoon()
+            trackerSync.afterReading()
+        }
+        library.onRemoved = trackerSync::removedFromLibrary
+        library.onAdded = trackerSync.linker::addedToLibrary
     }
 
     private val sweeper = CoroutineScope(SupervisorJob() + Dispatchers.Main)

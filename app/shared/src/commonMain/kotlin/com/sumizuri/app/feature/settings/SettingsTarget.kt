@@ -54,6 +54,13 @@ enum class SettingsTarget {
     Privacy,
     AppUpdate,
     ChapterList,
+    Trackers,
+    TrackerDetails,
+    TrackerAniList,
+    TrackerMal,
+    TrackerKitsu,
+    TrackerMangaBaka,
+    TrackerRules,
 }
 
 // The groups the pages of the settings are listed in.

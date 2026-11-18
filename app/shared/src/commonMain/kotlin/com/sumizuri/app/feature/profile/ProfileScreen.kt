@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesomeMosaic
+import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.DashboardCustomize
 import androidx.compose.material.icons.outlined.LinkOff
 import androidx.compose.material.icons.outlined.Settings
@@ -50,6 +51,8 @@ import com.sumizuri.app.shared.resources.sync_state_running
 import com.sumizuri.app.shared.resources.sync_state_unlinked
 import com.sumizuri.app.shared.resources.sync_title
 import com.sumizuri.app.shared.resources.titles_count
+import com.sumizuri.app.shared.resources.trackers_hint
+import com.sumizuri.app.shared.resources.trackers_title
 import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.page.PageTopBar
 import com.sumizuri.app.ui.kit.page.pageScroll
@@ -104,7 +107,7 @@ internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
                             window =
                                 Window.Form(active)
                         })
-                        SyncEntry(calls.onOpenSync)
+                        SyncEntry(calls.onOpenSync, calls.onOpenTrackers)
                         if (state.unreachable > 0) Missing(state.unreachable, calls.onOpenMissing)
                         BlockGrid(
                             state.blocks,
@@ -135,9 +138,9 @@ internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
     }
 }
 
-// The way to sync, saying how the sync of this profile stands, or what sync is while it is not set up.
+// The ways to sync and to the trackers, in one card. The first says how the sync of this profile stands, or what sync is while it is not set up, and the second who is signed in to which tracker.
 @Composable
-private fun SyncEntry(onOpen: () -> Unit) {
+private fun SyncEntry(onOpen: () -> Unit, onOpenTrackers: () -> Unit) {
     val account by LocalProfiles.current.syncAccounts.account
         .collectAsStateWithLifecycle()
     // Once signed in the row says how the sync stands, so a sync that did not finish shows without opening the page.
@@ -170,8 +173,16 @@ private fun SyncEntry(onOpen: () -> Unit) {
             }
         }
     }
+    // The trackers sit under sync, and say who is signed in where.
+    val tracked by remember(container) { container.trackers.signedIn }.collectAsStateWithLifecycle(emptyMap())
+    val trackers = if (tracked.isEmpty()) {
+        stringResource(Res.string.trackers_hint)
+    } else {
+        tracked.entries.joinToString(" · ") { (tracker, account) -> tracker.label + ": " + account.name }
+    }
     SettingsSection {
         row { PageRow(Icons.Outlined.Sync, stringResource(Res.string.sync_title), summary, onOpen) }
+        row { PageRow(Icons.Outlined.Checklist, stringResource(Res.string.trackers_title), trackers, onOpenTrackers) }
     }
 }
 

@@ -12,6 +12,7 @@ import com.sumizuri.app.data.profile.LocalProfiles
 fun ProfileRoute(
     onOpenSettings: () -> Unit,
     onOpenSync: () -> Unit,
+    onOpenTrackers: () -> Unit,
     onOpenMissing: () -> Unit,
     onOpenTitle: (Long) -> Unit,
     onArrange: () -> Unit,
@@ -20,10 +21,11 @@ fun ProfileRoute(
     val profiles = LocalProfiles.current
     val viewModel = viewModel { ProfileViewModel(profiles, container.statistics, container.library, container.blocks) }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val calls = remember(viewModel, onOpenSettings, onOpenSync, onOpenMissing, onOpenTitle, onArrange) {
+    val calls = remember(viewModel, onOpenSettings, onOpenSync, onOpenTrackers, onOpenMissing, onOpenTitle, onArrange) {
         ProfileCalls(
             onOpenSettings = onOpenSettings,
             onOpenSync = onOpenSync,
+            onOpenTrackers = onOpenTrackers,
             onOpenMissing = onOpenMissing,
             onOpenTitle = onOpenTitle,
             onSwitch = viewModel::onSwitch,

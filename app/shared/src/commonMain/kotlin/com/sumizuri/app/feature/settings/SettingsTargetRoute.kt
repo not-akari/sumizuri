@@ -39,6 +39,11 @@ import com.sumizuri.app.feature.sync.admin.SyncAdminLogRoute
 import com.sumizuri.app.feature.sync.admin.SyncAdminPeopleRoute
 import com.sumizuri.app.feature.sync.admin.SyncAdminSettingsRoute
 import com.sumizuri.app.feature.sync.admin.SyncAdminUserRoute
+import com.sumizuri.app.data.tracker.TrackerId
+import com.sumizuri.app.feature.trackers.TrackerDetailsRoute
+import com.sumizuri.app.feature.trackers.TrackerRoute
+import com.sumizuri.app.feature.trackers.TrackerRulesRoute
+import com.sumizuri.app.feature.trackers.TrackersRoute
 
 // The page a target of the settings stands for, for the targets that have no page of their own above. A page that leads on to another asks for it with onOpen, the page of the controls opens one of them with onOpenControls, and the page of the missing sources moves a title with onMove.
 @Composable
@@ -81,6 +86,15 @@ fun SettingsTargetRoute(target: SettingsTarget, onBack: () -> Unit, onOpen: (Set
         SettingsTarget.Privacy -> PrivacyRoute(onBack)
         SettingsTarget.AppUpdate -> AppUpdateRoute(onBack)
         SettingsTarget.ChapterList -> ChapterListRoute(onBack)
+        SettingsTarget.Trackers -> TrackersRoute(onBack, onOpen)
+
+        SettingsTarget.TrackerDetails -> TrackerDetailsRoute(onBack)
+
+        SettingsTarget.TrackerAniList -> TrackerRoute(TrackerId.AniList, onBack, onOpen)
+        SettingsTarget.TrackerMal -> TrackerRoute(TrackerId.Mal, onBack, onOpen)
+        SettingsTarget.TrackerKitsu -> TrackerRoute(TrackerId.Kitsu, onBack, onOpen)
+        SettingsTarget.TrackerMangaBaka -> TrackerRoute(TrackerId.MangaBaka, onBack, onOpen)
+        SettingsTarget.TrackerRules -> TrackerRulesRoute(onBack)
         SettingsTarget.LibraryDisplay, SettingsTarget.Shelves, SettingsTarget.Migration, SettingsTarget.Backup, SettingsTarget.Import, SettingsTarget.Logs -> Unit
     }
 }

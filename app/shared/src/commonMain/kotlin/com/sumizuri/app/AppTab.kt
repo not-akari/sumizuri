@@ -64,6 +64,7 @@ internal fun AppTab(tab: Destination, tabs: List<Destination>, navigation: Navig
         Destination.Profile -> ProfileRoute(
             onOpenSettings = { navigation.push(Page.Settings) },
             onOpenSync = { navigation.push(Page.SettingsPage(SettingsTarget.Sync)) },
+            onOpenTrackers = { navigation.push(Page.SettingsPage(SettingsTarget.Trackers)) },
             onArrange = { navigation.push(Page.ArrangeBlocks) },
             onOpenMissing = { navigation.push(Page.SettingsPage(SettingsTarget.MissingSources)) },
             onOpenTitle = { navigation.push(Page.Saved(it)) },

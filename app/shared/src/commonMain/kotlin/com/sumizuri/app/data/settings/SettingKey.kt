@@ -116,6 +116,25 @@ object SettingKey {
     const val SyncBackground = "sync.when.background"
     const val SyncOnOpen = "sync.when.onOpen"
     const val SyncAfterReading = "sync.when.afterReading"
+
+    // How often the linked titles are synced with the trackers while the app is open, in minutes, where 0 is only by hand.
+    const val TrackerEveryMinutes = "tracker.everyMinutes"
+    const val DefaultTrackerMinutes = 5
+
+    // The rules of the sync with the trackers, reset together on their page.
+    const val TrackerAfterReading = "tracker.rule.afterReading"
+    const val TrackerWifiOnly = "tracker.rule.wifiOnly"
+    const val TrackerBackground = "tracker.rule.background"
+    const val TrackerBothProgress = "tracker.rule.bothProgress"
+    const val TrackerBothOther = "tracker.rule.bothOther"
+    const val TrackerReadingMoves = "tracker.rule.readingMoves"
+    const val TrackerStatusFollows = "tracker.rule.statusFollows"
+    const val TrackerReread = "tracker.rule.reread"
+    const val TrackerOnLink = "tracker.rule.onLink"
+    const val TrackerMatchList = "tracker.rule.matchList"
+    const val TrackerAddNew = "tracker.rule.addNew"
+    const val TrackerGone = "tracker.rule.gone"
+    const val TrackerOnRemove = "tracker.rule.onRemove"
     const val SyncCharging = "sync.when.charging"
 
     const val DefaultImageDiskMb = 256

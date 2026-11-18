@@ -13,6 +13,7 @@ import com.sumizuri.app.data.share.ShareProblem
 import com.sumizuri.app.data.share.ShareUnreadable
 import com.sumizuri.app.data.share.readShared
 import com.sumizuri.app.data.text.localOffsetMillis
+import com.sumizuri.app.data.tracker.ImportedTrack
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -26,6 +27,9 @@ import kotlinx.serialization.json.longOrNull
 import kotlin.time.Instant
 
 // Reads the titles and shelves of a Sumizuri backup. A backup of the Flutter app is version 2, and its sources, themes and fonts are for that app and are not used here. A backup of this app is version 3 and also brings its sources, settings and sign ins.
+// Reads the parts a later version may add to, leaving out names it does not know.
+private val Lenient = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+
 fun readSumizuriBackup(text: String): ImportedBackup {
     val root = try {
         Json.parseToJsonElement(text).jsonObject
@@ -121,6 +125,9 @@ fun readSumizuriBackup(root: JsonObject): ImportedBackup {
                 genres = entry.strings("genres"),
                 rating = (entry["rating"] as? JsonPrimitive)?.doubleOrNull,
                 webUrl = entry.text("webUrl").ifEmpty { null },
+                trackers = (entry["trackers"] as? JsonArray).orEmpty().mapNotNull {
+                    runCatching { Lenient.decodeFromJsonElement(ImportedTrack.serializer(), it) }.getOrNull()
+                },
             )
         }
         return ImportedBackup(
