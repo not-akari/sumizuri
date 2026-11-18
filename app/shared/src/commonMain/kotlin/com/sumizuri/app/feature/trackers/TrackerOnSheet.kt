@@ -142,11 +142,7 @@ internal fun OnTrackerSheet(tracker: TrackerId, item: OnTracker, onDone: () -> U
             }
         }
         problem?.let {
-            Text(
-                problemText(it, tracker, signedIn = true),
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            ProblemLine(it, tracker)
         }
     }
     if (removing) {

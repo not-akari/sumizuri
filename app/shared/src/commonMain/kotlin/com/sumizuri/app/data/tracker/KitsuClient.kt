@@ -58,10 +58,8 @@ class KitsuClient : TrackerApi {
 
     // Trades the login or a refresh token for a token, and reads who it belongs to.
     private suspend fun token(form: Parameters): TrackerAccount {
-        val answer = http.send(HttpMethod.Post, Token) { formBody(form) }
-        if (answer.status == HttpStatusCode.BadRequest || answer.status == HttpStatusCode.Unauthorized) throw TrackerProblem.Refused
-        val body = answer.orThrow("Kitsu").json().obj()
-        val token = body.text("access_token") ?: throw TrackerProblem.Refused
+        val granted = http.grant(Token, form, "Kitsu")
+        val token = granted.token
         val me = get(token, "$Api/users?filter%5Bself%5D=true&fields%5Busers%5D=name,avatar").obj()?.get("data").list().firstOrNull().obj()
         return TrackerAccount(
             userId = me.text("id")?.toLongOrNull() ?: throw TrackerProblem.Refused,
@@ -70,8 +68,8 @@ class KitsuClient : TrackerApi {
             // Kitsu scores in halves from 1 to 10, which is 20 steps of the score out of 100.
             scoreFormat = "POINT_10_DECIMAL",
             token = token,
-            expiresAt = nowMillis() + (body.long("expires_in") ?: 2_592_000L) * 1000,
-            refreshToken = body.text("refresh_token"),
+            expiresAt = nowMillis() + (granted.expiresIn ?: 2_592_000L) * 1000,
+            refreshToken = granted.refresh,
         )
     }
 
@@ -79,7 +77,7 @@ class KitsuClient : TrackerApi {
         val words = name.trim()
         if (words.isEmpty()) return emptyList()
         val anime = kind == Kind.Anime
-        val type = if (anime) "anime" else "manga"
+        val type = typeOf(anime)
         val fields = if (anime) AnimeFields else MangaFields
         val body = get(account.token, "$Api/$type?filter%5Btext%5D=${words.encodeURLParameter()}&page%5Blimit%5D=10&fields%5B$type%5D=$fields")
         return body.obj()?.get("data").list().mapNotNull { media(it.obj(), anime) }
@@ -87,7 +85,7 @@ class KitsuClient : TrackerApi {
 
     override suspend fun entries(account: TrackerAccount, mediaIds: List<Long>): Map<Long, RemoteEntry> = buildMap {
         for (anime in listOf(true, false)) {
-            val type = if (anime) "anime" else "manga"
+            val type = typeOf(anime)
             for (chunk in mediaIds.filter { isAnimeKey(it) == anime }.map(::rawId).chunked(IdsAtOnce)) {
                 val url = "$Api/library-entries?filter%5BuserId%5D=${account.userId}&filter%5B${type}Id%5D=${chunk.joinToString(",")}" +
                     "&page%5Blimit%5D=$Most&fields%5BlibraryEntries%5D=$EntryFields&include=$type&fields%5B$type%5D=slug"
@@ -100,7 +98,7 @@ class KitsuClient : TrackerApi {
     // Kitsu keeps which of its titles each AniList title is, and gives twenty of them to a request.
     override suspend fun fromAniList(account: TrackerAccount, refs: List<AniListRef>): Map<Long, TrackerMedia> = buildMap {
         for (anime in listOf(true, false)) {
-            val type = if (anime) "anime" else "manga"
+            val type = typeOf(anime)
             val fields = if (anime) AnimeFields else MangaFields
             for (part in refs.filter { it.anime == anime }.chunked(20)) {
                 val ids = part.joinToString(",") { it.id.toString() }
@@ -144,7 +142,7 @@ class KitsuClient : TrackerApi {
     }
 
     override suspend fun collection(account: TrackerAccount, anime: Boolean): List<Pair<RemoteEntry, TrackerMedia>> {
-        val type = if (anime) "anime" else "manga"
+        val type = typeOf(anime)
         val fields = if (anime) AnimeFields else MangaFields
         val all = mutableListOf<Pair<RemoteEntry, TrackerMedia>>()
         var url: String? = "$Api/library-entries?filter%5BuserId%5D=${account.userId}&filter%5Bkind%5D=$type&include=$type" +
@@ -191,7 +189,7 @@ class KitsuClient : TrackerApi {
         val id = data.text("id")?.toLongOrNull() ?: return null
         val about = data?.get("attributes").obj()
         val titles = about?.get("titles").obj()
-        val type = if (anime) "anime" else "manga"
+        val type = typeOf(anime)
         return TrackerMedia(
             id = mediaKey(id, anime),
             name = about.text("canonicalTitle").orEmpty(),
@@ -252,9 +250,9 @@ class KitsuClient : TrackerApi {
                 if (entryId == null) {
                     putJsonObject("relationships") {
                         putJsonObject("user") { putJsonObject("data") { put("type", "users"); put("id", account.userId.toString()) } }
-                        putJsonObject(if (anime) "anime" else "manga") {
+                        putJsonObject(typeOf(anime)) {
                             putJsonObject("data") {
-                                put("type", if (anime) "anime" else "manga")
+                                put("type", typeOf(anime))
                                 put("id", rawId(save.mediaId).toString())
                             }
                         }

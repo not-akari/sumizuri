@@ -97,6 +97,34 @@ internal fun HttpRequestBuilder.formBody(values: Parameters) {
     setBody(values.formUrlEncode())
 }
 
+// The word the trackers use for the kind of a title in their addresses.
+internal fun typeOf(anime: Boolean): String = if (anime) "anime" else "manga"
+
+// The code a tracker sent back to the app after a sign in in the browser, once its state shows it answers this sign in.
+internal fun codeFrom(answer: Map<String, String>, check: String, tracker: String): String {
+    val code = answer["code"]?.takeIf { it.isNotBlank() } ?: throw TrackerProblem.Refused
+    if (answer["state"] != check.take(16)) {
+        AppLog.warn("tracker", "the $tracker answer did not carry the check of this sign in")
+        throw TrackerProblem.Refused
+    }
+    return code
+}
+
+// A token a tracker gave, with when it ends in seconds from now and the token that renews it.
+internal class GrantedToken(val token: String, val expiresIn: Long?, val refresh: String?)
+
+// Trades a form, such as a code, a login or a refresh token, for a token. A refusal is logged with what the tracker said, which tells why.
+internal suspend fun TrackerHttp.grant(url: String, form: Parameters, tracker: String): GrantedToken {
+    val answer = send(HttpMethod.Post, url) { formBody(form) }
+    if (answer.status == HttpStatusCode.BadRequest || answer.status == HttpStatusCode.Unauthorized) {
+        AppLog.warn("tracker", "$tracker refused the token request, ${answer.status.value} ${answer.text.take(300)}")
+        throw TrackerProblem.Refused
+    }
+    val body = answer.orThrow(tracker).json().obj()
+    val token = body.text("access_token") ?: throw TrackerProblem.Refused
+    return GrantedToken(token, body.long("expires_in"), body.text("refresh_token"))
+}
+
 // What a refused or failed answer means, for a tracker that says nothing better.
 internal fun TrackerAnswer.orThrow(tracker: String): TrackerAnswer {
     if (ok) return this

@@ -103,9 +103,7 @@ internal fun TrackerHome(tracker: TrackerId, account: TrackerAccount, onOpen: (S
     // Titles a search found nothing for are kept apart from those not searched yet, so the person sees which need a hand.
     val (notFound, fresh) = remember(unlinked, missed) { unlinked.partition { it.id in missed } }
     var shown by rememberSaveable(tracker) { mutableStateOf(Shown.Linked) }
-    val all = links ?: emptyList()
-    val gone = all.filter { it.gone }
-    val linked = all.filterNot { it.gone }
+    val (gone, linked) = remember(links) { links.orEmpty().partition { it.gone } }
     // A choice whose chip went away, such as the last removed entry being settled, goes back to the linked titles.
     val now = when {
         shown == Shown.Gone && gone.isEmpty() -> Shown.Linked

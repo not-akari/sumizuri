@@ -1,5 +1,7 @@
 package com.sumizuri.app.feature.trackers
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.sumizuri.app.data.db.tracker.TrackerLinkEntity
 import com.sumizuri.app.data.model.Kind
@@ -148,3 +150,13 @@ internal fun problemText(problem: TrackerProblem, tracker: TrackerId, signedIn: 
         is TrackerProblem.Other -> problem.message?.takeIf { it.isNotBlank() }
             ?: stringResource(Res.string.tracker_problem_other)
     }
+
+// Why something with a signed in tracker did not work, in red.
+@Composable
+internal fun ProblemLine(problem: TrackerProblem, tracker: TrackerId) {
+    Text(
+        problemText(problem, tracker, signedIn = true),
+        color = MaterialTheme.colorScheme.error,
+        style = MaterialTheme.typography.bodyMedium,
+    )
+}

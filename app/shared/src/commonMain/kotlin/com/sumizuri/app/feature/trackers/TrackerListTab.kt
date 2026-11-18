@@ -51,11 +51,7 @@ internal fun OnTrackerTab(tracker: TrackerId, account: TrackerAccount) {
     }
     // A list that could not be read says why and nothing else, so it never looks empty.
     problem?.let {
-        Text(
-            problemText(it, tracker, signedIn = true),
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        ProblemLine(it, tracker)
         return
     }
     val all = entries

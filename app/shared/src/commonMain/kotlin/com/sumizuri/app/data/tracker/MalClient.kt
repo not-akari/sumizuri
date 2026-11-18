@@ -24,9 +24,9 @@ private const val Back = "sumizuri://track/mal"
 private const val Page = 100
 private const val Few = 5
 
-private val AnimeFields =
+private const val AnimeFields =
     "id,title,main_picture,alternative_titles,media_type,start_season,num_episodes,num_list_users,my_list_status"
-private val MangaFields =
+private const val MangaFields =
     "id,title,main_picture,alternative_titles,media_type,start_date,num_chapters,num_list_users,my_list_status"
 
 // Talks to MyAnimeList. Signing in is the way MyAnimeList has for apps: the person allows the app on the site, which opens the app again with a code the app trades for a token. Only the id of the app is used, as an app cannot keep a secret. Anime and manga are numbered apart there, so manga ids are kept below zero here.
@@ -43,11 +43,7 @@ class MalClient : TrackerApi {
         "&state=${check.take(16)}&redirect_uri=${Back.encodeURLParameter()}"
 
     override suspend fun accountFromLink(answer: Map<String, String>, check: String): TrackerAccount {
-        val code = answer["code"]?.takeIf { it.isNotBlank() } ?: throw TrackerProblem.Refused
-        if (answer["state"] != check.take(16)) {
-            AppLog.warn("tracker", "the MyAnimeList answer did not carry the check of this sign in")
-            throw TrackerProblem.Refused
-        }
+        val code = codeFrom(answer, check, "MyAnimeList")
         return token(
             Parameters.build {
                 append("client_id", BuildInfo.MalClientId)
@@ -72,19 +68,8 @@ class MalClient : TrackerApi {
 
     // Trades a code or a refresh token for a token, and reads who it belongs to.
     private suspend fun token(form: Parameters): TrackerAccount {
-        val answer = http.send(HttpMethod.Post, "$Auth/token") { formBody(form) }
-        if (answer.status == HttpStatusCode.BadRequest ||
-            answer.status == HttpStatusCode.Unauthorized
-        ) {
-            // MyAnimeList says why in its answer, such as invalid_client for an app that is not of the type Other.
-            AppLog.warn(
-                "tracker",
-                "MyAnimeList refused the token request, ${answer.status.value} ${answer.text.take(300)}",
-            )
-            throw TrackerProblem.Refused
-        }
-        val body = answer.orThrow("MyAnimeList").json().obj()
-        val token = body.text("access_token") ?: throw TrackerProblem.Refused
+        val granted = http.grant("$Auth/token", form, "MyAnimeList")
+        val token = granted.token
         val me = try {
             get(token, "$Api/users/@me?fields=picture").obj()
         } catch (problem: TrackerProblem) {
@@ -97,8 +82,8 @@ class MalClient : TrackerApi {
             avatar = me.text("picture"),
             scoreFormat = "POINT_10",
             token = token,
-            expiresAt = nowMillis() + (body.long("expires_in") ?: 2_592_000L) * 1000,
-            refreshToken = body.text("refresh_token"),
+            expiresAt = nowMillis() + (granted.expiresIn ?: 2_592_000L) * 1000,
+            refreshToken = granted.refresh,
         )
     }
 
@@ -107,7 +92,7 @@ class MalClient : TrackerApi {
         val words = name.trim().take(64)
         if (words.length < 3) return emptyList()
         val anime = kind == Kind.Anime
-        val path = if (anime) "anime" else "manga"
+        val path = typeOf(anime)
         val fields = if (anime) AnimeFields else MangaFields
         val answer = get(account.token, "$Api/$path?q=${words.encodeURLParameter()}&limit=10&nsfw=true&fields=$fields")
         return answer
@@ -125,7 +110,7 @@ class MalClient : TrackerApi {
             // A few titles are asked one by one, and more are found in the whole list, which takes fewer requests.
             if (wanted.size <= Few) {
                 for (key in wanted) {
-                    val path = if (anime) "anime" else "manga"
+                    val path = typeOf(anime)
                     val node = get(account.token, "$Api/$path/${rawId(key)}?fields=my_list_status").obj()
                     entry(node.obj()?.get("my_list_status").obj(), key, anime)?.let { put(key, it) }
                 }
@@ -188,7 +173,7 @@ class MalClient : TrackerApi {
                 append("score", (save.score / 10.0).roundToInt().coerceIn(0, 10).toString())
                 append(if (anime) "is_rewatching" else "is_rereading", (status == TrackStatus.Repeating).toString())
             }
-            val path = if (anime) "anime" else "manga"
+            val path = typeOf(anime)
             val answer = http.send(HttpMethod.Patch, "$Api/$path/${rawId(save.mediaId)}/my_list_status") {
                 header("Authorization", "Bearer ${account.token}")
                 formBody(form)
@@ -266,7 +251,7 @@ class MalClient : TrackerApi {
             id = key,
             name = node.text("title").orEmpty(),
             cover = node?.get("main_picture").obj().let { it.text("large") ?: it.text("medium") },
-            url = "https://myanimelist.net/${if (anime) "anime" else "manga"}/$id",
+            url = "https://myanimelist.net/${typeOf(anime)}/$id",
             format = node.text("media_type"),
             year = node
                 ?.get("start_season")

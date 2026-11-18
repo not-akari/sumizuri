@@ -77,8 +77,10 @@ sealed class TrackerProblem(message: String) : Exception(message) {
 // Under this name the accounts are left out of backups, of the settings file and of sync, as everything of sync that belongs to one device is.
 private const val Prefix = "sync.tracker."
 
-// How long a reading shared by pages stays after the last one stops watching, and how many opened accounts are kept.
-private const val KeepMs = 5_000L
+// How long a reading shared by pages stays after the last one stops watching, so going back and forth reads nothing again.
+internal const val KeepMs = 5_000L
+
+// How many opened accounts are kept.
 private const val OpenedKept = 4
 
 // When the person asked to sign in, which stays on this device.

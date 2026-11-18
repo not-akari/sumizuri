@@ -60,7 +60,12 @@ class TrackerSync(
     private val json = Json { ignoreUnknownKeys = true }
     private val logSerializer = ListSerializer(TrackerLogEntry.serializer())
 
-    fun links(tracker: TrackerId): Flow<List<TrackerLinkEntity>> = db.trackerLinks().observeAll(tracker.id)
+    // The links of each tracker are read once and shared by its card, its page and its sheets, while one of them watches.
+    private val linkFlows = TrackerId.entries.associateWith { tracker ->
+        db.trackerLinks().observeAll(tracker.id).shareIn(scope, SharingStarted.WhileSubscribed(KeepMs), replay = 1)
+    }
+
+    fun links(tracker: TrackerId): Flow<List<TrackerLinkEntity>> = linkFlows.getValue(tracker)
 
     fun linksOf(titleId: Long): Flow<List<TrackerLinkEntity>> = db.trackerLinks().observeOf(titleId)
 
@@ -70,7 +75,7 @@ class TrackerSync(
     fun log(tracker: TrackerId): Flow<List<TrackerLogEntry>> = logs[tracker] ?: settings
         .text(LogPrefix + tracker.id)
         .map { text -> text?.let { runCatching { json.decodeFromString(logSerializer, it) }.getOrNull() }.orEmpty() }
-        .shareIn(scope, SharingStarted.WhileSubscribed(5_000), replay = 1)
+        .shareIn(scope, SharingStarted.WhileSubscribed(KeepMs), replay = 1)
         .also { logs = logs + (tracker to it) }
 
     suspend fun search(tracker: TrackerId, name: String, kind: Kind): List<TrackerMedia> {

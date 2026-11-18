@@ -143,11 +143,7 @@ private fun LinkSearch(tracker: TrackerId, titleId: Long, name: String, kind: Ki
         }
     }
     problem?.let {
-        Text(
-            problemText(it, tracker, signedIn = true),
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        ProblemLine(it, tracker)
     }
     val results = found ?: return
     if (results.isEmpty()) {
@@ -261,11 +257,7 @@ private fun LinkEditor(tracker: TrackerId, link: TrackerLinkEntity, onDismiss: (
             TextButton({ unlinking = true }) { Text(stringResource(Res.string.tracker_unlink)) }
         }
         removeProblem?.let {
-            Text(
-                problemText(it, tracker, signedIn = true),
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            ProblemLine(it, tracker)
         }
     }
     // Deletes the entry on the tracker, such as one planned and then not wanted, and leaves the title out so linking the library does not add it again.

@@ -12,9 +12,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -69,16 +71,23 @@ class TrackerLinker(
     private val mutable = MutableStateFlow<Map<TrackerId, LinkProgress>>(emptyMap())
     val progress: StateFlow<Map<TrackerId, LinkProgress>> = mutable
 
-    // The titles with no link to the tracker, of the kinds it is used for and not left out.
-    fun unlinked(tracker: TrackerId): Flow<List<LibraryTitle>> = combine(
-        db.trackerLinks().observeUnlinked(tracker.id),
-        use.kinds(tracker),
-        use.leftOut(tracker),
-    ) { titles, kinds, out -> titles.filter { Kind.fromCode(it.kind) in kinds && it.id !in out } }
+    // The library titles with no link to each tracker, read once and shared by the lists below while one of them is watched.
+    private val noLink = TrackerId.entries.associateWith { tracker ->
+        db.trackerLinks().observeUnlinked(tracker.id).shareIn(scope, SharingStarted.WhileSubscribed(KeepMs), replay = 1)
+    }
+
+    // The titles with no link to the tracker, of the kinds it is used for and not left out. The card and the page of the tracker share it.
+    private val unlinkedFlows = TrackerId.entries.associateWith { tracker ->
+        combine(noLink.getValue(tracker), use.kinds(tracker), use.leftOut(tracker)) { titles, kinds, out ->
+            titles.filter { Kind.fromCode(it.kind) in kinds && it.id !in out }
+        }.shareIn(scope, SharingStarted.WhileSubscribed(KeepMs), replay = 1)
+    }
+
+    fun unlinked(tracker: TrackerId): Flow<List<LibraryTitle>> = unlinkedFlows.getValue(tracker)
 
     // The titles the person left out of the tracker by hand, which the page offers to take back.
     fun leftOut(tracker: TrackerId): Flow<List<LibraryTitle>> = combine(
-        db.trackerLinks().observeUnlinked(tracker.id),
+        noLink.getValue(tracker),
         use.leftOut(tracker),
     ) { titles, out -> titles.filter { it.id in out } }
 

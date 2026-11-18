@@ -51,11 +51,7 @@ class MangaBakaClient : TrackerApi {
         "&code_challenge=${check.encodeUtf8().sha256().base64Url().trimEnd('=')}&code_challenge_method=S256"
 
     override suspend fun accountFromLink(answer: Map<String, String>, check: String): TrackerAccount {
-        val code = answer["code"]?.takeIf { it.isNotBlank() } ?: throw TrackerProblem.Refused
-        if (answer["state"] != check.take(16)) {
-            AppLog.warn("tracker", "the MangaBaka answer did not carry the check of this sign in")
-            throw TrackerProblem.Refused
-        }
+        val code = codeFrom(answer, check, "MangaBaka")
         return token(
             Parameters.build {
                 append("grant_type", "authorization_code")
@@ -80,19 +76,10 @@ class MangaBakaClient : TrackerApi {
     }
 
     private suspend fun token(form: Parameters): TrackerAccount {
-        val answer = http.send(HttpMethod.Post, "$Auth/token") { formBody(form) }
-        if (answer.status == HttpStatusCode.BadRequest || answer.status == HttpStatusCode.Unauthorized) {
-            AppLog.warn(
-                "tracker",
-                "MangaBaka refused the token request, ${answer.status.value} ${answer.text.take(300)}",
-            )
-            throw TrackerProblem.Refused
-        }
-        val body = answer.orThrow("MangaBaka").json().obj()
-        val token = body.text("access_token") ?: throw TrackerProblem.Refused
-        return accountFromToken(token).copy(
-            expiresAt = nowMillis() + (body.long("expires_in") ?: 604_800L) * 1000,
-            refreshToken = body.text("refresh_token"),
+        val granted = http.grant("$Auth/token", form, "MangaBaka")
+        return accountFromToken(granted.token).copy(
+            expiresAt = nowMillis() + (granted.expiresIn ?: 604_800L) * 1000,
+            refreshToken = granted.refresh,
         )
     }
 
