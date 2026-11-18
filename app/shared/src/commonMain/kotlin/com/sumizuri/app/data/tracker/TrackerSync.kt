@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 
@@ -41,38 +40,8 @@ private const val LogPrefix = "sync.trackerLog."
 private const val LogKept = 30
 private const val ConflictsKept = 20
 
-// One field both sides changed since they last agreed, and which side was kept.
-@Serializable
-data class TrackerConflict(val name: String, val field: String, val keptHere: Boolean)
-
-// One sync of a tracker as its details page lists it.
-@Serializable
-data class TrackerLogEntry(
-    val at: Long,
-    val ok: Boolean,
-    val changedHere: Int = 0,
-    val sent: Int = 0,
-    val gone: Int = 0,
-    val message: String = "",
-    val conflicts: List<TrackerConflict> = emptyList(),
-)
-
-// An entry of the list of the person on a tracker, with its title and the kind of title it is.
-data class OnTracker(val entry: RemoteEntry, val media: TrackerMedia, val kind: Kind)
-
 // The order the entries of a list are shown in.
 private val ListOrder = listOf(TrackStatus.Current, TrackStatus.Repeating, TrackStatus.Planning, TrackStatus.Paused, TrackStatus.Completed, TrackStatus.Dropped)
-
-// How the sync of a tracker went last.
-sealed interface TrackerRun {
-    data object Idle : TrackerRun
-
-    data object Running : TrackerRun
-
-    data class Done(val at: Long, val changedHere: Int, val sent: Int, val gone: Int) : TrackerRun
-
-    data class Failed(val problem: TrackerProblem) : TrackerRun
-}
 
 // Keeps the linked titles of this profile the same as their entries on the trackers, both ways. Each field that only one side changed since they last agreed is taken from that side. When both changed, progress keeps the further place and the rest keeps the newer change. Reading here moves progress on by itself.
 class TrackerSync(
