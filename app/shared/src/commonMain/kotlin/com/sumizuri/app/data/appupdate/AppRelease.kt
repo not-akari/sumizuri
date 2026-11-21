@@ -1,13 +1,12 @@
 package com.sumizuri.app.data.appupdate
 
+import com.sumizuri.app.data.json.flag
+import com.sumizuri.app.data.json.long
+import com.sumizuri.app.data.json.textOrNull
 import io.ktor.http.encodeURLPathPart
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.longOrNull
 import kotlin.time.Instant
 
 // One version of the app as its repo lists it: its tag, its name, the notes of what changed, when it came out, whether it is a test version, its page and its files.
@@ -74,20 +73,20 @@ internal fun gitHubReleases(reply: JsonElement): List<AppRelease> =
     (reply as? JsonArray).orEmpty().mapNotNull { element ->
         val json = element as? JsonObject ?: return@mapNotNull null
         if (json.flag("draft")) return@mapNotNull null
-        val tag = json.text("tag_name") ?: return@mapNotNull null
+        val tag = json.textOrNull("tag_name") ?: return@mapNotNull null
         AppRelease(
             version = versionOf(tag),
-            name = json.text("name")?.takeIf { it.isNotBlank() } ?: tag,
-            notes = json.text("body").orEmpty(),
-            publishedAt = parseIsoMillis(json.text("published_at")),
+            name = json.textOrNull("name")?.takeIf { it.isNotBlank() } ?: tag,
+            notes = json.textOrNull("body").orEmpty(),
+            publishedAt = parseIsoMillis(json.textOrNull("published_at")),
             prerelease = json.flag("prerelease"),
-            pageUrl = json.text("html_url").orEmpty(),
+            pageUrl = json.textOrNull("html_url").orEmpty(),
             assets = (json["assets"] as? JsonArray).orEmpty().mapNotNull { asset ->
                 val file = asset as? JsonObject ?: return@mapNotNull null
                 ReleaseAsset(
-                    file.text("name") ?: return@mapNotNull null,
-                    file.text("browser_download_url") ?: return@mapNotNull null,
-                    file.number("size"),
+                    file.textOrNull("name") ?: return@mapNotNull null,
+                    file.textOrNull("browser_download_url") ?: return@mapNotNull null,
+                    file.long("size"),
                 )
             },
         )
@@ -98,20 +97,20 @@ internal fun gitLabReleases(reply: JsonElement, source: UpdateSource.GitLab): Li
     (reply as? JsonArray).orEmpty().mapNotNull { element ->
         val json = element as? JsonObject ?: return@mapNotNull null
         if (json.flag("upcoming_release")) return@mapNotNull null
-        val tag = json.text("tag_name") ?: return@mapNotNull null
+        val tag = json.textOrNull("tag_name") ?: return@mapNotNull null
         val links = ((json["assets"] as? JsonObject)?.get("links") as? JsonArray).orEmpty()
         AppRelease(
             version = versionOf(tag),
-            name = json.text("name")?.takeIf { it.isNotBlank() } ?: tag,
-            notes = json.text("description").orEmpty(),
-            publishedAt = parseIsoMillis(json.text("released_at")),
+            name = json.textOrNull("name")?.takeIf { it.isNotBlank() } ?: tag,
+            notes = json.textOrNull("description").orEmpty(),
+            publishedAt = parseIsoMillis(json.textOrNull("released_at")),
             prerelease = versionOf(tag).contains('-'),
-            pageUrl = ((json["_links"] as? JsonObject)?.text("self")) ?: source.pageUrl,
+            pageUrl = ((json["_links"] as? JsonObject)?.textOrNull("self")) ?: source.pageUrl,
             assets = links.mapNotNull { link ->
                 val file = link as? JsonObject ?: return@mapNotNull null
                 ReleaseAsset(
-                    file.text("name") ?: return@mapNotNull null,
-                    file.text("direct_asset_url") ?: file.text("url") ?: return@mapNotNull null,
+                    file.textOrNull("name") ?: return@mapNotNull null,
+                    file.textOrNull("direct_asset_url") ?: file.textOrNull("url") ?: return@mapNotNull null,
                     null,
                 )
             },
@@ -122,8 +121,9 @@ internal fun gitLabReleases(reply: JsonElement, source: UpdateSource.GitLab): Li
 internal fun tagReleases(reply: JsonElement, source: UpdateSource): List<AppRelease> =
     (reply as? JsonArray).orEmpty().mapNotNull { element ->
         val json = element as? JsonObject ?: return@mapNotNull null
-        val tag = json.text("name") ?: return@mapNotNull null
-        val notes = json.text("message") ?: ((json["release"] as? JsonObject)?.text("description")).orEmpty()
+        val tag = json.textOrNull("name") ?: return@mapNotNull null
+        val notes =
+            json.textOrNull("message") ?: ((json["release"] as? JsonObject)?.textOrNull("description")).orEmpty()
         AppRelease(versionOf(tag), tag, notes, null, versionOf(tag).contains('-'), source.pageUrl, emptyList())
     }
 
@@ -175,12 +175,6 @@ private fun compareTest(a: String, b: String): Int {
     }
     return 0
 }
-
-private fun JsonObject.text(key: String): String? = (this[key] as? JsonPrimitive)?.takeIf { it !is JsonNull }?.content
-
-private fun JsonObject.flag(key: String): Boolean = (this[key] as? JsonPrimitive)?.booleanOrNull ?: false
-
-private fun JsonObject.number(key: String): Long? = (this[key] as? JsonPrimitive)?.longOrNull
 
 // An ISO date as epoch milliseconds. A date with no zone is read as UTC.
 private fun parseIsoMillis(text: String?): Long? {

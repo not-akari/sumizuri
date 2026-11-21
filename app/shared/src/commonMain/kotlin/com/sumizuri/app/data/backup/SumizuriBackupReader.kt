@@ -5,6 +5,11 @@ import com.sumizuri.app.data.db.cookie.CookieEntity
 import com.sumizuri.app.data.db.repo.RepoEntity
 import com.sumizuri.app.data.db.source.SourceEntity
 import com.sumizuri.app.data.db.value.SourceValueEntity
+import com.sumizuri.app.data.json.flag
+import com.sumizuri.app.data.json.int
+import com.sumizuri.app.data.json.list
+import com.sumizuri.app.data.json.strings
+import com.sumizuri.app.data.json.text
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.Status
 import com.sumizuri.app.data.model.library.LibrarySortField
@@ -86,13 +91,13 @@ fun readSumizuriBackup(root: JsonObject): ImportedBackup {
                 url = entry.text("externalId"),
                 coverUrl = entry.text("coverUrl").ifEmpty { null },
                 kind = kindOf(entry.text("mediaType")) ?: Kind.Manga,
-                favorite = entry.bool("favorite"),
+                favorite = entry.flag("favorite"),
                 sourceName = entry.text("sourceName").ifEmpty { null },
                 sourceUrl = entry.text("sourceBaseUrl").ifEmpty { null },
                 shelves = entry.strings("categoryNames"),
                 chapters = entry.list("chapters").map { chapter ->
                     val url = chapter.text("url")
-                    val read = chapter.bool("consumed")
+                    val read = chapter.flag("consumed")
                     ImportedChapter(
                         url = url,
                         number = (chapter["number"] as? JsonPrimitive)?.doubleOrNull ?: 0.0,
@@ -110,7 +115,7 @@ fun readSumizuriBackup(root: JsonObject): ImportedBackup {
                                         0
                                 }?.coerceAtMost(1.0)
                         },
-                        bookmarked = chapter.bool("bookmarked"),
+                        bookmarked = chapter.flag("bookmarked"),
                         season = chapter.text("season").ifEmpty { null },
                         seasonName = chapter.text("seasonName").ifEmpty { null },
                         seasonCoverUrl = chapter.text("seasonCoverUrl").ifEmpty { null },
@@ -144,10 +149,10 @@ fun readSumizuriBackup(root: JsonObject): ImportedBackup {
 }
 
 private fun flutterShelf(shelf: JsonObject): ImportedShelf {
-    val smart = shelf.bool("useSmartRule")
+    val smart = shelf.flag("useSmartRule")
     return ImportedShelf(
         name = shelf.text("name").trim(),
-        excludeFromUpdate = shelf.bool("excludeFromUpdate"),
+        excludeFromUpdate = shelf.flag("excludeFromUpdate"),
         sort = if (smart) sortOf(shelf.text("sortField")) else null,
         ascending = shelf["sortAscending"].let { (it as? JsonPrimitive)?.booleanOrNull } ?: true,
         status = if (smart) statusOf(shelf.text("statusFilter")) else null,
@@ -160,7 +165,7 @@ private fun ourShelf(shelf: JsonObject): ImportedShelf {
     val stored = CategoryEntity(
         name = name,
         sortOrder = shelf.int("sortOrder") ?: 0,
-        excludeFromUpdate = shelf.bool("excludeFromUpdate"),
+        excludeFromUpdate = shelf.flag("excludeFromUpdate"),
         sortField = shelf.int("sort"),
         sortAscending = (shelf["sortAscending"] as? JsonPrimitive)?.booleanOrNull ?: true,
         statusFilter = shelf.int("status") ?: 0,
@@ -220,8 +225,8 @@ private fun extrasOf(root: JsonObject) = BackupExtras(
             it.text("name"),
             it.text("value"),
             (it["expiresAt"] as? JsonPrimitive)?.longOrNull,
-            it.bool("secure"),
-            it.bool("httpOnly"),
+            it.flag("secure"),
+            it.flag("httpOnly"),
         )
     },
 )
@@ -256,8 +261,4 @@ private fun timeOf(text: String): Long? {
     } catch (error: Exception) {
         null
     }
-}
-
-private fun JsonObject.strings(key: String): List<String> = (this[key] as? JsonArray).orEmpty().mapNotNull {
-    (it as? JsonPrimitive)?.contentOrNull
 }

@@ -19,7 +19,7 @@ object SiteKinds {
     fun sourcesOf(host: String): Set<String> = sources.load()[host.lowercase()].orEmpty()
 
     fun mark(url: String, kind: Kind, sourceId: String? = null) {
-        val host = hostOf(url) ?: return
+        val host = hostOf(url).ifEmpty { return }
         sourceId?.let { add(sources, host, it) }
         val traffic = trafficOf(kind)
         while (true) {
@@ -33,16 +33,6 @@ object SiteKinds {
         val kind = sourceId?.let { bySource[it] } ?: return
         mark(url, kind, sourceId)
     }
-
-    // The host of an address, or the address itself when it is only a host.
-    private fun hostOf(url: String): String? = url
-        .substringAfter("://")
-        .substringBefore('/')
-        .substringBefore('?')
-        .substringAfterLast('@')
-        .let { if (it.startsWith("[")) it.substringBefore(']').trim('[') else it.substringBeforeLast(':', it) }
-        .lowercase()
-        .takeIf { it.isNotEmpty() }
 }
 
 @OptIn(ExperimentalAtomicApi::class)

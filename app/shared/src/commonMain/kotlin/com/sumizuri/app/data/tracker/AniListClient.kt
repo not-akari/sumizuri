@@ -2,6 +2,7 @@ package com.sumizuri.app.data.tracker
 
 import com.sumizuri.app.BuildInfo
 import com.sumizuri.app.core.log.AppLog
+import com.sumizuri.app.data.json.long
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.text.nowMillis
 import io.ktor.client.HttpClient
@@ -30,7 +31,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 
 private const val Api = "https://graphql.anilist.co"
@@ -235,8 +235,6 @@ class AniListClient {
         score = ((item["score"] as? JsonPrimitive)?.doubleOrNull ?: 0.0).toInt(),
         updatedAt = (item.long("updatedAt") ?: 0) * 1000,
     )
-
-    private fun JsonObject.long(name: String): Long? = (this[name] as? JsonPrimitive)?.longOrNull
 
     // Asks AniList one question as the person the token belongs to, and gives the data of the answer. A request of many writes that came back with some of them refused still gives the ones that were kept, when partial.
     private suspend fun ask(

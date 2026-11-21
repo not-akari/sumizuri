@@ -1,5 +1,9 @@
 package com.sumizuri.app.data.backup
 
+import com.sumizuri.app.data.json.flag
+import com.sumizuri.app.data.json.int
+import com.sumizuri.app.data.json.list
+import com.sumizuri.app.data.json.text
 import com.sumizuri.app.data.model.Kind
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -35,7 +39,7 @@ fun readMangayomiBackup(file: Path, system: FileSystem = FileSystem.SYSTEM): Imp
         val byTitle = chapters.groupBy { it.int("mangaId") }
         val chapterUrls = chapters.associate { it.int("id") to it.text("url") }
         val historyByTitle = root.list("history").groupBy { it.int("mangaId") }
-        val titles = root.list("manga").filter { it.bool("favorite") }.map { manga ->
+        val titles = root.list("manga").filter { it.flag("favorite") }.map { manga ->
             val id = manga.int("id")
             // The last time each chapter was read, from the history.
             val readAt = buildMap {
@@ -70,7 +74,7 @@ fun readMangayomiBackup(file: Path, system: FileSystem = FileSystem.SYSTEM): Imp
                 chapters = rows.mapIndexed { index, chapter ->
                     val name = chapter.text("name").trim()
                     val url = chapter.text("url")
-                    val read = chapter.bool("isRead")
+                    val read = chapter.flag("isRead")
                     ImportedChapter(
                         url = url,
                         number = chapterNumberFromName(name) ?: (rows.size - index).toDouble(),
@@ -87,7 +91,7 @@ fun readMangayomiBackup(file: Path, system: FileSystem = FileSystem.SYSTEM): Imp
                                 ?.takeIf { it > 0 }
                                 ?.coerceAtMost(1.0)
                         },
-                        bookmarked = chapter.bool("isBookmarked"),
+                        bookmarked = chapter.flag("isBookmarked"),
                     )
                 },
             )

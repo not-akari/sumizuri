@@ -3,6 +3,7 @@ package com.sumizuri.app.source.browser
 import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.core.log.briefTrace
 import com.sumizuri.app.core.log.withoutQuery
+import com.sumizuri.app.data.net.hostOf
 import com.sumizuri.app.source.browser.page.PageFetcher
 import com.sumizuri.app.source.browser.page.PageLoadException
 import com.sumizuri.app.source.browser.page.PageLoader
@@ -240,7 +241,7 @@ class BrowserBroker(
 
     // A redirect must not lead somewhere the request itself would have been refused.
     private fun refuseInternalRedirect(url: String) {
-        val host = AddressGuard.hostOf(url)
+        val host = hostOf(url)
         if (host.isNotEmpty() && AddressGuard.isBlockedHost(host)) {
             throw BlockedException("The page redirected to a private or internal address: \"$host\"")
         }

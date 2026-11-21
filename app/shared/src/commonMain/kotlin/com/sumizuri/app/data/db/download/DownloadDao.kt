@@ -38,6 +38,15 @@ interface DownloadDao {
     @Query("SELECT chapterId FROM download WHERE state = 2")
     suspend fun doneIds(): List<Long>
 
+    // How much is saved for each title, the biggest first, for the storage page.
+    @Query(
+        "SELECT titleId, COUNT(*) AS chapters, SUM(bytes) AS bytes FROM download WHERE state = 2 GROUP BY titleId ORDER BY SUM(bytes) DESC",
+    )
+    fun observeSavedByTitle(): Flow<List<SavedTitle>>
+
+    @Query("SELECT chapterId FROM download WHERE titleId = :titleId AND state = 2")
+    suspend fun savedIdsOf(titleId: Long): List<Long>
+
     // A chapter that was asked for already keeps its place.
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(downloads: List<DownloadEntity>)

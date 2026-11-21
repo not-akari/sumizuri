@@ -2,6 +2,8 @@ package com.sumizuri.app.data.storage
 
 import androidx.room3.useReaderConnection
 import com.sumizuri.app.data.db.AppDatabase
+import com.sumizuri.app.data.db.download.SavedTitle
+import kotlinx.coroutines.flow.Flow
 
 // Reads how big the database is and how many titles and chapters are in it, for the storage page.
 class StorageRepository(private val database: AppDatabase) {
@@ -14,6 +16,10 @@ class StorageRepository(private val database: AppDatabase) {
             chapters = number("SELECT COUNT(*) FROM chapter"),
         )
     }
+
+    fun savedByTitle(): Flow<List<SavedTitle>> = database.downloads().observeSavedByTitle()
+
+    suspend fun savedIdsOf(titleId: Long): List<Long> = database.downloads().savedIdsOf(titleId)
 
     // The rows of the main tables and the size of the database, read in one go for the advanced performance overlay.
     suspend fun tables(): DatabaseTables = database.useReaderConnection { connection ->

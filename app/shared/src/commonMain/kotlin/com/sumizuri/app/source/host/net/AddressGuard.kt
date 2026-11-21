@@ -1,5 +1,6 @@
 package com.sumizuri.app.source.host.net
 
+import com.sumizuri.app.data.net.hostOf
 import com.sumizuri.app.source.host.BlockedException
 import com.sumizuri.app.source.host.BridgeException
 
@@ -16,17 +17,6 @@ internal object AddressGuard {
         if (host.isEmpty()) throw BridgeException("Not a valid absolute URL: \"$url\"")
         if (isBlockedHost(host)) throw BlockedException("Refusing to fetch a private or internal address: \"$host\"")
         return trimmed
-    }
-
-    fun hostOf(url: String): String {
-        val afterScheme = url.substringAfter("://")
-        val authority = afterScheme.substringBefore('/').substringBefore('?').substringBefore('#')
-        val withoutUser = authority.substringAfterLast('@')
-        return if (withoutUser.startsWith("[")) {
-            withoutUser.substringAfter('[').substringBefore(']')
-        } else {
-            withoutUser.substringBefore(':')
-        }.lowercase()
     }
 
     // True for a host written as an IP address, which needs no lookup.

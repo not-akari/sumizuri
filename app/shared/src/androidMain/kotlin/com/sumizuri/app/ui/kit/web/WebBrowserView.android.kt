@@ -7,17 +7,26 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LifecycleResumeEffect
 
 // The system WebView. Its cookies are the ones the hidden pages of the sources use, since Android keeps one cookie store for every WebView of the app.
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 actual fun WebBrowserView(state: WebBrowserState, modifier: Modifier) {
+    val held = remember { arrayOfNulls<WebView>(1) }
+    // The site stops its scripts, sound and video while the app is away, and goes on when it comes back.
+    LifecycleResumeEffect(Unit) {
+        held[0]?.onResume()
+        onPauseOrDispose { held[0]?.onPause() }
+    }
     AndroidView(
         factory = { context ->
             WebView(context).apply {
                 val web = this
+                held[0] = web
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
                 CookieManager.getInstance().apply {
@@ -60,6 +69,7 @@ actual fun WebBrowserView(state: WebBrowserState, modifier: Modifier) {
         modifier = modifier,
         onRelease = { web ->
             state.controls = null
+            held[0] = null
             web.stopLoading()
             web.destroy()
         },
