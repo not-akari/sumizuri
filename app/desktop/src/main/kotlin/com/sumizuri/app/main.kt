@@ -92,7 +92,9 @@ fun main(args: Array<String>) {
         ClassArchive.makeNow()
         exitProcess(0)
     }
-    if ("--setup" in args) runSetup(SetupMode.Install, splash)
+    // The folder the setup file unpacks the rest of the app into while the setup is open.
+    val laterFolder = args.firstOrNull { it.startsWith("--later=") }?.substringAfter('=')?.let(::File)
+    if ("--setup" in args) runSetup(SetupMode.Install, splash, laterFolder)
     if ("--uninstall" in args) runSetup(SetupMode.Uninstall)
     // A hidden run that only loads the code of the app and ends, which the archive of classes is made from.
     if ("--warm" in args) warmUp()

@@ -1,0 +1,26 @@
+// The icon and the version Windows shows for the setup file.
+1 ICON "../icons/app-icon.ico"
+
+1 VERSIONINFO
+FILEVERSION VERSION_NUMBERS
+PRODUCTVERSION VERSION_NUMBERS
+FILEOS 0x40004
+FILETYPE 0x1
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "CompanyName", "Sumizuri"
+      VALUE "FileDescription", "Sumizuri Setup"
+      VALUE "FileVersion", VERSION_TEXT
+      VALUE "ProductName", "Sumizuri"
+      VALUE "ProductVersion", VERSION_TEXT
+      VALUE "OriginalFilename", "Sumizuri-setup.exe"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1200
+  END
+END

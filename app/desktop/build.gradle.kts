@@ -329,32 +329,8 @@ val shrinkReleaseImage = tasks.register("shrinkReleaseImage") {
     }
 }
 
-// The Windows installer, made by Inno Setup 7 from the release folder with its compiler taken from the iscc property or from where Inno Setup installs itself, and written to build/installer.
-val packageReleaseSetup = tasks.register<Exec>("packageReleaseSetup") {
-    group = "compose desktop"
-    dependsOn(shrinkReleaseImage)
-    val installer = layout.projectDirectory.dir("installer")
-    val image = layout.buildDirectory.dir("compose/binaries/main-release/app/Sumizuri")
-    val output = layout.buildDirectory.dir("installer")
-    val version = providers.gradleProperty("app.version")
-    val chosen = providers.gradleProperty("iscc")
-    // Where Inno Setup 7 puts its compiler, for the person or for everyone.
-    val places = listOfNotNull(System.getenv("LOCALAPPDATA")?.let { "$it\\Programs\\Inno Setup 7\\ISCC.exe" }, "C:\\Program Files\\Inno Setup 7\\ISCC.exe", "C:\\Program Files (x86)\\Inno Setup 7\\ISCC.exe")
-    inputs.dir(installer)
-    inputs.dir(image)
-    inputs.property("version", version)
-    outputs.dir(output)
-    onlyIf { System.getProperty("os.name").lowercase().contains("win") }
-    workingDir(installer)
-    argumentProviders.add(CommandLineArgumentProvider {
-        listOf("/Q", "/DAppVersion=${version.get()}", "/DAppImage=${image.get().asFile.absolutePath}", "/DOutputDir=${output.get().asFile.absolutePath}", "sumizuri.iss")
-    })
-    doFirst {
-        val iscc = chosen.orNull ?: places.firstOrNull { File(it).isFile }
-            ?: throw GradleException("Inno Setup 7 is needed to make the installer. Install it, for example with: winget install JRSoftware.InnoSetup, or give its ISCC.exe with -Piscc=path.")
-        (this as Exec).executable = iscc
-    }
-}
+// The Windows setup file: a small launcher of our own with the release folder packed after it, in its own script.
+apply(from = "launcher/pack.gradle.kts")
 
 // The plain run and the hot reload run are both Java launches, so the browser options go on every one of them.
 tasks.withType<JavaExec>().configureEach {
