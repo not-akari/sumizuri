@@ -43,8 +43,7 @@ data class SubtitleStyle(
     val raise: Int = 1,
 ) {
     companion object {
-        // The room under the letters for each place of the raise, in dp, and the room added while the controls are showing so the bar never covers them.
+        // The room under the letters for each place of the raise, in dp.
         val RaiseDp = listOf(10, 28, 64)
-        const val ControlsClearanceDp = 68
     }
 }

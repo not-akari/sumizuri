@@ -1,6 +1,12 @@
 package com.sumizuri.app.feature.player.overlay
 
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +15,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -18,19 +23,13 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.automirrored.outlined.VolumeDown
 import androidx.compose.material.icons.automirrored.outlined.VolumeOff
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
-import androidx.compose.material.icons.outlined.AspectRatio
 import androidx.compose.material.icons.outlined.Fullscreen
 import androidx.compose.material.icons.outlined.FullscreenExit
-import androidx.compose.material.icons.outlined.HighQuality
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
-import androidx.compose.material.icons.outlined.Speed
-import androidx.compose.material.icons.outlined.Subtitles
-import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.SkipNext
@@ -43,26 +42,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.feature.player.PlayerPhase
 import com.sumizuri.app.feature.player.SessionState
-import com.sumizuri.app.feature.player.VideoChoice
 import com.sumizuri.app.feature.player.picker.Picker
-import com.sumizuri.app.feature.player.picker.hasAnyAudio
-import com.sumizuri.app.feature.player.picker.hasSubtitleChoices
-import com.sumizuri.app.playback.AspectMode
 import com.sumizuri.app.playback.PlayerState
 import com.sumizuri.app.playback.VideoThumbnail
 import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.player_audio
 import com.sumizuri.app.shared.resources.player_back_seconds
 import com.sumizuri.app.shared.resources.player_close
-import com.sumizuri.app.shared.resources.player_episodes
 import com.sumizuri.app.shared.resources.player_forward_seconds
 import com.sumizuri.app.shared.resources.player_fullscreen_short
 import com.sumizuri.app.shared.resources.player_lock_short
@@ -71,137 +66,132 @@ import com.sumizuri.app.shared.resources.player_next
 import com.sumizuri.app.shared.resources.player_pause
 import com.sumizuri.app.shared.resources.player_play
 import com.sumizuri.app.shared.resources.player_previous
-import com.sumizuri.app.shared.resources.player_quality
-import com.sumizuri.app.shared.resources.player_settings_title
-import com.sumizuri.app.shared.resources.player_speed
-import com.sumizuri.app.shared.resources.player_subtitles
 import com.sumizuri.app.shared.resources.player_volume
 import com.sumizuri.app.ui.kit.dock.DockAction
 import com.sumizuri.app.ui.kit.dock.DockMargin
-import com.sumizuri.app.ui.kit.dock.DockRule
-import com.sumizuri.app.ui.kit.dock.DockSurface
+import com.sumizuri.app.ui.kit.dock.IslandHang
+import com.sumizuri.app.ui.kit.dock.IslandInside
+import com.sumizuri.app.ui.kit.dock.IslandSurface
+import com.sumizuri.app.ui.kit.dock.IslandWidth
 import com.sumizuri.app.ui.kit.dock.LocalDockLabels
+import com.sumizuri.app.ui.kit.dock.WideIslandWidth
+import com.sumizuri.app.ui.kit.dock.cascade
 import com.sumizuri.app.ui.kit.dock.isWideWindow
-import com.sumizuri.app.ui.kit.dock.panelChange
-import com.sumizuri.app.ui.kit.dock.tellsAsideCard
 import com.sumizuri.app.ui.kit.input.InkSlider
-import com.sumizuri.app.ui.text.numberedUnit
+import com.sumizuri.app.ui.text.numberedName
 import com.sumizuri.app.ui.theme.LocalReduceMotion
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
-// The widest the capsule and the dock grow on a big window.
-private val DockWidth = 760.dp
+// How solid the island is over the video, and the room each named action takes in the row of a wide island.
+private const val IslandShade = 0.92f
+private val WideActionWidth = 72.dp
 
-// How wide the top and the dock grow on a wide window.
-private val WideDockWidth = 1100.dp
-
-// The controls over the video, built like the reader: a capsule at the top with the way back, the names and the window buttons, the buttons to play in the middle, and a dock at the bottom with the line to jump along over a row of actions. A choice opens inside the dock, which grows to hold it, so the player has no panels or sheets of its own.
+// The controls over the video, built like the reader: the buttons to play in the middle, and one island at the bottom. On a phone the island holds the way back with the names, the line to jump along and a row of named actions, and a choice opens inside it above them. On a wide window the names and the named actions share one row, the line runs under them with the sound and the window buttons at its end, and a choice hangs above the right end. The island slides up as it shows, a ring of ink spreads from it once, and its rows rise in from the bottom one after another.
 @Composable
-internal fun PlayerOverlay(
+internal fun AnimatedVisibilityScope.PlayerOverlay(
     session: SessionState,
     engine: PlayerState,
-    aspect: AspectMode,
     fullscreen: Boolean,
     calls: OverlayCalls,
     thumbnail: VideoThumbnail? = null,
-    // The choice open in the dock, and what each choice shows.
+    // The choice open in the island, and what each choice shows.
     picker: Picker? = null,
     pickerContent: @Composable (Picker) -> Unit = {},
-    // False when the open choice shows docked at the side of a wide window instead of in the dock.
-    pickerInDock: Boolean = true,
+    // Told how tall the island is, so the buttons in the corners sit just above it.
+    onIslandRoom: (Dp) -> Unit = {},
 ) {
     val reduce = LocalReduceMotion.current
-    val widest = if (isWideWindow()) WideDockWidth else DockWidth
-    val inDock = picker.takeIf { pickerInDock }
+    val wide = isWideWindow()
+    val density = LocalDensity.current
     // A choice takes at most half the height of the window, so the video stays in sight.
-    val panelMax = with(LocalDensity.current) { (LocalWindowInfo.current.containerSize.height * 0.5f).toDp() }
-    // The width of the window, which an open card at the bottom right compares with the dock to sit beside it or above it.
-    val window = with(LocalDensity.current) {
-        LocalWindowInfo.current.containerSize.width
-            .toDp()
+    val panelMax = with(density) { (LocalWindowInfo.current.containerSize.height * 0.5f).toDp() }
+    val actions = playerActions(session, engine, picker, calls)
+    val choice: @Composable (Picker?) -> Unit = { shown -> shown?.let { pickerContent(it) } }
+    val seek: @Composable (Modifier) -> Unit = { look ->
+        SeekBar(
+            engine.positionMs,
+            engine.bufferedMs,
+            engine.durationMs,
+            calls.onSeek,
+            calls.onScrubStart,
+            calls.onScrubEnd,
+            look,
+            thumbnail = thumbnail,
+            onPreview = calls.onPreview,
+        )
     }
     Box(Modifier.fillMaxSize()) {
-        Box(
-            Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
-                ).padding(DockMargin),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            DockSurface(
-                Modifier.widthIn(max = widest).fillMaxWidth(),
-            ) { TopRow(session, engine.volume, fullscreen, calls) }
-        }
-        // While the episode is still being found or opened, the loading card in the middle takes the place of the buttons.
-        if (inDock == null &&
-            session.phase != PlayerPhase.Loading
-        ) {
+        // While the episode is still being found or opened, the loading card in the middle takes the place of the buttons. An open choice puts them away, so it never sits over them.
+        if (picker == null && session.phase != PlayerPhase.Loading) {
             Box(Modifier.align(Alignment.Center)) { Transport(session, engine, calls) }
         }
         Box(
             Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .tellsAsideCard(minOf(widest, window - DockMargin * 2), window)
                 .windowInsetsPadding(
                     WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
-                ).padding(DockMargin),
+                ).onSizeChanged { onIslandRoom(with(density) { it.height.toDp() }) }
+                .padding(DockMargin)
+                .animateEnterExit(
+                    enter = if (reduce) EnterTransition.None else slideInVertically(spring(0.8f, 420f)) { it / 3 },
+                    exit = if (reduce) ExitTransition.None else slideOutVertically(tween(140)) { it / 4 },
+                ),
             contentAlignment = Alignment.BottomCenter,
         ) {
-            // Solid while a choice is open, so its words never sit over the video.
-            DockSurface(Modifier.widthIn(max = widest).fillMaxWidth(), solid = inDock != null) {
-                Column(Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) {
-                    AnimatedContent(
-                        inDock,
-                        transitionSpec = { panelChange(reduce, null) },
-                        label = "player panel",
-                    ) { shown ->
-                        if (shown != null) {
-                            Column {
-                                Box(Modifier.heightIn(max = panelMax)) { pickerContent(shown) }
-                                DockRule()
+            Column(
+                Modifier.widthIn(max = if (wide) WideIslandWidth else IslandWidth).fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                if (wide) IslandHang(picker, null, true, panelMax, choice)
+                // Solid while a choice is open inside it, so its words never sit over the video.
+                IslandSurface(open = true, shade = IslandShade, solid = picker != null && !wide) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp)) {
+                        if (wide) {
+                            CompositionLocalProvider(LocalDockLabels provides true) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    TitleRow(session, calls, Modifier.weight(1f).cascade(1, reduce, true))
+                                    Row(Modifier.width(WideActionWidth * actions.size).cascade(2, reduce, true)) {
+                                        actions.forEach { DockAction(it.icon, it.label, it.active, it.onClick) }
+                                    }
+                                }
+                            }
+                            Row(Modifier.cascade(0, reduce, true), verticalAlignment = Alignment.CenterVertically) {
+                                seek(Modifier.weight(1f))
+                                WindowButtons(engine.volume, fullscreen, calls)
+                            }
+                        } else {
+                            IslandInside(picker, null, true, panelMax, choice)
+                            Row(Modifier.cascade(2, reduce, true), verticalAlignment = Alignment.CenterVertically) {
+                                TitleRow(session, calls, Modifier.weight(1f))
+                                WindowButtons(engine.volume, fullscreen, calls)
+                            }
+                            seek(Modifier.cascade(1, reduce, true))
+                            CompositionLocalProvider(LocalDockLabels provides true) {
+                                Row(Modifier.fillMaxWidth().padding(vertical = 2.dp).cascade(0, reduce, true)) {
+                                    actions.forEach { DockAction(it.icon, it.label, it.active, it.onClick) }
+                                }
                             }
                         }
                     }
-                    SeekBar(
-                        engine.positionMs,
-                        engine.bufferedMs,
-                        engine.durationMs,
-                        calls.onSeek,
-                        calls.onScrubStart,
-                        calls.onScrubEnd,
-                        thumbnail = thumbnail,
-                        onPreview = calls.onPreview,
-                    )
-                    DockRule()
-                    // A wide window has room for the name of each button under its icon, as in the reader.
-                    CompositionLocalProvider(
-                        LocalDockLabels provides isWideWindow(),
-                    ) { Actions(session, engine, aspect, picker, calls) }
                 }
             }
         }
     }
 }
 
-// The way back, the episode with the title under it, and the buttons for the window: the small player, and full screen on a computer or the lock on a phone.
+// The way back, and the episode with the title under it.
 @Composable
-private fun TopRow(session: SessionState, volume: Int, fullscreen: Boolean, calls: OverlayCalls) {
+private fun TitleRow(session: SessionState, calls: OverlayCalls, modifier: Modifier = Modifier) {
     val episode = session.episode
-    Row(Modifier.padding(horizontal = 4.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier.padding(horizontal = 4.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         IconButton(
             calls.onClose,
         ) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(Res.string.player_close)) }
         Column(Modifier.weight(1f).padding(start = 4.dp)) {
             Text(
-                episode
-                    ?.let {
-                        numberedUnit(Kind.Anime, it.number) +
-                            (it.name?.takeIf { name -> name.isNotBlank() }?.let { name -> " · $name" } ?: "")
-                    }.orEmpty(),
+                episode?.let { numberedName(Kind.Anime, it.number, it.name) }.orEmpty(),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
@@ -217,7 +207,14 @@ private fun TopRow(session: SessionState, volume: Int, fullscreen: Boolean, call
                 )
             }
         }
-        // The sound on a computer: the speaker mutes or brings the sound back, the bar sets it.
+    }
+}
+
+// The buttons for the window: the sound on a computer, the small player, and full screen on a computer or the lock on a phone.
+@Composable
+private fun WindowButtons(volume: Int, fullscreen: Boolean, calls: OverlayCalls) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        // The speaker mutes or brings the sound back, the bar sets it.
         calls.onVolume?.let { set ->
             IconButton({ set(if (volume > 0) 0 else 100) }) {
                 Icon(
@@ -269,67 +266,5 @@ private fun Transport(session: SessionState, engine: PlayerState, calls: Overlay
             calls.onJump(true)
         })
         RoundButton(Icons.Rounded.SkipNext, 44, stringResource(Res.string.player_next), calls.onNext)
-    }
-}
-
-// The actions of the dock, each an icon that fills while its choice is open: the episodes, the subtitles, the sound, the quality, the speed, how the picture fits, and the settings. An action with nothing to choose is left out.
-@Composable
-private fun Actions(
-    session: SessionState,
-    engine: PlayerState,
-    aspect: AspectMode,
-    picker: Picker?,
-    calls: OverlayCalls,
-) {
-    val video = session.current
-    fun toggle(which: Picker) = calls.onOpen(which)
-    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
-        if (session.episodes.size > 1) {
-            DockAction(
-                Icons.AutoMirrored.Outlined.FormatListBulleted,
-                stringResource(Res.string.player_episodes),
-                picker == Picker.Episodes,
-                { toggle(Picker.Episodes) },
-            )
-        }
-        if (hasSubtitleChoices(engine, video)) {
-            DockAction(
-                Icons.Outlined.Subtitles,
-                stringResource(
-                    Res.string.player_subtitles,
-                ),
-                picker == Picker.Subtitles,
-                {
-                    toggle(Picker.Subtitles)
-                },
-            )
-        }
-        if (hasAnyAudio(engine, video) || VideoChoice.versions(session.videos, video) != null) {
-            DockAction(
-                Icons.AutoMirrored.Outlined.VolumeUp,
-                stringResource(Res.string.player_audio),
-                picker == Picker.Audio,
-                { toggle(Picker.Audio) },
-            )
-        }
-        if (session.videos.size > 1) {
-            DockAction(
-                Icons.Outlined.HighQuality,
-                stringResource(
-                    Res.string.player_quality,
-                ),
-                picker == Picker.Quality,
-                {
-                    toggle(Picker.Quality)
-                },
-            )
-        }
-        DockAction(Icons.Outlined.Speed, stringResource(Res.string.player_speed), picker == Picker.Speed, {
-            toggle(Picker.Speed)
-        })
-        DockAction(Icons.Outlined.AspectRatio, stringResource(aspect.label), false, calls.onFit)
-        DockAction(Icons.Outlined.Tune, stringResource(Res.string.player_settings_title), picker == Picker.Settings, {
-            toggle(Picker.Settings)
-        })
     }
 }

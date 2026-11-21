@@ -57,3 +57,15 @@ fun byteSizeText(bytes: Long): String {
     }
     return "$shown ${units[unit]}"
 }
+
+// A chapter or an episode as its number and its name. A name that only says the number again, such as Episode 2 or Episode 2: Episode 2, is shown alone, and so is one that starts with the number, such as Episode 2: The Plan.
+@Composable
+fun numberedName(kind: Kind, number: Double, name: String?): String {
+    val numbered = numberedUnit(kind, number)
+    val text = name?.trim()?.takeIf { it.isNotEmpty() } ?: return numbered
+    val head = text.substringBefore(':').trim()
+    val tail = text.substringAfter(':', "").trim()
+    val plain = if (tail.isNotEmpty() && tail.equals(head, ignoreCase = true)) head else text
+    val starts = plain.startsWith(numbered, ignoreCase = true) && plain.getOrNull(numbered.length)?.isDigit() != true
+    return if (starts) plain else "$numbered · $plain"
+}

@@ -2,8 +2,10 @@ package com.sumizuri.app.playback
 
 import com.sumizuri.app.data.model.player.SubtitleBackground
 import com.sumizuri.app.data.net.Network
+import com.sumizuri.app.data.net.hostOf
 import com.sun.jna.Pointer
 import java.util.Locale
+import kotlin.math.roundToInt
 
 // How mpv plays inside the app: drawn by the app, with no window, keys or scripts of its own, kept open at the end so the last frame stays, and a little louder at most than usual. It keeps about five minutes of a stream ahead and a minute behind, where its own default holds 200 MB.
 internal val MpvPlayOptions: List<Pair<String, String>> = listOf(
@@ -28,8 +30,11 @@ internal val MpvPlayOptions: List<Pair<String, String>> = listOf(
     "demuxer-lavf-o" to "extension_picky=0,allowed_segment_extensions=ALL",
 )
 
+// How high mpv takes the picture to be when it measures the subtitles.
+private const val ScriptHeight = 720
+
 // The look of the subtitles mpv draws, from the choices of the person. mpv measures its letters for a picture 720 high, so the size and the room under them are scaled to that.
-internal fun subtitleOptions(style: SubtitleStyle, lifted: Boolean): List<Pair<String, String>> = buildList {
+internal fun subtitleOptions(style: SubtitleStyle, lifted: Float): List<Pair<String, String>> = buildList {
     add("sub-font-size" to (style.sizeSp * 8 / 5).toString())
     add("sub-color" to String.format(Locale.ROOT, "#%06X", style.color and 0xFFFFFF))
     add("sub-bold" to if (style.bold) "yes" else "no")
@@ -55,8 +60,8 @@ internal fun subtitleOptions(style: SubtitleStyle, lifted: Boolean): List<Pair<S
 }
 
 // The room under the subtitles, raised further while the controls show so they never cover the words.
-internal fun subtitleMargin(style: SubtitleStyle, lifted: Boolean): String {
-    val clearance = if (lifted) SubtitleStyle.ControlsClearanceDp else 0
+internal fun subtitleMargin(style: SubtitleStyle, lifted: Float): String {
+    val clearance = (lifted.coerceIn(0f, 0.5f) * ScriptHeight).roundToInt()
     return (SubtitleStyle.RaiseDp[style.raise.coerceIn(0, 2)] + clearance).toString()
 }
 
@@ -122,9 +127,6 @@ internal fun cutAfter(text: String, now: String?): String? = when {
 }
 
 internal fun cutReason(host: String): String = if (host.isEmpty()) "SSL connect error" else "SSL connect error at $host"
-
-// The server of an address, for naming it in a message.
-internal fun hostOf(address: String): String = address.substringAfter("://").substringBefore('/').substringBefore('?')
 
 // The router of the app as libcurl reads it, or nothing while the app goes straight. The h has the router look up the names of sites, so it can tell which way each one takes.
 internal fun routerForVideo(): String = Network.routerPort?.let { "socks5h://127.0.0.1:$it" }.orEmpty()

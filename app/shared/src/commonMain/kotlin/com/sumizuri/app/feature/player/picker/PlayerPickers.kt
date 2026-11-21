@@ -1,5 +1,6 @@
 package com.sumizuri.app.feature.player.picker
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -18,11 +19,19 @@ import androidx.compose.material.icons.outlined.SubtitlesOff
 import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.sumizuri.app.data.library.seasonSlices
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.feature.player.SessionState
 import com.sumizuri.app.feature.player.VideoChoice
 import com.sumizuri.app.feature.player.overlay.speedText
+import com.sumizuri.app.feature.title.chapter.seasonTitle
 import com.sumizuri.app.playback.AspectMode
 import com.sumizuri.app.playback.PlayerState
 import com.sumizuri.app.shared.resources.Res
@@ -43,7 +52,8 @@ import com.sumizuri.app.shared.resources.player_subtitle_load_file
 import com.sumizuri.app.shared.resources.player_subtitles
 import com.sumizuri.app.shared.resources.player_subtitles_off
 import com.sumizuri.app.ui.kit.card.CardPlace
-import com.sumizuri.app.ui.text.numberedUnit
+import com.sumizuri.app.ui.kit.setting.PartTabs
+import com.sumizuri.app.ui.text.numberedName
 import org.jetbrains.compose.resources.stringResource
 
 // The panel of one choice, with its lines together in one card.
@@ -60,16 +70,36 @@ internal fun PlayerPicker(
     val versions = VideoChoice.versions(session.videos, video)
     when (picker) {
         Picker.Quality -> {
-            val lines = session.videos.mapIndexed { index, item ->
+            // A source that gives sub and dub as their own videos shows them as two tabs, each with its qualities, so no line says sub or dub again.
+            val dubbed = video != null && VideoChoice.isDub(video)
+            val shown = if (versions ==
+                null
+            ) {
+                session.videos
+            } else {
+                session.videos.filter { VideoChoice.isDub(it) == dubbed }
+            }
+            val lines = shown.map { item ->
+                val label = if (versions == null) item.quality else VideoChoice.withoutVersion(item.quality)
                 Line(
                     Icons.Outlined.HighQuality,
-                    item.quality ?: stringResource(Res.string.player_server, index + 1),
+                    label ?: stringResource(Res.string.player_server, session.videos.indexOf(item) + 1),
                     { calls.onVideo(item) },
-                    selected =
-                    item == video,
+                    selected = item == video,
                 )
             }
-            PickerPanel(stringResource(Res.string.player_quality), calls.onClose) { lines(lines) }
+            val tabs: (@Composable () -> Unit)? = versions?.let { (subbed, dub) ->
+                {
+                    PartTabs(listOf(false, true), dubbed, {
+                        stringResource(if (it) Res.string.player_audio_dub else Res.string.player_audio_sub)
+                    }, Modifier.fillMaxWidth(), accent = true) { wantDub ->
+                        calls.onVideo(
+                            if (wantDub) dub else subbed,
+                        )
+                    }
+                }
+            }
+            PickerPanel(stringResource(Res.string.player_quality), calls.onClose, top = tabs) { lines(lines) }
         }
 
         Picker.Speed -> {
@@ -157,11 +187,19 @@ internal fun PlayerPicker(
         }
 
         Picker.Episodes -> {
-            val state = rememberLazyListState(initialFirstVisibleItemIndex = (session.index - 2).coerceAtLeast(0))
+            // A title with seasons shows them over the list, starting on the season that plays.
+            val playingNow = session.episode
+            val seasons =
+                remember(session.episodes) { seasonSlices(session.episodes, { it.season }, { it.seasonName }) }
+            var open by remember(
+                seasons,
+            ) { mutableIntStateOf(seasons.indexOfFirst { playingNow in it.items }.coerceAtLeast(0)) }
+            val shown = seasons.getOrNull(open)?.items ?: session.episodes
+            val state = key(open) { rememberLazyListState((shown.indexOf(playingNow) - 2).coerceAtLeast(0)) }
             val playingNote = stringResource(Res.string.player_episode_playing)
             val watchedNote = stringResource(Res.string.player_episode_watched)
-            val lines = session.episodes.mapIndexed { index, ep ->
-                val playing = index == session.index
+            val lines = shown.map { ep ->
+                val playing = ep == playingNow
                 Line(
                     icon = if (playing) {
                         Icons.Rounded.PlayCircle
@@ -170,9 +208,7 @@ internal fun PlayerPicker(
                     } else {
                         Icons.Outlined.PlayCircleOutline
                     },
-                    title =
-                    numberedUnit(Kind.Anime, ep.number) +
-                        (ep.name?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""),
+                    title = numberedName(Kind.Anime, ep.number, ep.name),
                     onClick = { calls.onEpisode(ep.id) },
                     subtitle = if (playing) {
                         playingNote
@@ -185,74 +221,32 @@ internal fun PlayerPicker(
                     key = ep.id,
                 )
             }
-            PickerPanel(stringResource(Res.string.player_episodes), calls.onClose, state) { lines(lines) }
+            val chips: (@Composable () -> Unit)? = if (seasons.isEmpty()) {
+                null
+            } else {
+                {
+                    SeasonSwitch(seasons.map { seasonTitle(it.key, it.name, it.isFirst) }, open) { open = it }
+                }
+            }
+            PickerPanel(stringResource(Res.string.player_episodes), calls.onClose, state, top = chips) { lines(lines) }
         }
 
         Picker.Settings -> {
-            val lines = buildList {
-                if (session.videos.size >
-                    1
-                ) {
-                    add(
-                        Line(Icons.Outlined.HighQuality, stringResource(Res.string.player_quality), {
-                            calls.onOpen(Picker.Quality)
-                        }, value = video?.quality.orEmpty(), opens = true),
-                    )
-                }
-                if (hasSubtitleChoices(engine, video)) {
-                    add(
-                        Line(
-                            Icons.Outlined.Subtitles,
-                            stringResource(Res.string.player_subtitles),
-                            { calls.onOpen(Picker.Subtitles) },
-                            value =
-                            engine.subtitles.firstOrNull { it.id == engine.subtitle }?.let { trackName(it) }
-                                ?: stringResource(Res.string.player_subtitles_off),
-                            opens = true,
-                        ),
-                    )
-                }
-                if (hasAnyAudio(engine, video) || versions != null) {
-                    add(
-                        Line(
-                            Icons.Outlined.AudioFile,
-                            stringResource(Res.string.player_audio),
-                            { calls.onOpen(Picker.Audio) },
-                            value = engine.audios
-                                .firstOrNull { it.id == engine.audio }
-                                ?.let { trackName(it) }
-                                .orEmpty(),
-                            opens = true,
-                        ),
-                    )
-                }
-                add(
-                    Line(
-                        Icons.Outlined.Speed,
-                        stringResource(Res.string.player_speed),
-                        { calls.onOpen(Picker.Speed) },
-                        value =
-                        speedText(engine.speed) + "×",
-                        opens = true,
-                    ),
-                )
-                add(
-                    Line(
-                        Icons.Outlined.AspectRatio,
-                        stringResource(Res.string.player_fit),
-                        calls.onFit,
-                        value = stringResource(aspect.label),
-                        opens = true,
-                    ),
-                )
-                add(
-                    Line(
-                        Icons.Outlined.Terminal,
-                        stringResource(if (logShown) Res.string.player_log_hide else Res.string.player_log_show),
-                        calls.onToggleLog,
-                    ),
-                )
-            }
+            // Only what has no button of its own in the island, so nothing is offered twice.
+            val lines = listOf(
+                Line(
+                    Icons.Outlined.AspectRatio,
+                    stringResource(Res.string.player_fit),
+                    calls.onFit,
+                    value = stringResource(aspect.label),
+                    opens = true,
+                ),
+                Line(
+                    Icons.Outlined.Terminal,
+                    stringResource(if (logShown) Res.string.player_log_hide else Res.string.player_log_show),
+                    calls.onToggleLog,
+                ),
+            )
             PickerPanel(stringResource(Res.string.player_settings_title), calls.onClose) { lines(lines) }
         }
     }
