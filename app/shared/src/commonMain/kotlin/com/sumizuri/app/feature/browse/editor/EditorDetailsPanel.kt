@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -31,7 +29,9 @@ import com.sumizuri.app.shared.resources.extensions_file_kind
 import com.sumizuri.app.shared.resources.extensions_file_name
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.card.AppCard
+import com.sumizuri.app.ui.kit.chips.SoftChip
 import com.sumizuri.app.ui.kit.cover.SourceMark
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.text.languageName
 import org.jetbrains.compose.resources.stringResource
 
@@ -49,10 +49,10 @@ internal fun EditorDetailsPanel(
     ) {
         if (state.fromRepo && state.savedAs == null) Note(stringResource(Res.string.ext_edit_repo_note))
         state.savedAs?.let { Note(stringResource(Res.string.ext_edit_saved_as, it)) }
-        OutlinedTextField(state.name, actions.onName, Modifier.fillMaxWidth(), label = {
+        AppTextField(state.name, actions.onName, Modifier.fillMaxWidth(), label = {
             Text(stringResource(Res.string.extensions_file_name))
         }, singleLine = true)
-        OutlinedTextField(
+        AppTextField(
             state.lang,
             actions.onLang,
             Modifier.fillMaxWidth(),
@@ -70,7 +70,7 @@ internal fun EditorDetailsPanel(
             },
             singleLine = true,
         )
-        OutlinedTextField(
+        AppTextField(
             state.baseUrl,
             actions.onBaseUrl,
             Modifier.fillMaxWidth(),
@@ -78,7 +78,7 @@ internal fun EditorDetailsPanel(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, autoCorrectEnabled = false),
         )
-        OutlinedTextField(
+        AppTextField(
             state.iconUrl,
             actions.onIconUrl,
             Modifier.fillMaxWidth(),
@@ -90,7 +90,7 @@ internal fun EditorDetailsPanel(
         Text(stringResource(Res.string.extensions_file_kind), style = MaterialTheme.typography.labelLarge)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             for (kind in Kind.entries) {
-                FilterChip(state.kind == kind, {
+                SoftChip(state.kind == kind, {
                     actions.onKind(kind)
                 }, { Text(stringResource(kind.label)) })
             }

@@ -37,10 +37,11 @@ internal fun FeedChip(label: String, quiet: Boolean = false) {
     )
 }
 
-// What a new chapter or episode is called: its number, and its name after it when it has one. A name that only says the number again, such as Chapter 281 for chapter 281, is left out.
+// What a new chapter or episode is called: its number, and its name after it when it has one. A name that only says the number again, such as Chapter 281 for chapter 281, is left out, and one that starts with the number and adds a note, such as Chapter 281 (Locked), is shown alone.
 @Composable
 internal fun feedChapterText(kind: Kind, number: Double, name: String?): String = when {
     name.isNullOrBlank() || onlyNumber(name, number) -> numberedUnit(kind, number)
+    onlyNumber(name.substringBefore('('), number) -> name.trim()
     kind == Kind.Anime -> stringResource(Res.string.feed_episode_titled, number.numberText(), name)
     else -> stringResource(Res.string.feed_chapter_titled, number.numberText(), name)
 }

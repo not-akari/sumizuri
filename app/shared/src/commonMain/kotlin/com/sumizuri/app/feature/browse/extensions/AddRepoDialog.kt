@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,6 +19,7 @@ import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.dialog.CancelButton
+import com.sumizuri.app.ui.kit.input.AppTextField
 import org.jetbrains.compose.resources.stringResource
 
 // Asks for the address of a repo. It says plainly that the sources in a repo are other people's code.
@@ -36,7 +36,7 @@ internal fun AddRepoDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(stringResource(Res.string.extensions_trust), style = MaterialTheme.typography.bodyMedium)
-                OutlinedTextField(
+                AppTextField(
                     value = state.address,
                     onValueChange = onAddress,
                     modifier = Modifier.fillMaxWidth(),

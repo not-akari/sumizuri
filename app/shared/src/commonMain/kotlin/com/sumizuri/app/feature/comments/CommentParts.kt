@@ -7,25 +7,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,41 +31,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.comments_chapter_title
-import com.sumizuri.app.shared.resources.comments_count
-import com.sumizuri.app.shared.resources.comments_empty
-import com.sumizuri.app.shared.resources.comments_hide_replies
-import com.sumizuri.app.shared.resources.comments_load_more
-import com.sumizuri.app.shared.resources.comments_missing_source
-import com.sumizuri.app.shared.resources.comments_more_failed
-import com.sumizuri.app.shared.resources.comments_more_replies
-import com.sumizuri.app.shared.resources.comments_replies_failed
-import com.sumizuri.app.shared.resources.comments_show_replies
 import com.sumizuri.app.shared.resources.comments_sort_newest
 import com.sumizuri.app.shared.resources.comments_sort_oldest
 import com.sumizuri.app.shared.resources.comments_sort_top
 import com.sumizuri.app.shared.resources.comments_spoiler
-import com.sumizuri.app.shared.resources.comments_title
-import com.sumizuri.app.shared.resources.refresh
 import com.sumizuri.app.source.model.CommentSort
 import com.sumizuri.app.source.model.SourceComment
-import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
-import com.sumizuri.app.ui.kit.card.AppCard
-import com.sumizuri.app.ui.kit.chips.FilterTabs
 import com.sumizuri.app.ui.kit.image.imageRequest
-import com.sumizuri.app.ui.kit.page.LoadStatus
-import com.sumizuri.app.ui.kit.page.PageGutter
-import com.sumizuri.app.ui.kit.page.PageList
-import com.sumizuri.app.ui.kit.page.PageTopBar
-import com.sumizuri.app.ui.kit.page.ReadableColumn
 import com.sumizuri.app.ui.text.agoText
+import com.sumizuri.app.ui.text.compactCount
 import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 // Who wrote a comment and when, how many liked it, and the words, which can be selected and copied. A spoiler stays hidden until it is tapped.
@@ -180,28 +151,4 @@ internal fun sortLabel(sort: CommentSort): StringResource = when (sort) {
     CommentSort.Newest -> Res.string.comments_sort_newest
     CommentSort.Oldest -> Res.string.comments_sort_oldest
     CommentSort.Top -> Res.string.comments_sort_top
-}
-
-// A count as it fits beside a name: 950, 1.2k, 34k, 1.5m.
-private fun compactCount(count: Int): String = when {
-    count < 1_000 -> count.toString()
-    count < 1_000_000 -> shortened(count / 1_000.0) + "k"
-    else -> shortened(count / 1_000_000.0) + "m"
-}
-
-// One figure after the point below ten, and none from ten up.
-private fun shortened(value: Double): String = if (value >=
-    10
-) {
-    value.toInt().toString()
-} else {
-    ((value * 10).toInt() / 10.0).let {
-        if (it % 1.0 ==
-            0.0
-        ) {
-            it.toInt().toString()
-        } else {
-            it.toString()
-        }
-    }
 }

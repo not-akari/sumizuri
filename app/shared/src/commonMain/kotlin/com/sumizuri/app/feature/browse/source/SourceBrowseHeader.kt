@@ -18,8 +18,6 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +55,8 @@ import com.sumizuri.app.ui.kit.cover.shownName
 import com.sumizuri.app.ui.kit.input.AppSearchBar
 import com.sumizuri.app.ui.kit.input.PickedFile
 import com.sumizuri.app.ui.kit.input.rememberFilesImporter
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import com.sumizuri.app.ui.kit.openFolder
 import com.sumizuri.app.ui.kit.page.PageTopBar
 import com.sumizuri.app.ui.kit.page.ReadableWidth
@@ -122,9 +122,9 @@ private fun SourceMenu(
     val pick = if (folder != null) rememberFilesImporter(onImport) else null
     Box {
         IconButton({ open = true }) { Icon(Icons.Outlined.MoreVert, stringResource(Res.string.more)) }
-        DropdownMenu(open, { open = false }) {
+        AppMenu(open, { open = false }) {
             if (hasPreferences) {
-                DropdownMenuItem(
+                AppMenuItem(
                     text = { Text(stringResource(Res.string.browse_preferences)) },
                     leadingIcon = { Icon(Icons.Outlined.Settings, null, Modifier.size(20.dp)) },
                     onClick = {
@@ -134,7 +134,7 @@ private fun SourceMenu(
                 )
             }
             if (folder != null && pick != null) {
-                DropdownMenuItem(
+                AppMenuItem(
                     text = { Text(stringResource(Res.string.local_add_files)) },
                     leadingIcon = { Icon(Icons.Outlined.FileOpen, null, Modifier.size(20.dp)) },
                     onClick = {
@@ -143,7 +143,7 @@ private fun SourceMenu(
                     },
                 )
                 if (canOpenFolders()) {
-                    DropdownMenuItem(
+                    AppMenuItem(
                         text = { Text(stringResource(Res.string.storage_open_folder)) },
                         leadingIcon = { Icon(Icons.Outlined.FolderOpen, null, Modifier.size(20.dp)) },
                         onClick = {
@@ -153,7 +153,7 @@ private fun SourceMenu(
                     )
                 }
             } else {
-                DropdownMenuItem(
+                AppMenuItem(
                     text = { Text(stringResource(Res.string.ext_edit_open_code)) },
                     leadingIcon = { Icon(Icons.Outlined.Code, null, Modifier.size(20.dp)) },
                     onClick = {
@@ -162,7 +162,7 @@ private fun SourceMenu(
                     },
                 )
                 // Any source but the built in ones for files can be removed here, also one whose repo was removed.
-                DropdownMenuItem(
+                AppMenuItem(
                     text = { Text(stringResource(Res.string.source_remove_menu)) },
                     leadingIcon = { Icon(Icons.Outlined.Delete, null, Modifier.size(20.dp)) },
                     onClick = {

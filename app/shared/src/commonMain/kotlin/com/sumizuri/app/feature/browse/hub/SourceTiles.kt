@@ -4,11 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,8 +19,6 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.PowerSettingsNew
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.PushPin
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.local.LocalSources
+import com.sumizuri.app.data.net.siteNameOf
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.browse_badge_old
 import com.sumizuri.app.shared.resources.browse_badge_update
@@ -59,54 +55,22 @@ import com.sumizuri.app.shared.resources.source_remove_menu
 import com.sumizuri.app.shared.resources.title_action_web
 import com.sumizuri.app.source.repo.EngineKind
 import com.sumizuri.app.source.repo.InstalledSource
-import com.sumizuri.app.ui.kit.card.AppCard
+import com.sumizuri.app.ui.kit.card.softPress
 import com.sumizuri.app.ui.kit.cover.SourceMark
 import com.sumizuri.app.ui.kit.cover.shownName
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import com.sumizuri.app.ui.kit.web.LocalOpenSite
 import com.sumizuri.app.ui.text.languageName
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
-// A tile is about this wide, so a wide column fits tiles side by side, up to this many.
-private val TileWidth = 300.dp
-private const val MostColumns = 3
-
 // A shortcut in the row of pinned and lately used sources is this wide.
 private val JumpWidth = 76.dp
 
-// The sources of a group as tiles, one per line on a phone and side by side on a wide window.
-@Composable
-internal fun SourceGrid(
-    sources: List<InstalledSource>,
-    state: BrowseHubState,
-    actions: BrowseHubActions,
-    showLanguage: Boolean,
-) {
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val columns = (maxWidth / TileWidth).toInt().coerceIn(1, MostColumns)
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            for (line in sources.chunked(columns)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    for (source in line) {
-                        SourceTile(
-                            source,
-                            source.id in state.pinned,
-                            source.id in state.updateIds,
-                            showLanguage,
-                            actions,
-                            Modifier.weight(1f),
-                        )
-                    }
-                    repeat(columns - line.size) { Spacer(Modifier.weight(1f)) }
-                }
-            }
-        }
-    }
-}
-
 // One source: its icon, its name with a pin when it is pinned, the language under it when its group mixes languages and its site otherwise, marks for an update or the old format, and a menu. A source that is turned off is faded, and a tap turns it on.
 @Composable
-private fun SourceTile(
+internal fun SourceTile(
     source: InstalledSource,
     pinned: Boolean,
     update: Boolean,
@@ -116,58 +80,61 @@ private fun SourceTile(
 ) {
     val off = !source.enabled
     val old = source.engineKind == EngineKind.Old
-    AppCard(modifier.alpha(if (off) 0.6f else 1f), onClick = {
-        if (off) actions.onEnabled(source, true) else actions.onOpenSource(source)
-    }) {
-        Row(
-            Modifier.padding(start = 12.dp, top = 10.dp, bottom = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            SourceMark(source.iconUrl, size = 40.dp, sourceId = source.id)
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Text(
-                        source.shownName(),
-                        Modifier.weight(1f, fill = false),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (pinned) {
-                        Icon(
-                            Icons.Outlined.PushPin,
-                            stringResource(Res.string.browse_pinned),
-                            Modifier.size(14.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                }
+    Row(
+        modifier
+            .alpha(if (off) 0.6f else 1f)
+            .softPress({ if (off) actions.onEnabled(source, true) else actions.onOpenSource(source) })
+            .padding(start = 12.dp, top = 10.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        SourceMark(source.iconUrl, size = 40.dp, sourceId = source.id)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
                 Text(
-                    when {
-                        off -> stringResource(Res.string.browse_turn_on)
-                        LocalSources.isLocal(source.id) -> stringResource(Res.string.local_on_device)
-                        showLanguage -> languageName(source.lang)
-                        else -> siteOf(source.baseUrl)
-                    },
+                    source.shownName(),
+                    Modifier.weight(1f, fill = false),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (pinned) {
+                    Icon(
+                        Icons.Outlined.PushPin,
+                        stringResource(Res.string.browse_pinned),
+                        Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+            val under = when {
+                off -> stringResource(Res.string.browse_turn_on)
+                LocalSources.isLocal(source.id) -> stringResource(Res.string.local_on_device)
+                showLanguage -> languageName(source.lang)
+                else -> siteNameOf(source.baseUrl)
+            }
+            // A source with no site, such as one made by hand, keeps its name in the middle.
+            if (under.isNotBlank()) {
+                Text(
+                    under,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (update || old) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 2.dp)) {
-                        if (update) Mark(Res.string.browse_badge_update, MaterialTheme.colorScheme.primary)
-                        if (old) Mark(Res.string.browse_badge_old, MaterialTheme.colorScheme.error)
-                    }
+            }
+            if (update || old) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 2.dp)) {
+                    if (update) Mark(Res.string.browse_badge_update, MaterialTheme.colorScheme.primary)
+                    if (old) Mark(Res.string.browse_badge_old, MaterialTheme.colorScheme.error)
                 }
             }
-            SourceMenu(source, pinned, actions)
         }
+        SourceMenu(source, pinned, actions)
     }
 }
 
@@ -197,7 +164,7 @@ private fun SourceMenu(source: InstalledSource, pinned: Boolean, actions: Browse
         IconButton({
             open = true
         }) { Icon(Icons.Outlined.MoreVert, stringResource(Res.string.more), tint = MaterialTheme.colorScheme.outline) }
-        DropdownMenu(open, { open = false }) {
+        AppMenu(open, { open = false }) {
             MenuItem(if (pinned) Res.string.browse_unpin else Res.string.browse_pin, Icons.Outlined.PushPin) {
                 open = false
                 actions.onPin(source)
@@ -231,7 +198,7 @@ private fun SourceMenu(source: InstalledSource, pinned: Boolean, actions: Browse
 
 @Composable
 private fun MenuItem(label: StringResource, icon: ImageVector, color: Color = Color.Unspecified, onClick: () -> Unit) {
-    DropdownMenuItem(
+    AppMenuItem(
         text = { Text(stringResource(label), color = color) },
         leadingIcon = {
             Icon(
@@ -258,6 +225,7 @@ internal fun JumpRow(sources: List<InstalledSource>, pinned: Set<String>, onOpen
         items(sources, key = { it.id }) { source ->
             Column(
                 Modifier
+                    .animateItem()
                     .width(JumpWidth)
                     .clip(RoundedCornerShape(16.dp))
                     .clickable { onOpen(source) }
@@ -293,4 +261,3 @@ internal fun JumpRow(sources: List<InstalledSource>, pinned: Set<String>, onOpen
 }
 
 // The site a source reads from, as a person would say it.
-private fun siteOf(baseUrl: String): String = baseUrl.substringAfter("://").substringBefore('/').removePrefix("www.")

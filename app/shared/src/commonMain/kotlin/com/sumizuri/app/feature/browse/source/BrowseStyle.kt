@@ -13,8 +13,6 @@ import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.ViewAgenda
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,9 +36,11 @@ import com.sumizuri.app.shared.resources.display_style
 import com.sumizuri.app.shared.resources.shelf_style_cards
 import com.sumizuri.app.shared.resources.shelf_style_grid
 import com.sumizuri.app.shared.resources.shelf_style_list
-import com.sumizuri.app.ui.kit.card.AppCard
+import com.sumizuri.app.ui.kit.card.softPress
 import com.sumizuri.app.ui.kit.cover.CoverArt
 import com.sumizuri.app.ui.kit.cover.badge.SavedBadge
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import com.sumizuri.app.ui.text.displayName
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -58,9 +58,9 @@ internal fun BrowseStyleButton(style: BrowseStyle, onStyle: (BrowseStyle) -> Uni
     var open by remember { mutableStateOf(false) }
     Box {
         IconButton({ open = true }) { Icon(style.icon, stringResource(Res.string.display_style)) }
-        DropdownMenu(open, { open = false }) {
+        AppMenu(open, { open = false }) {
             for (choice in BrowseStyle.entries) {
-                DropdownMenuItem(
+                AppMenuItem(
                     text = { Text(stringResource(choice.label)) },
                     leadingIcon = { Icon(choice.icon, null, Modifier.size(20.dp)) },
                     trailingIcon = { if (choice == style) Icon(Icons.Outlined.Check, null, Modifier.size(18.dp)) },
@@ -83,23 +83,21 @@ internal fun BrowseLine(
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
 ) {
-    AppCard(modifier.fillMaxWidth(), onClick = onClick, onLongClick = onLongClick) {
-        Row(
-            Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            EntryCover(title, saved, 52.dp, letterSize = 14)
-            Column(Modifier.weight(1f)) {
-                Text(
-                    title.displayName(),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                EntryFacts(title)
-            }
+    Row(
+        modifier.fillMaxWidth().softPress(onClick, onLongClick).padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        EntryCover(title, saved, 52.dp, letterSize = 14)
+        Column(Modifier.weight(1f)) {
+            Text(
+                title.displayName(),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            EntryFacts(title)
         }
     }
 }
@@ -113,36 +111,37 @@ internal fun BrowseCard(
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
 ) {
-    AppCard(modifier.fillMaxWidth(), onClick = onClick, onLongClick = onLongClick) {
-        Row(Modifier.padding(10.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            EntryCover(title, saved, 96.dp, letterSize = 24)
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(
+        modifier.fillMaxWidth().softPress(onClick, onLongClick).padding(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        EntryCover(title, saved, 96.dp, letterSize = 24)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                title.displayName(),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            EntryFacts(title)
+            if (title.genres.isNotEmpty()) {
                 Text(
-                    title.displayName(),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2,
+                    title.genres.take(4).joinToString(" · "),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                EntryFacts(title)
-                if (title.genres.isNotEmpty()) {
-                    Text(
-                        title.genres.take(4).joinToString(" · "),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                if (title.summary.isNotBlank()) {
-                    Text(
-                        title.summary,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 4,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+            }
+            if (title.summary.isNotBlank()) {
+                Text(
+                    title.summary,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }
