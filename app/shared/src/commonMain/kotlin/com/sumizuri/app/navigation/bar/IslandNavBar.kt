@@ -191,11 +191,16 @@ private fun IslandSlot(
         tween(ms),
         label = "tint",
     )
+    // The count is ringed in what lies behind it: the chosen blob or the island.
+    val ring by animateColorAsState(
+        if (selected) colors.primaryContainer else colors.surfaceContainerHigh,
+        tween(ms),
+        label = "ring",
+    )
     Row(
         Modifier
             .width(width)
             .height(IslandMetrics.SlotHeight)
-            .clip(MaterialTheme.shapes.large)
             .feedbackScale(source)
             .clickable(interactionSource = source, indication = null, role = Role.Tab, onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
@@ -206,7 +211,7 @@ private fun IslandSlot(
                 scaleY = grow
             },
             contentAlignment = Alignment.Center,
-        ) { NavIcon(destination, selected, avatar, tint, 22.dp, badge) }
+        ) { NavIcon(destination, selected, avatar, tint, 22.dp, badge, ring) }
         Text(
             name,
             Modifier.padding(start = 2.dp).graphicsLayer { alpha = say },

@@ -1,10 +1,12 @@
 package com.sumizuri.app
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -70,11 +72,16 @@ import com.sumizuri.app.feature.theme.ThemeViewModel
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.navigation.Destination
 import com.sumizuri.app.navigation.KeptTabs
+import com.sumizuri.app.navigation.LocalSideNavWidth
 import com.sumizuri.app.navigation.MainScaffold
 import com.sumizuri.app.navigation.NavigationViewModel
 import com.sumizuri.app.navigation.LocalSearchSources
 import com.sumizuri.app.navigation.Page
 import com.sumizuri.app.navigation.PageBack
+import com.sumizuri.app.navigation.SideNav
+import com.sumizuri.app.navigation.fullWindow
+import com.sumizuri.app.navigation.shownNavStyle
+import com.sumizuri.app.navigation.sideNavWidth
 import com.sumizuri.app.navigation.PageStack
 import com.sumizuri.app.navigation.ShortcutActions
 import com.sumizuri.app.navigation.ShortcutsDialog
@@ -255,7 +262,6 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                 }
             }
 
-
             // Back closes the top page, and on a tab other than the library it goes to the library first. A back gesture of the system moves the top page with the finger, and one given up lets the page slide back.
             val backState = rememberNavigationEventState(NavigationEventInfo.None)
             val pageBack = remember { PageBack() }
@@ -311,25 +317,36 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                     val shift = rememberMotionShift()
                     val locked by container.lock.locked.collectAsStateWithLifecycle()
                     // The splash screen of the phone stays until the lock or the first page has drawn.
-                    StartShown(locked == true || (locked == false && place.restored && onboardingDone != null))
+                    val ready = locked == true || (locked == false && place.restored && onboardingDone != null)
+                    StartShown(ready)
+                    // The logo of the splash gives way to the first screen, under the bar of the window, whose height is measured.
+                    val opening = rememberOpening(ready)
                     // The background under the tabs, which a page hides once it covers the whole window.
                     val rootSlot = remember { BackdropSlot() }
                     CompositionLocalProvider(LocalBackdropSlot provides rootSlot) {
+                    Box(Modifier.fillMaxSize()) {
                     Column(Modifier.fillMaxSize().ambientBackground(rootSlot).reportActivity().appShortcuts { shortcut -> locked != false || onShortcut(shortcut) }) {
-                        windowBar?.invoke()
+                        windowBar?.let { bar -> Box(Modifier.onSizeChanged { opening.barHeight = it.height }) { bar() } }
                         if (locked == false) {
-                            Surface(Modifier.weight(1f).fillMaxWidth(), color = Color.Transparent, contentColor = MaterialTheme.colorScheme.onBackground) {
+                            Surface(Modifier.weight(1f).fillMaxWidth().openingRise(opening), color = Color.Transparent, contentColor = MaterialTheme.colorScheme.onBackground) {
                                 // The tabs stay composed under the pages so a grid keeps its place, and nothing draws until the saved place is read.
                                 if (place.restored && onboardingDone != null) {
-                                    Box(Modifier.fillMaxSize()) {
+                                    BoxWithConstraints(Modifier.fillMaxSize()) {
+                                        val shownNav = shownNavStyle(navStyle, maxWidth)
                                         // The tabs are the page under the first one, so they give way to it and come back in the same motion.
-                                        PageStack(place, navigation, backState, pageBack) {
-                                            MainScaffold(tabs, navStyle, navLabels, navSwipe, place.tab, navAvatar, badges, onSelect = onSelectTab) {
-                                                // The next tab moves in from the side it sits on, quicker than a page, in the style the person chose, and each tab is kept once made.
-                                                KeptTabs(place.tab, tabs, pageMotion, tabMs, shift) { tab ->
-                                                    AppTab(tab, tabs, navigation)
+                                        CompositionLocalProvider(LocalSideNavWidth provides sideNavWidth(shownNav)) {
+                                            PageStack(place, navigation, backState, pageBack) {
+                                                MainScaffold(tabs, navStyle, navLabels, navSwipe, place.tab, navAvatar, badges, onSelect = onSelectTab) {
+                                                    // The next tab moves in from the side it sits on, quicker than a page, in the style the person chose, and each tab is kept once made.
+                                                    KeptTabs(place.tab, tabs, pageMotion, tabMs, shift) { tab ->
+                                                        AppTab(tab, tabs, navigation)
+                                                    }
                                                 }
                                             }
+                                        }
+                                        // The tabs down the side of a wide window stay over every page.
+                                        if (sideNavWidth(shownNav) > 0.dp) {
+                                            SideNav(shownNav, place.top?.fullWindow != true, tabs, place.tab, navLabels, navAvatar, badges, onSelectTab)
                                         }
                                         CoverFlightLayer(flight)
                                         // An offer to go on with a title that was read further on another device.
@@ -349,7 +366,7 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                                         AppUpdateNotices({ navigation.push(Page.SettingsPage(SettingsTarget.AppUpdate)) }, Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)).padding(12.dp))
                                         // The first steps after installing, over everything until they are gone through or skipped, then fading away to the library.
                                         androidx.compose.animation.AnimatedVisibility(onboardingDone == false, enter = fadeIn(tween(300)), exit = fadeOut(tween(450)) + scaleOut(tween(450), targetScale = 1.03f)) {
-                                            OnboardingScreen(onMigrate = { navigation.push(Page.Migration(it)) })
+                                            OnboardingScreen(onMigrate = { navigation.push(Page.Migration(it)) }, onOpenSettings = { navigation.push(Page.SettingsPage(it)) })
                                         }
                                         if (perfOverlay) {
                                             // The box stays where it was dragged to, and starts in a corner that suits the screen.
@@ -366,6 +383,8 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                         }
                         // While locked the lock takes the place of the app, dialogs and all, under the bar of the window so the window can still be moved and closed.
                         AppGuard(container.lock, container.reading)
+                    }
+                    OpeningCover(opening, ready)
                     }
                     }
                     if (locked == false && shortcutsOpen) ShortcutsDialog(gestures) { shortcutsOpen = false }

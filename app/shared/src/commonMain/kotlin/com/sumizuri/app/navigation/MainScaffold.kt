@@ -3,7 +3,6 @@ package com.sumizuri.app.navigation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -23,21 +22,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.sumizuri.app.navigation.bar.BottomNavBar
 import com.sumizuri.app.navigation.bar.IslandMetrics
 import com.sumizuri.app.navigation.bar.IslandNavBar
 import com.sumizuri.app.navigation.bar.NavAvatar
 import com.sumizuri.app.navigation.bar.NavLabels
 import com.sumizuri.app.navigation.bar.NavStyle
-import com.sumizuri.app.navigation.bar.SideNavDrawer
-import com.sumizuri.app.navigation.bar.SideNavRail
 import com.sumizuri.app.ui.kit.page.LocalBottomClearance
 import com.sumizuri.app.ui.kit.page.LocalHideBottomBar
 import com.sumizuri.app.ui.motion.Rise
-
-// Below this width the tabs float or sit at the bottom, above it they go down the side.
-private val CompactWidth = 600.dp
 
 // The frame of the tabs: the bar the person chose, placed where its style puts it, around the page of the open tab. A floating bar lies over the page, which leaves room for it at its bottom through LocalBottomClearance.
 @Composable
@@ -61,13 +54,7 @@ fun MainScaffold(
     CompositionLocalProvider(LocalHideBottomBar provides hide) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             // Adaptive keeps the tabs in a bar along the bottom of a phone, which never lies over the page, and in a rail down the side of a wide window. The floating bar is there for whoever picks it.
-            val shown = if (style != NavStyle.Auto) {
-                style
-            } else if (maxWidth < CompactWidth) {
-                NavStyle.Bar
-            } else {
-                NavStyle.Rail
-            }
+            val shown = shownNavStyle(style, maxWidth)
             // A swipe is left out where a tab already uses it, which the library and the updates do to change the shelf.
             val swipeHere = swipe && selected != Destination.Library && selected != Destination.Updates
             val page = Modifier.swipeTabs(swipeHere && shown in Bottom, tabs, selected, onSelect)
@@ -93,10 +80,13 @@ fun MainScaffold(
                     Rise(!hidden) { BottomNavBar(tabs, selected, labels, avatar, badges, onSelect) }
                 }
 
-                NavStyle.Rail, NavStyle.Drawer -> Row(Modifier.fillMaxSize()) {
-                    if (shown == NavStyle.Rail) SideNavRail(tabs, selected, labels, avatar, badges, onSelect) else SideNavDrawer(tabs, selected, avatar, badges, onSelect)
-                    Box(Modifier.weight(1f).fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.End + WindowInsetsSides.Bottom))) { content() }
-                }
+                // The tabs down the side are drawn over everything by SideNav, so the page only keeps clear of them.
+                NavStyle.Rail, NavStyle.Drawer -> Box(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(start = LocalSideNavWidth.current)
+                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.End + WindowInsetsSides.Bottom)),
+                ) { content() }
             }
         }
     }
