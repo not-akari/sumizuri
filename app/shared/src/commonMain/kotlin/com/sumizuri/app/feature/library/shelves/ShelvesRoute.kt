@@ -8,18 +8,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sumizuri.app.data.LocalAppContainer
 
 @Composable
-fun ShelvesRoute(onBack: () -> Unit) {
+fun ShelvesRoute(onBack: () -> Unit, onEdit: (Long) -> Unit) {
     val container = LocalAppContainer.current
     val viewModel = viewModel { ShelvesViewModel(container.categories, container.library, container.sources) }
     val categories by viewModel.categories.collectAsStateWithLifecycle()
     val calls =
-        remember(viewModel) {
+        remember(viewModel, onEdit) {
             ShelfCalls(
                 viewModel::onAdd,
-                viewModel::onDelete,
                 viewModel::onReorder,
-                viewModel::onSave,
-                viewModel::countMatches,
+                onEdit,
             )
         }
     ShelvesScreen(categories, onBack, calls)

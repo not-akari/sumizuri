@@ -14,8 +14,6 @@ import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Shuffle
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -42,6 +40,8 @@ import com.sumizuri.app.shared.resources.library_update
 import com.sumizuri.app.shared.resources.library_update_shelf
 import com.sumizuri.app.shared.resources.library_updating
 import com.sumizuri.app.shared.resources.titles_count
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import com.sumizuri.app.ui.kit.page.PageTopBar
 import com.sumizuri.app.ui.text.progressTimeText
 import org.jetbrains.compose.resources.pluralStringResource
@@ -108,8 +108,8 @@ private fun MoreMenu(shelfOpen: Boolean, canUpdate: Boolean, calls: LibraryCalls
     // The menu opens under the button, so the two are together in one box.
     Box {
         IconButton({ open = true }) { Icon(Icons.Outlined.MoreVert, null) }
-        DropdownMenu(open, { open = false }) {
-            DropdownMenuItem(
+        AppMenu(open, { open = false }) {
+            AppMenuItem(
                 text = {
                     Text(
                         stringResource(if (shelfOpen) Res.string.library_update_shelf else Res.string.library_update),
@@ -122,7 +122,7 @@ private fun MoreMenu(shelfOpen: Boolean, canUpdate: Boolean, calls: LibraryCalls
                     calls.onUpdate()
                 },
             )
-            DropdownMenuItem(
+            AppMenuItem(
                 text = { Text(stringResource(Res.string.library_random)) },
                 leadingIcon = { Icon(Icons.Outlined.Shuffle, null, Modifier.size(20.dp)) },
                 onClick = {
@@ -130,7 +130,7 @@ private fun MoreMenu(shelfOpen: Boolean, canUpdate: Boolean, calls: LibraryCalls
                     calls.onRandom()
                 },
             )
-            DropdownMenuItem(
+            AppMenuItem(
                 text = { Text(stringResource(Res.string.display_shelves)) },
                 leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Label, null, Modifier.size(20.dp)) },
                 onClick = {
@@ -138,7 +138,7 @@ private fun MoreMenu(shelfOpen: Boolean, canUpdate: Boolean, calls: LibraryCalls
                     calls.onOpenShelves()
                 },
             )
-            DropdownMenuItem(
+            AppMenuItem(
                 text = { Text(stringResource(Res.string.download_title)) },
                 leadingIcon = { Icon(Icons.Outlined.Download, null, Modifier.size(20.dp)) },
                 onClick = {

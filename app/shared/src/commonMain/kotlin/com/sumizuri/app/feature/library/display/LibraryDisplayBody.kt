@@ -16,6 +16,8 @@ import com.sumizuri.app.data.model.library.CoverCorner
 import com.sumizuri.app.data.model.library.LibraryDisplayStyle
 import com.sumizuri.app.data.model.library.LibraryPrefs
 import com.sumizuri.app.feature.library.top.LibraryTopEditor
+import com.sumizuri.app.feature.settings.JumpSection
+import com.sumizuri.app.feature.settings.LocalPageJumps
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.display_collapsible_search
 import com.sumizuri.app.shared.resources.display_collapsible_search_hint
@@ -34,20 +36,20 @@ import com.sumizuri.app.shared.resources.display_home_cover
 import com.sumizuri.app.shared.resources.display_list_cover
 import com.sumizuri.app.shared.resources.display_name_size
 import com.sumizuri.app.shared.resources.display_panorama
-import com.sumizuri.app.shared.resources.display_percent
 import com.sumizuri.app.shared.resources.display_progress
 import com.sumizuri.app.shared.resources.display_style
 import com.sumizuri.app.shared.resources.display_wide
+import com.sumizuri.app.ui.kit.chips.FilterTabs
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
-import com.sumizuri.app.ui.kit.setting.PartTabs
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.kit.setting.SliderSetting
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
+import com.sumizuri.app.ui.text.percentText
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
-// The groups of choices, shown one at a time as tabs so no group is a long scroll.
+// The groups of choices: on the page of the settings all of them one under the other with pills that jump to each, and in the sheet over the library one at a time under plain tabs.
 private enum class Group(val label: StringResource) {
     Layout(Res.string.display_group_layout),
     Covers(Res.string.display_group_covers),
@@ -55,22 +57,31 @@ private enum class Group(val label: StringResource) {
     Tabs(Res.string.display_group_tabs),
 }
 
-// Everything that sets how the library looks, as the sheet over the library and the page in the settings both show it. The choices are in four groups under tabs: the layout and its sizes, what is on the covers, the parts at the top of the page, and the tabs, shelves and search. Each choice is saved as it is made.
+// Everything that sets how the library looks, as the sheet over the library and the page in the settings both show it. The choices are in four groups: the layout and its sizes, what is on the covers, the parts at the top of the page, and the tabs, shelves and search. Each choice is saved as it is made.
 @Composable
 internal fun LibraryDisplayBody(prefs: LibraryPrefs, onChange: ((LibraryPrefs) -> LibraryPrefs) -> Unit) {
-    var group by remember { mutableStateOf(Group.Layout) }
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        PartTabs(Group.entries, group, { stringResource(it.label) }) { group = it }
-        Column(Modifier.heightIn(min = 340.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            when (group) {
-                Group.Layout -> LayoutGroup(prefs, onChange)
-                Group.Covers -> CoversGroup(prefs, onChange)
-                Group.Top -> TopGroup(prefs, onChange)
-                Group.Tabs -> TabsGroup(prefs, onChange)
-            }
+    val one: @Composable (Group) -> Unit = { group ->
+        when (group) {
+            Group.Layout -> LayoutGroup(prefs, onChange)
+            Group.Covers -> CoversGroup(prefs, onChange)
+            Group.Top -> TopGroup(prefs, onChange)
+            Group.Tabs -> TabsGroup(prefs, onChange)
         }
     }
+    if (LocalPageJumps.current != null) {
+        for (group in Group.entries) JumpSection(stringResource(group.label)) { one(group) }
+        return
+    }
+    var group by remember { mutableStateOf(Group.Layout) }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        FilterTabs(Group.entries.map { it to stringResource(it.label) }, group, { group = it })
+        Column(Modifier.heightIn(min = 340.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) { one(group) }
+    }
 }
+
+// The names of the groups, for the pills of the page.
+@Composable
+internal fun displayJumps(): List<String> = Group.entries.map { stringResource(it.label) }
 
 @Composable
 private fun LayoutGroup(prefs: LibraryPrefs, onChange: ((LibraryPrefs) -> LibraryPrefs) -> Unit) {
@@ -109,13 +120,7 @@ private fun LayoutGroup(prefs: LibraryPrefs, onChange: ((LibraryPrefs) -> Librar
         }
         padded {
             SliderSetting(Res.string.display_name_size, prefs.nameScale, LibraryPrefs.NameScaleRange, {
-                stringResource(
-                    Res.string.display_percent,
-                    (
-                        it *
-                            100
-                        ).roundToInt(),
-                )
+                percentText(it)
             }) { scale -> onChange { it.copy(nameScale = scale) } }
         }
     }

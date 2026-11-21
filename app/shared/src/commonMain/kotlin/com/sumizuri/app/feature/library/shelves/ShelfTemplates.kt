@@ -2,7 +2,6 @@ package com.sumizuri.app.feature.library.shelves
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
@@ -16,6 +15,7 @@ import com.sumizuri.app.shared.resources.shelf_template_done
 import com.sumizuri.app.shared.resources.shelf_template_fresh
 import com.sumizuri.app.shared.resources.shelf_template_reading
 import com.sumizuri.app.shared.resources.shelf_template_untouched
+import com.sumizuri.app.ui.kit.chips.SoftActionChip
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -66,7 +66,7 @@ private val Templates = listOf(
 internal fun ShelfTemplates(onPick: (List<ShelfCondition>) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         for (template in Templates) {
-            AssistChip({ onPick(template.conditions) }, { Text(stringResource(template.label)) })
+            SoftActionChip({ onPick(template.conditions) }, { Text(stringResource(template.label)) })
         }
     }
 }

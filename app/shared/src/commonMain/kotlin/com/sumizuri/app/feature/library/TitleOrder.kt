@@ -36,7 +36,7 @@ private fun comparatorOf(field: LibrarySortField, ascending: Boolean, context: O
         LibrarySortField.LastRead -> compareBy { it.lastRead }
         LibrarySortField.LatestChapter -> compareBy { it.latest }
         LibrarySortField.ChapterCount -> compareBy { it.title.chapterCount }
-        LibrarySortField.Progress -> compareBy { progressOf(it.title) }
+        LibrarySortField.Progress -> compareBy { it.title.readPart ?: 0f }
         LibrarySortField.Status -> compareBy { it.title.status.code }
         LibrarySortField.Source -> compareBy(text) { context.sourceNames[it.title.sourceId] ?: it.title.sourceId }
         LibrarySortField.Author -> compareBy(text) { it.title.author }
@@ -46,15 +46,6 @@ private fun comparatorOf(field: LibrarySortField, ascending: Boolean, context: O
         LibrarySortField.Random -> compareBy { scramble(it.title.id xor context.seed) }
     }
     return if (ascending) base else base.reversed()
-}
-
-// How far the reader is through a title, from 0 to 1.
-private fun progressOf(title: Title): Double = if (title.chapterCount <=
-    0
-) {
-    0.0
-} else {
-    (title.chapterCount - title.unread).coerceAtLeast(0).toDouble() / title.chapterCount
 }
 
 // A number that looks unrelated to the one given, the same each time, so the random order only changes with the seed.
