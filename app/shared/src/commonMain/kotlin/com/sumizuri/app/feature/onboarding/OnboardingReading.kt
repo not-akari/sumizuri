@@ -14,7 +14,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,7 +61,7 @@ import com.sumizuri.app.shared.resources.onboarding_reading_text
 import com.sumizuri.app.shared.resources.onboarding_reading_title
 import com.sumizuri.app.shared.resources.reader_text_size
 import com.sumizuri.app.ui.kit.art.rise
-import com.sumizuri.app.ui.kit.card.AppCard
+import com.sumizuri.app.ui.kit.card.softCard
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.kit.setting.SliderSetting
 import org.jetbrains.compose.resources.StringResource
@@ -74,11 +74,17 @@ internal fun ReadingStep() {
     val container = LocalAppContainer.current
     val model = viewModel { GlobalReaderViewModel(container.reading) }
     val settings by model.settings.collectAsStateWithLifecycle()
+    var live by remember(settings.fontSize) { mutableFloatStateOf(settings.fontSize.toFloat()) }
+    val shown by animateFloatAsState(live, tween(160), label = "text size")
     StepHeader(stringResource(Res.string.onboarding_reading_title), stringResource(Res.string.onboarding_reading_text))
-    BoxWithConstraints(Modifier.fillMaxWidth().rise(2)) {
-        val wide = maxWidth > 520.dp
-        // The modes sit in a card of the settings, each marked the way the panel of modes in the reader marks the one in use.
-        val options: @Composable () -> Unit = {
+    // The modes sit in a card of the settings, each marked the way the panel of modes in the reader marks the one in use, with the pages turning that way beside them.
+    Row(
+        Modifier.rise(2),
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        PagePreview(settings.mode, Modifier.width(120.dp))
+        Box(Modifier.weight(1f)) {
             SettingsSection {
                 padded {
                     Column(Modifier.padding(vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -92,46 +98,30 @@ internal fun ReadingStep() {
                 }
             }
         }
-        if (wide) {
-            Row(horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                PagePreview(settings.mode, Modifier.width(132.dp))
-                Column(Modifier.weight(1f)) { options() }
-            }
-        } else {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                PagePreview(settings.mode, Modifier.width(120.dp))
-                options()
-            }
-        }
     }
-    var live by remember(settings.fontSize) { mutableFloatStateOf(settings.fontSize.toFloat()) }
-    val shown by animateFloatAsState(live, tween(160), label = "text size")
+    ReadingSize(settings.fontSize, { live = it }) { value -> model.update { it.copy(fontSize = value) } }
+    // A line of a story at the size chosen, which follows the slider as it moves.
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .rise(3)
+            .softCard()
+            .padding(16.dp),
+    ) {
+        Text(stringResource(Res.string.onboarding_reading_sample), fontSize = shown.sp, lineHeight = (shown * 1.6f).sp)
+    }
+}
+
+// The size of the text of novels, which the line of the story under it follows while the slider moves.
+@Composable
+private fun ReadingSize(size: Int, onMove: (Float) -> Unit, onSet: (Int) -> Unit) {
     Column(Modifier.rise(3), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SettingsSection {
             padded {
-                SliderSetting(Res.string.reader_text_size, settings.fontSize.toFloat(), 12f..40f, {
+                SliderSetting(Res.string.reader_text_size, size.toFloat(), 12f..40f, {
                     it.roundToInt().toString()
-                }, onMove = {
-                    live =
-                        it
-                }) { value ->
-                    model.update { it.copy(fontSize = value.roundToInt()) }
-                }
+                }, onMove = onMove) { value -> onSet(value.roundToInt()) }
             }
-        }
-        AppCard(Modifier.fillMaxWidth()) {
-            Text(
-                stringResource(Res.string.onboarding_reading_sample),
-                Modifier.padding(16.dp),
-                fontSize = shown.sp,
-                lineHeight = (
-                    shown *
-                        1.6f
-                    ).sp,
-            )
         }
     }
 }

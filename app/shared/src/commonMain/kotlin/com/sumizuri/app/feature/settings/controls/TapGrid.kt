@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,6 +27,8 @@ import com.sumizuri.app.data.model.controls.ReaderAction
 import com.sumizuri.app.data.model.controls.TapGeometry
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.tap_zone_nothing
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import org.jetbrains.compose.resources.stringResource
 
 // A bar never gets thinner than this share, so a cell can always be tapped.
@@ -82,13 +82,13 @@ private fun Cell(action: ReaderAction?, modifier: Modifier, onPick: (ReaderActio
                 )
             }
         }
-        DropdownMenu(open, { open = false }) {
-            DropdownMenuItem({ Text(stringResource(Res.string.tap_zone_nothing)) }, {
+        AppMenu(open, { open = false }) {
+            AppMenuItem({ Text(stringResource(Res.string.tap_zone_nothing)) }, {
                 open = false
                 onPick(null)
             })
             for (choice in ReaderAction.entries) {
-                DropdownMenuItem({ Text(stringResource(choice.label)) }, {
+                AppMenuItem({ Text(stringResource(choice.label)) }, {
                     open = false
                     onPick(choice)
                 })

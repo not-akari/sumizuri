@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -38,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.editor_color_hex
 import com.sumizuri.app.shared.resources.editor_color_reset
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.theme.hsvOf
 import com.sumizuri.app.ui.theme.spec.toColor
 import org.jetbrains.compose.resources.StringResource
@@ -124,7 +124,7 @@ internal fun ColorPicker(
                 },
         )
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(
+            AppTextField(
                 text,
                 { input ->
                     // Only hex digits are kept, so a pasted #3D8BFF works as well.

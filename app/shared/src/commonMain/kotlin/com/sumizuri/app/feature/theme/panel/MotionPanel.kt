@@ -12,6 +12,7 @@ import com.sumizuri.app.shared.resources.editor_hover_scale
 import com.sumizuri.app.shared.resources.editor_press_scale
 import com.sumizuri.app.shared.resources.editor_transition_speed
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
+import com.sumizuri.app.ui.text.percentText
 import com.sumizuri.app.ui.theme.spec.AppThemeSpec
 import com.sumizuri.app.ui.theme.spec.ThemeMotion
 

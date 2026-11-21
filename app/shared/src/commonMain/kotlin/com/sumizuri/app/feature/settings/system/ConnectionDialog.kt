@@ -14,7 +14,6 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,6 +46,7 @@ import com.sumizuri.app.shared.resources.network_state_failed
 import com.sumizuri.app.shared.resources.save
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.dialog.AppDialog
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.input.rememberFilePicker
 import com.sumizuri.app.ui.kit.input.rememberImagePicker
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
@@ -222,7 +222,7 @@ private fun LineField(
     onChange: (String) -> Unit,
 ) {
     var shown by remember { mutableStateOf(false) }
-    OutlinedTextField(
+    AppTextField(
         value,
         onChange,
         Modifier.fillMaxWidth(),

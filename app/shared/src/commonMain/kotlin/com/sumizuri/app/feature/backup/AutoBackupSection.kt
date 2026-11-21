@@ -21,7 +21,6 @@ import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.backup.AutoBackups
 import com.sumizuri.app.data.backup.SavedBackup
 import com.sumizuri.app.data.settings.SettingKey
-import com.sumizuri.app.feature.sync.admin.sizeText
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.backup_auto_days
 import com.sumizuri.app.shared.resources.backup_auto_every
@@ -54,6 +53,7 @@ import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.text.agoText
+import com.sumizuri.app.ui.text.byteSizeText
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -146,7 +146,11 @@ internal fun AutoBackupSections(onRestore: (SavedBackup) -> Unit) {
             row {
                 SettingRow(
                     backup.name,
-                    subtitle = stringResource(Res.string.backup_saved_line, agoText(backup.at), sizeText(backup.bytes)),
+                    subtitle = stringResource(
+                        Res.string.backup_saved_line,
+                        agoText(backup.at),
+                        byteSizeText(backup.bytes),
+                    ),
                     leading = { SettingIcon(Icons.Outlined.History) },
                     onClick = { open = backup },
                 )
@@ -161,7 +165,7 @@ internal fun AutoBackupSections(onRestore: (SavedBackup) -> Unit) {
             // The actions sit one under the other, so they never wrap on a phone.
             text = {
                 Column {
-                    Text(stringResource(Res.string.backup_saved_line, agoText(backup.at), sizeText(backup.bytes)))
+                    Text(stringResource(Res.string.backup_saved_line, agoText(backup.at), byteSizeText(backup.bytes)))
                     TextButton({
                         open = null
                         onRestore(backup)

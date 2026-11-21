@@ -19,8 +19,6 @@ import androidx.compose.material.icons.outlined.Hub
 import androidx.compose.material.icons.outlined.Lan
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.Wifi
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -76,6 +74,8 @@ import com.sumizuri.app.shared.resources.settings_network_hint
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.card.AppCard
 import com.sumizuri.app.ui.kit.input.MenuButton
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
@@ -292,10 +292,10 @@ private fun ConnectionsSection(setting: NetworkSetting, states: Map<String, Link
                     leading = { SettingIcon(Icons.Outlined.Add) },
                     onClick = { adding = true },
                 )
-                DropdownMenu(adding, { adding = false }) {
+                AppMenu(adding, { adding = false }) {
                     for (type in ConnectionType.entries) {
                         val name = stringResource(type.label)
-                        DropdownMenuItem({ Text(name) }, {
+                        AppMenuItem({ Text(name) }, {
                             adding = false
                             onEdit(Connection(Random.nextLong().toULong().toString(36), name, type))
                         })

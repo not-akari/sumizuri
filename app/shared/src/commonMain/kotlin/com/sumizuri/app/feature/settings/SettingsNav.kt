@@ -1,21 +1,25 @@
 package com.sumizuri.app.feature.settings
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,50 +31,39 @@ import androidx.compose.ui.unit.dp
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.settings_new
 import com.sumizuri.app.ui.kit.card.ListChevron
-import com.sumizuri.app.ui.kit.setting.SettingsSection
+import com.sumizuri.app.ui.kit.card.softCard
+import com.sumizuri.app.ui.kit.card.softFill
+import com.sumizuri.app.ui.motion.AppMotion
+import com.sumizuri.app.ui.motion.entrance
+import com.sumizuri.app.ui.motion.motionMs
 import com.sumizuri.app.ui.theme.LocalThemeSpec
 import org.jetbrains.compose.resources.stringResource
 
-// The corners of a row of the list, round like the rows of the panels of the reader.
-private val RowShape = RoundedCornerShape(16.dp)
-
-// The list of the settings in the way of the panels of the reader: each group under a quiet name, and each page a plain row with its icon, its name and what it is set to, the open one lit. Beside an open page on a wide window there are no arrows, as the page opens there, and alone on a phone an arrow shows a row opens a page when the theme has them.
+// The list of the settings, the same on a phone and beside an open page: each group under its name as one soft card, and each page a row with its icon on a round wash, its name and what it is set to. The page open beside the list is lit, and alone on a phone an arrow shows a row opens a page when the theme has them.
 @Composable
 internal fun NavGroups(pages: List<SettingsPage>, selected: SettingsTarget?, arrows: Boolean = false) {
-    // Alone on a phone each group stands in a card, as the groups of the pages it opens do, so the list and its pages look the same.
-    if (arrows) {
-        for (group in SettingsGroup.entries) {
-            val here = pages.filter { it.group == group }
-            if (here.isEmpty()) continue
-            SettingsSection(group.label) {
-                for (page in here) {
-                    row { NavRow(page.icon, page.title, page.summary, false, page.fresh, true, page.open) }
-                }
-            }
-        }
-        return
-    }
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         for (group in SettingsGroup.entries) {
             val here = pages.filter { it.group == group }
             if (here.isEmpty()) continue
             Text(
-                stringResource(group.label),
-                Modifier.padding(start = 12.dp, top = 14.dp, bottom = 4.dp),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                stringResource(group.label).uppercase(),
+                Modifier.padding(start = 6.dp, top = 12.dp, bottom = 2.dp),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.outline,
             )
-            for (page in here) {
-                NavRow(
-                    page.icon,
-                    page.title,
-                    page.summary,
-                    page.target == selected,
-                    page.fresh,
-                    arrows,
-                    page.open,
-                )
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .entrance()
+                    .softCard(shape = MaterialTheme.shapes.medium)
+                    .padding(4.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                for (page in here) {
+                    NavRow(page.icon, page.title, page.summary, page.target == selected, page.fresh, arrows, page.open)
+                }
             }
         }
     }
@@ -87,31 +80,44 @@ private fun NavRow(
     onClick: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
-    val fill by animateColorAsState(if (on) colors.primary.copy(alpha = 0.16f) else Color.Transparent)
+    val press = remember { MutableInteractionSource() }
+    val hovered by press.collectIsHoveredAsState()
+    val fill by animateColorAsState(
+        when {
+            on -> colors.primary.copy(alpha = 0.18f)
+            hovered -> colors.primary.copy(alpha = 0.08f)
+            else -> Color.Transparent
+        },
+        tween(motionMs(AppMotion.Fast)),
+        label = "row",
+    )
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(RowShape)
+            .clip(MaterialTheme.shapes.small)
             .background(fill)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 9.dp),
+            .clickable(press, indication = null, onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Icon(icon, null, Modifier.size(22.dp), tint = if (on) colors.primary else colors.onSurfaceVariant)
+        Box(
+            Modifier.size(36.dp).clip(CircleShape).background(if (on) colors.primary else softFill(strong = true)),
+            contentAlignment = Alignment.Center,
+        ) { Icon(icon, null, Modifier.size(19.dp), tint = if (on) colors.onPrimary else colors.primary) }
         Column(Modifier.weight(1f)) {
             Text(
                 title,
                 style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium,
-                color = if (on) colors.onSurface else colors.onSurface.copy(alpha = 0.92f),
+                fontWeight = if (on) FontWeight.Bold else FontWeight.Medium,
+                color = colors.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 summary,
                 style = MaterialTheme.typography.bodySmall,
-                color = colors.outline,
+                color = colors.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

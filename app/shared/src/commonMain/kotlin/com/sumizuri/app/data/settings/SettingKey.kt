@@ -10,6 +10,10 @@ object SettingKey {
     const val PerfOverlayLevel = "debug.perfOverlayLevel"
     const val PerfOverlayAt = "debug.perfOverlayAt"
 
+    // Whether the page of features still being tried out shows in the settings, and the features on it. All are off at first.
+    const val ShowExperimental = "debug.showExperimental"
+    const val ProfileBanner = "experimental.profileBanner"
+
     // Whether a site opens in a page of the app or in the person's own browser.
     const val WebInApp = "web.inApp"
     const val Oled = "app.oled"
@@ -30,8 +34,12 @@ object SettingKey {
     // Whether the person has gone through, or skipped, the first steps after installing.
     const val OnboardingDone = "onboarding.done"
 
+    // The step of the first run the person was on, so it opens there again after the app closes.
+    const val OnboardingStep = "onboarding.step"
+
     // How one page gives way to another, and whether the parts of a page rise in one after the other.
     const val PageMotion = "layout.pageMotion"
+    const val Opening = "layout.opening"
     const val Stagger = "layout.stagger"
     const val Language = "app.language"
 

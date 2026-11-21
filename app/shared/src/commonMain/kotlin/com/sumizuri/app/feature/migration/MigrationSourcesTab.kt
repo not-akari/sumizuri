@@ -1,11 +1,9 @@
 package com.sumizuri.app.feature.migration
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +13,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +36,10 @@ import com.sumizuri.app.shared.resources.mig_source_stats
 import com.sumizuri.app.shared.resources.mig_sources_empty
 import com.sumizuri.app.shared.resources.mig_sources_filter
 import com.sumizuri.app.shared.resources.mig_sources_hint
-import com.sumizuri.app.ui.kit.card.AppCard
+import com.sumizuri.app.ui.kit.card.softCard
+import com.sumizuri.app.ui.kit.card.softPress
+import com.sumizuri.app.ui.kit.chips.ChipRow
+import com.sumizuri.app.ui.kit.chips.SoftActionChip
 import com.sumizuri.app.ui.kit.cover.SourceMark
 import com.sumizuri.app.ui.kit.cover.shownName
 import com.sumizuri.app.ui.kit.input.AppSearchBar
@@ -69,14 +69,16 @@ internal fun MigrationSourcesTab(state: MigrationState, session: MigrationSessio
         }
         item { AppSearchBar(query, { query = it }, stringResource(Res.string.mig_sources_filter)) }
         item {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            ChipRow(wrap = true) {
                 val ids = shown.map { it.source.id }.toSet()
-                TextButton(
+                SoftActionChip(
                     { session.setSourcesIncluded(ids, true) },
-                ) { Text(stringResource(Res.string.mig_include_shown)) }
-                TextButton(
+                    { Text(stringResource(Res.string.mig_include_shown)) },
+                )
+                SoftActionChip(
                     { session.setSourcesIncluded(ids, false) },
-                ) { Text(stringResource(Res.string.mig_exclude_shown)) }
+                    { Text(stringResource(Res.string.mig_exclude_shown)) },
+                )
             }
         }
         if (state.sources.isEmpty()) {
@@ -128,9 +130,15 @@ private fun SourceCard(
     modifier: Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
-    AppCard(modifier.fillMaxWidth().shadow(if (lifted) 6.dp else 0.dp, MaterialTheme.shapes.medium)) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .shadow(if (lifted) 6.dp else 0.dp, MaterialTheme.shapes.small)
+            .softPress(onToggle)
+            .then(if (lifted) Modifier.softCard(strong = true) else Modifier),
+    ) {
         Row(
-            Modifier.clickable(onClick = onToggle).padding(start = 6.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+            Modifier.padding(6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {

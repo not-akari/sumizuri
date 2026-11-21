@@ -78,7 +78,12 @@ internal fun UpdatesStep() {
         prefs,
     ) { prefs.flag(SettingKey.UpdateInBackground, true) }.collectAsStateWithLifecycle(true)
     val notify by remember(prefs) { prefs.flag(SettingKey.UpdateNotify, true) }.collectAsStateWithLifecycle(true)
-    StepHeader(stringResource(Res.string.onboarding_updates_title), stringResource(Res.string.onboarding_updates_text))
+    StepHeader(
+        stringResource(
+            Res.string.onboarding_updates_title,
+        ),
+        stringResource(Res.string.onboarding_updates_text),
+    )
     Box(Modifier.fillMaxWidth().rise(2), contentAlignment = Alignment.Center) { RingingBell(notify) }
     Box(Modifier.rise(3)) {
         SettingsSection {

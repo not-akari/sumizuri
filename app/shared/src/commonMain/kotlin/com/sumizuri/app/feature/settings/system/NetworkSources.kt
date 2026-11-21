@@ -3,7 +3,6 @@ package com.sumizuri.app.feature.settings.system
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,7 +12,6 @@ import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.net.Network
 import com.sumizuri.app.data.net.NetworkSetting
 import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.cancel
 import com.sumizuri.app.shared.resources.network_source_add
 import com.sumizuri.app.shared.resources.network_source_route
 import com.sumizuri.app.shared.resources.network_source_source
@@ -22,6 +20,7 @@ import com.sumizuri.app.shared.resources.save
 import com.sumizuri.app.source.repo.InstalledSource
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.dialog.AppDialog
+import com.sumizuri.app.ui.kit.dialog.CancelButton
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
 import org.jetbrains.compose.resources.stringResource
 
@@ -55,6 +54,6 @@ internal fun SourceRouteDialog(setting: NetworkSetting, sources: List<InstalledS
                 onDone()
             }, enabled = source != null) { Text(stringResource(Res.string.save)) }
         },
-        dismissButton = { TextButton(onDone) { Text(stringResource(Res.string.cancel)) } },
+        dismissButton = { CancelButton(onDone) },
     )
 }

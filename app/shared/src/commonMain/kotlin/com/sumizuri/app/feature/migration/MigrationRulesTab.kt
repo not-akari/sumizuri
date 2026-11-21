@@ -55,6 +55,7 @@ internal fun MigrationRulesTab(state: MigrationState, session: MigrationSession)
     val rules = state.rules
     fun change(next: MigrationRules) = session.setRules(next)
     PageList(gap = 14.dp) {
+        item { PresetSection(rules, ::change) }
         item {
             SettingsSection(Res.string.mig_group_matching) {
                 padded {

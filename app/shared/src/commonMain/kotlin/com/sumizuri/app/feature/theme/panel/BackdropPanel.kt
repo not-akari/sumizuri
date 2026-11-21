@@ -70,6 +70,7 @@ import com.sumizuri.app.ui.theme.spec.toColor
 import com.sumizuri.app.ui.theme.spec.toLong
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
+import com.sumizuri.app.ui.text.percentText
 
 // The most colors of its own a background can have.
 private const val MostColors = 6

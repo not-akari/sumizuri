@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import com.sumizuri.app.data.model.reader.ReaderSettings
 import com.sumizuri.app.feature.settings.GlobalReaderViewModel
 import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.display_percent
 import com.sumizuri.app.shared.resources.reader_bedtime
 import com.sumizuri.app.shared.resources.reader_bedtime_dim
 import com.sumizuri.app.shared.resources.reader_bedtime_from
@@ -18,16 +17,17 @@ import com.sumizuri.app.shared.resources.reading_group_bedtime
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.kit.setting.SliderSetting
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
+import com.sumizuri.app.ui.text.percentText
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 // The colors of the pages: how much of an old paper brown they take and how strong their contrast is.
 @Composable
 internal fun PageColorFilters(settings: ReaderSettings, model: GlobalReaderViewModel) {
-    SliderSetting(Res.string.reader_sepia, settings.sepia, 0f..1f, { percent(it) }) { value ->
+    SliderSetting(Res.string.reader_sepia, settings.sepia, 0f..1f, { percentText(it) }) { value ->
         model.update { it.copy(sepia = value) }
     }
-    SliderSetting(Res.string.reader_contrast, settings.contrast, 0.5f..2f, { percent(it) }) { value ->
+    SliderSetting(Res.string.reader_contrast, settings.contrast, 0.5f..2f, { percentText(it) }) { value ->
         model.update { it.copy(contrast = value) }
     }
 }
@@ -62,13 +62,18 @@ internal fun BedtimeSection(settings: ReaderSettings, model: GlobalReaderViewMod
                     Res.string.reader_bedtime_warmth,
                     settings.bedtimeWarmth,
                     0f..1f,
-                    { percent(it) },
+                    { percentText(it) },
                 ) { value ->
                     model.update { it.copy(bedtimeWarmth = value) }
                 }
             }
             padded {
-                SliderSetting(Res.string.reader_bedtime_dim, settings.bedtimeDim, 0f..1f, { percent(it) }) { value ->
+                SliderSetting(
+                    Res.string.reader_bedtime_dim,
+                    settings.bedtimeDim,
+                    0f..1f,
+                    { percentText(it) },
+                ) { value ->
                     model.update { it.copy(bedtimeDim = value) }
                 }
             }
@@ -85,7 +90,3 @@ private fun HourSlider(title: org.jetbrains.compose.resources.StringResource, ho
         onDone(value.roundToInt())
     }
 }
-
-// A part as a percent, such as 0.6 as 60%.
-@Composable
-private fun percent(value: Float): String = stringResource(Res.string.display_percent, (value * 100).roundToInt())

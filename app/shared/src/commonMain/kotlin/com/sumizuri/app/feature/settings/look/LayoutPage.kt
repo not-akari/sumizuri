@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sumizuri.app.OpeningStyle
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.feature.settings.SettingsPageFrame
@@ -18,6 +19,7 @@ import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.layout_group_lists
 import com.sumizuri.app.shared.resources.layout_group_motion
 import com.sumizuri.app.shared.resources.layout_group_navigation
+import com.sumizuri.app.shared.resources.opening_style
 import com.sumizuri.app.shared.resources.page_motion
 import com.sumizuri.app.shared.resources.page_stagger
 import com.sumizuri.app.shared.resources.page_stagger_hint
@@ -63,6 +65,7 @@ fun LayoutRoute(onBack: () -> Unit, onOpenLibraryDisplay: () -> Unit) {
     val labels by settings.navLabels.collectAsStateWithLifecycle()
     val swipe by settings.navSwipe.collectAsStateWithLifecycle()
     val pageMotion by settings.pageMotion.collectAsStateWithLifecycle()
+    val opening by remember(container) { container.settings.text(SettingKey.Opening) }.collectAsStateWithLifecycle(null)
     val stagger by settings.stagger.collectAsStateWithLifecycle()
     val language by settings.language.collectAsStateWithLifecycle()
     val webInApp by remember(container) {
@@ -145,6 +148,11 @@ fun LayoutRoute(onBack: () -> Unit, onOpenLibraryDisplay: () -> Unit) {
             }
         }
         SettingsSection(Res.string.layout_group_motion) {
+            padded {
+                ChoiceSetting(Res.string.opening_style, OpeningStyle.entries, OpeningStyle.of(opening), {
+                    stringResource(it.label)
+                }) { scope.launch { container.settings.setText(SettingKey.Opening, it.key) } }
+            }
             padded {
                 ChoiceSetting(Res.string.page_motion, PageMotion.entries, pageMotion, {
                     stringResource(it.label)

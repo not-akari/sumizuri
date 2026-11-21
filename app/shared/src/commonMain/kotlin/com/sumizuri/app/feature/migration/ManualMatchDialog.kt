@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +35,7 @@ import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.dialog.CancelButton
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.input.MenuButton
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -68,7 +68,7 @@ internal fun ManualMatchDialog(
                         results = null
                     }
                 }
-                OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth(), singleLine = true)
+                AppTextField(query, { query = it }, Modifier.fillMaxWidth(), singleLine = true)
                 if (loading) InkCircularProgressIndicator(Modifier.width(24.dp), strokeWidth = 2.dp)
                 message?.let {
                     Text(

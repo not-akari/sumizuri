@@ -48,6 +48,7 @@ import com.sumizuri.app.shared.resources.perf_work
 import com.sumizuri.app.shared.resources.perf_work_value
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
+import com.sumizuri.app.ui.text.byteSizeText
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -79,7 +80,7 @@ fun PerformanceRoute(onBack: () -> Unit) {
                     .get(
                         context,
                     ).memoryCache
-                    ?.let { "${it.size / (1024 * 1024)} / ${it.maxSize / (1024 * 1024)} MB" }
+                    ?.let { "${byteSizeText(it.size)} / ${byteSizeText(it.maxSize)}" }
             delay(1_000)
         }
     }

@@ -15,10 +15,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.FormatColorReset
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -63,6 +61,8 @@ import com.sumizuri.app.shared.resources.simple_top
 import com.sumizuri.app.shared.resources.simple_value
 import com.sumizuri.app.shared.resources.simple_weeks_n
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
+import com.sumizuri.app.ui.kit.chips.SoftChip
+import com.sumizuri.app.ui.kit.input.AppTextField
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -223,7 +223,7 @@ private fun WordChips(
     onPick: (String) -> Unit,
 ) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        for (key in keys) FilterChip(selected = key == chosen, onClick = { onPick(key) }, label = { Text(name(key)) })
+        for (key in keys) SoftChip(selected = key == chosen, onClick = { onPick(key) }, label = { Text(name(key)) })
     }
 }
 
@@ -279,7 +279,7 @@ private fun Field(
     lines: Int = 1,
     onChange: (String) -> Unit,
 ) {
-    OutlinedTextField(
+    AppTextField(
         value,
         onChange,
         Modifier.fillMaxWidth(),

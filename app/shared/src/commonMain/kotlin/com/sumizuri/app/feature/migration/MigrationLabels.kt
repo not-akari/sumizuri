@@ -15,21 +15,19 @@ import com.sumizuri.app.shared.resources.mig_status_not_found
 import com.sumizuri.app.shared.resources.mig_status_queued
 import com.sumizuri.app.shared.resources.mig_status_review
 import com.sumizuri.app.shared.resources.mig_status_searching
+import com.sumizuri.app.shared.resources.mig_step_search
 import com.sumizuri.app.shared.resources.mig_strict_balanced
 import com.sumizuri.app.shared.resources.mig_strict_loose
 import com.sumizuri.app.shared.resources.mig_strict_strict
-import com.sumizuri.app.shared.resources.mig_tab_results
-import com.sumizuri.app.shared.resources.mig_tab_rules
 import com.sumizuri.app.shared.resources.mig_tab_sources
 import com.sumizuri.app.shared.resources.mig_tab_titles
 import org.jetbrains.compose.resources.StringResource
 
-// The four parts of the page: which titles, which sources, how to match, and what was found.
-internal enum class MigrationTab(val label: StringResource) {
+// The three steps of the page: which titles, which sources, then the search and what it found.
+internal enum class MigrationStep(val label: StringResource) {
     Titles(Res.string.mig_tab_titles),
     Sources(Res.string.mig_tab_sources),
-    Rules(Res.string.mig_tab_rules),
-    Results(Res.string.mig_tab_results),
+    Search(Res.string.mig_step_search),
 }
 
 // The word for where a title is in the work.

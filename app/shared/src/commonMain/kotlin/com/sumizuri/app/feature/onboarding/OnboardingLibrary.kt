@@ -64,10 +64,13 @@ import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.material.icons.outlined.Sync
+import com.sumizuri.app.shared.resources.onboarding_sync_row
+import com.sumizuri.app.shared.resources.onboarding_sync_row_hint
 
 // A backup of this app or of another, brought in here. The way is the row of the backup page. While it works, a ring fills with the count of titles, and at the end a tick draws itself over what came in. Asking for a password or a yes uses the windows of the backup page.
 @Composable
-internal fun LibraryStep(onMigrate: (List<Long>) -> Unit) {
+internal fun LibraryStep(onMigrate: (List<Long>) -> Unit, onSync: () -> Unit) {
     val container = LocalAppContainer.current
     val model = viewModel { BackupViewModel(container.restorer, container.matcher, container.backupWriter, container.settings) }
     val state by model.state.collectAsStateWithLifecycle()
@@ -93,6 +96,8 @@ internal fun LibraryStep(onMigrate: (List<Long>) -> Unit) {
             LibraryPhase.Choose -> SettingsSection {
                 row { RepoRow(sources.repos.size, extensions::onAddOpen) }
                 row { RestoreRow(model::onPicked) }
+                // A second device can bring everything from the sync server instead.
+                row { SyncRow(onSync) }
             }
 
             LibraryPhase.Working -> Working(state)
@@ -153,4 +158,12 @@ private fun Finished(state: BackupState.Done?, onAnother: () -> Unit, onMigrate:
             if (state != null && state.waiting.isNotEmpty()) QuietButton(stringResource(Res.string.backup_migrate_now), { onMigrate(state.waiting) })
         }
     }
+}
+
+// Signing in to sync, which brings the library, shelves and progress of the other devices.
+@Composable
+private fun SyncRow(onSync: () -> Unit) {
+    SettingRow(stringResource(Res.string.onboarding_sync_row), subtitle = stringResource(Res.string.onboarding_sync_row_hint), subtitleLines = 3, leading = {
+        SettingIcon(Icons.Outlined.Sync)
+    }, trailing = { ListChevron() }, onClick = onSync)
 }

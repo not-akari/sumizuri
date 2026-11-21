@@ -48,6 +48,7 @@ import com.sumizuri.app.shared.resources.editor_seed_custom
 import com.sumizuri.app.shared.resources.editor_vibrance
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
 import com.sumizuri.app.ui.kit.setting.SliderSetting
+import com.sumizuri.app.ui.text.percentText
 import com.sumizuri.app.ui.theme.roleColor
 import org.jetbrains.compose.resources.stringResource
 

@@ -1,18 +1,14 @@
 package com.sumizuri.app.feature.migration
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.migration.MigrationItem
 import com.sumizuri.app.data.migration.MigrationSession
 import com.sumizuri.app.data.migration.MigrationState
@@ -25,7 +21,9 @@ import com.sumizuri.app.shared.resources.mig_bulk_retry_failed
 import com.sumizuri.app.shared.resources.mig_bulk_retry_lost
 import com.sumizuri.app.shared.resources.mig_bulk_take_best
 import com.sumizuri.app.shared.resources.mig_results_empty
+import com.sumizuri.app.ui.kit.chips.ChipRow
 import com.sumizuri.app.ui.kit.chips.FilterTabs
+import com.sumizuri.app.ui.kit.chips.SoftActionChip
 import com.sumizuri.app.ui.kit.page.PageList
 import org.jetbrains.compose.resources.stringResource
 
@@ -40,6 +38,7 @@ internal fun MigrationResultsTab(state: MigrationState, session: MigrationSessio
     val shown = remember(worked, status) { worked.filter { status == null || it.status == status } }
     val all = stringResource(Res.string.all)
     PageList {
+        if (state.busy || worked.isNotEmpty()) item { ProgressCard(state) }
         item {
             val tabs =
                 listOf<Pair<MigrationStatus?, String>>(null to "$all (${worked.size})") +
@@ -47,27 +46,28 @@ internal fun MigrationResultsTab(state: MigrationState, session: MigrationSessio
             FilterTabs(tabs, status.takeIf { it in present }, { status = it })
         }
         item {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            ChipRow(wrap = true) {
                 val review = worked.count { it.status == MigrationStatus.Review }
                 val failed = worked.filter { it.status == MigrationStatus.Failed }
                 val lost = worked.filter { it.status == MigrationStatus.NotFound }
                 if (review >
                     0
                 ) {
-                    TextButton(
+                    SoftActionChip(
                         { session.acceptBest() },
-                    ) { Text(stringResource(Res.string.mig_bulk_take_best, review)) }
+                        { Text(stringResource(Res.string.mig_bulk_take_best, review)) },
+                    )
                 }
                 if (failed.isNotEmpty()) {
-                    TextButton({
+                    SoftActionChip({
                         session.requeue(failed.map { it.id }.toSet())
-                    }) { Text(stringResource(Res.string.mig_bulk_retry_failed, failed.size)) }
+                    }, { Text(stringResource(Res.string.mig_bulk_retry_failed, failed.size)) })
                 }
                 if (lost.isNotEmpty()) {
-                    TextButton({
+                    SoftActionChip({
                         session.requeue(lost.map { it.id }.toSet())
-                    }) { Text(stringResource(Res.string.mig_bulk_retry_lost, lost.size)) }
-                    TextButton({
+                    }, { Text(stringResource(Res.string.mig_bulk_retry_lost, lost.size)) })
+                    SoftActionChip({
                         session.setIncluded(
                             lost
                                 .map {
@@ -75,13 +75,13 @@ internal fun MigrationResultsTab(state: MigrationState, session: MigrationSessio
                                 }.toSet(),
                             false,
                         )
-                    }) { Text(stringResource(Res.string.mig_bulk_exclude_lost, lost.size)) }
+                    }, { Text(stringResource(Res.string.mig_bulk_exclude_lost, lost.size)) })
                 }
                 val moved = worked.count { it.status == MigrationStatus.Moved }
                 if (moved >
                     0
                 ) {
-                    TextButton({ session.clearMoved() }) { Text(stringResource(Res.string.mig_bulk_clear, moved)) }
+                    SoftActionChip({ session.clearMoved() }, { Text(stringResource(Res.string.mig_bulk_clear, moved)) })
                 }
             }
         }

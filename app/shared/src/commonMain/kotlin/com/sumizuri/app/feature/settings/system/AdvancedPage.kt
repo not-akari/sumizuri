@@ -1,9 +1,11 @@
 package com.sumizuri.app.feature.settings.system
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material.icons.outlined.RestartAlt
+import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +20,7 @@ import com.sumizuri.app.data.settings.SettingsRepository
 import com.sumizuri.app.data.settings.exportData
 import com.sumizuri.app.data.share.ShareKind
 import com.sumizuri.app.feature.settings.SettingsPageFrame
+import com.sumizuri.app.feature.settings.SettingsTarget
 import com.sumizuri.app.feature.share.ShareDialog
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.advanced_group_developer
@@ -30,6 +33,8 @@ import com.sumizuri.app.shared.resources.advanced_reset_message
 import com.sumizuri.app.shared.resources.advanced_reset_reader
 import com.sumizuri.app.shared.resources.advanced_reset_reader_hint
 import com.sumizuri.app.shared.resources.advanced_reset_title
+import com.sumizuri.app.shared.resources.experimental_show
+import com.sumizuri.app.shared.resources.experimental_show_hint
 import com.sumizuri.app.shared.resources.perf_details
 import com.sumizuri.app.shared.resources.perf_details_hint
 import com.sumizuri.app.shared.resources.perf_level_advanced
@@ -39,6 +44,10 @@ import com.sumizuri.app.shared.resources.perf_overlay_hint
 import com.sumizuri.app.shared.resources.perf_overlay_level
 import com.sumizuri.app.shared.resources.settings_advanced
 import com.sumizuri.app.shared.resources.settings_advanced_hint
+import com.sumizuri.app.shared.resources.settings_diagnostics_hint
+import com.sumizuri.app.shared.resources.settings_diagnostics_row
+import com.sumizuri.app.shared.resources.settings_experimental
+import com.sumizuri.app.shared.resources.settings_experimental_hint
 import com.sumizuri.app.shared.resources.settings_export
 import com.sumizuri.app.shared.resources.settings_export_hint
 import com.sumizuri.app.shared.resources.settings_file_hint
@@ -80,7 +89,9 @@ private suspend fun SettingsRepository.apply(reset: Reset) = when (reset) {
 
 // The page of what is rarely needed: keeping the settings in a file and bringing them back, taking the choices of a part of the app back to how they were, and the tools that measure the app. Titles, shelves and reading progress are never touched.
 @Composable
-fun AdvancedRoute(onBack: () -> Unit, onPerformance: () -> Unit, onImport: () -> Unit) {
+fun AdvancedRoute(onBack: () -> Unit, onOpen: (SettingsTarget) -> Unit) {
+    val onPerformance = { onOpen(SettingsTarget.Performance) }
+    val onImport = { onOpen(SettingsTarget.Import) }
     val settings = LocalAppContainer.current.settings
     val scope = rememberCoroutineScope()
     var asked by remember { mutableStateOf<Reset?>(null) }
@@ -90,6 +101,9 @@ fun AdvancedRoute(onBack: () -> Unit, onPerformance: () -> Unit, onImport: () ->
         settings,
     ) { settings.flag(SettingKey.PerfOverlay, false) }.collectAsStateWithLifecycle(false)
     val level by remember(settings) { settings.text(SettingKey.PerfOverlayLevel) }.collectAsStateWithLifecycle(null)
+    val experimental by remember(settings) {
+        settings.flag(SettingKey.ShowExperimental, false)
+    }.collectAsStateWithLifecycle(false)
     sharing?.let { data ->
         ShareDialog(
             stringResource(Res.string.share_title, stringResource(Res.string.share_kind_settings)),
@@ -138,6 +152,12 @@ fun AdvancedRoute(onBack: () -> Unit, onPerformance: () -> Unit, onImport: () ->
         }
         // How the app is doing: a live box over the window, and a page of measurements.
         SettingsSection(Res.string.advanced_group_developer) {
+            // Features still being tried out live on a page of their own, which shows in the settings once this is on.
+            padded {
+                SwitchSetting(Res.string.experimental_show, experimental, { on ->
+                    scope.launch { settings.setFlag(SettingKey.ShowExperimental, on) }
+                }, Res.string.experimental_show_hint)
+            }
             padded {
                 SwitchSetting(Res.string.perf_overlay, overlay, { on ->
                     scope.launch {
@@ -174,6 +194,27 @@ fun AdvancedRoute(onBack: () -> Unit, onPerformance: () -> Unit, onImport: () ->
                     trailing = { ListChevron() },
                     onClick = onPerformance,
                 )
+            }
+            row {
+                SettingRow(
+                    stringResource(Res.string.settings_diagnostics_row),
+                    subtitle = stringResource(Res.string.settings_diagnostics_hint),
+                    leading = { SettingIcon(Icons.Outlined.BugReport) },
+                    trailing = { ListChevron() },
+                    onClick = { onOpen(SettingsTarget.Diagnostics) },
+                )
+            }
+            // The page of features still being tried out, once its switch above is on.
+            if (experimental) {
+                row {
+                    SettingRow(
+                        stringResource(Res.string.settings_experimental),
+                        subtitle = stringResource(Res.string.settings_experimental_hint),
+                        leading = { SettingIcon(Icons.Outlined.Science) },
+                        trailing = { ListChevron() },
+                        onClick = { onOpen(SettingsTarget.Experimental) },
+                    )
+                }
             }
         }
     }
