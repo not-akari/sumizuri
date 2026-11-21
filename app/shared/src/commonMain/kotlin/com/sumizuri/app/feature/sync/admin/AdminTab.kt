@@ -15,7 +15,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sumizuri.app.data.profile.LocalProfiles
 import com.sumizuri.app.feature.settings.PageRow
 import com.sumizuri.app.feature.settings.SettingsTarget
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.feature.sync.account.rememberSyncHome
 import com.sumizuri.app.feature.sync.home.SyncHome
 import com.sumizuri.app.feature.sync.home.SyncHomeModel
@@ -42,7 +41,9 @@ import com.sumizuri.app.shared.resources.sync_signup_open
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
+import com.sumizuri.app.ui.kit.text.NoteText
 import com.sumizuri.app.ui.text.agoText
+import com.sumizuri.app.ui.text.byteSizeText
 import com.sumizuri.sync.core.Role
 import com.sumizuri.sync.core.SignupMode
 import org.jetbrains.compose.resources.pluralStringResource
@@ -97,7 +98,7 @@ internal fun AdminTab(home: SyncHome, onOpen: (SettingsTarget) -> Unit) {
             row {
                 SettingRow(
                     pluralStringResource(Res.plurals.sync_admin_profiles, overview.profiles, overview.profiles),
-                    subtitle = stringResource(Res.string.sync_admin_stored, sizeText(overview.storedBytes)),
+                    subtitle = stringResource(Res.string.sync_admin_stored, byteSizeText(overview.storedBytes)),
                     leading = {
                         SettingIcon(Icons.Outlined.Inventory2)
                     },
@@ -161,7 +162,7 @@ internal fun AdminOnly(content: @Composable (SyncHomeModel, SyncHome) -> Unit) {
         .collectAsStateWithLifecycle()
     val signed = account
     if (signed == null || (signed.role != Role.Owner && signed.role != Role.Admin)) {
-        SettingsSection { padded { Note(stringResource(Res.string.sync_error_not_allowed)) } }
+        SettingsSection { padded { NoteText(stringResource(Res.string.sync_error_not_allowed)) } }
         return
     }
     val model = rememberSyncHome(signed)
@@ -173,12 +174,4 @@ private fun signupLabel(mode: SignupMode) = when (mode) {
     SignupMode.Open -> Res.string.sync_signup_open
     SignupMode.Invite -> Res.string.sync_signup_invite
     SignupMode.Closed -> Res.string.sync_signup_closed
-}
-
-// A size in bytes as B, KB, MB or GB.
-internal fun sizeText(bytes: Long): String = when {
-    bytes < 1024 -> "$bytes B"
-    bytes < 1024L * 1024 -> "${bytes / 1024} KB"
-    bytes < 1024L * 1024 * 1024 -> "${(bytes * 10 / (1024 * 1024)) / 10.0} MB"
-    else -> "${(bytes * 10 / (1024L * 1024 * 1024)) / 10.0} GB"
 }

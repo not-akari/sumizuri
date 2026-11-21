@@ -19,7 +19,6 @@ import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.feature.settings.SettingsPageFrame
 import com.sumizuri.app.feature.sync.Field
 import com.sumizuri.app.feature.sync.Form
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.feature.sync.Problem
 import com.sumizuri.app.feature.sync.Working
 import com.sumizuri.app.feature.sync.home.SyncHomeModel
@@ -70,6 +69,7 @@ import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.kit.setting.SliderSetting
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
+import com.sumizuri.app.ui.kit.text.NoteText
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -93,7 +93,8 @@ internal fun rememberSyncHome(account: SyncAccount): SyncHomeModel {
 internal fun SignedIn(content: @Composable (SyncAccount) -> Unit) {
     val account by LocalProfiles.current.syncAccounts.account
         .collectAsStateWithLifecycle()
-    account?.let { content(it) } ?: SettingsSection { padded { Note(stringResource(Res.string.sync_signed_out_note)) } }
+    account?.let { content(it) }
+        ?: SettingsSection { padded { NoteText(stringResource(Res.string.sync_signed_out_note)) } }
 }
 
 // The profile on the server this profile syncs with, and a new one to make.
@@ -111,7 +112,7 @@ internal fun SyncLinkRoute(onBack: () -> Unit) {
                 if (home.libraries != null &&
                     libraries.isEmpty()
                 ) {
-                    padded { Note(stringResource(Res.string.sync_library_none)) }
+                    padded { NoteText(stringResource(Res.string.sync_library_none)) }
                 }
                 for (library in libraries) {
                     val on = linked == library.id.toString()

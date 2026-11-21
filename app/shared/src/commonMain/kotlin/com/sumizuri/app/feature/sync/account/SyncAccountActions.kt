@@ -12,7 +12,6 @@ import com.sumizuri.app.data.profile.LocalProfiles
 import com.sumizuri.app.feature.settings.SettingsPageFrame
 import com.sumizuri.app.feature.sync.Field
 import com.sumizuri.app.feature.sync.Form
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.feature.sync.Problem
 import com.sumizuri.app.feature.sync.TwoStepField
 import com.sumizuri.app.feature.sync.Working
@@ -36,6 +35,7 @@ import com.sumizuri.app.shared.resources.sync_username_new
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.dialog.ConfirmDialog
 import com.sumizuri.app.ui.kit.setting.SettingsSection
+import com.sumizuri.app.ui.kit.text.NoteText
 import com.sumizuri.sync.core.Role
 import org.jetbrains.compose.resources.stringResource
 
@@ -81,7 +81,7 @@ internal fun SyncUsernameRoute(onBack: () -> Unit) {
                         submit,
                         enabled = !home.busy && ready,
                     ) { Text(stringResource(Res.string.sync_username_change)) }
-                    if (done) Note(stringResource(Res.string.sync_username_done))
+                    if (done) NoteText(stringResource(Res.string.sync_username_done))
                 }
             }
         }
@@ -133,7 +133,7 @@ internal fun SyncRecoveryRoute(onBack: () -> Unit) {
                             submit,
                             enabled = !home.busy && ready,
                         ) { Text(stringResource(Res.string.sync_recovery_make)) }
-                        if (done) Note(stringResource(Res.string.sync_recovery_done))
+                        if (done) NoteText(stringResource(Res.string.sync_recovery_done))
                     }
                 }
             }
@@ -159,9 +159,9 @@ internal fun SyncDeleteRoute(onBack: () -> Unit) {
         val ready = password.isNotEmpty() && (!home.askCode || code.isNotEmpty())
         SettingsSection {
             if (signed.role == Role.Owner) {
-                padded { Note(stringResource(Res.string.sync_delete_owner)) }
+                padded { NoteText(stringResource(Res.string.sync_delete_owner)) }
             } else {
-                padded { Note(stringResource(Res.string.sync_delete_account_message)) }
+                padded { NoteText(stringResource(Res.string.sync_delete_account_message)) }
                 padded {
                     Form(home.busy) {
                         Field(
