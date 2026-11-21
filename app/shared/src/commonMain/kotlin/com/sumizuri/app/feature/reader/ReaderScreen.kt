@@ -33,11 +33,9 @@ import com.sumizuri.app.feature.reader.controls.ChaptersPanel
 import com.sumizuri.app.feature.reader.controls.DockPanel
 import com.sumizuri.app.feature.reader.controls.PageMenuPanel
 import com.sumizuri.app.feature.reader.controls.PagePreview
-import com.sumizuri.app.feature.reader.controls.ReaderAside
 import com.sumizuri.app.feature.reader.controls.ReaderLight
 import com.sumizuri.app.feature.reader.controls.ReaderSettingsPanel
 import com.sumizuri.app.feature.reader.controls.fill
-import com.sumizuri.app.feature.reader.controls.goesAside
 import com.sumizuri.app.feature.reader.controls.rememberBedtime
 import com.sumizuri.app.feature.reader.lookup.DictionaryClient
 import com.sumizuri.app.feature.reader.lookup.LocalWordLookup
@@ -54,8 +52,6 @@ import com.sumizuri.app.feature.reader.view.ProbeAspect
 import com.sumizuri.app.feature.reader.view.ReaderView
 import com.sumizuri.app.feature.reader.view.sampleUrls
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
-import com.sumizuri.app.ui.kit.dock.AsideCard
-import com.sumizuri.app.ui.kit.dock.isWideWindow
 import com.sumizuri.app.ui.kit.image.LocalPageFilter
 import com.sumizuri.app.ui.kit.image.PageSnapshots
 import com.sumizuri.app.ui.kit.image.pageFilterOf
@@ -298,18 +294,7 @@ private fun Reader(state: ReaderState, actions: ReaderActions, translator: Novel
             }
         }
         val bar = BarState(state.mode, auto, state.mode == ReaderMode.Continuous, dim, warmth, state.isText)
-        // On a wide window a panel opens as a card at the bottom right, over the pages, which stay where they are.
-        val aside = isWideWindow() && controls && panel.goesAside()
-        AsideCard(
-            aside,
-            Modifier.fillMaxSize().background(settings.background.fill()),
-            panel = {
-                ReaderAside(panel, bar, settings.mode, actions.onDefaultMode, actions.onMode, { newDim, newWarmth ->
-                    dim = newDim
-                    warmth = newWarmth
-                }, { actions.onSettings(settings.copy(dim = dim, warmth = warmth)) }, close, panelView)
-            },
-        ) {
+        Box(Modifier.fillMaxSize().background(settings.background.fill())) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 // A new chapter, mode, or page pairing starts the viewer at the right place and takes the zoom off.
                 key(rootChapterId, state.mode, settings.dual) {
@@ -363,6 +348,7 @@ private fun Reader(state: ReaderState, actions: ReaderActions, translator: Novel
                         onPanel = { panel = it },
                         panelContent = panelView,
                         onShowControls = { controls = true },
+                        onHideControls = { controls = false },
                         onDefaultMode = actions.onDefaultMode,
                         translator = translator,
                         preview = { at ->
@@ -372,7 +358,6 @@ private fun Reader(state: ReaderState, actions: ReaderActions, translator: Novel
                                 ?.imageUrl
                                 ?.let { PagePreview(it, state.imageHeaders) }
                         },
-                        panelAside = aside,
                     ),
                 )
             }
@@ -380,5 +365,6 @@ private fun Reader(state: ReaderState, actions: ReaderActions, translator: Novel
     }
 }
 
+// The styles that open a panel at the side of a wide window.
 // How long a page must stay on the screen before its picture is kept as the place to go on from.
 private const val SnapshotAfterMs = 1500L

@@ -20,7 +20,6 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,10 +40,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.close
+import com.sumizuri.app.ui.kit.card.Hairline
 import org.jetbrains.compose.resources.stringResource
 
 // The round corners of a dock and of a capsule over a page or a video, and how far they float from the edges of the screen.
-val DockShape = RoundedCornerShape(28.dp)
+private val DockShape = RoundedCornerShape(28.dp)
 val DockMargin = 12.dp
 
 // The surface of a dock or a capsule: the container color of the theme, as solid as the person chose or fully solid while a panel is open, with a thin edge.
@@ -84,10 +84,7 @@ fun PanelHead(title: String, onClose: () -> Unit, trailing: (@Composable () -> U
 // The hairline that parts the rows of a dock.
 @Composable
 fun DockRule() {
-    HorizontalDivider(
-        Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
-    )
+    Hairline(Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
 }
 
 // Whether the actions of a dock show their names under their icons, which a dock turns on when it has the room.

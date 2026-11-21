@@ -28,12 +28,12 @@ data class ReaderSettings(
     val readingWpm: Int = 200,
     val quality: ReaderQuality = ReaderQuality.Best,
     val progressBar: ReaderProgressBar = ReaderProgressBar.Horizontal,
+    // How the controls are laid out over the pages.
+    val controls: ReaderControls = ReaderControls.Island,
     // Whether a small page number stays at the bottom while the controls are hidden.
     val pageNumber: Boolean = true,
     // How solid the dark band behind the controls is, from see through to fully dark.
     val controlShade: Float = 0.92f,
-    // Whether a row of small page pictures shows above the page track, to jump by sight.
-    val pageStrip: Boolean = false,
     val lookup: ReaderLookup = ReaderLookup.Auto,
     // Whether the long scroll goes on into the next chapter by itself.
     val inlineNext: Boolean = true,

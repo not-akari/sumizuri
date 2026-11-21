@@ -305,7 +305,19 @@ class ReaderViewModel(
         }
         val found = sources.find(here.sourceId)
         installed = found
-        found?.let { mutableState.update { state -> state.copy(webUrl = webAddress(here.url, it.baseUrl)) } }
+        // A chapter with no web address of its own, such as one of an extension, opens the page of its title instead.
+        val titleWeb = library
+            .title(here.titleId)
+            .first()
+            ?.webUrl
+            ?.takeIf { it.isNotBlank() }
+        found?.let {
+            mutableState.update { state ->
+                state.copy(
+                    webUrl = webAddress(here.url, it.baseUrl) ?: titleWeb,
+                )
+            }
+        }
         // A chapter saved to the device is read from it, with no connection and even with its source gone. The source is still opened, quietly, for its comments and the chapter after.
         val offline = savedChapterPages(downloads, here.titleId, here.id)
         if (offline != null) {

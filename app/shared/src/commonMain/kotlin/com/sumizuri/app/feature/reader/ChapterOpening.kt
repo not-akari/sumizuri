@@ -1,7 +1,6 @@
 package com.sumizuri.app.feature.reader
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
@@ -46,10 +43,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.sumizuri.app.ui.kit.art.InkLinearProgressIndicator
+import com.sumizuri.app.ui.kit.cover.SoftCover
 import com.sumizuri.app.ui.kit.image.imageRequest
 import com.sumizuri.app.ui.kit.input.BackButton
 import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.page.ReadableColumn
+import com.sumizuri.app.ui.kit.step.StepTrack
 import com.sumizuri.app.ui.motion.motionMs
 import kotlinx.coroutines.delay
 
@@ -65,9 +65,6 @@ private const val ContentFrom = 0.15f
 private const val ContentTo = 0.7f
 private const val ContentZoom = 0.02f
 private val CardLift = 12.dp
-
-// How soft the cover behind the card is.
-private val BackdropBlur = 28.dp
 
 // Below this height the cover on the card is smaller, and how wide a cover is for its height.
 private val ShortScreen = 480.dp
@@ -213,8 +210,19 @@ private fun OpeningCard(
         Box(Modifier.padding(top = 18.dp), contentAlignment = Alignment.Center) {
             when {
                 bottom != null -> bottom()
-                steps != null -> StepBar(steps)
-                else -> MovingLine(Modifier.width(120.dp))
+
+                steps != null -> StepTrack(
+                    steps.count,
+                    steps.at,
+                    Modifier.width((StepWidth + 6.dp) * steps.count - 6.dp),
+                    busy = true,
+                )
+
+                else -> InkLinearProgressIndicator(
+                    Modifier.width(120.dp).height(3.dp),
+                    colors.primary,
+                    colors.primary.copy(alpha = 0.15f),
+                )
             }
         }
         if (note != null && bottom == null) {
@@ -234,49 +242,13 @@ private fun OpeningCard(
 // The steps of opening, such as finding the video, opening it and starting it, with the one at work now.
 internal class OpeningSteps(val at: Int, val count: Int)
 
-// One short piece per step: done ones are full, the one at work has the moving line, and the ones still to come are faint.
-@Composable
-private fun StepBar(steps: OpeningSteps) {
-    val colors = MaterialTheme.colorScheme
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        repeat(steps.count) { step ->
-            val piece = Modifier.width(StepWidth).height(3.dp).clip(RoundedCornerShape(2.dp))
-            if (step == steps.at) {
-                MovingLine(piece)
-            } else {
-                val color by animateColorAsState(
-                    if (step < steps.at) colors.primary else colors.primary.copy(alpha = 0.15f),
-                    tween(motionMs(260)),
-                    label = "opening step",
-                )
-                Box(piece.background(color))
-            }
-        }
-    }
-}
-
-@Composable
-private fun MovingLine(modifier: Modifier) {
-    val colors = MaterialTheme.colorScheme
-    LinearProgressIndicator(
-        modifier.height(3.dp).clip(RoundedCornerShape(2.dp)),
-        color = colors.primary,
-        trackColor = colors.primary.copy(alpha = 0.15f),
-    )
-}
-
 // The cover of the title across the whole screen behind the opening card, blurred and dimmed in the page colour, so the cover of the title page flows on into the chapter instead of going away.
 @Composable
 internal fun OpeningBackdrop(cover: String?, sourceId: String?) {
     val page = MaterialTheme.colorScheme.background
     Box(Modifier.fillMaxSize()) {
         if (cover != null) {
-            AsyncImage(
-                imageRequest(cover, sourceId = sourceId),
-                null,
-                Modifier.fillMaxSize().blur(BackdropBlur),
-                contentScale = ContentScale.Crop,
-            )
+            SoftCover(cover, sourceId, Modifier.fillMaxSize(), width = 90, height = 135)
         }
         Box(
             Modifier.fillMaxSize().background(

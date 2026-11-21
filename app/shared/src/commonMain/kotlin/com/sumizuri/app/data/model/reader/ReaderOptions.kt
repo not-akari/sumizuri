@@ -1,6 +1,8 @@
 package com.sumizuri.app.data.model.reader
 
 import com.sumizuri.app.shared.resources.Res
+import com.sumizuri.app.shared.resources.reader_controls_island
+import com.sumizuri.app.shared.resources.reader_controls_island_top
 import com.sumizuri.app.shared.resources.reader_lookup_auto
 import com.sumizuri.app.shared.resources.reader_lookup_english
 import com.sumizuri.app.shared.resources.reader_lookup_japanese
@@ -29,6 +31,12 @@ enum class ReaderQuality(val label: StringResource, val maxWidth: Int?) {
     Best(Res.string.reader_quality_best, null),
     Balanced(Res.string.reader_quality_balanced, 2160),
     Light(Res.string.reader_quality_light, 1440),
+}
+
+// Where the island with the controls of the reader sits: at the bottom, near the thumb, or at the top.
+enum class ReaderControls(val label: StringResource) {
+    Island(Res.string.reader_controls_island),
+    IslandTop(Res.string.reader_controls_island_top),
 }
 
 // Where the slider to jump through a chapter is: along the bottom bar, or down the edge of the screen.

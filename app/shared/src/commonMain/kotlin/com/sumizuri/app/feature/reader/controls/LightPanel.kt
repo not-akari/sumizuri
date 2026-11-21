@@ -17,14 +17,12 @@ import com.sumizuri.app.data.model.reader.ReaderBackground
 import com.sumizuri.app.data.text.localOffsetMillis
 import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.display_percent
 import com.sumizuri.app.shared.resources.reader_brightness
 import com.sumizuri.app.shared.resources.reader_warmth
 import com.sumizuri.app.ui.kit.setting.SliderSetting
+import com.sumizuri.app.ui.text.percentText
 import com.sumizuri.app.ui.theme.FixedColors
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.stringResource
-import kotlin.math.roundToInt
 
 // Two sliders, how bright the screen is and how warm, each with its icon and its number. The page changes as they move and the choice is kept when they are let go.
 @Composable
@@ -38,16 +36,10 @@ fun LightPanel(
     Column(modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         // The slider shows brightness, which is the opposite of how much the screen is dimmed.
         SliderSetting(Res.string.reader_brightness, 1f - dim, 0f..1f, {
-            stringResource(
-                Res.string.display_percent,
-                (
-                    it *
-                        100
-                    ).roundToInt(),
-            )
+            percentText(it)
         }, onMove = { onLight(1f - it, warmth) }) { onDone() }
         SliderSetting(Res.string.reader_warmth, warmth, 0f..1f, {
-            stringResource(Res.string.display_percent, (it * 100).roundToInt())
+            percentText(it)
         }, onMove = { onLight(dim, it) }) { onDone() }
     }
 }
