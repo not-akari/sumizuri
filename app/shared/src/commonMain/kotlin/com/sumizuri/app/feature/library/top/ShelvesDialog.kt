@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TriStateCheckbox
@@ -35,6 +34,7 @@ import com.sumizuri.app.shared.resources.shelves_title
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.dialog.CancelButton
+import com.sumizuri.app.ui.kit.input.AppTextField
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
@@ -96,7 +96,7 @@ internal fun ShelvesDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    OutlinedTextField(name, {
+                    AppTextField(name, {
                         name = it
                     }, Modifier.weight(1f), singleLine = true, label = { Text(stringResource(Res.string.shelves_new)) })
                     TextButton({

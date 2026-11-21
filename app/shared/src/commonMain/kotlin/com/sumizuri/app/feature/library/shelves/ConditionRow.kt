@@ -11,7 +11,6 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +32,7 @@ import com.sumizuri.app.shared.resources.cond_unit_percent
 import com.sumizuri.app.shared.resources.cond_unit_rating
 import com.sumizuri.app.shared.resources.cond_value
 import com.sumizuri.app.shared.resources.cond_yes
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.input.MenuButton
 import org.jetbrains.compose.resources.stringResource
 
@@ -87,7 +87,7 @@ internal fun ConditionRow(condition: ShelfCondition, onChange: (ShelfCondition) 
                     )
                 }) { onChange(condition.copy(value = it)) }
 
-                ValueKind.Number -> OutlinedTextField(
+                ValueKind.Number -> AppTextField(
                     condition.value,
                     { onChange(condition.copy(value = it.filter { char -> char.isDigit() || char == '.' })) },
                     Modifier.fillMaxWidth().padding(end = 6.dp),
@@ -97,7 +97,7 @@ internal fun ConditionRow(condition: ShelfCondition, onChange: (ShelfCondition) 
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 )
 
-                ValueKind.Text -> OutlinedTextField(condition.value, {
+                ValueKind.Text -> AppTextField(condition.value, {
                     onChange(condition.copy(value = it))
                 }, Modifier.fillMaxWidth().padding(end = 6.dp), singleLine = true, label = {
                     Text(stringResource(Res.string.cond_value))

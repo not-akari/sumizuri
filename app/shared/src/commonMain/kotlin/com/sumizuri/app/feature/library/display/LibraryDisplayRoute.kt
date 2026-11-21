@@ -18,7 +18,7 @@ fun LibraryDisplayRoute(onBack: () -> Unit) {
     val repository = LocalAppContainer.current.libraryPrefs
     val prefs by repository.prefs.collectAsStateWithLifecycle(LibraryPrefs())
     val scope = rememberCoroutineScope()
-    SettingsPageFrame(Res.string.display_title, onBack, subtitle = Res.string.display_hint) {
+    SettingsPageFrame(Res.string.display_title, onBack, subtitle = Res.string.display_hint, jumps = displayJumps()) {
         LibraryDisplayBody(prefs) { change -> scope.launch { repository.update(change) } }
     }
 }

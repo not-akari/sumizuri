@@ -72,8 +72,8 @@ internal fun LibraryTile(
             }
         }
 
-        LibraryDisplayStyle.List -> ListRow(title, context, pick, tap, compact = false)
+        LibraryDisplayStyle.List -> ListRow(title, context, pick, tap, hovered, compact = false)
 
-        LibraryDisplayStyle.CompactList -> ListRow(title, context, pick, tap, compact = true)
+        LibraryDisplayStyle.CompactList -> ListRow(title, context, pick, tap, hovered, compact = true)
     }
 }

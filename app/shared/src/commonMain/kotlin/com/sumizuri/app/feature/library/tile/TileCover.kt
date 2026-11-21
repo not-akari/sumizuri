@@ -35,7 +35,7 @@ internal fun TileCover(
     aspect: Float = LocalThemeSpec.current.options.covers.aspect.ratio,
     marks: Boolean = true,
 ) {
-    val progress = if (context.showProgress) progressOf(title) else null
+    val progress = if (context.showProgress) title.readPart else null
     Column {
         Box {
             CoverArt(
@@ -63,13 +63,4 @@ internal fun TileCover(
             if (progress != null) ReadProgress(progress, Modifier.align(Alignment.BottomCenter))
         }
     }
-}
-
-// How far the reader is through a title, or null for a title with no chapters yet.
-private fun progressOf(title: Title): Float? = if (title.chapterCount <=
-    0
-) {
-    null
-} else {
-    (title.chapterCount - title.unread).toFloat() / title.chapterCount
 }

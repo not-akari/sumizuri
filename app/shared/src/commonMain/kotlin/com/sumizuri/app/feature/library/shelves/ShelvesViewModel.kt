@@ -54,7 +54,7 @@ class ShelvesViewModel(private val shelves: CategoryRepository, library: Library
         viewModelScope.launch { shelves.reorder(ids) }
     }
 
-    // Keeps what the dialog changed, and nothing else.
+    // Keeps what the page of the shelf changed, and nothing else.
     internal fun onSave(shelf: Category, edit: ShelfEdit) {
         viewModelScope.launch {
             if (edit.rule != shelf.rule ||

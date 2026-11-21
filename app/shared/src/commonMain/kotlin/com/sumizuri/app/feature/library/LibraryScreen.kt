@@ -1,14 +1,5 @@
 package com.sumizuri.app.feature.library
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,17 +46,8 @@ import com.sumizuri.app.feature.library.tile.LibraryTile
 import com.sumizuri.app.feature.library.tile.TileCalls
 import com.sumizuri.app.feature.library.tile.TileContext
 import com.sumizuri.app.feature.library.tile.coverDrag
-import com.sumizuri.app.feature.library.top.ConnectionLostNotice
-import com.sumizuri.app.feature.library.top.FailuresNotice
-import com.sumizuri.app.feature.library.top.LibraryControls
 import com.sumizuri.app.feature.library.top.LibraryPickBottom
-import com.sumizuri.app.feature.library.top.LibraryPickTop
-import com.sumizuri.app.feature.library.top.LibrarySearchRow
 import com.sumizuri.app.feature.library.top.LibraryTopBar
-import com.sumizuri.app.feature.library.top.MissingSourcesNotice
-import com.sumizuri.app.feature.library.top.NoticeAction
-import com.sumizuri.app.feature.library.top.SearchSourcesRow
-import com.sumizuri.app.feature.library.top.ShelfTabs
 import com.sumizuri.app.feature.library.top.ShelvesDialog
 import com.sumizuri.app.feature.library.top.UpdateFailuresSheet
 import com.sumizuri.app.feature.library.top.shelfOrder
@@ -78,13 +59,11 @@ import com.sumizuri.app.shared.resources.library_nothing_matches
 import com.sumizuri.app.shared.resources.library_part_hidden
 import com.sumizuri.app.shared.resources.library_remove
 import com.sumizuri.app.shared.resources.library_remove_message
-import com.sumizuri.app.shared.resources.library_show_all
-import com.sumizuri.app.shared.resources.library_show_them
 import com.sumizuri.app.shared.resources.library_title
-import com.sumizuri.app.shared.resources.library_unreachable
 import com.sumizuri.app.shared.resources.undo
 import com.sumizuri.app.ui.controls.LocalAppGestures
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
+import com.sumizuri.app.ui.kit.card.SoftGap
 import com.sumizuri.app.ui.kit.cover.CoverPick
 import com.sumizuri.app.ui.kit.cover.LocalCoverFlight
 import com.sumizuri.app.ui.kit.dialog.ConfirmDialog
@@ -95,10 +74,8 @@ import com.sumizuri.app.ui.kit.page.LocalHideBottomBar
 import com.sumizuri.app.ui.kit.page.PageGrid
 import com.sumizuri.app.ui.kit.page.fullSpan
 import com.sumizuri.app.ui.kit.scroll.PullRefresh
-import com.sumizuri.app.ui.motion.AppMotion
 import com.sumizuri.app.ui.motion.Rise
 import com.sumizuri.app.ui.motion.entrance
-import com.sumizuri.app.ui.motion.motionMs
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
@@ -106,6 +83,10 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 // The windows the page can open over itself.
+// The widest a row of the list styles may be before a second column of them starts, and the space between rows.
+private val RowWidth = 620.dp
+private val RowGap = SoftGap
+
 private enum class Window { None, Sort, Display, Failures, Shelves, Remove }
 
 // The library. A bar on top, which becomes the bar of the picked titles. Under it the notes about titles that cannot be reached, the search, the shelves as tabs, a row of chips for the order, the kinds and the filters, the titles read last, and the covers. Pulling the page down checks the library for new chapters, and a swipe sideways changes the shelf.
@@ -195,20 +176,11 @@ internal fun LibraryScreen(state: LibraryState, calls: LibraryCalls) {
     )
 
     Column(Modifier.fillMaxSize()) {
-        val fast = motionMs(AppMotion.Fast)
-        // The bar over the page and the bar of the picked titles change places with a fade.
-        AnimatedContent(state.selecting, transitionSpec = {
-            fadeIn(tween(fast)) togetherWith fadeOut(tween(fast))
-        }, label = "bar") { selecting ->
-            if (selecting) {
-                LibraryPickTop(state.selected.size, state.titles.size, pick)
-            } else {
-                LibraryTopBar(state, calls, searchOpen, {
-                    searchOpen = !searchOpen
-                    if (!searchOpen) calls.onQuery("")
-                }, onDisplay = { window = Window.Display })
-            }
-        }
+        // The bar over the page stays while titles are picked, so the page keeps its name and nothing jumps. The picked titles have the dock at the bottom.
+        LibraryTopBar(state, calls, searchOpen, {
+            searchOpen = !searchOpen
+            if (!searchOpen) calls.onQuery("")
+        }, onDisplay = { window = Window.Display })
         // The bar shows how far the check has got, so the pull has no spinner of its own.
         PullRefresh(state.progress != null, { if (!state.selecting) calls.onUpdate() }, Modifier.weight(1f)) {
             Box(
@@ -220,8 +192,12 @@ internal fun LibraryScreen(state: LibraryState, calls: LibraryCalls) {
                 ),
             ) {
                 PreloadCovers(gridState, state.titles)
-                PageGrid(maxCell = prefs.cellWidth.dp, state = gridState, gap = prefs.gridGap.dp) {
-                    val rows = !prefs.style.isGrid
+                val rows = !prefs.style.isGrid
+                PageGrid(
+                    maxCell = if (rows) RowWidth else prefs.cellWidth.dp,
+                    state = gridState,
+                    gap = if (rows) RowGap else prefs.gridGap.dp,
+                ) {
                     fullSpan {
                         LibraryHeader(state, calls, showSearch, onSort = { window = Window.Sort }, onFailures = {
                             window =
@@ -262,7 +238,6 @@ internal fun LibraryScreen(state: LibraryState, calls: LibraryCalls) {
                         items(
                             state.titles,
                             key = { it.id },
-                            span = { if (rows) GridItemSpan(maxLineSpan) else GridItemSpan(1) },
                         ) { title ->
                             LibraryTile(
                                 title,
@@ -297,7 +272,7 @@ internal fun LibraryScreen(state: LibraryState, calls: LibraryCalls) {
                         }
                     }
                     // Room under the last row for the bar of actions.
-                    if (state.selecting) fullSpan { Spacer(Modifier.height(96.dp)) }
+                    if (state.selecting) fullSpan { Spacer(Modifier.height(140.dp)) }
                 }
                 SnackbarHost(
                     snackbar,
@@ -308,7 +283,7 @@ internal fun LibraryScreen(state: LibraryState, calls: LibraryCalls) {
                     state.selecting,
                     Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.navigationBars),
                 ) {
-                    LibraryPickBottom(state.selected.size, favorite, pick, Modifier)
+                    LibraryPickBottom(state.selected.size, state.titles.size, favorite, pick)
                 }
                 // A cover dragged from the grid floats under the pointer over the shelves it can go on.
                 CoverDragLayer(drag, state.categories.filter { it.id >= 0 }, Modifier.fillMaxSize())
