@@ -123,7 +123,7 @@ internal object WindowsSetup {
     fun sizeOf(folder: File): Long = folder.walkTopDown().filter { it.isFile }.sumOf { it.length() }
 
     // Copies the app into its folder. An update first takes out the old app and runtime, whose files are named after their contents and would pile up. A folder that holds something else is never cleared.
-    fun copy(from: File, to: File, progress: (done: Long, total: Long) -> Unit) {
+    fun copy(from: List<File>, to: File, onFile: (String) -> Unit, progress: (done: Long, total: Long) -> Unit) {
         if (File(to, Exe).isFile) {
             // Java leaves its class archives read only, which Windows will not delete.
             for (old in listOf(File(to, "app"), File(to, "runtime"))) {
@@ -131,12 +131,14 @@ internal object WindowsSetup {
                 old.deleteRecursively()
             }
         }
-        val files = from.walkTopDown().filter { it.isFile }.toList()
-        val total = files.sumOf { it.length() }.coerceAtLeast(1)
+        val files = from.flatMap { root -> root.walkTopDown().filter { it.isFile }.map { root to it } }
+        val total = files.sumOf { it.second.length() }.coerceAtLeast(1)
         var done = 0L
         val buffer = ByteArray(1 shl 20)
-        for (file in files) {
-            val target = File(to, file.relativeTo(from).path)
+        for ((root, file) in files) {
+            val name = file.relativeTo(root).path
+            onFile(name)
+            val target = File(to, name)
             target.parentFile.mkdirs()
             file.inputStream().use { input ->
                 target.outputStream().use { output ->

@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -18,10 +19,11 @@ import java.io.File
 enum class SetupMode { Install, Uninstall }
 
 // The pages of the setup, in the order they come.
-internal enum class SetupStep { Welcome, Folder, Library, Shortcuts, Working, Done, Failed, Remove, Removed }
+internal enum class SetupStep { Welcome, Options, Working, Done, Failed, Remove, Removed }
 
 // The parts of an install, each shown in the list while it runs, with the share of the whole bar it takes.
 internal enum class SetupPhase(val weight: Float) {
+    Unpack(0.1f),
     Close(0.05f),
     Old(0.1f),
     Copy(0.7f),
@@ -34,14 +36,23 @@ internal enum class PhaseState { Waiting, Running, Done }
 // Each part of the install stays on screen at least this long, so the list can be read as it goes.
 private const val MinPhaseMs = 450L
 
+// How long the install waits for the setup file to finish unpacking the rest of the app.
+private const val UnpackWaitMs = 120_000L
+
+// How many lines of the live log are kept.
+private const val LogLines = 300
+
 // What the setup knows and what the person chose, and the work behind the buttons. The work runs away from the window and reports back through the state the pages read.
-internal class SetupModel(val mode: SetupMode, private val scope: CoroutineScope) {
+internal class SetupModel(val mode: SetupMode, private val scope: CoroutineScope, private val later: File? = null) {
     val source: File? = WindowsSetup.appImage()
+
+    // The setup file of Windows unpacks the files the setup window never opens into a folder of their own while the window is open, and puts a file beside it once they are all out.
+    private val laterReady: File? = later?.let { File(it.path + ".ready") }
     val installed: Installed? = if (mode == SetupMode.Install) WindowsSetup.installed() else null
     val legacy: List<Legacy> = if (mode == SetupMode.Install) WindowsSetup.legacy() else emptyList()
     val version = BuildInfo.Version
     val updating = installed != null || legacy.isNotEmpty()
-    val size: Long = source?.let(WindowsSetup::sizeOf) ?: 0L
+    val size: Long = (source?.let(WindowsSetup::sizeOf) ?: 0L) + (later?.let(WindowsSetup::sizeOf) ?: 0L)
 
     var step by mutableStateOf(if (mode == SetupMode.Uninstall) SetupStep.Remove else SetupStep.Welcome)
     var custom by mutableStateOf(false)
@@ -64,19 +75,24 @@ internal class SetupModel(val mode: SetupMode, private val scope: CoroutineScope
     // How much of the app has been copied, and of how much.
     val copied = MutableStateFlow(0L to 1L)
 
+    // The lines of the live log of the work, the newest last.
+    val notes = MutableStateFlow<List<SetupNote>>(emptyList())
+
+    private fun note(kind: NoteKind, detail: String = "") = notes.update {
+        (it + SetupNote(kind, detail)).takeLast(LogLines)
+    }
+
     // What to do once the window has closed: open the app, or start the removal.
     var afterClose: (() -> Unit)? = null
 
-    // The steps the rail at the side lists for the way the person goes.
+    // The steps the track at the top lists for the way the person goes.
     val rail: List<SetupStep>
         get() = when {
             mode == SetupMode.Uninstall -> listOf(SetupStep.Remove, SetupStep.Removed)
 
-            custom -> listOf(
+            custom || step == SetupStep.Options -> listOf(
                 SetupStep.Welcome,
-                SetupStep.Folder,
-                SetupStep.Library,
-                SetupStep.Shortcuts,
+                SetupStep.Options,
                 SetupStep.Working,
                 SetupStep.Done,
             )
@@ -110,26 +126,17 @@ internal class SetupModel(val mode: SetupMode, private val scope: CoroutineScope
 
     val libraryFound: Boolean get() = File(dataFolder, "sumizuri.db").isFile || File(dataFolder, "profiles.json").isFile
 
+    // The app folder has room and the library is kept apart from it, so the install may start.
+    val canInstall: Boolean get() = enoughSpace && !libraryInsideApp
+
     fun customize() {
         custom = true
-        step = SetupStep.Folder
-    }
-
-    fun next() {
-        step = when (step) {
-            SetupStep.Folder -> SetupStep.Library
-            SetupStep.Library -> SetupStep.Shortcuts
-            else -> step
-        }
+        step = SetupStep.Options
     }
 
     fun back() {
-        step = when (step) {
-            SetupStep.Folder -> SetupStep.Welcome.also { custom = false }
-            SetupStep.Library -> SetupStep.Folder
-            SetupStep.Shortcuts -> SetupStep.Library
-            else -> step
-        }
+        custom = false
+        step = SetupStep.Welcome
     }
 
     // A folder picked for the app: one that already holds other things gets a Sumizuri folder inside it, so the app never mixes with them.
@@ -170,8 +177,10 @@ internal class SetupModel(val mode: SetupMode, private val scope: CoroutineScope
         step = SetupStep.Working
         phases.clear()
         copied.value = 0L to 1L
+        notes.value = emptyList()
         scope.launch {
             val plan = buildList {
+                if (laterReady != null && !laterReady.isFile) add(SetupPhase.Unpack)
                 if (withContext(Dispatchers.IO) { WindowsSetup.running(folders).isNotEmpty() }) add(SetupPhase.Close)
                 if (legacy.isNotEmpty()) add(SetupPhase.Old)
                 add(SetupPhase.Copy)
@@ -182,6 +191,7 @@ internal class SetupModel(val mode: SetupMode, private val scope: CoroutineScope
             val result = runCatching {
                 for (phase in plan) {
                     phases[phase] = PhaseState.Running
+                    note(NoteKind.Phase, phase.name)
                     val started = System.nanoTime()
                     withContext(Dispatchers.IO) { run(phase, from) }
                     val passed = (System.nanoTime() - started) / 1_000_000
@@ -195,8 +205,10 @@ internal class SetupModel(val mode: SetupMode, private val scope: CoroutineScope
                         "setup",
                         "installed ${BuildInfo.Version} in ${appFolder.absolutePath}, library in ${dataFolder.absolutePath}",
                     )
+                    note(NoteKind.Done)
                     step = SetupStep.Done
                 }.onFailure { error ->
+                    note(NoteKind.Failed, error.message ?: error.toString())
                     AppLog.error("setup", "the install failed", error)
                     failure = error.message ?: error.toString()
                     step = SetupStep.Failed
@@ -206,18 +218,58 @@ internal class SetupModel(val mode: SetupMode, private val scope: CoroutineScope
 
     private fun run(phase: SetupPhase, from: File) {
         when (phase) {
-            SetupPhase.Close -> WindowsSetup.close(WindowsSetup.running(folders))
+            SetupPhase.Close -> {
+                val open = WindowsSetup.running(folders)
+                note(NoteKind.Closing, open.size.toString())
+                WindowsSetup.close(open)
+            }
 
-            SetupPhase.Old -> legacy.forEach(WindowsSetup::removeLegacy)
+            SetupPhase.Old -> legacy.forEach {
+                note(NoteKind.Old, it.folder?.path.orEmpty())
+                WindowsSetup.removeLegacy(it)
+            }
 
-            SetupPhase.Copy -> WindowsSetup.copy(from, appFolder) { done, total -> copied.value = done to total }
+            SetupPhase.Unpack -> {
+                val until = System.currentTimeMillis() + UnpackWaitMs
+                val failed = later?.let { File(it.path + ".failed") }
+                while (laterReady?.isFile == false) {
+                    // The setup file says so when it could not unpack the rest, and why.
+                    failed?.takeIf { it.isFile }?.let {
+                        error(
+                            "The setup file could not unpack the app: ${it.readText()}",
+                        )
+                    }
+                    check(System.currentTimeMillis() < until) { "The setup file did not finish unpacking the app." }
+                    Thread.sleep(100)
+                }
+            }
 
-            SetupPhase.Shortcuts -> WindowsSetup.shortcuts(appFolder, menu, desktop, startup)
+            SetupPhase.Copy -> WindowsSetup.copy(
+                listOfNotNull(
+                    from,
+                    later?.takeIf {
+                        it.isDirectory
+                    },
+                ),
+                appFolder,
+                { note(NoteKind.File, it) },
+            ) { done, total ->
+                copied.value = done to total
+            }
+
+            SetupPhase.Shortcuts -> {
+                if (menu) note(NoteKind.Menu)
+                if (desktop) note(NoteKind.Desktop)
+                if (startup) note(NoteKind.Startup)
+                WindowsSetup.shortcuts(appFolder, menu, desktop, startup)
+            }
 
             SetupPhase.Finish -> {
+                note(NoteKind.Library, dataFolder.path)
                 dataFolder.mkdirs()
                 WindowsSetup.writeSettings(appFolder, dataFolder)
-                WindowsSetup.register(appFolder, version, size)
+                note(NoteKind.Register)
+                WindowsSetup.register(appFolder, version, WindowsSetup.sizeOf(appFolder))
                 // The first start shows the light or dark picture to match Windows, as later starts do.
                 LaunchSplash.follow(File(appFolder, "app/resources"))
             }
@@ -264,8 +316,12 @@ internal class SetupModel(val mode: SetupMode, private val scope: CoroutineScope
             return
         }
         step = SetupStep.Working
+        notes.value = emptyList()
         scope.launch {
-            withContext(Dispatchers.IO) { WindowsSetup.close(WindowsSetup.running(listOf(folder))) }
+            val open = withContext(Dispatchers.IO) { WindowsSetup.running(listOf(folder)) }
+            note(NoteKind.Closing, open.size.toString())
+            withContext(Dispatchers.IO) { WindowsSetup.close(open) }
+            note(NoteKind.Scheduled, folder.path)
             delay(1_200)
             val library = if (removeData) dataFolder else null
             afterClose = { SetupRemoval.schedule(folder, library) }

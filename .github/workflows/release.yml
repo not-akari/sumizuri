@@ -110,17 +110,11 @@ jobs:
         run: |
           mkdir -p "$STORE"
           cp build/libmpv/out/libmpv-2.dll "$STORE/"
-      # The installer is made by Inno Setup 7, pinned to one release and checked against its hash, and set up once for the user of the runner, where the build finds it.
-      - name: Set up Inno Setup
-        env:
-          MSYS_NO_PATHCONV: 1
+      # The setup file starts with a small launcher of our own written in Rust. The runner has rustup, and the MSVC tools give the launcher its icon and version.
+      - name: Set up Rust
         run: |
-          for place in "$LOCALAPPDATA/Programs/Inno Setup 7" "/c/Program Files/Inno Setup 7" "/c/Program Files (x86)/Inno Setup 7"; do
-            if [ -f "$place/ISCC.exe" ]; then echo "Inno Setup is already in $place"; exit 0; fi
-          done
-          curl -sSLf -o "$RUNNER_TEMP/innosetup.exe" https://github.com/jrsoftware/issrc/releases/download/is-7_1_0/innosetup-7.1.0-x64.exe
-          echo "0362a383ed217d4c4239b5933866dd96d3eb2102737da92f80f6057a4b40df2f  $RUNNER_TEMP/innosetup.exe" | sha256sum -c -
-          "$RUNNER_TEMP/innosetup.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /CURRENTUSER
+          rustup toolchain install stable --profile minimal
+          rustup default stable-x86_64-pc-windows-msvc
       # Signed with the key kept in the GitHub secrets, the same key as on the computer of the developer, so every build installs over the one before it.
       - name: Put the key in a file
         run: echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/sumizuri-release.jks"
