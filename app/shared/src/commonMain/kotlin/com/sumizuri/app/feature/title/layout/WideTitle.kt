@@ -120,7 +120,7 @@ internal fun WideTitle(
                             bannerPx = it.height
                             lastBannerPx = it.height
                         },
-                    ) { WideBanner(state, title, calls, onPreview, onBackground) }
+                    ) { WideBanner(state, title, calls, onPreview) }
                 }
                 item(key = "notices") {
                     Column(
@@ -181,7 +181,7 @@ internal fun WideTitle(
                 (scrolled / BarFade).coerceIn(0f, 1f),
                 calls.onBack,
                 Modifier.align(Alignment.TopCenter),
-            )
+            ) { shade -> TitleBarActions(state, title, calls, onBackground, shade) }
         }
     }
 }

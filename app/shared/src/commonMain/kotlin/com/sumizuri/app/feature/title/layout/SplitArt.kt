@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.crossfade
 import coil3.size.Scale
@@ -44,8 +45,13 @@ import com.sumizuri.app.ui.kit.cover.focus.rememberSoftCover
 import com.sumizuri.app.ui.kit.cover.rememberCoverPalette
 import com.sumizuri.app.ui.kit.image.ImageFilter
 import com.sumizuri.app.ui.kit.image.imageRequest
+import com.sumizuri.app.ui.theme.LocalThemeSpec
+import com.sumizuri.app.ui.theme.spec.CoverColorMode
 import kotlin.math.ceil
 import kotlin.math.max
+
+// How far past the cover its soft copy reaches when the page keeps the theme's background.
+private val SoftReach = 260.dp
 
 // Where along the cover, from its left edge, it starts to melt into the page.
 private const val SharpFadeFrom = 0.86f
@@ -76,6 +82,9 @@ internal fun SplitArt(
 ) {
     val page = MaterialTheme.colorScheme.background
     val url = title.coverUrl
+    // A page in the cover's colors lays the cover over all of it. Otherwise the cover only melts into the background of the theme, which shows beside it as on every page.
+    val mode = LocalThemeSpec.current.options.pageColors.mode
+    val whole = mode == CoverColorMode.Tinted || mode == CoverColorMode.Immersive
     BoxWithConstraints(modifier) {
         val wide = maxWidth.value.coerceAtLeast(1f)
         if (url.isNullOrBlank()) {
@@ -97,7 +106,15 @@ internal fun SplitArt(
                 Image(
                     soft,
                     null,
-                    Modifier.fillMaxSize().padding(start = cover * SharpFadeFrom * 0.85f),
+                    if (whole) {
+                        Modifier.fillMaxSize().padding(start = cover * SharpFadeFrom * 0.85f)
+                    } else {
+                        Modifier
+                            .fillMaxHeight()
+                            .padding(start = cover * SharpFadeFrom * 0.85f)
+                            .width(cover * (1f - SharpFadeFrom * 0.85f) + SoftReach)
+                            .fadeOutEnd(0f)
+                    },
                     contentScale = ContentScale.Crop,
                     alpha = shown,
                     filterQuality = FilterQuality.High,
@@ -150,17 +167,18 @@ internal fun SplitArt(
             val along = step / 6f
             (from + (full - from) * along) to page.copy(alpha = WashStrong * along * along * (3f - 2f * along))
         }
+        // Beside a cover that only melts into the theme, the wash eases off again past the words' start, so the background of the theme shows there.
+        val end = if (whole) {
+            listOf(1f to page.copy(alpha = WashStrong))
+        } else {
+            listOf((full + 0.12f).coerceAtMost(1f) to page.copy(alpha = 0f), 1f to page.copy(alpha = 0f))
+        }
         Box(
             Modifier.fillMaxSize().background(
-                Brush.horizontalGradient(
-                    *(
-                        listOf(0f to page.copy(alpha = 0f)) + rise +
-                            (1f to page.copy(alpha = WashStrong))
-                        ).toTypedArray(),
-                ),
+                Brush.horizontalGradient(*(listOf(0f to page.copy(alpha = 0f)) + rise + end).toTypedArray()),
             ),
         )
-        if (!url.isNullOrBlank()) CoverGlow(url, page.luminance() < 0.5f, Modifier.fillMaxSize())
+        if (!url.isNullOrBlank() && whole) CoverGlow(url, page.luminance() < 0.5f, Modifier.fillMaxSize())
     }
 }
 

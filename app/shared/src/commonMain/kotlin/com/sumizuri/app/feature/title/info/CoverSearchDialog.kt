@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +31,7 @@ import com.sumizuri.app.shared.resources.cover_search_none
 import com.sumizuri.app.shared.resources.cover_search_title
 import com.sumizuri.app.source.SourceResult
 import com.sumizuri.app.source.valueOrNull
+import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.cover.CoverArt
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.input.AppSearchBar
@@ -137,7 +137,7 @@ internal fun CoverSearchDialog(title: Title, onPick: (FoundCover) -> Unit, onDis
                 }
             }
         },
-        confirmButton = { TextButton(onDismiss) { Text(stringResource(Res.string.close)) } },
+        confirmButton = { InkOutlinedButton(onDismiss) { Text(stringResource(Res.string.close)) } },
     )
 }
 

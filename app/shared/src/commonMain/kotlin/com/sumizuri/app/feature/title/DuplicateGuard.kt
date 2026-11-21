@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,12 +19,13 @@ import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.cancel
 import com.sumizuri.app.shared.resources.duplicate_add
 import com.sumizuri.app.shared.resources.duplicate_open_hint
 import com.sumizuri.app.shared.resources.duplicate_text
 import com.sumizuri.app.shared.resources.duplicate_title
+import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.dialog.AppDialog
+import com.sumizuri.app.ui.kit.dialog.CancelButton
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -110,12 +110,12 @@ internal fun rememberDuplicateGuard(
                 }
             },
             confirmButton = {
-                TextButton({
+                InkButton({
                     waiting = null
                     asked.add()
                 }) { Text(stringResource(Res.string.duplicate_add)) }
             },
-            dismissButton = { TextButton({ waiting = null }) { Text(stringResource(Res.string.cancel)) } },
+            dismissButton = { CancelButton({ waiting = null }) },
         )
     }
     return remember(container) {

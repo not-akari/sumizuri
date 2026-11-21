@@ -9,19 +9,20 @@ import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.feature.comments.CommentsTarget
 
 @Composable
-fun TitleRoute(titleId: Long, onBack: () -> Unit, onOpenChapter: (Long) -> Unit, onMigrate: (Long) -> Unit, onOpenComments: (CommentsTarget) -> Unit) {
+fun TitleRoute(titleId: Long, onBack: () -> Unit, onOpenChapter: (Long) -> Unit, onMigrate: (Long) -> Unit, onOpenComments: (CommentsTarget) -> Unit, onEdit: (Long) -> Unit) {
     val container = LocalAppContainer.current
     val viewModel = viewModel(key = "title_$titleId") {
         TitleViewModel(titleId, container.library, container.sync, container.sources, container.session, container.focus, container.manager, container.solver, container.libraryPrefs, container.downloads, container.autoDownloads, container.seasonCovers, container.settings)
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val guard = rememberDuplicateGuard()
-    val calls = remember(viewModel, onBack, onOpenChapter, onMigrate, onOpenComments, guard) {
+    val calls = remember(viewModel, onBack, onOpenChapter, onMigrate, onOpenComments, onEdit, guard) {
         TitleCallbacks(
             onBack = onBack,
             onRefresh = viewModel::onRefresh,
             onSolve = viewModel::onSolve,
             onMigrate = { onMigrate(titleId) },
+            onEdit = { onEdit(titleId) },
             onEnableSource = viewModel::onEnableSource,
             onToggleSort = viewModel::onToggleSort,
             onToggleGrid = viewModel::onToggleGrid,

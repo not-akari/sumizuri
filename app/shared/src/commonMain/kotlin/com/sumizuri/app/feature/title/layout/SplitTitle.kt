@@ -24,17 +24,15 @@ import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.Title
 import com.sumizuri.app.feature.title.TitleCallbacks
 import com.sumizuri.app.feature.title.TitleState
+import com.sumizuri.app.feature.title.chapter.GroupGap
 import com.sumizuri.app.feature.title.chapter.ItemGap
 import com.sumizuri.app.feature.title.chapter.chapterSection
 import com.sumizuri.app.feature.title.chapter.rememberChapterListModel
 import com.sumizuri.app.feature.title.chapter.rememberOpenSeason
-import com.sumizuri.app.feature.title.info.ContinueButton
-import com.sumizuri.app.feature.title.info.FactStrip
-import com.sumizuri.app.feature.title.info.PosterActions
+import com.sumizuri.app.feature.title.info.ContinueBlock
 import com.sumizuri.app.feature.title.info.SourceNotice
 import com.sumizuri.app.feature.title.info.TitleHeading
 import com.sumizuri.app.feature.title.info.TitleSummary
-import com.sumizuri.app.feature.title.info.UnreachableActions
 import com.sumizuri.app.ui.kit.page.LoadStatus
 import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.scroll.mouseDragScroll
@@ -53,7 +51,6 @@ private val KnownAspects = HashMap<String, Float>()
 private val TextMin = 480.dp
 private val TextMax = 900.dp
 private const val OverCover = 0.05f
-private val ButtonsWidth = 520.dp
 
 // The room kept on the left of the column, past the usual gutter.
 private val TextStart = 16.dp
@@ -131,7 +128,7 @@ internal fun SplitTitle(
                     contentPadding = titleListPadding(),
                 ) {
                     item(key = "head") {
-                        SplitHead(state, title, calls, onBackground, Modifier.padding(bottom = 20.dp))
+                        SplitHead(state, title, calls, Modifier.padding(bottom = GroupGap))
                     }
                     item(key = "notices") {
                         Column(Modifier.padding(bottom = ItemGap), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -160,31 +157,18 @@ internal fun SplitTitle(
                     (scrolled / BarFade).coerceIn(0f, 1f),
                     calls.onBack,
                     soft = true,
-                )
+                ) { shade -> TitleBarActions(state, title, calls, onBackground, shade) }
             }
         }
     }
 }
 
-// The top of the column: the name and its facts, the description, the facts the heading does not give, and the continue button with the tiles.
+// The top of the column, in the same order as on a phone: the name and its facts, the description, the continue card and the actions under it.
 @Composable
-private fun SplitHead(
-    state: TitleState,
-    title: Title,
-    calls: TitleCallbacks,
-    onBackground: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier.padding(top = 12.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+private fun SplitHead(state: TitleState, title: Title, calls: TitleCallbacks, modifier: Modifier = Modifier) {
+    Column(modifier.padding(top = 12.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(GroupGap)) {
         TitleHeading(state, title, wide = true)
-        if (title.summary.isNotBlank()) TitleSummary(title.summary, lines = 4)
-        FactStrip(state, title)
-        if (!state.readable) UnreachableActions(state, title, calls, Modifier.widthIn(max = ButtonsWidth))
-        Column(Modifier.widthIn(max = ButtonsWidth), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (state.readable) {
-                ContinueButton(state.target, title.kind, calls.onContinue, Modifier.fillMaxWidth(), side = true)
-            }
-            PosterActions(state, title, calls, onBackground, Modifier.fillMaxWidth(), fixedHeight = true)
-        }
+        if (title.summary.isNotBlank()) TitleSummary(title.summary, lines = 3)
+        ContinueBlock(state, title, calls)
     }
 }

@@ -26,4 +26,13 @@ data class Title(
 ) {
     // A colour for the painted cover, taken from the name so it never changes.
     val hue: Float get() = name.fold(7) { sum, char -> sum * 31 + char.code }.mod(360).toFloat()
+
+    // How far the reader is through the title, from 0 to 1, or null while it has no chapters.
+    val readPart: Float? get() = if (chapterCount >
+        0
+    ) {
+        (chapterCount - unread).coerceAtLeast(0).toFloat() / chapterCount
+    } else {
+        null
+    }
 }

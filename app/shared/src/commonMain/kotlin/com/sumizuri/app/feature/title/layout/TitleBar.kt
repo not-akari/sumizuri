@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -71,7 +73,7 @@ internal fun titleListPadding(): PaddingValues {
     )
 }
 
-// The back arrow over the top of the page. Over the cover it sits on a round shade, and as the page scrolls up the bar turns into a plain strip and the name of the title shows in it. A soft bar has no strip, as the list fades out under it. Progress from 0 to 1 tells how far.
+// The back arrow over the top of the page, and the buttons of the page at its right. Over the cover it sits on a round shade, and as the page scrolls up the bar turns into a plain strip and the name of the title shows in it. A soft bar has no strip, as the list fades out under it. Progress from 0 to 1 tells how far.
 @Composable
 internal fun TitleBar(
     title: String,
@@ -79,6 +81,7 @@ internal fun TitleBar(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     soft: Boolean = false,
+    actions: @Composable RowScope.(IconButtonColors) -> Unit = {},
 ) {
     val page = MaterialTheme.colorScheme.background
     // A soft bar keeps the shade of its button, since no strip comes in behind it.
@@ -119,6 +122,7 @@ internal fun TitleBar(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+        actions(shade)
     }
 }
 

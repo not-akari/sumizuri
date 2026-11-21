@@ -85,6 +85,35 @@ class TitleEdits(private val db: AppDatabase) {
         db.settings().delete(editedKey(titleId))
     }
 
+    // Gives the source its say again over one part. The name it gave comes back at once, and the rest with the next look at the source.
+    suspend fun resetPart(titleId: Long, part: EditedPart) {
+        if (part == EditedPart.Name) {
+            db.settings().get(nameKey(titleId))?.let { name ->
+                val now = db.titles().get(titleId)
+                if (now !=
+                    null
+                ) {
+                    db.titles().setDetails(
+                        titleId,
+                        name,
+                        now.author,
+                        now.summary,
+                        now.status,
+                        now.genres,
+                        nowMillis(),
+                    )
+                }
+            }
+            db.settings().delete(nameKey(titleId))
+        }
+        val left = partsOf(db.settings().get(editedKey(titleId))) - part
+        if (left.isEmpty()) {
+            db.settings().delete(editedKey(titleId))
+        } else {
+            db.settings().put(SettingEntity(editedKey(titleId), left.joinToString(",") { it.name }))
+        }
+    }
+
     // Makes a picture the cover of a title, and keeps it there when the source says its own cover again.
     suspend fun setCustomCover(titleId: Long, url: String) {
         db.titles().setCover(titleId, url, nowMillis())

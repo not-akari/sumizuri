@@ -6,8 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DownloadDone
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +30,8 @@ import com.sumizuri.app.shared.resources.download_delete
 import com.sumizuri.app.shared.resources.download_saved
 import com.sumizuri.app.shared.resources.try_again
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import org.jetbrains.compose.resources.stringResource
 
 // What a chapter row knows about saving its chapter: where its download is, if there is one, and what can be asked. A new download cannot start while the source is out of reach.
@@ -88,8 +88,8 @@ internal fun ChapterDownloadButton(chapterId: Long, download: RowDownload) {
                         tint = colors.primary,
                     )
                 }
-                DropdownMenu(open, { open = false }) {
-                    DropdownMenuItem({ Text(stringResource(Res.string.download_delete)) }, {
+                AppMenu(open, { open = false }) {
+                    AppMenuItem({ Text(stringResource(Res.string.download_delete)) }, {
                         open = false
                         download.calls.onRemove(chapterId)
                     })

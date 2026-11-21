@@ -2,22 +2,13 @@ package com.sumizuri.app.feature.title.chapter
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.DoneAll
-import androidx.compose.material.icons.outlined.RemoveDone
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,15 +24,8 @@ import com.sumizuri.app.data.text.numberText
 import com.sumizuri.app.feature.title.ChapterCallbacks
 import com.sumizuri.app.feature.title.ChapterItem
 import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.bookmark_add
-import com.sumizuri.app.shared.resources.bookmark_remove
 import com.sumizuri.app.shared.resources.chapter_volume
-import com.sumizuri.app.shared.resources.title_mark_read
-import com.sumizuri.app.shared.resources.title_mark_unread
-import com.sumizuri.app.ui.kit.art.InkLinearProgressIndicator
-import com.sumizuri.app.ui.kit.card.CardPlace
-import com.sumizuri.app.ui.kit.card.cardRow
-import com.sumizuri.app.ui.kit.card.cardRowShape
+import com.sumizuri.app.ui.kit.card.softCard
 import com.sumizuri.app.ui.kit.cover.MarkBar
 import com.sumizuri.app.ui.kit.cover.MarkColors
 import com.sumizuri.app.ui.kit.cover.rememberMarkColors
@@ -62,7 +46,6 @@ internal fun ChapterListRow(
     selecting: Boolean,
     selected: Boolean,
     calls: ChapterCallbacks,
-    place: CardPlace,
     modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
@@ -70,8 +53,7 @@ internal fun ChapterListRow(
     Row(
         modifier
             .fillMaxWidth()
-            .cardRow(place, tint = if (selected) colors.primaryContainer.copy(alpha = 0.5f) else null)
-            .clip(cardRowShape(place))
+            .softCard(strong = selected)
             .chapterClicks(chapter, calls, selecting, preview)
             .padding(start = 14.dp, top = 8.dp, bottom = 8.dp, end = 6.dp),
         verticalAlignment = Alignment.CenterVertically,

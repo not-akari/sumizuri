@@ -20,11 +20,15 @@ import com.sumizuri.app.feature.title.TitleCallbacks
 import com.sumizuri.app.feature.title.TitleState
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.chapters_empty
-import com.sumizuri.app.ui.kit.card.CardPlace
+import com.sumizuri.app.ui.kit.card.SoftGap
 import org.jetbrains.compose.resources.stringResource
 
 // The room under each part of the title page. The rows of the chapters touch, as they make one card.
 internal val ItemGap = 6.dp
+
+// The space between the groups at the top of a title page: the name, the story, the continue card with its actions, and the chapters. Inside a group the parts sit closer.
+internal val GroupGap = 22.dp
+internal val InGroupGap = 12.dp
 
 // The width a chapter cell is counted at, and the widths a poster card and a wide card of a season are given, in dp.
 private const val ChapterCell = 170
@@ -117,17 +121,17 @@ internal fun LazyListScope.chapterSection(
         }
     } else {
         itemsIndexed(model.shown, key = { _, chapter -> chapter.key }) { index, chapter ->
-            Column(Modifier.animateItem().padding(end = endInset)) {
+            // A small gap around each row, so every chapter is a card of its own.
+            Column(Modifier.animateItem().padding(end = endInset, top = SoftGap / 2, bottom = SoftGap / 2)) {
                 if (index == 0 && model.gaps.before.isNotEmpty()) GapMarker(model.gaps.before)
                 // A season made of parts says where each part begins.
                 if (model.openSeason?.merged == true && model.shown.getOrNull(index - 1)?.season != chapter.season) {
                     PartLabel(chapter.seasonName ?: chapter.season.orEmpty(), first = index == 0)
                 }
                 val picked = chapter.id in state.selected
-                val place = CardPlace(index, model.shown.size)
                 // Picking has its own rows with pick boxes. Every other list uses one kind of row, so a phone and a computer look alike, and a phone can swipe a saved chapter.
                 if (state.selecting) {
-                    ChapterListRow(chapter, title.kind, state.preview, state.selecting, picked, calls.chapters, place)
+                    ChapterListRow(chapter, title.kind, state.preview, state.selecting, picked, calls.chapters)
                 } else if (wideRows || state.preview) {
                     ChapterWideRow(
                         chapter,
@@ -135,7 +139,6 @@ internal fun LazyListScope.chapterSection(
                         state.preview,
                         chapter.id == state.target?.id,
                         calls.chapters,
-                        place,
                         calls.downloads?.let { RowDownload(state.downloads[chapter.id], it) },
                     )
                 } else {
@@ -144,7 +147,6 @@ internal fun LazyListScope.chapterSection(
                         title.kind,
                         chapter.id == state.target?.id,
                         calls.chapters,
-                        place,
                         calls.downloads?.let {
                             RowDownload(state.downloads[chapter.id], it)
                         },

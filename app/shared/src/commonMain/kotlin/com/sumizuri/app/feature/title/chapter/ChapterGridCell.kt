@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material3.Icon
@@ -22,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -38,7 +36,7 @@ import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.text.numberText
 import com.sumizuri.app.feature.title.ChapterCallbacks
 import com.sumizuri.app.feature.title.ChapterItem
-import com.sumizuri.app.ui.kit.art.InkLinearProgressIndicator
+import com.sumizuri.app.ui.kit.card.softFill
 import com.sumizuri.app.ui.kit.cover.MarkBar
 import com.sumizuri.app.ui.kit.cover.rememberMarkColors
 import com.sumizuri.app.ui.kit.image.ImageFilter
@@ -71,7 +69,7 @@ internal fun ChapterGridCell(
     Surface(
         modifier.height(if (pictures) PictureCellHeight else CellHeight),
         shape = MaterialTheme.shapes.small,
-        color = if (selected) colors.primaryContainer.copy(alpha = 0.5f) else colors.surfaceContainerHigh,
+        color = softFill(strong = selected),
         border = if (selected) BorderStroke(2.dp, colors.primary) else null,
     ) {
         Box {

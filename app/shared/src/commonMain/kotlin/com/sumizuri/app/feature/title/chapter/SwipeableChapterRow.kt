@@ -1,30 +1,19 @@
 package com.sumizuri.app.feature.title.chapter
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.BookmarkRemove
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DoneAll
 import androidx.compose.material.icons.outlined.RemoveDone
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.controls.ChapterRowAction
 import com.sumizuri.app.feature.title.ChapterCallbacks
@@ -36,13 +25,12 @@ import com.sumizuri.app.shared.resources.chapter_action_select
 import com.sumizuri.app.shared.resources.title_mark_read
 import com.sumizuri.app.shared.resources.title_mark_unread
 import com.sumizuri.app.ui.controls.LocalAppGestures
-import com.sumizuri.app.ui.kit.card.CardPlace
-import com.sumizuri.app.ui.kit.card.cardRowShape
+import com.sumizuri.app.ui.kit.swipe.SwipeBackdrop
 import org.jetbrains.compose.resources.stringResource
 
 // A chapter row that can be swiped. What a swipe to the right and a swipe to the left do is the person's choice, and a side set to nothing cannot be swiped. The row springs back after the action.
 @Composable
-internal fun SwipeableChapterRow(chapter: ChapterItem, kind: Kind, next: Boolean, calls: ChapterCallbacks, place: CardPlace, download: RowDownload? = null) {
+internal fun SwipeableChapterRow(chapter: ChapterItem, kind: Kind, next: Boolean, calls: ChapterCallbacks, download: RowDownload? = null) {
     val gestures = LocalAppGestures.current
     val right = gestures.chapterSwipeRight
     val left = gestures.chapterSwipeLeft
@@ -58,34 +46,24 @@ internal fun SwipeableChapterRow(chapter: ChapterItem, kind: Kind, next: Boolean
     }
     SwipeToDismissBox(
         state,
-        backgroundContent = { SwipeBackground(if (state.dismissDirection == SwipeToDismissBoxValue.StartToEnd) right else left, state.dismissDirection, chapter, place) },
+        backgroundContent = { SwipeBackground(state, if (state.dismissDirection == SwipeToDismissBoxValue.StartToEnd) right else left, chapter) },
         enableDismissFromStartToEnd = right != ChapterRowAction.None,
         enableDismissFromEndToStart = left != ChapterRowAction.None,
     ) {
-        ChapterWideRow(chapter, kind, preview = false, next = next, calls = calls, place = place, download = download)
+        ChapterWideRow(chapter, kind, preview = false, next = next, calls = calls, download = download)
     }
 }
 
 @Composable
-private fun SwipeBackground(action: ChapterRowAction, direction: SwipeToDismissBoxValue, chapter: ChapterItem, place: CardPlace) {
+private fun SwipeBackground(state: SwipeToDismissBoxState, action: ChapterRowAction, chapter: ChapterItem) {
     val colors = MaterialTheme.colorScheme
+    val direction = state.dismissDirection
     if (direction == SwipeToDismissBoxValue.Settled || action == ChapterRowAction.None) return
     val toRight = direction == SwipeToDismissBoxValue.StartToEnd
     val (icon, text) = look(action, chapter)
     val fill = if (toRight) colors.primaryContainer else colors.secondaryContainer
     val ink = if (toRight) colors.onPrimaryContainer else colors.onSecondaryContainer
-    Row(
-        Modifier
-            .fillMaxSize()
-            .clip(cardRowShape(place))
-            .background(fill)
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = if (toRight) Arrangement.Start else Arrangement.End,
-    ) {
-        Icon(icon, null, tint = ink)
-        Text(text, Modifier.padding(start = 8.dp), color = ink, fontWeight = FontWeight.SemiBold)
-    }
+    SwipeBackdrop(state, icon, text, fill, ink)
 }
 
 // The icon and the words that show what a swipe will do to this chapter.
