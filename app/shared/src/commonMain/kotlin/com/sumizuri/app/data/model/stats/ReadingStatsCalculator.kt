@@ -3,6 +3,7 @@ package com.sumizuri.app.data.model.stats
 import com.sumizuri.app.data.model.Title
 import com.sumizuri.app.data.model.stats.ReadingStats.Companion.DayMs
 import com.sumizuri.app.data.text.localOffsetMillis
+import com.sumizuri.app.data.text.weekdayOf
 
 private const val HourMs = 60 * 60 * 1000L
 

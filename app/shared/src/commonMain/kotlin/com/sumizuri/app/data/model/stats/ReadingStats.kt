@@ -68,6 +68,3 @@ data class ReadingStats(
 
 // The day of a moment on the clock of the device, counted in days since 1 January 1970.
 fun dayOf(at: Long): Long = (at + localOffsetMillis(at)).floorDiv(DayMs)
-
-// Monday is 1. The first day counted, 1 January 1970, was a Thursday.
-fun weekdayOf(day: Long): Int = (day + 3).mod(7L).toInt() + 1

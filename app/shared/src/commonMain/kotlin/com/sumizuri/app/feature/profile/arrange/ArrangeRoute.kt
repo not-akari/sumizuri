@@ -11,7 +11,6 @@ import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.blocks.BlockLayout
 import com.sumizuri.app.data.blocks.BlockTemplate
 import com.sumizuri.app.data.blocks.ProfileBlocksRepository
-import com.sumizuri.app.data.blocks.ProfilePreset
 import com.sumizuri.app.data.blocks.decodeBlock
 import com.sumizuri.app.data.blocks.newBlockId
 import com.sumizuri.app.data.library.LibraryRepository
@@ -109,25 +108,14 @@ class ArrangeViewModel(
         blocks.update { it.copy(blocks = it.blocks + block.copy(id = newBlockId())) }
         return true
     }
-
-    // Replaces the blocks with a preset. Classic forgets the saved blocks, so the page is the one it came with.
-    fun onPreset(preset: ProfilePreset) = viewModelScope.launch {
-        if (preset ==
-            ProfilePreset.Classic
-        ) {
-            blocks.reset()
-        } else {
-            blocks.save(preset.layout())
-        }
-    }
 }
 
 @Composable
-fun ArrangeRoute(onBack: () -> Unit, onEditScript: (String) -> Unit) {
+fun ArrangeRoute(onBack: () -> Unit, onEditScript: (String) -> Unit, onLayouts: () -> Unit) {
     val container = LocalAppContainer.current
     val viewModel = viewModel { ArrangeViewModel(container.blocks, container.statistics, container.library) }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val calls = remember(viewModel, onEditScript) {
+    val calls = remember(viewModel, onEditScript, onLayouts) {
         BlockCalls(
             onMove = { id, to -> viewModel.onMove(id, to) },
             onResize = { id, w, h -> viewModel.onResize(id, w, h) },
@@ -136,7 +124,7 @@ fun ArrangeRoute(onBack: () -> Unit, onEditScript: (String) -> Unit) {
             onAdd = { viewModel.onAdd(it) },
             onImport = viewModel::onImport,
             onEdit = onEditScript,
-            onPreset = { viewModel.onPreset(it) },
+            onLayouts = onLayouts,
         )
     }
     ArrangeScreen(state, calls, onBack)

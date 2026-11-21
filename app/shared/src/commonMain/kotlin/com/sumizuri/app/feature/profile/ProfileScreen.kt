@@ -4,8 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
@@ -34,7 +38,6 @@ import com.sumizuri.app.data.profile.Profile
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.feature.profile.blocks.BlockEnv
 import com.sumizuri.app.feature.profile.blocks.BlockGrid
-import com.sumizuri.app.feature.profile.blocks.LayoutsDialog
 import com.sumizuri.app.feature.settings.PageRow
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.blocks_edit
@@ -53,6 +56,7 @@ import com.sumizuri.app.shared.resources.sync_title
 import com.sumizuri.app.shared.resources.titles_count
 import com.sumizuri.app.shared.resources.trackers_hint
 import com.sumizuri.app.shared.resources.trackers_title
+import com.sumizuri.app.ui.kit.card.PageTile
 import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.page.PageTopBar
 import com.sumizuri.app.ui.kit.page.pageScroll
@@ -66,22 +70,26 @@ private sealed interface Window {
     data object None : Window
     data object Switch : Window
     data class Form(val profile: Profile?) : Window
-    data object Layouts : Window
 }
 
 // The profile page: the reader's picture and name, a word when titles have lost their source, and under them the blocks the reader laid out, each made by a short script of JSON and formulas. At the top right are the layouts to start from, the page where the blocks are put in order, sized, added and removed, and the settings.
 @Composable
 internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
     var window by remember { mutableStateOf<Window>(Window.None) }
+    // The banner of covers is still being tried out, so it shows only when turned on in the experimental settings.
+    val settings = LocalAppContainer.current.settings
+    val banner by remember(
+        settings,
+    ) { settings.flag(SettingKey.ProfileBanner, false) }.collectAsStateWithLifecycle(false)
     val active = state.active
     Column(Modifier.fillMaxSize()) {
         // The bar sits over the content, centered with it on a wide window.
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
             Box(Modifier.widthIn(max = ContentWidth).fillMaxWidth()) {
                 PageTopBar(stringResource(Res.string.profile_title)) {
-                    IconButton({
-                        window = Window.Layouts
-                    }) { Icon(Icons.Outlined.AutoAwesomeMosaic, stringResource(Res.string.blocks_layouts)) }
+                    IconButton(
+                        calls.onLayouts,
+                    ) { Icon(Icons.Outlined.AutoAwesomeMosaic, stringResource(Res.string.blocks_layouts)) }
                     IconButton(
                         calls.onArrange,
                     ) { Icon(Icons.Outlined.DashboardCustomize, stringResource(Res.string.blocks_edit)) }
@@ -100,10 +108,12 @@ internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
                             .widthIn(max = ContentWidth)
                             .fillMaxWidth()
                             .padding(horizontal = PageGutter)
-                            .padding(top = 12.dp, bottom = 32.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp),
+                            .padding(top = 4.dp, bottom = 32.dp),
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
-                        ProfileHeader(active, onSwitch = { window = Window.Switch }, onEdit = {
+                        ProfileHeader(active, state.stats, state.recent, banner = banner, onSwitch = {
+                            window = Window.Switch
+                        }, onEdit = {
                             window =
                                 Window.Form(active)
                         })
@@ -133,12 +143,10 @@ internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
         )
 
         is Window.Form -> ProfileFormSheet(open.profile, open.profile?.id == active?.id, calls, close)
-
-        Window.Layouts -> LayoutsDialog(calls.onPreset, close)
     }
 }
 
-// The ways to sync and to the trackers, in one card. The first says how the sync of this profile stands, or what sync is while it is not set up, and the second who is signed in to which tracker.
+// The ways to sync and to the trackers, as two tiles side by side. The first says how the sync of this profile stands, or what sync is while it is not set up, and the second who is signed in to which tracker.
 @Composable
 private fun SyncEntry(onOpen: () -> Unit, onOpenTrackers: () -> Unit) {
     val account by LocalProfiles.current.syncAccounts.account
@@ -180,9 +188,21 @@ private fun SyncEntry(onOpen: () -> Unit, onOpenTrackers: () -> Unit) {
     } else {
         tracked.entries.joinToString(" · ") { (tracker, account) -> tracker.label + ": " + account.name }
     }
-    SettingsSection {
-        row { PageRow(Icons.Outlined.Sync, stringResource(Res.string.sync_title), summary, onOpen) }
-        row { PageRow(Icons.Outlined.Checklist, stringResource(Res.string.trackers_title), trackers, onOpenTrackers) }
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        PageTile(
+            Icons.Outlined.Sync,
+            stringResource(Res.string.sync_title),
+            summary,
+            onOpen,
+            Modifier.weight(1f).fillMaxHeight(),
+        )
+        PageTile(
+            Icons.Outlined.Checklist,
+            stringResource(Res.string.trackers_title),
+            trackers,
+            onOpenTrackers,
+            Modifier.weight(1f).fillMaxHeight(),
+        )
     }
 }
 

@@ -5,7 +5,6 @@ import com.sumizuri.app.data.blocks.BlockLayout
 import com.sumizuri.app.data.blocks.BlockTemplate
 import com.sumizuri.app.data.blocks.BlockView
 import com.sumizuri.app.data.blocks.ProfileBlock
-import com.sumizuri.app.data.blocks.ProfilePreset
 import com.sumizuri.app.data.blocks.runScript
 import com.sumizuri.app.data.model.FeedItem
 import com.sumizuri.app.data.model.stats.ReadingStats
@@ -39,12 +38,12 @@ class ProfileCalls(
     val onSave: (id: Long, name: String, picture: ByteArray?, removePicture: Boolean) -> Unit,
     // Deletes a profile that is not open, and gives false when it could not be.
     val onDelete: suspend (Long) -> Boolean,
-    // Puts a preset in place of the blocks, and opens the page where the blocks are edited.
-    val onPreset: (ProfilePreset) -> Unit,
+    // Opens the layouts to start from.
+    val onLayouts: () -> Unit,
     val onArrange: () -> Unit,
 )
 
-// What the page of the blocks can ask for: a block moved to a place in the order, resized, removed, copied, added from a template or from shared text, or opened in the editor of its script, and all of them replaced by a preset.
+// What the page of the blocks can ask for: a block moved to a place in the order, resized, removed, copied, added from a template or from shared text, or opened in the editor of its script, and the layouts to start from opened.
 class BlockCalls(
     val onMove: (id: String, to: Int) -> Unit,
     val onResize: (id: String, w: Int, h: Int) -> Unit,
@@ -53,7 +52,7 @@ class BlockCalls(
     val onAdd: (BlockTemplate) -> Unit,
     val onImport: suspend (JsonElement) -> Boolean,
     val onEdit: (String) -> Unit,
-    val onPreset: (ProfilePreset) -> Unit,
+    val onLayouts: () -> Unit,
 )
 
 // Each block with what its script shows on the reading as it is now.

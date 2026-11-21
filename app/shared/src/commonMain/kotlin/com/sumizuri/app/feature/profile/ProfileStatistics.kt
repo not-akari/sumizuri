@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.stats.ReadingStats
@@ -52,9 +51,10 @@ import com.sumizuri.app.shared.resources.stats_total
 import com.sumizuri.app.shared.resources.stats_weeks_count
 import com.sumizuri.app.shared.resources.stats_years_count
 import com.sumizuri.app.ui.kit.card.AppCard
-import com.sumizuri.app.ui.kit.card.AppSectionLabel
+import com.sumizuri.app.ui.kit.card.TitledCard
 import com.sumizuri.app.ui.kit.setting.SettingIcon
-import com.sumizuri.app.ui.motion.entrance
+import com.sumizuri.app.ui.kit.text.Figure
+import com.sumizuri.app.ui.kit.text.FigureSize
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.ceil
@@ -82,13 +82,28 @@ internal fun ProfileStatistics(stats: ReadingStats, wide: Boolean, modifier: Mod
 
 @Composable
 private fun Averages(stats: ReadingStats) {
-    Card(stringResource(Res.string.stats_averages)) {
+    TitledCard(stringResource(Res.string.stats_averages)) {
         Row(Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically) {
-            Metric(oneDecimal(stats.perSitting), stringResource(Res.string.stats_per_sitting), Modifier.weight(1f))
+            Figure(
+                oneDecimal(stats.perSitting),
+                stringResource(Res.string.stats_per_sitting),
+                Modifier.weight(1f),
+                FigureSize.Small,
+            )
             Rule()
-            Metric(oneDecimal(stats.perActiveDay), stringResource(Res.string.stats_per_active_day), Modifier.weight(1f))
+            Figure(
+                oneDecimal(stats.perActiveDay),
+                stringResource(Res.string.stats_per_active_day),
+                Modifier.weight(1f),
+                FigureSize.Small,
+            )
             Rule()
-            Metric(oneDecimal(stats.perWeek), stringResource(Res.string.stats_per_week), Modifier.weight(1f))
+            Figure(
+                oneDecimal(stats.perWeek),
+                stringResource(Res.string.stats_per_week),
+                Modifier.weight(1f),
+                FigureSize.Small,
+            )
         }
     }
 }
@@ -96,7 +111,7 @@ private fun Averages(stats: ReadingStats) {
 @Composable
 private fun Insights(stats: ReadingStats) {
     val eta = stats.weeksToClearBacklog
-    Card(stringResource(Res.string.stats_insights)) {
+    TitledCard(stringResource(Res.string.stats_insights)) {
         Insight(
             Icons.Outlined.Inventory2,
             stringResource(Res.string.stats_backlog),
@@ -131,7 +146,7 @@ private fun Insights(stats: ReadingStats) {
 
 @Composable
 private fun Breakdown(stats: ReadingStats) {
-    Card(
+    TitledCard(
         stringResource(Res.string.stats_library_breakdown),
         trailing = stringResource(Res.string.stats_total, stats.libraryTitles),
     ) {
@@ -139,42 +154,6 @@ private fun Breakdown(stats: ReadingStats) {
             for (kind in Kind.entries) Pill(stringResource(kind.label), stats.kindCounts[kind] ?: 0)
             if (stats.favorites > 0) Pill(stringResource(Res.string.filter_favorite), stats.favorites, star = true)
         }
-    }
-}
-
-// A soft card with a small heading above it and an optional note at the end of the heading.
-@Composable
-private fun Card(title: String, trailing: String? = null, content: @Composable () -> Unit) {
-    Column {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.weight(1f)) { AppSectionLabel(title) }
-            if (trailing !=
-                null
-            ) {
-                Text(
-                    trailing,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        }
-        AppCard(Modifier.entrance().fillMaxWidth()) {
-            Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) { content() }
-        }
-    }
-}
-
-@Composable
-private fun Metric(value: String, label: String, modifier: Modifier) {
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Text(
-            label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline,
-            textAlign = TextAlign.Center,
-        )
     }
 }
 

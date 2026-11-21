@@ -18,9 +18,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.stats.ReadingStats
 import com.sumizuri.app.data.model.stats.ReadingStats.Companion.DayMs
-import com.sumizuri.app.data.model.stats.weekdayOf
 import com.sumizuri.app.data.text.localOffsetMillis
 import com.sumizuri.app.data.text.monthYearShort
+import com.sumizuri.app.data.text.weekdayOf
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.stats_today
 import org.jetbrains.compose.resources.stringResource
