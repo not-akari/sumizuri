@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +21,6 @@ import com.sumizuri.app.data.sources.RepoMatch
 import com.sumizuri.app.data.sources.RepoMovePlan
 import com.sumizuri.app.data.sources.RepoMoveResult
 import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.cancel
 import com.sumizuri.app.shared.resources.repo_move_busy
 import com.sumizuri.app.shared.resources.repo_move_comparing
 import com.sumizuri.app.shared.resources.repo_move_done
@@ -45,6 +42,8 @@ import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.art.InkLinearProgressIndicator
 import com.sumizuri.app.ui.kit.dialog.AppDialog
+import com.sumizuri.app.ui.kit.dialog.CancelButton
+import com.sumizuri.app.ui.kit.input.CheckRow
 import org.jetbrains.compose.resources.stringResource
 
 // Moves the sources of a repo to another, in three steps in one window: the repo to move to is picked, every source is matched in it and the matches are shown before anything changes, and then the move runs and says what it did.
@@ -84,7 +83,7 @@ internal fun RepoMoveDialog(
             }
         },
         dismissButton = {
-            if (result == null && !state.busy) TextButton(onDismiss) { Text(stringResource(Res.string.cancel)) }
+            if (result == null && !state.busy) CancelButton(onDismiss)
         },
     )
 }
@@ -146,18 +145,12 @@ private fun MovePlan(plan: RepoMovePlan, state: RepoMoveState, onRemoveOld: (Boo
             )
         }
     }
-    Row(
-        Modifier.fillMaxWidth().clickable(enabled = !state.busy) {
-            onRemoveOld(!state.removeOld)
-        },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Checkbox(state.removeOld, onRemoveOld, enabled = !state.busy)
-        Text(
-            stringResource(Res.string.repo_move_remove_old, plan.from.name),
-            style = MaterialTheme.typography.bodyMedium,
-        )
-    }
+    CheckRow(
+        stringResource(Res.string.repo_move_remove_old, plan.from.name),
+        state.removeOld,
+        onRemoveOld,
+        enabled = !state.busy,
+    )
     if (state.busy) {
         Text(
             stringResource(Res.string.repo_move_busy, state.done, state.total),

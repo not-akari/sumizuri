@@ -3,7 +3,6 @@ package com.sumizuri.app.feature.browse.source
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,6 +15,7 @@ import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.browse_preferences
 import com.sumizuri.app.source.model.PreferenceType
 import com.sumizuri.app.source.model.SourcePreference
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.page.AppSheet
 import com.sumizuri.app.ui.kit.setting.ChipsSetting
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
@@ -56,7 +56,7 @@ private fun PreferenceRow(preference: SourcePreference, value: Any?, onChange: (
 
         PreferenceType.EditText -> {
             var text by remember(preference.key) { mutableStateOf(value?.toString().orEmpty()) }
-            OutlinedTextField(
+            AppTextField(
                 text,
                 {
                     text = it

@@ -29,9 +29,8 @@ import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.feed.UpdateItem
 import com.sumizuri.app.feature.updates.FeedDisplaySheet
 import com.sumizuri.app.feature.updates.row.FeedAction
-import com.sumizuri.app.feature.updates.row.FeedDayHeading
-import com.sumizuri.app.feature.updates.row.Readable
 import com.sumizuri.app.feature.updates.row.feed
+import com.sumizuri.app.feature.updates.row.feedHeading
 import com.sumizuri.app.feature.updates.row.groupByHeading
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.display_history_title
@@ -78,6 +77,7 @@ internal fun HistoryScreen(state: HistoryState, calls: HistoryCalls) {
     }
 
     Box(Modifier.fillMaxSize()) {
+        // A list sits in the middle with its bar, and a grid and its bar span the window.
         ReadableWhen(!grid) {
             Column(Modifier.fillMaxSize()) {
                 PageTopBar(stringResource(Res.string.history_title)) {
@@ -89,13 +89,13 @@ internal fun HistoryScreen(state: HistoryState, calls: HistoryCalls) {
                     }
                     IconButton({ displayOpen = true }) { Icon(Icons.Outlined.GridView, stringResource(Res.string.library_display)) }
                 }
-                PageGrid(Modifier.weight(1f), maxCell = state.library.cellWidth.dp) {
-                    fullSpan { Header(state, calls, showSearch) }
+                PageGrid(Modifier.weight(1f), maxCell = state.library.cellWidth.dp, rowGap = if (grid) 14.dp else 0.dp) {
+                    fullSpan("header") { Header(state, calls, showSearch) }
                     if (state.loaded && state.items.isEmpty()) {
-                        fullSpan { Text(stringResource(Res.string.history_empty), Modifier.entrance().fillMaxWidth().padding(32.dp), color = MaterialTheme.colorScheme.outline) }
+                        fullSpan("empty") { Text(stringResource(Res.string.history_empty), Modifier.animateItem().entrance().fillMaxWidth().padding(32.dp), color = MaterialTheme.colorScheme.outline) }
                     }
                     for ((heading, group) in groupByHeading(state.items, grid, state.now)) {
-                        fullSpan { Readable(!grid) { FeedDayHeading(heading, group.first().at, group.size, onMarkAllRead = null) } }
+                        feedHeading(heading, group, !grid, onMarkAllRead = null)
                         feed(group, prefs.style, prefs.rowStyle, !grid, FeedAction.Remove, calls.onOpenTitle, ::remove)
                     }
                 }

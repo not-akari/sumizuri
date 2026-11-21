@@ -1,7 +1,6 @@
 package com.sumizuri.app.feature.browse.source
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -17,6 +16,7 @@ import com.sumizuri.app.shared.resources.browse_tab_delete
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.dialog.CancelButton
+import com.sumizuri.app.ui.kit.input.AppTextField
 import org.jetbrains.compose.resources.stringResource
 
 // Asks for the name of the tab that a search is kept under. With a delete action it is also how a saved tab is renamed or removed.
@@ -32,7 +32,7 @@ fun SavedTabDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.browse_save_tab)) },
         text = {
-            OutlinedTextField(name, {
+            AppTextField(name, {
                 name = it
             }, label = { Text(stringResource(Res.string.browse_save_tab_name)) }, singleLine = true)
         },

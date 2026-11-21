@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +46,7 @@ import com.sumizuri.app.ui.kit.input.BackButton
 import com.sumizuri.app.ui.text.agoText
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import com.sumizuri.app.ui.kit.chips.SoftChip
 
 // A list of titles, with a button for its next page until a page comes back empty or the same as the one before.
 internal fun LazyListScope.listPart(test: ExtensionTest, idle: Boolean, back: (() -> Unit)?, actions: ExtensionEditorActions) {
@@ -122,7 +122,7 @@ internal fun LazyListScope.commentsPart(of: String, comments: List<SourceComment
     item { PartHeader(of, comments.size.toString(), back) }
     item {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            for (order in CommentOrders) FilterChip(sort == order, { onSort(order) }, { Text(stringResource(sortLabel(order))) }, enabled = idle)
+            for (order in CommentOrders) SoftChip(sort == order, { onSort(order) }, { Text(stringResource(sortLabel(order))) }, enabled = idle)
         }
     }
     items(comments) { comment ->

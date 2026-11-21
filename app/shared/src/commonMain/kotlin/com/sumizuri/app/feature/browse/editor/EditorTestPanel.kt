@@ -16,11 +16,9 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,6 +43,8 @@ import com.sumizuri.app.shared.resources.ext_edit_worked
 import com.sumizuri.app.source.model.CommentSort
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.art.InkTonalButton
+import com.sumizuri.app.ui.kit.chips.SoftActionChip
+import com.sumizuri.app.ui.kit.input.AppTextField
 import org.jetbrains.compose.resources.stringResource
 
 // The tests of the draft against the real site. Run all goes through everything the code offers and writes a report. Each part can also be tried alone: the lists, a search, the catalogs, the filters, the settings and what the code says about itself, and from a list a title with its chapters and comments, and from those a chapter with its pages. What came back is shown with notes on what would look wrong, and the console under it shows what the code said.
@@ -61,7 +61,7 @@ internal fun EditorTestPanel(
     var consoleOpen by rememberSaveable { mutableStateOf(true) }
     val idle = test.running == null
     Column(modifier.padding(padding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(
+        AppTextField(
             query,
             { query = it },
             Modifier.fillMaxWidth(),
@@ -150,7 +150,7 @@ internal fun EditorTestPanel(
 
 @Composable
 private fun StepChip(step: TestStep, enabled: Boolean, onClick: () -> Unit) {
-    AssistChip(onClick, { Text(stringResource(step.label)) }, enabled = enabled)
+    SoftActionChip(onClick, { Text(stringResource(step.label)) }, enabled = enabled)
 }
 
 // What runs now with a way to stop it, how long the last step took, or what went wrong in it, which can be selected and copied.

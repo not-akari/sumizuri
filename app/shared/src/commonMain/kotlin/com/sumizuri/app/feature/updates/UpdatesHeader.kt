@@ -16,22 +16,21 @@ import com.sumizuri.app.ui.kit.chips.ChipRow
 import com.sumizuri.app.ui.kit.chips.FilterTabs
 import com.sumizuri.app.ui.kit.chips.KindChips
 import com.sumizuri.app.ui.kit.chips.hasKindChoice
+import com.sumizuri.app.ui.motion.Unfold
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
-// What stands above the feed and scrolls with it: the notes, the shelves as tabs when there are shelves, and the kinds as chips when the new chapters are of more than one kind, laid out as on the library.
+// What stands above the feed and scrolls with it: the notes, which unfold as they come and go, the shelves as tabs when there are shelves, and the kinds as chips when the new chapters are of more than one kind, laid out as on the library.
 @Composable
 internal fun UpdatesHeader(state: UpdatesState, calls: UpdatesCalls, onShowFailures: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (state.failures.isNotEmpty()) FailuresNotice(state.failures.size, onShowFailures, calls.onDismissFailures)
-        if (state.unchecked > 0 &&
-            state.progress == null
-        ) {
+        Unfold(state.failures.isNotEmpty()) {
+            FailuresNotice(state.failures.size, onShowFailures, calls.onDismissFailures)
+        }
+        Unfold(state.unchecked > 0 && state.progress == null) {
             ConnectionLostNotice(state.unchecked, calls.onUpdate, calls.onDismissFailures)
         }
-        if (state.hidden >
-            0
-        ) {
+        Unfold(state.hidden > 0) {
             MissingSourcesNotice(
                 pluralStringResource(Res.plurals.updates_hidden, state.hidden, state.hidden),
                 calls.onOpenMissing,

@@ -30,6 +30,8 @@ data class UpdatesState(
     val unchecked: Int = 0,
     // The kinds the new chapters are of, before the kind is narrowed, so the kinds are only offered when there is a choice.
     val kinds: Set<Kind> = emptySet(),
+    // How many new chapters are not read in all, which can be more than the page lists.
+    val total: Int = 0,
 )
 
 // What the updates page can ask for.

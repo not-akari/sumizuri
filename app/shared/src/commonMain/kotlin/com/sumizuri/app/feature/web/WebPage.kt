@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
+import com.sumizuri.app.data.net.siteNameOf
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.web_back
 import com.sumizuri.app.shared.resources.web_forward
@@ -43,7 +44,7 @@ fun WebPage(url: String, onBack: () -> Unit) {
     }
     Column(Modifier.fillMaxSize()) {
         PageTopBar(
-            state.title.ifBlank { hostOf(state.url) },
+            state.title.ifBlank { siteNameOf(state.url) },
             subtitle = state.url,
             onBack = onBack,
         ) {
@@ -79,4 +80,3 @@ fun WebPage(url: String, onBack: () -> Unit) {
 }
 
 // The site part of an address, for the bar before the page has a name.
-private fun hostOf(url: String): String = url.substringAfter("://").substringBefore('/').removePrefix("www.")

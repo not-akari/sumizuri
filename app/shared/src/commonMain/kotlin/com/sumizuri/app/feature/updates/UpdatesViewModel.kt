@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 // The choices made on the page itself, which are not kept between runs.
 private data class Look(val kind: Kind? = null, val shelf: Long? = null)
 
-private class Content(val rows: List<UpdateRow>, val entries: List<LibraryEntry>, val sourceNames: Map<String, String>, val hidden: Int)
+private class Content(val rows: List<UpdateRow>, val entries: List<LibraryEntry>, val sourceNames: Map<String, String>, val hidden: Int, val total: Int)
 
 private class Around(val progress: UpdateProgress?, val failures: Pair<List<UpdateFailure>, Int>, val look: Look)
 
@@ -59,8 +59,8 @@ class UpdatesViewModel(
 ) : ViewModel() {
     private val look = MutableStateFlow(Look())
 
-    private val content = combine(library.unreadUpdates, library.entries(), sources.installed, library.unreachableUnreadTitles) { rows, entries, installed, hidden ->
-        Content(rows, entries, installed.associate { it.id to it.name }, hidden)
+    private val content = combine(library.unreadUpdates, library.entries(), sources.installed, library.unreachableUnreadTitles, library.unreadUpdateCount) { rows, entries, installed, hidden, total ->
+        Content(rows, entries, installed.associate { it.id to it.name }, hidden, total)
     }
 
     private val settings = combine(shelves.categories, libraryPrefs.prefs, feedPrefs.prefs, ::Settings)
@@ -104,7 +104,7 @@ class UpdatesViewModel(
                 else -> entryOf[item.title.id]?.let { entry -> set.shelves.firstOrNull { it.id == shelf }?.holds(entry, context) } == true
             }
         }
-        return UpdatesState(true, items, typed.kind, shelf, tabs, shelves, set.feed, set.library, null, emptyList(), now.hidden, clock, 0, kinds)
+        return UpdatesState(true, items, typed.kind, shelf, tabs, shelves, set.feed, set.library, null, emptyList(), now.hidden, clock, 0, kinds, now.total)
     }
 
     fun onKind(kind: Kind?) = look.update { it.copy(kind = kind) }

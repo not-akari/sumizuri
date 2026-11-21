@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sumizuri.app.data.net.siteNameOf
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.install
 import com.sumizuri.app.shared.resources.reinstall
@@ -31,12 +32,11 @@ import com.sumizuri.app.source.repo.versionText
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.art.InkTonalButton
-import com.sumizuri.app.ui.kit.card.CardPlace
-import com.sumizuri.app.ui.kit.card.cardRow
+import com.sumizuri.app.ui.kit.card.softCard
 import com.sumizuri.app.ui.kit.cover.SourceMark
 import org.jetbrains.compose.resources.stringResource
 
-// One source of a repo as a row of the card of its language: its icon, its name with the marks of a source that runs code or is for adults, its version and the site it reads, and the one thing to do with it: install, update, or install again, and remove once it is installed.
+// One source of a repo as a soft tile like the installed ones: its icon, its name with the marks of a source that runs code or is for adults, its version and the site it reads, and the one thing to do with it: install, update, or install again, and remove once it is installed.
 @Composable
 fun RepoSourceRow(
     source: RepoSource,
@@ -44,15 +44,14 @@ fun RepoSourceRow(
     busy: Boolean,
     onInstall: () -> Unit,
     onRemove: () -> Unit,
-    place: CardPlace,
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier.fillMaxWidth().cardRow(place).padding(start = 14.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
+        modifier.fillMaxWidth().softCard().padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        SourceMark(source.iconUrl, size = 36.dp)
+        SourceMark(source.iconUrl, size = 40.dp)
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
@@ -73,7 +72,7 @@ fun RepoSourceRow(
                 }
             }
             Text(
-                stringResource(Res.string.repo_tile_version, versionText(source.version), siteOf(source.baseUrl)),
+                stringResource(Res.string.repo_tile_version, versionText(source.version), siteNameOf(source.baseUrl)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline,
                 maxLines = 1,
@@ -107,4 +106,3 @@ fun RepoSourceRow(
 }
 
 // The site a source reads from, as a person would say it.
-private fun siteOf(baseUrl: String): String = baseUrl.substringAfter("://").substringBefore('/').removePrefix("www.")

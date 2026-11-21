@@ -13,7 +13,6 @@ import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +32,7 @@ import com.sumizuri.app.shared.resources.close
 import com.sumizuri.app.shared.resources.share_file
 import com.sumizuri.app.shared.resources.share_hint
 import com.sumizuri.app.shared.resources.share_save
+import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.card.AppCard
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.input.canShareFiles
@@ -89,7 +89,7 @@ fun ShareDialog(title: String, name: String, kind: ShareKind, data: JsonElement,
                 }
             }
         },
-        confirmButton = { TextButton(onDismiss) { Text(stringResource(Res.string.close)) } },
+        confirmButton = { InkOutlinedButton(onDismiss) { Text(stringResource(Res.string.close)) } },
     )
 }
 

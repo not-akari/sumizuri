@@ -3,9 +3,7 @@ package com.sumizuri.app.feature.browse.extensions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,8 +20,10 @@ import com.sumizuri.app.shared.resources.extensions_file_title
 import com.sumizuri.app.shared.resources.extensions_file_trust
 import com.sumizuri.app.shared.resources.ok
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
+import com.sumizuri.app.ui.kit.chips.SoftChip
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.dialog.CancelButton
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.text.languageName
 import org.jetbrains.compose.resources.stringResource
 
@@ -54,7 +54,7 @@ internal fun ImportSourceDialog(
                             stringResource(Res.string.extensions_file_trust),
                             style = MaterialTheme.typography.bodyMedium,
                         )
-                        OutlinedTextField(state.name, onName, label = {
+                        AppTextField(state.name, onName, label = {
                             Text(stringResource(Res.string.extensions_file_name))
                         }, singleLine = true)
                         if (state.lang.isNotBlank()) {
@@ -75,7 +75,7 @@ internal fun ImportSourceDialog(
                         )
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             for (kind in Kind.entries) {
-                                FilterChip(
+                                SoftChip(
                                     state.kind == kind,
                                     { onKind(kind) },
                                     { Text(stringResource(kind.label)) },

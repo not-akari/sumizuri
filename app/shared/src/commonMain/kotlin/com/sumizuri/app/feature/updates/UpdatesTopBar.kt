@@ -27,15 +27,17 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun UpdatesTopBar(
     state: UpdatesState,
-    onUpcoming: () -> Unit,
+    // Left out when what comes next is already shown beside the list.
+    onUpcoming: (() -> Unit)?,
     onMarkAll: () -> Unit,
     onUpdate: () -> Unit,
     onCancelUpdate: () -> Unit,
     onDisplay: () -> Unit,
 ) {
     val progress = state.progress
-    // The chapters are counted, not the rows, since a row holds all the chapters of a title that came the same day. That is also what the badge on the tab counts.
-    val chapters = state.items.sumOf { it.count }
+    // The chapters are counted, not the rows, since a row holds all the chapters of a title that came the same day. With nothing narrowed it is the full count, as the badge on the tab has it, since the page lists only the newest.
+    val listed = state.items.sumOf { it.count }
+    val chapters = if (state.kind == null && state.shelf == null) maxOf(listed, state.total) else listed
     val subtitle = when {
         progress != null -> listOfNotNull(
             stringResource(Res.string.library_updating, progress.done, progress.total),
@@ -51,7 +53,11 @@ internal fun UpdatesTopBar(
         subtitle = subtitle,
         progress = progress?.let { if (it.total == 0) 0f else it.done.toFloat() / it.total },
     ) {
-        IconButton(onUpcoming) { Icon(Icons.Outlined.Event, stringResource(Res.string.updates_upcoming)) }
+        if (onUpcoming !=
+            null
+        ) {
+            IconButton(onUpcoming) { Icon(Icons.Outlined.Event, stringResource(Res.string.updates_upcoming)) }
+        }
         IconButton(onMarkAll, enabled = state.items.isNotEmpty()) {
             Icon(Icons.Outlined.DoneAll, stringResource(Res.string.selection_mark_read))
         }

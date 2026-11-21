@@ -19,6 +19,7 @@ class FeedPrefsRepository(private val db: AppDatabase, page: String) {
             style = saved.choice("style", usual.style),
             rowStyle = saved.choice("rowStyle", usual.rowStyle),
             swipeMarksRead = saved.flag("swipeMarksRead", usual.swipeMarksRead),
+            upcomingSide = saved.choice("upcomingSide", usual.upcomingSide),
         )
     }
 
@@ -29,6 +30,7 @@ class FeedPrefsRepository(private val db: AppDatabase, page: String) {
         if (after.style != before.style) put("style", after.style.name)
         if (after.rowStyle != before.rowStyle) put("rowStyle", after.rowStyle.name)
         if (after.swipeMarksRead != before.swipeMarksRead) put("swipeMarksRead", after.swipeMarksRead.toString())
+        if (after.upcomingSide != before.upcomingSide) put("upcomingSide", after.upcomingSide.name)
     }
 
     private suspend fun put(name: String, value: String) = db.settings().put(SettingEntity(prefix + name, value))

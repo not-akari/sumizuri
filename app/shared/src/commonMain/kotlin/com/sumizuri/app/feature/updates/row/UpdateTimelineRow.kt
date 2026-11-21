@@ -1,6 +1,15 @@
 package com.sumizuri.app.feature.updates.row
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -11,6 +20,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -20,11 +31,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.feed.UpdateItem
 import com.sumizuri.app.ui.kit.cover.CoverArt
+import com.sumizuri.app.ui.motion.AppMotion
+import com.sumizuri.app.ui.motion.feedbackScale
+import com.sumizuri.app.ui.motion.motionMs
 import com.sumizuri.app.ui.text.agoText
 import com.sumizuri.app.ui.text.displayName
 import com.sumizuri.app.ui.text.unitCount
 
-// A row on the timeline: a line runs down the left with a node where the row sits, and the chapters are one chip that names the first and the last, with how many there are beside it.
+// A row on the timeline: a line runs down the left with a node where the row sits, and the chapters are one chip that names the first and the last, with how many there are beside it. Under the mouse the row glows faintly and its node swells.
 @Composable
 internal fun UpdateTimelineRow(
     item: UpdateItem,
@@ -37,6 +51,18 @@ internal fun UpdateTimelineRow(
     val line = colors.outlineVariant
     val node = colors.primary
     val ring = colors.background
+    val source = remember { MutableInteractionSource() }
+    val hovered by source.collectIsHoveredAsState()
+    val swell by animateFloatAsState(
+        if (hovered) 1.35f else 1f,
+        if (motionMs(AppMotion.Fast) == 0) snap() else spring(0.45f, Spring.StiffnessMedium),
+        label = "swell",
+    )
+    val glow by animateColorAsState(
+        colors.onSurface.copy(alpha = if (hovered) 0.05f else 0f),
+        tween(motionMs(AppMotion.Fast)),
+        label = "glow",
+    )
     Row(
         Modifier
             .fillMaxWidth()
@@ -45,13 +71,17 @@ internal fun UpdateTimelineRow(
                 drawLine(
                     line,
                     Offset(x, 0f),
-                    Offset(x, if (last) 36.dp.toPx() else size.height),
+                    Offset(x, if (last) size.height / 2 else size.height),
                     strokeWidth = 2.dp.toPx(),
                 )
-                drawCircle(ring, 7.dp.toPx(), Offset(x, 35.dp.toPx()))
-                drawCircle(node, 5.dp.toPx(), Offset(x, 35.dp.toPx()))
-            }.clickable(onClick = onOpen)
-            .padding(start = 26.dp, top = 10.dp, bottom = 10.dp),
+                // The node sits level with the middle of the row, beside the cover.
+                drawCircle(ring, 7.dp.toPx() * swell, Offset(x, size.height / 2))
+                drawCircle(node, 5.dp.toPx() * swell, Offset(x, size.height / 2))
+            }.padding(start = 18.dp)
+            .feedbackScale(source, hover = false)
+            .background(glow, MaterialTheme.shapes.small)
+            .clickable(source, indication = null, onClick = onOpen)
+            .padding(start = 8.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {

@@ -2,11 +2,13 @@ package com.sumizuri.app.feature.updates.row
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,6 +31,8 @@ import com.sumizuri.app.shared.resources.day_this_week
 import com.sumizuri.app.shared.resources.day_today
 import com.sumizuri.app.shared.resources.day_yesterday
 import com.sumizuri.app.shared.resources.feed_mark_day_read
+import com.sumizuri.app.ui.kit.card.Hairline
+import com.sumizuri.app.ui.motion.RollingCount
 import org.jetbrains.compose.resources.stringResource
 
 // The heading over the titles of one day, or of one week or month in a grid: the name in small capitals, how many titles are under it, a thin line, and when asked a button that marks all of them read. The time is one that belongs to the group, for the headings that are a date or a month.
@@ -50,7 +54,7 @@ internal fun FeedDayHeading(
     }
     val colors = MaterialTheme.colorScheme
     Row(
-        modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
+        modifier.fillMaxWidth().heightIn(min = 30.dp).padding(top = 6.dp, bottom = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -60,21 +64,22 @@ internal fun FeedDayHeading(
             fontWeight = FontWeight.Bold,
             color = colors.outline,
         )
-        Text(
-            count.toString(),
+        // The count rolls as titles are marked read or come in.
+        RollingCount(
+            count,
             Modifier
-                .clip(
-                    RoundedCornerShape(10.dp),
-                ).background(colors.surfaceContainerHighest)
+                .clip(RoundedCornerShape(10.dp))
+                .background(colors.surfaceContainerHighest)
                 .padding(horizontal = 7.dp, vertical = 1.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = colors.onSurfaceVariant,
-        )
-        HorizontalDivider(Modifier.weight(1f).padding(start = 4.dp), color = colors.outlineVariant)
+        ) {
+            Text(it.toString(), style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
+        }
+        Hairline(Modifier.weight(1f).padding(start = 4.dp), alpha = 1f)
         if (onMarkAllRead !=
             null
         ) {
-            TextButton(onMarkAllRead) {
+            // A small button, so the heading stays a thin line over its rows.
+            TextButton(onMarkAllRead, Modifier.height(30.dp), contentPadding = PaddingValues(horizontal = 10.dp)) {
                 Text(stringResource(Res.string.feed_mark_day_read), style = MaterialTheme.typography.labelMedium)
             }
         }
