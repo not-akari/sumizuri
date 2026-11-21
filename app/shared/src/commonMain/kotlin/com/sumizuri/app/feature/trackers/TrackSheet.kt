@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -17,7 +16,6 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -60,11 +58,11 @@ import com.sumizuri.app.shared.resources.tracker_unlink_message
 import com.sumizuri.app.shared.resources.tracker_unlink_remove
 import com.sumizuri.app.shared.resources.tracker_unlink_title
 import com.sumizuri.app.ui.kit.art.InkButton
-import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.art.Notice
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.dialog.CancelButton
 import com.sumizuri.app.ui.kit.dialog.ConfirmDialog
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.page.AppSheet
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
 import com.sumizuri.app.ui.kit.setting.SettingIcon
@@ -72,6 +70,7 @@ import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
 import com.sumizuri.app.ui.kit.sync.CoverRow
+import com.sumizuri.app.ui.kit.text.WorkingRow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -122,7 +121,7 @@ private fun LinkSearch(tracker: TrackerId, titleId: Long, name: String, kind: Ki
         }
     }) { Text(stringResource(Res.string.tracker_leave_out, tracker.label)) }
     LaunchedEffect(Unit) { search() }
-    OutlinedTextField(
+    AppTextField(
         query,
         { query = it },
         Modifier.fillMaxWidth(),
@@ -137,10 +136,7 @@ private fun LinkSearch(tracker: TrackerId, titleId: Long, name: String, kind: Ki
         keyboardActions = KeyboardActions(onSearch = { search() }),
     )
     if (busy) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            InkCircularProgressIndicator(Modifier.size(20.dp))
-            Text(stringResource(Res.string.tracker_linking), style = MaterialTheme.typography.bodyMedium)
-        }
+        WorkingRow(stringResource(Res.string.tracker_linking))
     }
     problem?.let {
         ProblemLine(it, tracker)
@@ -336,7 +332,7 @@ private fun ProgressDialog(progress: Int, total: Int?, onDismiss: () -> Unit, on
         dismissButton = { CancelButton(onDismiss) },
         title = { Text(stringResource(Res.string.tracker_progress)) },
         text = {
-            OutlinedTextField(
+            AppTextField(
                 typed,
                 { typed = it.filter(Char::isDigit).take(6) },
                 Modifier.fillMaxWidth(),

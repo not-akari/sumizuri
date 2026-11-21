@@ -5,7 +5,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ConfirmationNumber
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -20,7 +19,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.feature.settings.SettingsPageFrame
 import com.sumizuri.app.feature.sync.Form
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.feature.sync.Problem
 import com.sumizuri.app.feature.sync.Working
 import com.sumizuri.app.shared.resources.Res
@@ -42,10 +40,12 @@ import com.sumizuri.app.shared.resources.sync_invites_section
 import com.sumizuri.app.shared.resources.sync_recovery_copy
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.input.rememberCopyText
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
+import com.sumizuri.app.ui.kit.text.NoteText
 import com.sumizuri.app.ui.text.agoText
 import com.sumizuri.sync.core.InviteEntry
 import org.jetbrains.compose.resources.stringResource
@@ -86,7 +86,7 @@ internal fun SyncAdminInvitesRoute(onBack: () -> Unit) {
                 }
                 padded {
                     Form(home.busy) {
-                        OutlinedTextField(
+                        AppTextField(
                             days,
                             { typed -> days = typed.filter(Char::isDigit).take(4) },
                             Modifier.fillMaxWidth(),
@@ -109,7 +109,7 @@ internal fun SyncAdminInvitesRoute(onBack: () -> Unit) {
                 }
             }
             SettingsSection(Res.string.sync_invites_section) {
-                if (home.invites?.isEmpty() == true) padded { Note(stringResource(Res.string.sync_invites_none)) }
+                if (home.invites?.isEmpty() == true) padded { NoteText(stringResource(Res.string.sync_invites_none)) }
                 for (invite in home.invites.orEmpty()) {
                     row {
                         SettingRow(

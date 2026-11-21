@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +35,7 @@ import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.input.AppSwitch
+import com.sumizuri.app.ui.kit.input.CheckRow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -89,7 +89,13 @@ fun TrackerRemovePrompt() {
                         }
                     }
                 }
-                RememberRow(saveRule && canRemember, canRemember) { saveRule = it }
+                CheckRow(
+                    stringResource(Res.string.tracker_remove_remember),
+                    saveRule && canRemember,
+                    { saveRule = it },
+                    hint = stringResource(Res.string.tracker_remove_remember_hint),
+                    enabled = canRemember,
+                )
             }
         },
     )
@@ -127,27 +133,5 @@ private fun TrackerSwitchRow(tracker: TrackerId, count: Int?, on: Boolean, onCha
             }
         }
         AppSwitch(on, onChange)
-    }
-}
-
-// The box that saves the answer as the sync rule, so the prompt does not come back.
-@Composable
-private fun RememberRow(checked: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .clickable(enabled = enabled) { onChange(!checked) },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Checkbox(checked, onChange, enabled = enabled)
-        Column {
-            Text(stringResource(Res.string.tracker_remove_remember), style = MaterialTheme.typography.bodyMedium)
-            Text(
-                stringResource(Res.string.tracker_remove_remember_hint),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
     }
 }

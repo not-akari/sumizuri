@@ -13,7 +13,6 @@ import com.sumizuri.app.feature.settings.SettingsPageFrame
 import com.sumizuri.app.feature.sync.Field
 import com.sumizuri.app.feature.sync.Form
 import com.sumizuri.app.feature.sync.FormError
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.feature.sync.Problem
 import com.sumizuri.app.feature.sync.TwoStepField
 import com.sumizuri.app.feature.sync.Working
@@ -30,6 +29,7 @@ import com.sumizuri.app.shared.resources.sync_password_sign_out_others_hint
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
+import com.sumizuri.app.ui.kit.text.NoteText
 import org.jetbrains.compose.resources.stringResource
 
 // A new password for this account. The current one proves it is you, and your synced data stays readable since only the lock on the account key changes.
@@ -87,7 +87,7 @@ internal fun SyncPasswordRoute(onBack: () -> Unit) {
                     InkButton(submit, enabled = !home.busy && current.isNotEmpty() && password.isNotEmpty()) {
                         Text(stringResource(Res.string.sync_password_change))
                     }
-                    if (done) Note(stringResource(Res.string.sync_password_done))
+                    if (done) NoteText(stringResource(Res.string.sync_password_done))
                 }
             }
         }

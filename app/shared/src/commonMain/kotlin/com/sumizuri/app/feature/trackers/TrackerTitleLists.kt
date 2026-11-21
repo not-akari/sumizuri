@@ -36,7 +36,6 @@ import com.sumizuri.app.data.model.Status
 import com.sumizuri.app.data.model.Title
 import com.sumizuri.app.data.tracker.TrackerAccount
 import com.sumizuri.app.data.tracker.TrackerId
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.tracker_left_out_hint
 import com.sumizuri.app.shared.resources.tracker_not_found_hint
@@ -51,6 +50,7 @@ import com.sumizuri.app.ui.kit.cover.CoverArt
 import com.sumizuri.app.ui.kit.cover.badge.PickBadge
 import com.sumizuri.app.ui.kit.sync.ListStep
 import com.sumizuri.app.ui.kit.sync.MoreRows
+import com.sumizuri.app.ui.kit.text.NoteText
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
@@ -166,7 +166,7 @@ internal fun LinkedTitles(
 ) {
     var open by remember { mutableStateOf<Opened?>(null) }
     if (links.isEmpty()) {
-        Note(
+        NoteText(
             if (narrowed) {
                 stringResource(Res.string.tracker_tools_none)
             } else {
@@ -197,9 +197,9 @@ internal fun LinkedTitles(
 internal fun UnlinkedTitles(tracker: TrackerId, titles: List<LibraryTitle>, notFound: Boolean, picking: Picking) {
     var open by remember { mutableStateOf<Opened?>(null) }
     if (notFound) {
-        Note(stringResource(Res.string.tracker_not_found_hint, tracker.label))
+        NoteText(stringResource(Res.string.tracker_not_found_hint, tracker.label))
     } else if (titles.isEmpty()) {
-        Note(stringResource(Res.string.tracker_unlinked_empty, tracker.label))
+        NoteText(stringResource(Res.string.tracker_unlinked_empty, tracker.label))
     }
     val hint =
         stringResource(
@@ -229,7 +229,7 @@ internal fun UnlinkedTitles(tracker: TrackerId, titles: List<LibraryTitle>, notF
 internal fun LeftOutTitles(tracker: TrackerId, titles: List<LibraryTitle>, picking: Picking) {
     val use = LocalAppContainer.current.trackerSync.use
     val scope = rememberCoroutineScope()
-    Note(stringResource(Res.string.tracker_left_out_hint, tracker.label))
+    NoteText(stringResource(Res.string.tracker_left_out_hint, tracker.label))
     val again = stringResource(Res.string.tracker_take_back)
     TitleGrid(titles, "left out") { title ->
         val kind = Kind.fromCode(title.kind)

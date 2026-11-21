@@ -5,7 +5,6 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import com.sumizuri.app.feature.settings.SettingsPageFrame
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.feature.sync.Problem
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.sync_log
@@ -14,6 +13,7 @@ import com.sumizuri.app.shared.resources.sync_log_hint
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
+import com.sumizuri.app.ui.kit.text.NoteText
 import com.sumizuri.app.ui.text.agoText
 import org.jetbrains.compose.resources.stringResource
 
@@ -25,7 +25,7 @@ internal fun SyncAdminLogRoute(onBack: () -> Unit) {
             LaunchedEffect(model) { model.loadLog() }
             val log = home.log
             SettingsSection {
-                if (log != null && log.isEmpty()) padded { Note(stringResource(Res.string.sync_log_empty)) }
+                if (log != null && log.isEmpty()) padded { NoteText(stringResource(Res.string.sync_log_empty)) }
                 for (line in log.orEmpty()) {
                     row {
                         SettingRow(

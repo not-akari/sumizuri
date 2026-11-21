@@ -27,7 +27,6 @@ import com.sumizuri.app.data.profile.LocalProfiles
 import com.sumizuri.app.feature.settings.SettingsPageFrame
 import com.sumizuri.app.feature.sync.Field
 import com.sumizuri.app.feature.sync.Form
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.feature.sync.Problem
 import com.sumizuri.app.feature.sync.TwoStepField
 import com.sumizuri.app.feature.sync.Working
@@ -50,6 +49,7 @@ import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.input.rememberCopyText
 import com.sumizuri.app.ui.kit.setting.SettingsSection
+import com.sumizuri.app.ui.kit.text.NoteText
 import com.sumizuri.sync.core.TwoStepSecret
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import org.jetbrains.compose.resources.stringResource
@@ -72,7 +72,7 @@ internal fun SyncTwoStepRoute(onBack: () -> Unit) {
         when {
             home.twoStep == true -> SettingsSection {
                 padded {
-                    Note(
+                    NoteText(
                         stringResource(if (done) Res.string.sync_two_step_done else Res.string.sync_two_step_is_on),
                     )
                 }
@@ -107,7 +107,7 @@ internal fun SyncTwoStepRoute(onBack: () -> Unit) {
             }
 
             home.twoStep == false -> SettingsSection {
-                padded { Note(stringResource(Res.string.sync_two_step_is_off)) }
+                padded { NoteText(stringResource(Res.string.sync_two_step_is_off)) }
                 padded {
                     Form(home.busy) {
                         val submit = {

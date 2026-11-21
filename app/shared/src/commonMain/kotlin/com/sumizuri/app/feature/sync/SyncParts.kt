@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -14,7 +13,6 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -67,19 +64,15 @@ import com.sumizuri.app.shared.resources.sync_role_user
 import com.sumizuri.app.shared.resources.sync_show_password
 import com.sumizuri.app.shared.resources.sync_two_step_code
 import com.sumizuri.app.shared.resources.sync_working
-import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.sync.core.Role
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import com.sumizuri.app.ui.kit.input.AppTextField
+import com.sumizuri.app.ui.kit.text.WorkingRow
 
 // The small parts the sync page is built from: the fields of its forms, what it says while it works and what went wrong.
 @Composable
-internal fun Working() {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        InkCircularProgressIndicator(Modifier.size(20.dp))
-        Text(stringResource(Res.string.sync_working), style = MaterialTheme.typography.bodyMedium)
-    }
-}
+internal fun Working() = WorkingRow(stringResource(Res.string.sync_working), Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
 
 // What went wrong, in the app's words where the reason is known, and the server's words otherwise.
 @Composable
@@ -140,7 +133,7 @@ internal fun Field(
     onDone: (() -> Unit)? = null,
 ) {
     var shown by remember { mutableStateOf(false) }
-    OutlinedTextField(
+    AppTextField(
         value,
         onChange,
         Modifier.fillMaxWidth(),
@@ -197,11 +190,6 @@ internal fun roleLabel(role: Role): StringResource = when (role) {
     Role.Owner -> Res.string.sync_role_owner
     Role.Admin -> Res.string.sync_role_admin
     Role.User -> Res.string.sync_role_user
-}
-
-@Composable
-internal fun Note(text: String) {
-    Text(text, Modifier.fillMaxWidth().padding(vertical = 4.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
 }
 
 // Two parts of a page beside each other on a wide window, the first a little narrower, and one under the other on a narrow one.

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Dns
 import androidx.compose.material.icons.outlined.SwitchAccount
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -15,20 +14,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.feature.sync.Field
 import com.sumizuri.app.feature.sync.Form
 import com.sumizuri.app.feature.sync.FormError
 import com.sumizuri.app.feature.sync.Link
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.feature.sync.TwoStepField
 import com.sumizuri.app.feature.sync.passwordProblem
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.sync_address_help
 import com.sumizuri.app.shared.resources.sync_address_label
 import com.sumizuri.app.shared.resources.sync_address_section
+import com.sumizuri.app.shared.resources.sync_admin_signup
 import com.sumizuri.app.shared.resources.sync_change_server
 import com.sumizuri.app.shared.resources.sync_choose_first
 import com.sumizuri.app.shared.resources.sync_choose_first_hint
@@ -38,8 +36,6 @@ import com.sumizuri.app.shared.resources.sync_choose_title
 import com.sumizuri.app.shared.resources.sync_connect
 import com.sumizuri.app.shared.resources.sync_continue
 import com.sumizuri.app.shared.resources.sync_create_action
-import com.sumizuri.app.shared.resources.sync_create_link
-import com.sumizuri.app.shared.resources.sync_create_section
 import com.sumizuri.app.shared.resources.sync_forgot_link
 import com.sumizuri.app.shared.resources.sync_invite
 import com.sumizuri.app.shared.resources.sync_library_make
@@ -48,6 +44,7 @@ import com.sumizuri.app.shared.resources.sync_library_new
 import com.sumizuri.app.shared.resources.sync_library_tap_to_link
 import com.sumizuri.app.shared.resources.sync_new_password
 import com.sumizuri.app.shared.resources.sync_password
+import com.sumizuri.app.shared.resources.sync_password_note
 import com.sumizuri.app.shared.resources.sync_password_repeat
 import com.sumizuri.app.shared.resources.sync_recover_action
 import com.sumizuri.app.shared.resources.sync_recover_help
@@ -68,17 +65,18 @@ import com.sumizuri.app.shared.resources.sync_setup_help
 import com.sumizuri.app.shared.resources.sync_setup_section
 import com.sumizuri.app.shared.resources.sync_signin_action
 import com.sumizuri.app.shared.resources.sync_signin_link
-import com.sumizuri.app.shared.resources.sync_signin_section
 import com.sumizuri.app.shared.resources.sync_two_step_ask
 import com.sumizuri.app.shared.resources.sync_two_step_off_by_recovery
 import com.sumizuri.app.shared.resources.sync_username
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
+import com.sumizuri.app.ui.kit.input.CheckRow
 import com.sumizuri.app.ui.kit.input.rememberCopyText
 import com.sumizuri.app.ui.kit.input.rememberFileSaver
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
+import com.sumizuri.app.ui.kit.text.NoteText
 import com.sumizuri.sync.core.ServerInfo
 import com.sumizuri.sync.core.SignupMode
 import kotlinx.coroutines.Dispatchers
@@ -121,7 +119,8 @@ internal fun ServerSection(address: String, info: ServerInfo, busy: Boolean, onC
         row {
             SettingRow(
                 info.name,
-                subtitle = stringResource(Res.string.sync_server_line, address, info.version),
+                subtitle = stringResource(Res.string.sync_server_line, address, info.version) + " · " +
+                    stringResource(Res.string.sync_admin_signup, stringResource(signupWord(info.signupMode))),
                 leading = { SettingIcon(Icons.Outlined.Dns) },
                 trailing = {
                     TextButton(
@@ -175,7 +174,8 @@ internal fun SignInSection(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }
-    SettingsSection(Res.string.sync_signin_section) {
+    // The tabs above name the form, so it has no heading of its own.
+    SettingsSection {
         padded {
             Form(busy) {
                 val ready = username.isNotBlank() && password.isNotEmpty() && (!askCode || code.isNotBlank())
@@ -190,15 +190,10 @@ internal fun SignInSection(
                 )
                 // The server asks for the code only after the password was right.
                 if (askCode) {
-                    Note(stringResource(Res.string.sync_two_step_ask))
+                    NoteText(stringResource(Res.string.sync_two_step_ask))
                     TwoStepField(true, code, { code = it }, submit)
                 }
                 InkButton(submit, enabled = !busy && ready) { Text(stringResource(Res.string.sync_signin_action)) }
-                if (info.signupMode !=
-                    SignupMode.Closed
-                ) {
-                    Link(Res.string.sync_create_link, busy) { onChoose(SyncMode.Create) }
-                }
                 Link(Res.string.sync_forgot_link, busy) { onChoose(SyncMode.Recover) }
             }
         }
@@ -219,7 +214,8 @@ internal fun CreateSection(
     var tried by remember { mutableStateOf(false) }
     val problem = passwordProblem(password, repeat, info.minPassword)
     val needsInvite = info.signupMode == SignupMode.Invite
-    SettingsSection(Res.string.sync_create_section) {
+    // The tabs above name the form, so it has no heading of its own.
+    SettingsSection {
         padded {
             Form(busy) {
                 val ready = username.isNotBlank() && (!needsInvite || invite.isNotBlank())
@@ -229,9 +225,11 @@ internal fun CreateSection(
                 }
                 Field(username, { username = it }, Res.string.sync_username)
                 Field(password, { password = it }, Res.string.sync_password, secret = true)
+                PasswordMeter(password, info.minPassword)
                 Field(repeat, {
                     repeat = it
                 }, Res.string.sync_password_repeat, secret = true, onDone = if (needsInvite) null else submit)
+                MatchLine(password, repeat)
                 if (needsInvite) {
                     Field(
                         invite,
@@ -242,10 +240,10 @@ internal fun CreateSection(
                     )
                 }
                 if (tried && problem != null) FormError(problem, info.minPassword)
+                NoteText(stringResource(Res.string.sync_password_note))
                 InkButton(submit, enabled = !busy && ready) {
                     Text(stringResource(Res.string.sync_create_action))
                 }
-                Link(Res.string.sync_signin_link, busy) { onChoose(SyncMode.SignIn) }
             }
         }
     }
@@ -338,10 +336,7 @@ internal fun RecoverySection(step: SyncStep.SaveRecovery, onSaved: () -> Unit) {
                         color = MaterialTheme.colorScheme.outline,
                     )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(saved, { saved = it })
-                    Text(stringResource(Res.string.sync_recovery_saved), style = MaterialTheme.typography.bodyMedium)
-                }
+                CheckRow(stringResource(Res.string.sync_recovery_saved), saved, { saved = it })
                 InkButton(onSaved, enabled = saved) { Text(stringResource(Res.string.sync_continue)) }
             }
         }
@@ -358,7 +353,15 @@ internal fun ChooseProfileSection(
     onLater: () -> Unit,
 ) {
     var name by remember(step.suggested) { mutableStateOf(step.suggested) }
-    if (step.twoStepOff) SettingsSection { padded { Note(stringResource(Res.string.sync_two_step_off_by_recovery)) } }
+    if (step.twoStepOff) {
+        SettingsSection {
+            padded {
+                NoteText(
+                    stringResource(Res.string.sync_two_step_off_by_recovery),
+                )
+            }
+        }
+    }
     if (step.profiles.isNotEmpty()) {
         SettingsSection(Res.string.sync_choose_title, Res.string.sync_choose_hint) {
             for (profile in step.profiles) {

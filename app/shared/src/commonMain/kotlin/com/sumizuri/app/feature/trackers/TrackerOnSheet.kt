@@ -6,8 +6,6 @@ import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,7 +21,6 @@ import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.tracker.OnTracker
 import com.sumizuri.app.data.tracker.TrackerId
 import com.sumizuri.app.data.tracker.TrackerProblem
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.navigation.LocalSearchSources
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.tracker_delete
@@ -40,11 +37,13 @@ import com.sumizuri.app.shared.resources.tracker_on_remove_hint
 import com.sumizuri.app.shared.resources.tracker_on_remove_message
 import com.sumizuri.app.shared.resources.tracker_open
 import com.sumizuri.app.ui.kit.dialog.ConfirmDialog
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.page.AppSheet
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.kit.sync.CoverRow
+import com.sumizuri.app.ui.kit.text.NoteText
 import com.sumizuri.app.ui.kit.web.LocalOpenSite
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.map
@@ -175,7 +174,7 @@ private fun LibraryPicker(tracker: TrackerId, item: OnTracker, onPick: (LibraryT
             .sortedByDescending { title -> closeness(title.name.lowercase(), names) }
             .take(PickShown)
     }
-    OutlinedTextField(
+    AppTextField(
         query,
         { query = it },
         Modifier.fillMaxWidth(),
@@ -183,7 +182,7 @@ private fun LibraryPicker(tracker: TrackerId, item: OnTracker, onPick: (LibraryT
         singleLine = true,
     )
     if (fits.isEmpty()) {
-        Note(stringResource(Res.string.tracker_on_pick_none))
+        NoteText(stringResource(Res.string.tracker_on_pick_none))
         return
     }
     SettingsSection {

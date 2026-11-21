@@ -1,31 +1,25 @@
 package com.sumizuri.app.feature.trackers
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.tracker.OnTracker
 import com.sumizuri.app.data.tracker.TrackStatus
 import com.sumizuri.app.data.tracker.TrackerAccount
 import com.sumizuri.app.data.tracker.TrackerId
 import com.sumizuri.app.data.tracker.TrackerProblem
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.tracker_on_count
 import com.sumizuri.app.shared.resources.tracker_on_empty
 import com.sumizuri.app.shared.resources.tracker_on_hint
 import com.sumizuri.app.shared.resources.tracker_on_loading
-import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
+import com.sumizuri.app.ui.kit.text.NoteText
+import com.sumizuri.app.ui.kit.text.WorkingRow
 import kotlinx.coroutines.CancellationException
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -56,20 +50,17 @@ internal fun OnTrackerTab(tracker: TrackerId, account: TrackerAccount) {
     }
     val all = entries
     if (all == null) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            InkCircularProgressIndicator(Modifier.size(20.dp))
-            Text(stringResource(Res.string.tracker_on_loading), style = MaterialTheme.typography.bodyMedium)
-        }
+        WorkingRow(stringResource(Res.string.tracker_on_loading))
         return
     }
     if (all.isEmpty()) {
-        Note(stringResource(Res.string.tracker_on_empty, tracker.label))
+        NoteText(stringResource(Res.string.tracker_on_empty, tracker.label))
         return
     }
-    Note(stringResource(Res.string.tracker_on_hint, tracker.label))
+    NoteText(stringResource(Res.string.tracker_on_hint, tracker.label))
     val shown = remember(all, tools.key) { tools.entries(all) }
     TitleToolsBar(tools, all.map { it.kind }.toSet(), statusCounts(all.map { it.entry.status }), TitleSort.entries)
-    Note(pluralStringResource(Res.plurals.tracker_on_count, shown.size, shown.size))
+    NoteText(pluralStringResource(Res.plurals.tracker_on_count, shown.size, shown.size))
     TitleGrid(shown, "only on") { item ->
         GridItem(
             item.media.id,

@@ -14,7 +14,6 @@ import androidx.compose.runtime.setValue
 import com.sumizuri.app.feature.settings.PageRow
 import com.sumizuri.app.feature.settings.SettingsPageFrame
 import com.sumizuri.app.feature.settings.SettingsTarget
-import com.sumizuri.app.feature.sync.Note
 import com.sumizuri.app.feature.sync.Problem
 import com.sumizuri.app.feature.sync.Working
 import com.sumizuri.app.feature.sync.account.deviceIcon
@@ -58,7 +57,9 @@ import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
+import com.sumizuri.app.ui.kit.text.NoteText
 import com.sumizuri.app.ui.text.agoText
+import com.sumizuri.app.ui.text.byteSizeText
 import com.sumizuri.sync.core.Role
 import com.sumizuri.sync.core.UserChange
 import com.sumizuri.sync.core.UserEntry
@@ -115,7 +116,7 @@ internal fun SyncAdminUserRoute(onBack: () -> Unit) {
                         pluralStringResource(Res.plurals.sync_admin_profiles, detail.profiles, detail.profiles),
                         subtitle = stringResource(
                             Res.string.sync_admin_stored,
-                            sizeText(detail.storedBytes),
+                            byteSizeText(detail.storedBytes),
                         ),
                         leading = {
                             SettingIcon(Icons.Outlined.Inventory2)
@@ -124,7 +125,7 @@ internal fun SyncAdminUserRoute(onBack: () -> Unit) {
                 }
                 // A deleted person can only be brought back, for the week the server keeps them.
                 if (deleted != null) {
-                    padded { Note(stringResource(Res.string.sync_person_deleted, agoText(deleted))) }
+                    padded { NoteText(stringResource(Res.string.sync_person_deleted, agoText(deleted))) }
                     padded {
                         InkButton(model::restorePerson, enabled = canManage && !home.busy) {
                             Text(stringResource(Res.string.sync_person_restore))
@@ -160,7 +161,7 @@ internal fun SyncAdminUserRoute(onBack: () -> Unit) {
                 }
                 // An admin turns off two-step sign in for someone who lost the phone with their authenticator app.
                 if (user.twoStep) {
-                    padded { Note(stringResource(Res.string.sync_person_two_step)) }
+                    padded { NoteText(stringResource(Res.string.sync_person_two_step)) }
                     padded {
                         InkOutlinedButton(model::turnOffTwoStepForPerson, enabled = canManage && !home.busy) {
                             Text(stringResource(Res.string.sync_two_step_turn_off))
@@ -169,7 +170,7 @@ internal fun SyncAdminUserRoute(onBack: () -> Unit) {
                 }
             }
             SettingsSection(Res.string.sync_devices_section) {
-                if (detail.devices.isEmpty()) padded { Note(stringResource(Res.string.sync_person_no_devices)) }
+                if (detail.devices.isEmpty()) padded { NoteText(stringResource(Res.string.sync_person_no_devices)) }
                 for (device in detail.devices) {
                     row {
                         SettingRow(

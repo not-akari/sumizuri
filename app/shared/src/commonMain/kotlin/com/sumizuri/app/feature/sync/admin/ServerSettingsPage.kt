@@ -2,7 +2,6 @@ package com.sumizuri.app.feature.sync.admin
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,6 +47,7 @@ import com.sumizuri.sync.core.ServerSettings
 import com.sumizuri.sync.core.SettingKind
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import com.sumizuri.app.ui.kit.input.AppTextField
 
 // The live settings of the server, each in its own section with its name, what it does, and a typed value or a choice. A setting the server's .env sets is shown locked.
 @Composable
@@ -79,7 +79,7 @@ private fun SettingEditor(entry: ServerSettingEntry, title: StringResource, busy
     var typed by remember(entry.value) { mutableStateOf(entry.value) }
     val fits = ServerSettings.problem(entry.key, typed) == null
     Form(busy) {
-        OutlinedTextField(
+        AppTextField(
             typed,
             { text -> typed = if (entry.kind == SettingKind.Number) text.filter(Char::isDigit).take(9) else text.take(64) },
             Modifier.fillMaxWidth(),

@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -36,6 +34,8 @@ import com.sumizuri.app.ui.kit.chips.SortChip
 import com.sumizuri.app.ui.kit.chips.ToggleChip
 import com.sumizuri.app.ui.kit.chips.hasKindChoice
 import com.sumizuri.app.ui.kit.input.AppSearchBar
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import org.jetbrains.compose.resources.stringResource
 
 // The orders the titles of a tracker page can take. Titles with no entry yet only have their names to go by.
@@ -164,9 +164,9 @@ private fun SortMenu(tools: TitleTools, sorts: List<TitleSort>) {
     var open by remember { mutableStateOf(false) }
     Box {
         SortChip(sortLabel(tools.sort), tools.ascending, { open = true }, stringResource(Res.string.tracker_sort))
-        DropdownMenu(open, { open = false }) {
+        AppMenu(open, { open = false }) {
             for (sort in sorts) {
-                DropdownMenuItem({ Text(sortLabel(sort)) }, {
+                AppMenuItem({ Text(sortLabel(sort)) }, {
                     open = false
                     tools.sortBy(sort)
                 })

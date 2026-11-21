@@ -10,7 +10,6 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,6 +39,7 @@ import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.dialog.CancelButton
 import org.jetbrains.compose.resources.stringResource
+import com.sumizuri.app.ui.kit.input.AppTextField
 
 // Asks for the email and password of a tracker that has no sign in on its site, or for a token the person made on the site of the tracker. They go to the tracker once, and only the token is kept, sealed.
 @Composable
@@ -60,7 +60,7 @@ internal fun TrackerPasswordDialog(
         title = { Text(stringResource(Res.string.tracker_password_title, tracker.label)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (!withToken) OutlinedTextField(
+                if (!withToken) AppTextField(
                     email,
                     { email = it },
                     Modifier.fillMaxWidth(),
@@ -68,7 +68,7 @@ internal fun TrackerPasswordDialog(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false),
                 )
-                OutlinedTextField(
+                AppTextField(
                     password,
                     { password = it },
                     Modifier.fillMaxWidth(),
