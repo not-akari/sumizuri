@@ -234,6 +234,7 @@ class PreviewViewModel(
         url = listed.url,
         title = details.title.ifBlank { listed.title },
         coverUrl = details.coverUrl ?: listed.coverUrl,
+        webUrl = details.webUrl ?: listed.webUrl,
     )
 
     // The numbers are worked out as they are when the title is saved, so the list looks the same before and after.

@@ -1,16 +1,13 @@
 package com.sumizuri.app.feature.title.info
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoStories
@@ -22,14 +19,12 @@ import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Update
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.Status
@@ -42,6 +37,8 @@ import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.title_about_description
 import com.sumizuri.app.shared.resources.title_about_genres
 import com.sumizuri.app.shared.resources.title_details
+import com.sumizuri.app.shared.resources.title_fact_new
+import com.sumizuri.app.shared.resources.title_fact_usually
 import com.sumizuri.app.shared.resources.title_info_author
 import com.sumizuri.app.shared.resources.title_info_latest
 import com.sumizuri.app.shared.resources.title_info_length
@@ -176,42 +173,17 @@ private fun aboutFacts(state: TitleState, title: Title): List<Fact> {
     return rows.map { (icon, label, value) -> Fact(icon, label, stringResource(label), value) }
 }
 
-// The facts the name and the line under it already give, and the kind of title, left out of the strip.
-private val InHeading = setOf(
-    Res.string.title_info_type,
-    Res.string.title_info_author,
-    Res.string.title_info_status,
-    Res.string.title_info_rating,
-    Res.string.title_info_length,
-    Res.string.title_info_source,
-)
-
-// The facts the heading does not give, as small tiles in one row that wraps: when the latest chapter came, the day chapters usually come and how far the person read. The kind of title says nothing worth a tile, and a title with none of these shows no strip.
+// When the latest chapter came and the day chapters usually come, as short words for the line under the name. A finished title has no usual day.
 @Composable
-internal fun FactStrip(state: TitleState, title: Title, modifier: Modifier = Modifier) {
-    val facts = aboutFacts(state, title).filter { it.key !in InHeading }
-    if (facts.isEmpty()) return
-    val colors = MaterialTheme.colorScheme
-    FlowRow(
-        modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        for (fact in facts) {
-            Row(
-                Modifier
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(colors.surfaceContainerHigh.copy(alpha = 0.7f))
-                    .padding(start = 12.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Icon(fact.icon, null, Modifier.size(18.dp), tint = colors.primary)
-                Column {
-                    Text(fact.label, style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
-                    Text(fact.value, style = MaterialTheme.typography.titleSmall, maxLines = 1)
-                }
-            }
+internal fun releaseFacts(state: TitleState, title: Title): List<String> {
+    val latest = remember(state.chapters) { state.chapters.maxOfOrNull { it.at } ?: 0L }
+    val day = remember(state.chapters) { guessReleaseDay(state.chapters.map { it.at }) }
+    return buildList {
+        if (latest > 0) add(stringResource(Res.string.title_fact_new, agoText(latest)))
+        if (day != null &&
+            title.status != Status.Completed
+        ) {
+            add(stringResource(Res.string.title_fact_usually, stringResource(Weekdays[day])))
         }
     }
 }

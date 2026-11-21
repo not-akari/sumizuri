@@ -17,24 +17,16 @@ import androidx.compose.ui.unit.dp
 import com.sumizuri.app.data.model.Title
 import com.sumizuri.app.feature.title.TitleCallbacks
 import com.sumizuri.app.feature.title.TitleState
-import com.sumizuri.app.feature.title.info.ContinueButton
-import com.sumizuri.app.feature.title.info.PosterActions
+import com.sumizuri.app.feature.title.info.ContinueBlock
 import com.sumizuri.app.feature.title.info.TitleHeading
 import com.sumizuri.app.feature.title.info.TitleSummary
-import com.sumizuri.app.feature.title.info.UnreachableActions
 import com.sumizuri.app.ui.kit.cover.CoverArt
 import com.sumizuri.app.ui.kit.cover.coverFlightTo
 import com.sumizuri.app.ui.theme.LocalThemeSpec
 
 // The top of the wide page: the cover with its shadow, and beside it the name, the facts and the description, with the continue button and the tiles along the bottom edge of the cover. A title that cannot be read has no continue button.
 @Composable
-internal fun WideBanner(
-    state: TitleState,
-    title: Title,
-    calls: TitleCallbacks,
-    onPreview: () -> Unit,
-    onBackground: () -> Unit,
-) {
+internal fun WideBanner(state: TitleState, title: Title, calls: TitleCallbacks, onPreview: () -> Unit) {
     Row(
         Modifier.padding(top = 20.dp, bottom = 28.dp).fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(36.dp),
@@ -59,23 +51,8 @@ internal fun WideBanner(
                 if (title.summary.isNotBlank()) TitleSummary(title.summary, Modifier.widthIn(max = 760.dp), lines = 4)
             }
             Column(Modifier.padding(top = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                if (!state.readable) UnreachableActions(state, title, calls, Modifier.widthIn(max = 520.dp))
-                Column(Modifier.widthIn(max = 520.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (state.readable) {
-                        ContinueButton(
-                            state.target,
-                            title.kind,
-                            calls.onContinue,
-                            Modifier.fillMaxWidth(),
-                            side = true,
-                        )
-                    }
-                    PosterActions(state, title, calls, onBackground, Modifier.fillMaxWidth(), fixedHeight = true)
-                }
+                ContinueBlock(state, title, calls, Modifier.widthIn(max = 520.dp))
             }
         }
     }
 }
-
-// The height of a button on the wide page, so the two rows line up.
-internal val TileHeight = 44.dp

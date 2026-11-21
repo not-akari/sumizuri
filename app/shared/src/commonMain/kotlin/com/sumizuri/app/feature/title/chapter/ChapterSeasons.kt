@@ -28,11 +28,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sumizuri.app.data.library.partOf
 import com.sumizuri.app.data.library.seasonNumber
+import com.sumizuri.app.data.library.seasonSlices
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.Title
-import com.sumizuri.app.data.model.seasonOrder
 import com.sumizuri.app.feature.title.ChapterItem
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.season_back
@@ -71,45 +70,18 @@ internal class SeasonGroup(
     val watched: Int = chapters.count { it.read }
 }
 
-// The seasons of the chapters in their order, or nothing when there are fewer than two, which shows the plain list.
-internal fun seasonGroups(chapters: List<ChapterItem>): List<SeasonGroup> {
-    val byKey = chapters.groupBy { it.season }
-    if (byKey.size < 2) return emptyList()
-    val order = seasonOrder(byKey.keys)
-    val groups = order.keys.map { key ->
-        val list = byKey.getValue(key)
+// The seasons of the chapters in their order, or nothing when there are fewer than two, which shows the plain list. Each season shows the first picture its chapters have.
+internal fun seasonGroups(chapters: List<ChapterItem>): List<SeasonGroup> =
+    seasonSlices(chapters, { it.season }, { it.seasonName }).map { slice ->
         SeasonGroup(
-            key,
-            list.firstNotNullOfOrNull { it.seasonName },
-            list.firstNotNullOfOrNull { it.seasonCoverUrl },
-            list,
-            isFirst =
-            key == null && order.noneIsFirst,
+            slice.key,
+            slice.name,
+            slice.items.firstNotNullOfOrNull { it.seasonCoverUrl },
+            slice.items,
+            slice.isFirst,
+            slice.keys,
         )
     }
-    return mergeParts(groups).takeIf { it.size >= 2 }.orEmpty()
-}
-
-// Parts of one season that follow each other are made one season named after it, with the cover of its first part and all their chapters in order.
-private fun mergeParts(groups: List<SeasonGroup>): List<SeasonGroup> = buildList {
-    for (group in groups) {
-        val base = group.name?.let(::partOf)
-        val last = lastOrNull()
-        val lastBase = last?.let { if (it.merged) it.name else it.name?.let(::partOf) }
-        if (base != null && last != null && base.equals(lastBase, ignoreCase = true)) {
-            this[size - 1] = SeasonGroup(
-                last.key,
-                base,
-                last.coverUrl ?: group.coverUrl,
-                last.chapters + group.chapters,
-                last.isFirst,
-                last.keys + group.keys,
-            )
-        } else {
-            add(group)
-        }
-    }
-}
 
 // The number of each season by its key, read from its name or its key, so a season can be looked up by its number where its name is not known.
 internal fun seasonNumbers(seasons: List<Pair<String?, String?>>): Map<String, Int> = seasons

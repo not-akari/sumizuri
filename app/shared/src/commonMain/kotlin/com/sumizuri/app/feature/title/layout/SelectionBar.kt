@@ -17,8 +17,6 @@ import androidx.compose.material.icons.outlined.FlipToBack
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.RemoveDone
 import androidx.compose.material.icons.outlined.SelectAll
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +46,8 @@ import com.sumizuri.app.shared.resources.selection_mark_below
 import com.sumizuri.app.shared.resources.selection_mark_read
 import com.sumizuri.app.shared.resources.selection_mark_unread
 import com.sumizuri.app.shared.resources.selection_unbookmark
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -100,27 +100,27 @@ internal fun SelectionBar(
                 IconButton(
                     { open = true },
                 ) { Icon(Icons.Outlined.MoreVert, stringResource(Res.string.chapter_menu_more)) }
-                DropdownMenu(open, { open = false }) {
-                    DropdownMenuItem({ Text(stringResource(Res.string.selection_bookmark)) }, {
+                AppMenu(open, { open = false }) {
+                    AppMenuItem({ Text(stringResource(Res.string.selection_bookmark)) }, {
                         open = false
                         calls.onBookmark(true)
                     })
-                    DropdownMenuItem({ Text(stringResource(Res.string.selection_unbookmark)) }, {
+                    AppMenuItem({ Text(stringResource(Res.string.selection_unbookmark)) }, {
                         open = false
                         calls.onBookmark(false)
                     })
-                    DropdownMenuItem({ Text(stringResource(Res.string.selection_mark_below)) }, {
+                    AppMenuItem({ Text(stringResource(Res.string.selection_mark_below)) }, {
                         open = false
                         calls.onMarkBelowRead()
                     })
                     if (downloads != null) {
                         downloads.onDownloadSelected?.let { start ->
-                            DropdownMenuItem({ Text(stringResource(Res.string.download_selected)) }, {
+                            AppMenuItem({ Text(stringResource(Res.string.download_selected)) }, {
                                 open = false
                                 start()
                             })
                         }
-                        DropdownMenuItem({ Text(stringResource(Res.string.download_delete_selected)) }, {
+                        AppMenuItem({ Text(stringResource(Res.string.download_delete_selected)) }, {
                             open = false
                             downloads.onRemoveSelected()
                         })

@@ -113,7 +113,7 @@ internal fun TitleHeading(
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        FactLine(title, state.counted.size, quiet, glow)
+        FactLine(title, state.counted.size, releaseFacts(state, title), quiet, glow)
         state.sourceName?.takeIf { wide }?.let { name ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.Extension, null, Modifier.size(14.dp), tint = quiet)
@@ -133,10 +133,10 @@ internal fun TitleHeading(
     }
 }
 
-// The status as a small chip, the rating with a star, and how many chapters there are.
+// The status as a small chip, the rating with a star, how many chapters there are, and when they come, all in one line that wraps.
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FactLine(title: Title, count: Int, quiet: Color, glow: Shadow?) {
+private fun FactLine(title: Title, count: Int, release: List<String>, quiet: Color, glow: Shadow?) {
     val colors = MaterialTheme.colorScheme
     val style = MaterialTheme.typography.labelMedium.copy(shadow = glow)
     FlowRow(
@@ -173,5 +173,6 @@ private fun FactLine(title: Title, count: Int, quiet: Color, glow: Shadow?) {
             }
         }
         if (count > 0) Text(unitCount(title.kind, count), style = style, color = quiet)
+        for (fact in release) Text(fact, style = style, color = quiet)
     }
 }

@@ -191,7 +191,7 @@ class LibraryRepository(private val db: AppDatabase, private val scope: Coroutin
     val unreachableUnreadTitles: Flow<Int> = db.chapters().observeUnreachableUnreadTitles()
 
     // The number for the badge of the updates tab, counted the way the page shows them.
-    val unreadUpdateCount: Flow<Int> = db.chapters().observeUnreadUpdateCount(UpdatesLimit).shareHere()
+    val unreadUpdateCount: Flow<Int> = db.chapters().observeUnreadUpdateCount().shareHere()
 
     val history: Flow<List<FeedItem>> = feed(db.progress().observeHistory(FeedLimit))
 

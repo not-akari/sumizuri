@@ -17,5 +17,6 @@ fun SourceEntry.asTitle(kind: Kind, sourceId: String = ""): Title = Title(
     summary = description.orEmpty(),
     author = author.orEmpty(),
     genres = genres,
+    webUrl = webUrl,
     inLibrary = false,
 )
