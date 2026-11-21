@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import com.sumizuri.app.data.text.nowMillis
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,12 +33,15 @@ data class FrameStats(
     val idle: Boolean = true,
 )
 
-// When the app was last used, which the root of the app passes on for every touch, move of the mouse and scroll.
+// When the app was last used, which the root of the app passes on for every touch, move of the mouse and scroll, and when it was last acted on, by a press or a scroll, which a move of the mouse alone is not.
 object FrameActivity {
     internal val last = MutableStateFlow(0L)
+    internal val lastAction = MutableStateFlow(0L)
 
-    fun poke() {
-        last.value = nowMillis()
+    fun poke(action: Boolean = true) {
+        val now = nowMillis()
+        last.value = now
+        if (action) lastAction.value = now
     }
 }
 
@@ -96,8 +100,11 @@ fun rememberFrameStats(): State<FrameStats> {
 fun Modifier.reportActivity(): Modifier = pointerInput(Unit) {
     awaitPointerEventScope {
         while (true) {
-            awaitPointerEvent(PointerEventPass.Initial)
-            FrameActivity.poke()
+            val event = awaitPointerEvent(PointerEventPass.Initial)
+            FrameActivity.poke(
+                event.type != PointerEventType.Move && event.type != PointerEventType.Enter &&
+                    event.type != PointerEventType.Exit,
+            )
         }
     }
 }

@@ -51,6 +51,9 @@ val DownloadEntity.status: DownloadState get() = DownloadState.of(state)
 // How far a download is, from 0 to 1, or 0 while its pages are not known yet.
 val DownloadEntity.progress: Float get() = if (pages > 0) saved.toFloat() / pages else 0f
 
+// The saved chapters of one title and the room they take.
+data class SavedTitle(val titleId: Long, val chapters: Int, val bytes: Long)
+
 // One line of the page of downloads: the download with the names of its title and chapter.
 data class DownloadRow(
     @Embedded val download: DownloadEntity,

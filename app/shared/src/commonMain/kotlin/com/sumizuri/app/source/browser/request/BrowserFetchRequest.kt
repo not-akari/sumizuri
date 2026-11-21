@@ -1,5 +1,6 @@
 package com.sumizuri.app.source.browser.request
 
+import com.sumizuri.app.data.net.hostOf
 import com.sumizuri.app.source.host.net.AddressGuard
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -46,7 +47,7 @@ class BrowserFetchRequest(
     private fun isPublicWebUrl(text: String): Boolean {
         val scheme = text.substringBefore("://", "").lowercase()
         if (scheme != "http" && scheme != "https") return false
-        val host = AddressGuard.hostOf(text)
+        val host = hostOf(text)
         return host.isNotEmpty() && !AddressGuard.isBlockedHost(host)
     }
 }

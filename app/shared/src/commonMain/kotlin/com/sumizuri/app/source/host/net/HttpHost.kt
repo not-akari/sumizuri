@@ -57,6 +57,7 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
+import com.sumizuri.app.data.net.hostOf
 
 // How long the requests of a source skip a hidden browser that failed on its own.
 private const val BrowserPauseMs = 60_000L
@@ -253,7 +254,7 @@ class HttpHost(
             val location = response.headers[HttpHeaders.Location]
             val redirect = response.status.value in REDIRECTS && location != null
             if (!redirect) break
-            if (hop == MAX_REDIRECTS) throw BridgeException("Too many redirects from ${AddressGuard.hostOf(url)}")
+            if (hop == MAX_REDIRECTS) throw BridgeException("Too many redirects from ${hostOf(url)}")
             AppLog.debug(
                 label,
                 "redirect ${response.status.value} from ${url.withoutQuery()} to ${location.withoutQuery()}",
@@ -309,14 +310,14 @@ class HttpHost(
     } catch (error: Exception) {
         if (error is kotlinx.coroutines.CancellationException) throw error
         throw BridgeException(
-            "Could not reach ${AddressGuard.hostOf(url)}: ${error.message ?: error::class.simpleName}",
+            "Could not reach ${hostOf(url)}: ${error.message ?: error::class.simpleName}",
         )
     }
 
     // The address, once it is known to be a public web address as written and as the name resolves.
     private suspend fun checked(url: String): String {
         allowedHosts?.let { allowed ->
-            val host = AddressGuard.hostOf(url.trim())
+            val host = hostOf(url.trim())
             if (allowed.none {
                     hostMatches(it, host)
                 }
@@ -326,7 +327,7 @@ class HttpHost(
         }
         if (allowPrivateAddresses) return url.trim()
         val clean = AddressGuard.check(url)
-        val host = AddressGuard.hostOf(clean)
+        val host = hostOf(clean)
         // A literal address was fully checked above.
         if (AddressGuard.isLiteralAddress(host)) return clean
         val known = lookupLock.withLock { lookups[host] }
@@ -376,7 +377,7 @@ class HttpHost(
             } ?: return
             address = next
         }
-        throw BridgeException("Too many redirects from ${AddressGuard.hostOf(url)}")
+        throw BridgeException("Too many redirects from ${hostOf(url)}")
     }
 
     fun close() = client.close()

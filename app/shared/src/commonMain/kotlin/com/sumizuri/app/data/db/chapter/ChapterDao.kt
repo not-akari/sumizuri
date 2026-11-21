@@ -71,21 +71,17 @@ interface ChapterDao {
     )
     fun observeUnreachableUnreadTitles(): Flow<Int>
 
-    // How many of those the updates page can show, which leaves out titles whose source is missing or off, for the badge on its tab. Only a number comes back.
+    // How many new chapters are not read in all, past the ones the updates page lists, which leaves out titles whose source is missing or off. It is for the badge on its tab and the line under the name of the page. It starts from the titles so the index of title and date reads only the chapters that came after each was added. Only a number comes back.
     @Query(
         """
-        SELECT COUNT(*) FROM (
-            SELECT c.id FROM chapter c
-            CROSS JOIN title t ON t.id = c.titleId
-            WHERE c.publishedAt > 0 AND t.inLibrary = 1
-            AND c.publishedAt >= t.addedAt - 86400000
-            AND t.sourceId IN (SELECT id FROM source WHERE enabled = 1)
-            AND NOT EXISTS (SELECT 1 FROM progress p WHERE p.chapterId = c.id AND p.read = 1)
-            ORDER BY c.publishedAt DESC LIMIT :limit
-        )
+        SELECT COUNT(*) FROM title t
+        JOIN chapter c ON c.titleId = t.id AND c.publishedAt >= t.addedAt - 86400000 AND c.publishedAt > 0
+        WHERE t.inLibrary = 1
+        AND t.sourceId IN (SELECT id FROM source WHERE enabled = 1)
+        AND NOT EXISTS (SELECT 1 FROM progress p WHERE p.chapterId = c.id AND p.read = 1)
         """,
     )
-    fun observeUnreadUpdateCount(limit: Int): Flow<Int>
+    fun observeUnreadUpdateCount(): Flow<Int>
 
     @Query("SELECT * FROM chapter WHERE titleId = :titleId")
     suspend fun allOf(titleId: Long): List<ChapterEntity>

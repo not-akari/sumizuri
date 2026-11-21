@@ -22,6 +22,8 @@ import com.sumizuri.app.data.db.title.TitleEntity
         Index("titleId", "url", unique = true),
         Index("titleId", "number"),
         Index("publishedAt"),
+        // Lets the count of new chapters read only the chapters of each title that came after it was added.
+        Index("titleId", "publishedAt"),
     ],
 )
 data class ChapterEntity(

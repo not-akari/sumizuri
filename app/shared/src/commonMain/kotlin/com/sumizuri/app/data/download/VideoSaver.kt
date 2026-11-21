@@ -1,11 +1,11 @@
 package com.sumizuri.app.data.download
 
+import com.sumizuri.app.data.net.hostOf
 import com.sumizuri.app.playback.hls.HlsPlaylist
 import com.sumizuri.app.playback.hls.isHls
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.download_err_no_quality
 import com.sumizuri.app.shared.resources.download_err_video_status
-import com.sumizuri.app.source.host.net.AddressGuard
 import com.sumizuri.app.source.model.SourceVideo
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
@@ -108,7 +108,7 @@ internal suspend fun saveVideo(
             val sent = meter.bytes - before
             before = meter.bytes
             if (sent < SlowBytesPerSecond * SlowWindowMs / 1000) {
-                throw TooSlow("${AddressGuard.hostOf(video.url)} sent ${sent / 1024} KB in ${SlowWindowMs / 1000} s")
+                throw TooSlow("${hostOf(video.url)} sent ${sent / 1024} KB in ${SlowWindowMs / 1000} s")
             }
         }
     }

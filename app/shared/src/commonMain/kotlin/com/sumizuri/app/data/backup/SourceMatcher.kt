@@ -6,6 +6,7 @@ import com.sumizuri.app.data.db.AppDatabase
 import com.sumizuri.app.data.library.ChapterCarry
 import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.model.Title
+import com.sumizuri.app.data.net.siteNameOf
 import com.sumizuri.app.data.sources.SourceRepository
 import com.sumizuri.app.data.work.BusyKind
 import com.sumizuri.app.data.work.BusyWork
@@ -213,16 +214,8 @@ class SourceMatcher(
 
     private fun plainName(name: String): String = name.lowercase().filter { it.isLetterOrDigit() }
 
-    private fun hostOf(url: String): String? = HostPart
-        .find(url)
-        ?.groupValues
-        ?.get(1)
-        ?.lowercase()
-        ?.removePrefix("www.")
+    private fun hostOf(url: String): String? = if ("://" in url) siteNameOf(url).ifEmpty { null } else null
 }
 
 // How a look for sources is going: how far it got while it runs, and how many titles found a source once it ended.
 data class LinkRun(val checking: Pair<Int, Int>? = null, val found: Pair<Int, Int>? = null)
-
-// The host of an address.
-private val HostPart = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://([^/:?#]+)")

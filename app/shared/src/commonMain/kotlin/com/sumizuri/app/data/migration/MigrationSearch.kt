@@ -1,5 +1,6 @@
 package com.sumizuri.app.data.migration
 
+import com.sumizuri.app.data.net.siteNameOf
 import com.sumizuri.app.source.Source
 import com.sumizuri.app.source.SourceResult
 import com.sumizuri.app.source.model.SourceChapter
@@ -141,15 +142,9 @@ class MigrationSearch(
         return a != null && a == hostOf(baseUrl)
     }
 
-    private fun hostOf(url: String): String? = HostPart
-        .find(url)
-        ?.groupValues
-        ?.get(1)
-        ?.lowercase()
-        ?.removePrefix("www.")
+    private fun hostOf(url: String): String? = if ("://" in url) siteNameOf(url).ifEmpty { null } else null
 }
 
-// Where a name breaks into a shorter one, a run of spaces, and the host of an address.
+// Where a name breaks into a shorter one, and a run of spaces.
 private val NameBreak = Regex("\\s[-\u2013|]\\s|:")
 private val Spaces = Regex("\\s+")
-private val HostPart = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://([^/:?#]+)")
