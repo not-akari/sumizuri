@@ -12,13 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.sumizuri.app.data.model.stats.ReadingStats
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.library_title
@@ -26,6 +22,8 @@ import com.sumizuri.app.shared.resources.profile_chapters_read
 import com.sumizuri.app.shared.resources.stats_current_streak
 import com.sumizuri.app.shared.resources.stats_last_month
 import com.sumizuri.app.shared.resources.stats_most_active_time
+import com.sumizuri.app.ui.kit.text.Figure
+import com.sumizuri.app.ui.kit.text.FigureSize
 import org.jetbrains.compose.resources.stringResource
 
 // The numbers that matter, set large in a row with thin rules between them and no boxes. Five across where there is room, and on a phone three and then two.
@@ -71,6 +69,7 @@ internal fun ProfileFigures(stats: ReadingStats, modifier: Modifier = Modifier) 
                                     14.dp
                                 },
                             ),
+                            FigureSize.Large,
                         )
                     }
                     // A short last row keeps the width of the others.
@@ -78,33 +77,5 @@ internal fun ProfileFigures(stats: ReadingStats, modifier: Modifier = Modifier) 
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun Figure(value: String, label: String, modifier: Modifier) {
-    Column(modifier) {
-        Text(
-            value,
-            style = MaterialTheme.typography.headlineMedium,
-            fontSize = if (value.length >
-                6
-            ) {
-                20.sp
-            } else {
-                28.sp
-            },
-            fontWeight = FontWeight.ExtraBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        // The name of a figure may take two lines, so a narrow phone shows it whole.
-        Text(
-            label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
     }
 }

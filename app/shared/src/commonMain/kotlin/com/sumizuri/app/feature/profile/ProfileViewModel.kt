@@ -3,7 +3,6 @@ package com.sumizuri.app.feature.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sumizuri.app.data.blocks.ProfileBlocksRepository
-import com.sumizuri.app.data.blocks.ProfilePreset
 import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.library.StatisticsRepository
 import com.sumizuri.app.data.profile.ProfileHost
@@ -69,17 +68,6 @@ class ProfileViewModel(
     }
 
     suspend fun onDelete(id: Long): Boolean = host.delete(id)
-
-    // Replaces the blocks with a preset. Classic forgets the saved blocks, so the page is the one it came with.
-    fun onPreset(preset: ProfilePreset) = viewModelScope.launch {
-        if (preset ==
-            ProfilePreset.Classic
-        ) {
-            blocks.reset()
-        } else {
-            blocks.save(preset.layout())
-        }
-    }
 
     // Writes the picture to the avatars folder and gives its path, or null when it is no picture.
     private suspend fun keep(picture: ByteArray): String? = withContext(Dispatchers.IO) {

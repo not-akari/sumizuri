@@ -26,7 +26,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -65,6 +64,7 @@ import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.card.AppListRow
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.dialog.CancelButton
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.input.rememberImagePicker
 import com.sumizuri.app.ui.kit.input.squareAvatar
 import com.sumizuri.app.ui.kit.page.PageGutter
@@ -196,7 +196,7 @@ internal fun ProfileFormSheet(profile: Profile?, isActive: Boolean, calls: Profi
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
-            OutlinedTextField(
+            AppTextField(
                 name,
                 { name = it.take(LongestName) },
                 Modifier.fillMaxWidth(),

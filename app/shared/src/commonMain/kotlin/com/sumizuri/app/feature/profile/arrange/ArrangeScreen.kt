@@ -39,7 +39,6 @@ import com.sumizuri.app.feature.profile.BlockCalls
 import com.sumizuri.app.feature.profile.blocks.AddBlockSheet
 import com.sumizuri.app.feature.profile.blocks.BlockEnv
 import com.sumizuri.app.feature.profile.blocks.BlockGrid
-import com.sumizuri.app.feature.profile.blocks.LayoutsDialog
 import com.sumizuri.app.feature.profile.blocks.name
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.arrange_hint
@@ -73,7 +72,6 @@ private fun PagePreview(state: ArrangeState, onAdd: () -> Unit) {
 private sealed interface ArrangeWindow {
     data object None : ArrangeWindow
     data object Add : ArrangeWindow
-    data object Layouts : ArrangeWindow
 }
 
 // The page where the blocks of the profile are edited: the blocks as a list to drag into order, and a button that adds a block. On a phone a tap picks a block and the bar at the top turns into its actions, so the lines stay clear. Wide enough, the actions sit on each line and the page itself shows beside the list as it will look.
@@ -96,7 +94,7 @@ internal fun ArrangeScreen(state: ArrangeState, calls: BlockCalls, onBack: () ->
                 ) { BlockActions(pickedBlock, calls, onRemoved = { picked = null }) }
             } else {
                 PageTopBar(stringResource(Res.string.arrange_title), onBack = onBack) {
-                    IconButton({ window = ArrangeWindow.Layouts }) { Icon(Icons.Outlined.AutoAwesomeMosaic, stringResource(Res.string.blocks_layouts)) }
+                    IconButton(calls.onLayouts) { Icon(Icons.Outlined.AutoAwesomeMosaic, stringResource(Res.string.blocks_layouts)) }
                     IconButton({ window = ArrangeWindow.Add }) { Icon(Icons.Outlined.Add, stringResource(Res.string.blocks_add)) }
                 }
             }
@@ -135,6 +133,5 @@ internal fun ArrangeScreen(state: ArrangeState, calls: BlockCalls, onBack: () ->
     when (window) {
         ArrangeWindow.None -> Unit
         ArrangeWindow.Add -> AddBlockSheet(calls, state.context, BlockEnv(state.stats, state.recent, wide = false, onOpenTitle = {}), close)
-        ArrangeWindow.Layouts -> LayoutsDialog(calls.onPreset, close)
     }
 }

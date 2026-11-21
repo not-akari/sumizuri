@@ -16,25 +16,36 @@ fun ProfileRoute(
     onOpenMissing: () -> Unit,
     onOpenTitle: (Long) -> Unit,
     onArrange: () -> Unit,
+    onLayouts: () -> Unit,
 ) {
     val container = LocalAppContainer.current
     val profiles = LocalProfiles.current
     val viewModel = viewModel { ProfileViewModel(profiles, container.statistics, container.library, container.blocks) }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val calls = remember(viewModel, onOpenSettings, onOpenSync, onOpenTrackers, onOpenMissing, onOpenTitle, onArrange) {
-        ProfileCalls(
-            onOpenSettings = onOpenSettings,
-            onOpenSync = onOpenSync,
-            onOpenTrackers = onOpenTrackers,
-            onOpenMissing = onOpenMissing,
-            onOpenTitle = onOpenTitle,
-            onSwitch = viewModel::onSwitch,
-            onCreate = viewModel::onCreate,
-            onSave = viewModel::onSave,
-            onDelete = viewModel::onDelete,
-            onPreset = { viewModel.onPreset(it) },
-            onArrange = onArrange,
-        )
-    }
+    val calls =
+        remember(
+            viewModel,
+            onOpenSettings,
+            onOpenSync,
+            onOpenTrackers,
+            onOpenMissing,
+            onOpenTitle,
+            onArrange,
+            onLayouts,
+        ) {
+            ProfileCalls(
+                onOpenSettings = onOpenSettings,
+                onOpenSync = onOpenSync,
+                onOpenTrackers = onOpenTrackers,
+                onOpenMissing = onOpenMissing,
+                onOpenTitle = onOpenTitle,
+                onSwitch = viewModel::onSwitch,
+                onCreate = viewModel::onCreate,
+                onSave = viewModel::onSave,
+                onDelete = viewModel::onDelete,
+                onLayouts = onLayouts,
+                onArrange = onArrange,
+            )
+        }
     ProfileScreen(state, calls)
 }

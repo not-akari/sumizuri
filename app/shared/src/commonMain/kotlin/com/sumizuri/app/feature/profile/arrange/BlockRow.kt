@@ -21,7 +21,6 @@ import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -70,6 +69,7 @@ import com.sumizuri.app.shared.resources.share_action
 import com.sumizuri.app.shared.resources.share_title
 import com.sumizuri.app.ui.kit.card.AppCard
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
+import com.sumizuri.app.ui.kit.chips.SoftChip
 import com.sumizuri.app.ui.kit.dialog.ConfirmDialog
 import com.sumizuri.app.ui.kit.page.AppSheet
 import org.jetbrains.compose.resources.stringResource
@@ -198,14 +198,14 @@ private fun SizeSheet(item: ShownBlock, onResize: (columns: Int, rows: Int) -> U
         AppSectionLabel(stringResource(Res.string.blocks_size_width))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             for (columns in 1..4) {
-                FilterChip(selected = columns == w, enabled = fit.allows(columns, h), onClick = {
+                SoftChip(selected = columns == w, enabled = fit.allows(columns, h), onClick = {
                     onResize(columns, h)
                 }, label = { Text(columns.toString()) })
             }
         }
         AppSectionLabel(stringResource(Res.string.blocks_size_height))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            FilterChip(selected = h == 0, enabled = fit.allows(w, 0), onClick = {
+            SoftChip(selected = h == 0, enabled = fit.allows(w, 0), onClick = {
                 onResize(w, 0)
             }, label = { Text(stringResource(Res.string.blocks_size_content)) })
             Spacer(Modifier.weight(1f))
