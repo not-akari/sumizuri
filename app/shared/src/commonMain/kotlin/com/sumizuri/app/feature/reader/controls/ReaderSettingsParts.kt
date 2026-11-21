@@ -2,16 +2,17 @@ package com.sumizuri.app.feature.reader.controls
 
 import androidx.compose.runtime.Composable
 import com.sumizuri.app.data.model.reader.ReaderBackground
+import com.sumizuri.app.data.model.reader.ReaderControls
 import com.sumizuri.app.data.model.reader.ReaderOrientation
 import com.sumizuri.app.data.model.reader.ReaderProgressBar
 import com.sumizuri.app.data.model.reader.ReaderSettings
 import com.sumizuri.app.shared.resources.Res
-import com.sumizuri.app.shared.resources.display_percent
 import com.sumizuri.app.shared.resources.manga_group_appearance
 import com.sumizuri.app.shared.resources.reader_auto_speed
 import com.sumizuri.app.shared.resources.reader_background
 import com.sumizuri.app.shared.resources.reader_contrast
 import com.sumizuri.app.shared.resources.reader_control_shade
+import com.sumizuri.app.shared.resources.reader_controls
 import com.sumizuri.app.shared.resources.reader_grayscale
 import com.sumizuri.app.shared.resources.reader_hide_bars
 import com.sumizuri.app.shared.resources.reader_incognito_switch
@@ -21,7 +22,6 @@ import com.sumizuri.app.shared.resources.reader_invert_taps
 import com.sumizuri.app.shared.resources.reader_keep_on
 import com.sumizuri.app.shared.resources.reader_orientation
 import com.sumizuri.app.shared.resources.reader_page_number
-import com.sumizuri.app.shared.resources.reader_page_strip
 import com.sumizuri.app.shared.resources.reader_progress_bar
 import com.sumizuri.app.shared.resources.reader_sepia
 import com.sumizuri.app.shared.resources.reading_group_screen
@@ -30,6 +30,7 @@ import com.sumizuri.app.ui.kit.setting.ChoiceSetting
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.kit.setting.SliderSetting
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
+import com.sumizuri.app.ui.text.percentText
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
@@ -66,12 +67,12 @@ internal fun LookPart(settings: ReaderSettings, textual: Boolean, onSettings: (R
             }
             padded {
                 SliderSetting(Res.string.reader_sepia, settings.sepia, 0f..1f, {
-                    percent(it)
+                    percentText(it)
                 }) { onSettings(settings.copy(sepia = it)) }
             }
             padded {
                 SliderSetting(Res.string.reader_contrast, settings.contrast, 0.5f..2f, {
-                    percent(it)
+                    percentText(it)
                 }) { onSettings(settings.copy(contrast = it)) }
             }
         }
@@ -82,6 +83,13 @@ internal fun LookPart(settings: ReaderSettings, textual: Boolean, onSettings: (R
 @Composable
 internal fun ControlsPart(settings: ReaderSettings, onSettings: (ReaderSettings) -> Unit) {
     SettingsSection(Res.string.reading_group_scroll) {
+        padded {
+            ChoiceSetting(Res.string.reader_controls, ReaderControls.entries, settings.controls, {
+                stringResource(it.label)
+            }) {
+                onSettings(settings.copy(controls = it))
+            }
+        }
         padded {
             ChoiceSetting(Res.string.reader_progress_bar, ReaderProgressBar.entries, settings.progressBar, {
                 stringResource(it.label)
@@ -97,14 +105,7 @@ internal fun ControlsPart(settings: ReaderSettings, onSettings: (ReaderSettings)
             )
         }
         padded {
-            SwitchSetting(
-                Res.string.reader_page_strip,
-                settings.pageStrip,
-                { onSettings(settings.copy(pageStrip = it)) },
-            )
-        }
-        padded {
-            SliderSetting(Res.string.reader_control_shade, settings.controlShade, 0f..1f, { percent(it) }) {
+            SliderSetting(Res.string.reader_control_shade, settings.controlShade, 0f..1f, { percentText(it) }) {
                 onSettings(settings.copy(controlShade = it))
             }
         }
@@ -164,6 +165,3 @@ internal fun ControlsPart(settings: ReaderSettings, onSettings: (ReaderSettings)
         }
     }
 }
-
-@Composable
-private fun percent(value: Float): String = stringResource(Res.string.display_percent, (value * 100).roundToInt())

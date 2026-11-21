@@ -3,6 +3,7 @@ package com.sumizuri.app.data.settings
 import com.sumizuri.app.data.db.AppDatabase
 import com.sumizuri.app.data.db.setting.SettingEntity
 import com.sumizuri.app.data.model.reader.ReaderBackground
+import com.sumizuri.app.data.model.reader.ReaderControls
 import com.sumizuri.app.data.model.reader.ReaderDual
 import com.sumizuri.app.data.model.reader.ReaderFont
 import com.sumizuri.app.data.model.reader.ReaderGap
@@ -102,9 +103,9 @@ class ReaderSettingsRepository(private val db: AppDatabase) {
         put("${Prefix}readingWpm", settings.readingWpm.toString())
         put("${Prefix}quality", settings.quality.name)
         put("${Prefix}progressBar", settings.progressBar.name)
+        put("${Prefix}controls", settings.controls.name)
         put("${Prefix}pageNumber", settings.pageNumber.toString())
         put("${Prefix}controlShade", settings.controlShade.toString())
-        put("${Prefix}pageStrip", settings.pageStrip.toString())
         put("${Prefix}lookup", settings.lookup.name)
         put("${Prefix}inlineNext", settings.inlineNext.toString())
         put("${Prefix}incognito", settings.incognito.toString())
@@ -154,9 +155,9 @@ class ReaderSettingsRepository(private val db: AppDatabase) {
             readingWpm = rows["${Prefix}readingWpm"]?.toIntOrNull()?.coerceIn(80, 600) ?: usual.readingWpm,
             quality = enumNamed<ReaderQuality>(rows["${Prefix}quality"]) ?: usual.quality,
             progressBar = enumNamed<ReaderProgressBar>(rows["${Prefix}progressBar"]) ?: usual.progressBar,
+            controls = enumNamed<ReaderControls>(rows["${Prefix}controls"]) ?: usual.controls,
             pageNumber = rows["${Prefix}pageNumber"] != "false",
             controlShade = rows["${Prefix}controlShade"]?.toFloatOrNull()?.coerceIn(0f, 1f) ?: usual.controlShade,
-            pageStrip = rows["${Prefix}pageStrip"] == "true",
             lookup = enumNamed<ReaderLookup>(rows["${Prefix}lookup"]) ?: usual.lookup,
             inlineNext = rows["${Prefix}inlineNext"] != "false",
             incognito = rows["${Prefix}incognito"] == "true",

@@ -17,7 +17,6 @@ import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +44,7 @@ import com.sumizuri.app.shared.resources.reader_translate_off
 import com.sumizuri.app.ui.kit.input.BackButton
 import com.sumizuri.app.ui.text.numberedUnit
 import org.jetbrains.compose.resources.stringResource
+import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 
 // The top of the reader: back, the name of the chapter with the title under it, the bookmark, the comments when the source has them, and a menu with the rest. A small mark under the name says progress is not being saved.
 @Composable
@@ -107,7 +107,7 @@ fun ReaderTopBar(
 private fun TranslateButton(translator: NovelTranslator) {
     IconButton(translator::toggle) {
         if (translator.status == TranslateStatus.Working) {
-            CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+            InkCircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
         } else {
             Icon(
                 Icons.Outlined.Translate,
@@ -137,4 +137,3 @@ private fun IncognitoMark() {
         )
     }
 }
-

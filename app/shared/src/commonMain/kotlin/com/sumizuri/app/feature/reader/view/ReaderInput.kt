@@ -22,6 +22,10 @@ import com.sumizuri.app.feature.reader.at
 import com.sumizuri.app.ui.controls.LocalReaderControls
 import com.sumizuri.app.ui.controls.mouseChords
 import com.sumizuri.app.ui.controls.toChord
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // Turns the keys and the taps into the actions the person bound to them. A tap is looked up in the grid of the layout by how far across and down it landed. The callback says whether it did the action and is told whether it came from a tap, since a tap and a key may move by different steps.
 @Composable
@@ -47,16 +51,24 @@ fun Modifier.readerInput(layout: TapLayout, onAction: (action: ReaderAction, tap
             val action = event.toChord()?.let { controls.actionForKey(it) } ?: return@onPreviewKeyEvent false
             act(action, false)
         }.pointerInput(Unit) {
-            detectTapGestures(
-                onLongPress = { if (controls.longTapMenu) act(ReaderAction.PageMenu, true) },
-                onTap = { at ->
-                    controls
-                        .actionForTap(
-                            layout,
-                            at.x / size.width,
-                            at.y / size.height,
-                        )?.let { act(it, true) }
-                },
-            )
+            // A tap that shows or hides the controls waits a moment for a second tap, since two taps zoom the page and should not bring the controls up as well.
+            coroutineScope {
+                var pending: Job? = null
+                detectTapGestures(
+                    onPress = { pending?.cancel() },
+                    onLongPress = { if (controls.longTapMenu) act(ReaderAction.PageMenu, true) },
+                    onTap = { at ->
+                        val action = controls.actionForTap(layout, at.x / size.width, at.y / size.height)
+                        if (action == ReaderAction.ToggleControls) {
+                            pending = launch {
+                                delay(viewConfiguration.doubleTapTimeoutMillis)
+                                act(action, true)
+                            }
+                        } else if (action != null) {
+                            act(action, true)
+                        }
+                    },
+                )
+            }
         }
 }

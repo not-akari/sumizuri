@@ -1,11 +1,10 @@
 package com.sumizuri.app.feature.reader.controls
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -37,6 +36,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -45,7 +45,13 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.sumizuri.app.shared.resources.Res
@@ -158,42 +164,51 @@ fun PageTrack(
         if (tagged && held == null) {
             Box(Modifier.centerOn(fraction, length, EndRoom)) { PageTag(page, total) }
         }
-        val at = held?.let { (it * last).roundToInt() }
-        AnimatedVisibility(
-            at != null,
-            Modifier.floatBeside(fraction, length, vertical, EndRoom),
-            enter = fadeIn() + scaleIn(initialScale = 0.85f),
-            exit = fadeOut() + scaleOut(targetScale = 0.9f),
-        ) {
-            val shown = at ?: page
-            Bubble(shown, preview(shown))
+        // The picture floats in its own layer, so a card around the track never cuts it, and it keeps the last page while it fades away.
+        val bubble = remember { MutableTransitionState(false) }
+        bubble.targetState = held != null
+        val kept = remember { intArrayOf(page) }
+        held?.let { kept[0] = (it * last).roundToInt() }
+        if (bubble.currentState || bubble.targetState) {
+            val density = LocalDensity.current
+            val place =
+                BesideTrack(
+                    fraction,
+                    vertical,
+                    with(density) { EndRoom.roundToPx() },
+                    with(density) { PreviewGap.roundToPx() },
+                )
+            Popup(popupPositionProvider = place) {
+                AnimatedVisibility(bubble, enter = fadeIn(), exit = fadeOut()) {
+                    PageBubble(kept[0], preview(kept[0]))
+                }
+            }
         }
     }
 }
 
-// Draws the bubble above a track along the bottom, or to the left of a track down the side, with its middle at the thumb and kept inside the track at both ends. It takes no room, so nothing moves while it shows.
-private fun Modifier.floatBeside(fraction: Float, length: Float, vertical: Boolean, endRoom: Dp): Modifier =
-    layout { measurable, _ ->
-        val bubble = measurable.measure(Constraints())
-        layout(0, 0) {
-            val room = endRoom.toPx()
-            val along = room + fraction * (length - room * 2)
-            val gap = PreviewGap.roundToPx()
-            if (vertical) {
-                val y = (along - bubble.height / 2f).roundToInt().coerceIn(
-                    0,
-                    (length - bubble.height).roundToInt().coerceAtLeast(0),
-                )
-                bubble.place(-bubble.width - gap, y)
-            } else {
-                val x = (along - bubble.width / 2f).roundToInt().coerceIn(
-                    0,
-                    (length - bubble.width).roundToInt().coerceAtLeast(0),
-                )
-                bubble.place(x, -bubble.height - gap)
-            }
+// Puts the bubble above a track along the bottom, or to the left of a track down the side, with its middle at the thumb and kept inside the track at both ends.
+private data class BesideTrack(val fraction: Float, val vertical: Boolean, val room: Int, val gap: Int) :
+    PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize,
+    ): IntOffset {
+        val length = if (vertical) anchorBounds.height else anchorBounds.width
+        val size = if (vertical) popupContentSize.height else popupContentSize.width
+        val along = (room + fraction * (length - room * 2) - size / 2f).roundToInt().coerceIn(
+            0,
+            (length - size).coerceAtLeast(0),
+        )
+        return if (vertical) {
+            IntOffset(anchorBounds.left - popupContentSize.width - gap, anchorBounds.top + along)
+        } else {
+            IntOffset(anchorBounds.left + along, anchorBounds.top - popupContentSize.height - gap)
         }
     }
+}
 
 // Puts a tag on a track along the bottom with its middle at the thumb, kept inside the track at both ends. It takes no room.
 private fun Modifier.centerOn(fraction: Float, length: Float, endRoom: Dp): Modifier =
@@ -225,7 +240,7 @@ private fun PageTag(page: Int, total: Int) {
 }
 
 @Composable
-private fun Bubble(page: Int, preview: PagePreview?) {
+internal fun PageBubble(page: Int, preview: PagePreview?) {
     val context = LocalPlatformContext.current
     Surface(
         Modifier.width(PreviewWidth),

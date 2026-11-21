@@ -1,5 +1,7 @@
 package com.sumizuri.app.ui.kit.input
 
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroid
@@ -10,10 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -22,6 +27,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.sumizuri.app.ui.motion.AppMotion
+import com.sumizuri.app.ui.motion.motionMs
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlin.math.exp
 
 // Under this the content counts as not zoomed, so it snaps back and a single finger scrolls it again.
@@ -40,23 +49,47 @@ private const val DoubleTapScale = 2.5f
 fun Modifier.pinchZoom(maxScale: Float = 5f): Modifier {
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
+    val scope = rememberCoroutineScope()
+    var glide by remember { mutableStateOf<Job?>(null) }
+    val glideMs by rememberUpdatedState(motionMs(AppMotion.Page))
 
-    // The point under the fingers stays where it is while the scale changes, and the content never leaves the window.
-    fun zoomAt(focus: Offset, size: IntSize, factor: Float, pan: Offset) {
+    // Where a zoom by the factor around the focus ends: the point under it stays where it is, and the content never leaves the window.
+    fun zoomed(focus: Offset, size: IntSize, factor: Float, pan: Offset): Pair<Float, Offset>? {
         // A gesture with no finger that was already down gives no centroid, and one NaN in the scale or offset leaves the content drawn nowhere.
-        if (!focus.isSpecified || !pan.isSpecified || !factor.isFinite() || !focus.x.isFinite() || !focus.y.isFinite() || !pan.x.isFinite() || !pan.y.isFinite()) return
+        if (!focus.isSpecified || !pan.isSpecified || !factor.isFinite() || !focus.x.isFinite() || !focus.y.isFinite() || !pan.x.isFinite() || !pan.y.isFinite()) return null
         val next = (scale * factor).coerceIn(1f, maxScale)
-        if (next < Snap) {
-            scale = 1f
-            offset = Offset.Zero
-            return
-        }
+        if (next < Snap) return 1f to Offset.Zero
         val from = focus - Offset(size.width / 2f, size.height / 2f)
         val moved = from - (from - offset) * (next / scale) + pan
         val limitX = size.width * (next - 1f) / 2f
         val limitY = size.height * (next - 1f) / 2f
+        return next to Offset(moved.x.coerceIn(-limitX, limitX), moved.y.coerceIn(-limitY, limitY))
+    }
+
+    // Fingers and the wheel move the zoom at once, and take over from a glide that is still going.
+    fun zoomAt(focus: Offset, size: IntSize, factor: Float, pan: Offset) {
+        val (next, moved) = zoomed(focus, size, factor, pan) ?: return
+        glide?.cancel()
         scale = next
-        offset = Offset(moved.x.coerceIn(-limitX, limitX), moved.y.coerceIn(-limitY, limitY))
+        offset = moved
+    }
+
+    // A double tap glides to its zoom, unless the person asked for less motion.
+    fun glideTo(target: Float, to: Offset) {
+        glide?.cancel()
+        if (glideMs <= 0) {
+            scale = target
+            offset = to
+            return
+        }
+        val fromScale = scale
+        val fromOffset = offset
+        glide = scope.launch {
+            animate(0f, 1f, animationSpec = tween(glideMs, easing = AppMotion.Entrance)) { t, _ ->
+                scale = fromScale + (target - fromScale) * t
+                offset = lerp(fromOffset, to, t)
+            }
+        }
     }
 
     return this
@@ -80,10 +113,9 @@ fun Modifier.pinchZoom(maxScale: Float = 5f): Modifier {
                             up.consume()
                             lastTapAt = -DoubleTapGap
                             if (scale > Snap) {
-                                scale = 1f
-                                offset = Offset.Zero
+                                glideTo(1f, Offset.Zero)
                             } else {
-                                zoomAt(up.position, size, DoubleTapScale, Offset.Zero)
+                                zoomed(up.position, size, DoubleTapScale, Offset.Zero)?.let { (next, moved) -> glideTo(next, moved) }
                             }
                         } else {
                             lastTapAt = up.uptimeMillis

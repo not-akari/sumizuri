@@ -1,18 +1,12 @@
 package com.sumizuri.app.feature.reader.controls
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,9 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -43,7 +35,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
@@ -78,12 +69,10 @@ import org.jetbrains.compose.resources.stringResource
 private val Extensions = setOf("jpg", "jpeg", "png", "webp", "gif", "avif")
 private const val UsualExtension = "jpg"
 
-// How tall the picture of the page is at the head of the panel, and the size of its card at the side of the wide panel.
+// How tall the picture of the page is at the head of the panel.
 private val BannerHeight = 88.dp
-private val CardWidth = 96.dp
-private val CardHeight = 128.dp
 
-// What a long press on a page offers, as a panel the dock grows to hold: saving or sharing the picture as a file, making it the cover of the title, and copying its address. The picture is taken from the copy the reader already holds, so a page that is not kept on the device cannot be saved or shared. The cover is not offered when it is null, as for a page that is shuffled.
+// What a long press on a page offers, as a panel the island grows to hold: saving or sharing the picture as a file, making it the cover of the title, and copying its address. The picture is taken from the copy the reader already holds, so a page that is not kept on the device cannot be saved or shared. The cover is not offered when it is null, as for a page that is shuffled.
 @Composable
 fun PageMenuPanel(
     number: Int,
@@ -161,32 +150,6 @@ fun PageMenuPanel(
         }
     }
     val title = stringResource(Res.string.reader_page_menu_title, number)
-    // A wide dock gives its track to this panel, which then puts the picture at the side with the actions and the track beside it.
-    val track = LocalDockTrack.current
-    if (track != null) {
-        Column {
-            PanelHead(title, onDismiss)
-            Row(
-                Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(start = 10.dp, bottom = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (saveable) {
-                    PageCard(address)
-                    VerticalDivider(
-                        Modifier.padding(horizontal = 14.dp).fillMaxHeight(0.8f),
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
-                    )
-                }
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        for (action in actions) ActionButton(action, Modifier.weight(1f))
-                    }
-                    track()
-                }
-            }
-        }
-        return
-    }
     Column(Modifier.verticalScroll(rememberScrollState())) {
         // The page kept on the device heads the panel as a wide picture with its number and the close button on it, and the actions sit under it. A page that is not kept has the plain head.
         if (saveable) PageBanner(address, title, onDismiss) else PanelHead(title, onDismiss)
@@ -237,47 +200,6 @@ private fun PageBanner(address: String, title: String, onClose: () -> Unit) {
                 contentColor = Color.White,
             ),
         ) { Icon(Icons.Outlined.Close, stringResource(Res.string.close)) }
-    }
-}
-
-// The page as a card of its top at the side of the wide panel.
-@Composable
-private fun PageCard(address: String) {
-    val context = LocalPlatformContext.current
-    val request = remember(address) { buildImageRequest(context, address) }
-    AsyncImage(
-        request,
-        null,
-        PageImages.get(context),
-        Modifier.size(CardWidth, CardHeight).clip(MaterialTheme.shapes.medium),
-        alignment = Alignment.TopCenter,
-        contentScale = ContentScale.Crop,
-    )
-}
-
-// One action as a button of the wide panel, its icon in the accent beside its name.
-@Composable
-private fun ActionButton(action: PageAction, modifier: Modifier = Modifier) {
-    Surface(
-        action.onClick,
-        modifier.heightIn(min = 48.dp),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.6f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
-    ) {
-        Row(
-            Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
-        ) {
-            Icon(action.icon, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
-            Text(
-                action.label,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
     }
 }
 

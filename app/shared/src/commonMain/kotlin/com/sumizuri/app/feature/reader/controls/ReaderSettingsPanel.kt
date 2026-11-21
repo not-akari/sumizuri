@@ -9,7 +9,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -63,6 +62,7 @@ import com.sumizuri.app.ui.kit.setting.SliderSetting
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
+import com.sumizuri.app.ui.kit.chips.SoftChip
 
 // The parts of the settings: how the pages or the words are laid out, how they look, and how the reader is worked.
 internal enum class SheetPart { Layout, Look, Controls }
@@ -83,7 +83,7 @@ fun ReaderSettingsPanel(
     // Whether the choices are kept for this title alone sits by the title of the panel, since it decides where every layout choice below goes.
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
     PanelHead(stringResource(Res.string.reader_settings), onDismiss, trailing = {
-        FilterChip(
+        SoftChip(
             settings.override,
             { onSettings(settings.copy(override = !settings.override)) },
             { Text(stringResource(Res.string.reader_only_title)) },
