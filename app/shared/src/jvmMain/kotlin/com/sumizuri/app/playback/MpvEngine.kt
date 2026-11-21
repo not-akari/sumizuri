@@ -2,7 +2,6 @@ package com.sumizuri.app.playback
 
 import androidx.compose.runtime.mutableStateOf
 import com.sumizuri.app.core.log.AppLog
-import com.sumizuri.app.data.model.player.SubtitleBackground
 import com.sun.jna.Memory
 import com.sun.jna.Native
 import com.sun.jna.Pointer
@@ -68,7 +67,7 @@ class MpvEngine(style: SubtitleStyle = SubtitleStyle()) : PlayerEngine {
     private val update = MpvUpdate { frames.release() }
 
     private var subtitleStyle = style
-    private var lifted = false
+    private var lifted = 0f
 
     // The subtitle files of the video, added once mpv has loaded it.
     @Volatile private var pending = emptyList<PlayerTrack>()
@@ -197,9 +196,9 @@ class MpvEngine(style: SubtitleStyle = SubtitleStyle()) : PlayerEngine {
         }
     }
 
-    override fun setSubtitleLift(controlsShown: Boolean) {
-        if (lifted == controlsShown) return
-        lifted = controlsShown
+    override fun setSubtitleLift(share: Float) {
+        if (lifted == share) return
+        lifted = share
         val margin = subtitleMargin(subtitleStyle, lifted)
         withMpv { mpv, here -> mpv.mpv_set_property_string(here, "sub-margin-y", margin) }
     }

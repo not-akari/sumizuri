@@ -4,8 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,10 +58,8 @@ internal fun PlayerLoading(
     AnimatedVisibility(
         opening || (buffering && !controls),
         modifier,
-        enter =
-        fadeIn(tween(200, delayMillis = ShowAfterMs)) +
-            if (reduce) fadeIn() else scaleIn(tween(240, delayMillis = ShowAfterMs), 0.92f),
-        exit = fadeOut(tween(160)) + if (reduce) fadeOut() else scaleOut(tween(160), 0.96f),
+        enter = fadeIn(tween(if (reduce) 150 else 200, delayMillis = ShowAfterMs)),
+        exit = fadeOut(tween(160)),
     ) {
         DockSurface {
             Row(

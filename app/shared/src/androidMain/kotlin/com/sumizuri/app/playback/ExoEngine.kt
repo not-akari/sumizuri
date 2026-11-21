@@ -51,9 +51,9 @@ class ExoEngine(context: Context) : PlayerEngine {
     }
     private var ticking: Job? = null
 
-    // How the subtitles look and whether they are lifted over the controls, which the surface reads.
+    // How the subtitles look and how far they are lifted over the controls, which the surface reads.
     val style = MutableStateFlow(SubtitleStyle())
-    val lift = MutableStateFlow(false)
+    val lift = MutableStateFlow(0f)
 
     // Where each track id the screen sees is in the tracks of the player: the group and the place in it.
     private var places = emptyMap<String, Pair<Tracks.Group, Int>>()
@@ -173,8 +173,8 @@ class ExoEngine(context: Context) : PlayerEngine {
         this.style.value = style
     }
 
-    override fun setSubtitleLift(controlsShown: Boolean) {
-        lift.value = controlsShown
+    override fun setSubtitleLift(share: Float) {
+        lift.value = share
     }
 
     override fun release() {

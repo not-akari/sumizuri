@@ -29,8 +29,8 @@ interface PlayerEngine {
     // Changes how subtitles look, for the engines that can do it while playing.
     fun setSubtitleStyle(style: SubtitleStyle) = Unit
 
-    // Lifts the subtitles while the controls show, for the engines that draw them as a layer of their own.
-    fun setSubtitleLift(controlsShown: Boolean) = Unit
+    // Lifts the subtitles over the controls by this share of the height of the picture, 0 while they are hidden, for the engines that draw them as a layer of their own.
+    fun setSubtitleLift(share: Float) = Unit
 
     // The colors at the edges of the picture, left, right, top and bottom, for the light around the video. Empty for an engine that cannot tell them, or while they are not asked for.
     val ambient: StateFlow<List<Color>> get() = NoAmbient

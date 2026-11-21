@@ -11,11 +11,8 @@ import com.sumizuri.app.data.settings.ReaderSettingsRepository
 import com.sumizuri.app.data.sources.SourceRepository
 import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.playback.PlayerEngine
-import com.sumizuri.app.playback.PlayerMedia
 import com.sumizuri.app.playback.PlayerProblem
 import com.sumizuri.app.playback.PlayerTrack
-import com.sumizuri.app.playback.hls.expandHlsMasters
-import com.sumizuri.app.playback.hls.isHls
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.reader_chapter_gone
 import com.sumizuri.app.shared.resources.reader_source_missing
@@ -207,7 +204,9 @@ internal class PlayerSession(
 
     // The chapters of the title in order, with the place of the open one in them.
     private suspend fun refreshEpisodes(titleId: Long) {
-        val list = library.chaptersInOrder(titleId).first().map { EpisodeRef(it.id, it.number, it.name, it.read) }
+        val list = library.chaptersInOrder(titleId).first().map {
+            EpisodeRef(it.id, it.number, it.name, it.read, it.season, it.seasonName)
+        }
         val index = list.indexOfFirst { it.id == currentId }.coerceAtLeast(0)
         mutable.update { it.copy(titleName = place?.titleName.orEmpty(), episodes = list, index = index) }
     }

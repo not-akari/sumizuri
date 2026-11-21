@@ -71,10 +71,8 @@ actual fun PlayerSurface(engine: PlayerEngine, aspect: AspectMode, modifier: Mod
                 // The room under the letters is a part of the height of the picture.
                 val density = view.resources.displayMetrics.density
                 val height = (view.height / density).takeIf { it > 0 } ?: 360f
-                val room =
-                    SubtitleStyle.RaiseDp[style.raise.coerceIn(0, 2)] +
-                        if (lifted) SubtitleStyle.ControlsClearanceDp else 0
-                subtitles.setBottomPaddingFraction((room / height).coerceIn(0.02f, 0.5f))
+                val room = SubtitleStyle.RaiseDp[style.raise.coerceIn(0, 2)]
+                subtitles.setBottomPaddingFraction((room / height + lifted).coerceIn(0.02f, 0.5f))
             }
         },
     )

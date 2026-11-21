@@ -19,7 +19,15 @@ class PlayerFailure(
 )
 
 // An episode in the list of the title.
-class EpisodeRef(val id: Long, val number: Double, val name: String?, val read: Boolean)
+class EpisodeRef(
+    val id: Long,
+    val number: Double,
+    val name: String?,
+    val read: Boolean,
+    // The season the source puts it in, with its name, or null when the source has no seasons.
+    val season: String? = null,
+    val seasonName: String? = null,
+)
 
 // What the screen of the player reads from the session: the phase, the episodes with the one that plays, the videos with the one that plays, and the choices of the person.
 data class SessionState(

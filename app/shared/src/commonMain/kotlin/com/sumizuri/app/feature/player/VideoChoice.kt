@@ -15,6 +15,17 @@ object VideoChoice {
 
     fun isSub(video: SourceVideo): Boolean = sub.containsMatchIn(video.quality.orEmpty())
 
+    // A quality label without the word that says sub or dub, such as 1080p for 1080p Dub, or the label as it was when nothing else is left.
+    fun withoutVersion(label: String?): String? {
+        if (label == null) return null
+        val left = label
+            .replace(dub, "$1$3")
+            .replace(sub, "$1$4")
+            .replace(Spaces, " ")
+            .trim { it.isWhitespace() || it in Joiners }
+        return left.ifEmpty { label }
+    }
+
     // The height in pixels a quality label stands for, such as 1080p, 4k or a bare 720, or null for a label that says none.
     fun height(label: String?): Int? {
         if (label == null) return null
@@ -103,6 +114,10 @@ object VideoChoice {
 
 // What a subtitle was picked from: a track the video carries, or a file the source gave.
 class SubtitleChoice(val track: PlayerTrack?, val file: SourceTrack?)
+
+// The marks left at the ends of a label once the word for sub or dub is gone, and runs of spaces.
+private const val Joiners = "-·|/()[]:,"
+private val Spaces = Regex("\\s{2,}")
 
 // The ways a quality label says its height: 1080p, 4k or uhd, 2k, or a bare common height.
 private val Pixels = Regex("(\\d{3,4})\\s*p")
