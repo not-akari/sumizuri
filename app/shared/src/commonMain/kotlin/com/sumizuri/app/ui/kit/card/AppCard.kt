@@ -2,7 +2,6 @@ package com.sumizuri.app.ui.kit.card
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -20,12 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.unit.dp
 import com.sumizuri.app.ui.motion.feedbackScale
 
-// The corners of every card, those the theme gives to cards: soft and even, unless a theme of its own has others.
+// The corners of every card, the small ones of the theme like the soft cards, unless a theme of its own has others.
 val CardShape: CornerBasedShape
-    @Composable get() = MaterialTheme.shapes.medium
+    @Composable get() = MaterialTheme.shapes.small
 
 // How long a card takes to brighten under the mouse, quick enough to follow a pointer moving down a list.
 private const val HoverMs = 120
@@ -50,7 +48,7 @@ fun cardFill(lit: Boolean = false): Color {
 fun cardEdge(lit: Boolean = false): Color =
     MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (lit) 0.9f else 0.5f)
 
-// A card, the base of every list row. One that can be tapped brightens under the mouse and gives under a press. It never grows or rises under the mouse, which would cover the cards beside it and blur its words.
+// A card, the base of every list row, in the soft look: a light wash of the accent with no border. One that can be tapped brightens under the mouse and gives under a press. It never grows or rises under the mouse, which would cover the cards beside it and blur its words.
 @Composable
 fun AppCard(
     modifier: Modifier = Modifier,
@@ -61,18 +59,16 @@ fun AppCard(
 ) {
     if (onClick == null) {
         Surface(
-            modifier.background(cardFill(), CardShape),
+            modifier.background(softFill(), CardShape),
             CardShape,
             Color.Transparent,
-            border = BorderStroke(1.dp, cardEdge()),
         ) {
             Column(content = content)
         }
     } else {
         val source = remember { MutableInteractionSource() }
         val hovered by source.collectIsHoveredAsState()
-        val edge by animateColorAsState(cardEdge(hovered), tween(HoverMs), label = "edge")
-        val fill by animateColorAsState(cardFill(hovered), tween(HoverMs), label = "fill")
+        val fill by animateColorAsState(softFill(lit = hovered), tween(HoverMs), label = "fill")
         if (onLongClick != null) {
             Surface(
                 modifier
@@ -87,7 +83,6 @@ fun AppCard(
                     ),
                 shape = CardShape,
                 color = Color.Transparent,
-                border = BorderStroke(1.dp, edge),
             ) {
                 Column(content = content)
             }
@@ -98,7 +93,6 @@ fun AppCard(
             modifier.feedbackScale(source, hover = false).background(fill, CardShape),
             shape = CardShape,
             color = Color.Transparent,
-            border = BorderStroke(1.dp, edge),
             interactionSource = source,
         ) {
             Column(content = content)

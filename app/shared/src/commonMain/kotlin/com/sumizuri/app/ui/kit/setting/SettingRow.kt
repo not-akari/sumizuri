@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import com.sumizuri.app.ui.kit.card.AppCard
+import com.sumizuri.app.ui.kit.card.Hairline
 import com.sumizuri.app.ui.kit.card.ListChevron
 import com.sumizuri.app.ui.motion.entrance
 import com.sumizuri.app.ui.theme.LocalCompactLists
@@ -148,10 +148,7 @@ fun SettingsSection(title: String?, hint: String? = null, build: SettingsRows.()
                         if (index >
                             0
                         ) {
-                            HorizontalDivider(
-                                Modifier.padding(horizontal = 14.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
-                            )
+                            Hairline(Modifier.padding(horizontal = 14.dp))
                         }
                         row()
                     }

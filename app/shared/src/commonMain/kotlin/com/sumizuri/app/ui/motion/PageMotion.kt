@@ -55,6 +55,9 @@ val LocalPageMotion = staticCompositionLocalOf { PageMotion.Smooth }
 // Whether the page this is in is being closed, so its parts can go back where they came from as it slides away.
 val LocalPageLeaving = compositionLocalOf { false }
 
+// Whether the page this is in stands still in its place, with no page sliding in over it or away from it.
+val LocalPageSettled = compositionLocalOf { true }
+
 // Whether the parts of a page rise in one after the other as it opens, which the person can turn on.
 val LocalStagger = staticCompositionLocalOf { false }
 

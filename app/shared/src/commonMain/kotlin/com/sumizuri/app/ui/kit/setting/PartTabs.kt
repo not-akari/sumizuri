@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
@@ -35,7 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.sumizuri.app.ui.kit.card.darkPage
+import com.sumizuri.app.ui.kit.card.softFill
 import com.sumizuri.app.ui.motion.AppMotion
 import com.sumizuri.app.ui.motion.motionMs
 import kotlin.math.roundToInt
@@ -64,20 +63,9 @@ fun <T> PartTabs(
     onSelect: (T) -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
-    // On a dark page the track is a darker gray that lets a little through, as cards do, and the chosen one a solid lighter gray. On a light page the chosen one is near white on a faint gray.
-    val dark = darkPage()
-    val track = if (dark) colors.surfaceContainerLow.copy(alpha = 0.85f) else colors.onSurface.copy(alpha = 0.07f)
-    val mark = if (accent) {
-        colors.primary
-    } else if (dark) {
-        lerp(
-            colors.surfaceContainerHighest,
-            colors.onSurface,
-            0.08f,
-        )
-    } else {
-        colors.surfaceContainerLowest
-    }
+    // The track is the light wash of the soft cards, and the chosen one a stronger wash with its words in the accent, or the solid accent for a choice of a setting.
+    val track = softFill()
+    val mark = if (accent) colors.primary else softFill(strong = true)
     val chosen = parts.indexOf(selected).coerceAtLeast(0)
     val slide by animateFloatAsState(chosen.toFloat(), tween(motionMs(AppMotion.Fast)), label = "tabs")
     BoxWithConstraints(
@@ -103,7 +91,7 @@ fun <T> PartTabs(
                 val ink by animateColorAsState(
                     when {
                         on && accent -> colors.onPrimary
-                        on -> colors.onSurface
+                        on -> colors.primary
                         else -> colors.onSurfaceVariant
                     },
                     tween(motionMs(AppMotion.Fast)),

@@ -14,12 +14,14 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import com.sumizuri.app.ui.kit.card.softFill
 
 // The buttons of the app, in the look of its first run: always round at the ends, a little larger under the mouse and a little smaller under a press. They take the same words as the buttons of Material, so they stand in for them anywhere. Every button is round.
 
@@ -95,15 +97,18 @@ fun InkTonalButton(
     )
 }
 
-// The quiet button beside them, drawn as an outline.
+// The quiet button beside them, drawn as a soft wash of the accent like the cards, with no outline.
 @Composable
 fun InkOutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
+    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(
+        containerColor = softFill(),
+        contentColor = MaterialTheme.colorScheme.onSurface,
+    ),
     elevation: ButtonElevation? = null,
-    border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
+    border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,

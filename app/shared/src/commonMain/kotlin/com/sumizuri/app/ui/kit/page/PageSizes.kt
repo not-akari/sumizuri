@@ -1,11 +1,17 @@
 package com.sumizuri.app.ui.kit.page
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,5 +42,21 @@ class MaxCellWidth(private val max: Dp) : GridCells {
 }
 
 // One item that takes the whole row of a grid.
-fun LazyGridScope.fullSpan(content: @Composable LazyGridItemScope.() -> Unit) =
-    item(span = { GridItemSpan(maxLineSpan) }, content = content)
+fun LazyGridScope.fullSpan(key: Any? = null, content: @Composable LazyGridItemScope.() -> Unit) =
+    item(key = key, span = { GridItemSpan(maxLineSpan) }, content = content)
+
+// The narrowest a tile in a grid of tiles gets, so a phone has one in a line and a wide window as many as fit.
+val TileWidth = 280.dp
+
+// One full line of a grid of tiles that keeps a readable width, for what stands above the tiles, and slides when the lines around it come or go.
+fun LazyGridScope.readableLine(key: Any, content: @Composable () -> Unit) = fullSpan(key) {
+    // The line is as wide as the grid, so the box inside lets it stay narrower.
+    Box(
+        Modifier.animateItem().fillMaxWidth().wrapContentWidth(Alignment.Start).widthIn(
+            max =
+            ReadableWidth - PageGutter * 2,
+        ),
+    ) {
+        content()
+    }
+}

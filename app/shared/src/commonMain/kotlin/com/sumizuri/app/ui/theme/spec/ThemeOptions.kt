@@ -20,7 +20,8 @@ data class ThemeOptions(
 // How the page of a title takes its colors from the cover. The first values tint the page lightly, as the app always did.
 @Serializable
 data class ThemePageColors(
-    val mode: CoverColorMode = CoverColorMode.Tinted,
+    // The page keeps the background and cards of the theme, and only its accents follow the cover, so it matches every other page.
+    val mode: CoverColorMode = CoverColorMode.Accent,
     // How far the page and the cards lean toward the cover, from not at all to two and a half times the usual.
     val strength: Float = 1f,
     // How many colors of the cover are used, from the main one alone to three.

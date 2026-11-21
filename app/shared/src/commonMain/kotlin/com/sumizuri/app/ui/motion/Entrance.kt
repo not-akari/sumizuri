@@ -3,8 +3,10 @@ package com.sumizuri.app.ui.motion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
@@ -77,5 +79,17 @@ fun Rise(visible: Boolean, modifier: Modifier = Modifier, content: @Composable (
         modifier,
         enter = slideInVertically(tween(ms, easing = AppMotion.Entrance)) { it } + fadeIn(tween(ms)),
         exit = slideOutVertically(tween(ms, easing = AppMotion.Leave)) { it } + fadeOut(tween(ms)),
+    ) { content() }
+}
+
+// Shows what is given by unfolding it downward with a fade, and folds it away when it goes, for the notes that come and go above a list.
+@Composable
+fun Unfold(visible: Boolean, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    val ms = motionMs(AppMotion.Medium)
+    AnimatedVisibility(
+        visible,
+        modifier,
+        enter = fadeIn(tween(ms)) + expandVertically(tween(ms, easing = AppMotion.Entrance)),
+        exit = fadeOut(tween(ms)) + shrinkVertically(tween(ms, easing = AppMotion.Leave)),
     ) { content() }
 }

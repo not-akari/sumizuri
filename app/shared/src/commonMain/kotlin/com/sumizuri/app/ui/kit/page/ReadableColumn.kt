@@ -18,10 +18,10 @@ import com.sumizuri.app.ui.kit.scroll.scrollFrom
 
 // Keeps a list readable on a wide window by centering it in a column. The wheel and the fingers still scroll the list from the empty space on both sides of it.
 @Composable
-fun ReadableColumn(maxWidth: Dp = ReadableWidth, content: @Composable () -> Unit) {
+fun ReadableColumn(maxWidth: Dp = ReadableWidth, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     var target by remember { mutableStateOf<ScrollableState?>(null) }
     CompositionLocalProvider(LocalScrollTarget provides { target = it }) {
-        Box(Modifier.fillMaxSize().scrollFrom { target }, contentAlignment = Alignment.TopCenter) {
+        Box(modifier.fillMaxSize().scrollFrom { target }, contentAlignment = Alignment.TopCenter) {
             Box(Modifier.widthIn(max = maxWidth).fillMaxSize()) { content() }
         }
     }
@@ -29,6 +29,6 @@ fun ReadableColumn(maxWidth: Dp = ReadableWidth, content: @Composable () -> Unit
 
 // The readable column for a page that shows a list, or the whole width for one that shows a grid, which uses the room well.
 @Composable
-fun ReadableWhen(readable: Boolean, content: @Composable () -> Unit) {
-    if (readable) ReadableColumn(content = content) else content()
+fun ReadableWhen(readable: Boolean, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    if (readable) ReadableColumn(modifier = modifier, content = content) else Box(modifier) { content() }
 }

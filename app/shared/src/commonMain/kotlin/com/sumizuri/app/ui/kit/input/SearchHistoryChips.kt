@@ -3,7 +3,6 @@ package com.sumizuri.app.ui.kit.input
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.History
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,6 +19,7 @@ import com.sumizuri.app.data.settings.SearchHistory
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.search_history_clear
 import com.sumizuri.app.ui.kit.chips.ChipRow
+import com.sumizuri.app.ui.kit.chips.SoftActionChip
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -64,7 +64,7 @@ internal fun SearchHistoryChips(history: SearchHistoryOf, onPick: (String) -> Un
     if (history.recent.isEmpty()) return
     ChipRow(Modifier.padding(top = 8.dp)) {
         for (words in history.recent) {
-            AssistChip(
+            SoftActionChip(
                 onClick = { onPick(words) },
                 label = { Text(words) },
                 leadingIcon = { Icon(Icons.Outlined.History, null) },

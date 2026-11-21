@@ -31,6 +31,7 @@ import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.card.AppCard
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.foundation.layout.BoxWithConstraints
 
 // How a sync stands, for the round mark of its card.
 enum class SyncMark { Ready, Running, Failed }
@@ -50,7 +51,17 @@ fun SyncHeadCard(
 ) {
     val colors = MaterialTheme.colorScheme
     val failed = mark == SyncMark.Failed
+    // On a wide window the button sits at the end of the first line, so it is not a long bar across the card.
+    val button: @Composable (Modifier) -> Unit = { place ->
+        InkButton(onSync, place.height(46.dp), enabled = canSync && mark != SyncMark.Running) {
+            Icon(Icons.Outlined.Sync, null, Modifier.size(18.dp))
+            Box(Modifier.width(8.dp))
+            Text(stringResource(Res.string.sync_now))
+        }
+    }
     AppCard(Modifier.fillMaxWidth()) {
+        BoxWithConstraints {
+        val wide = maxWidth >= 600.dp
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 // A round mark that says the state at a glance: a turning circle while it syncs.
@@ -81,6 +92,7 @@ fun SyncHeadCard(
                         Text(line, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
                     }
                 }
+                if (wide) button(Modifier.padding(start = 8.dp))
             }
             if (other != null) {
                 Row(
@@ -108,11 +120,8 @@ fun SyncHeadCard(
                     )
                 }
             }
-            InkButton(onSync, Modifier.fillMaxWidth().height(46.dp), enabled = canSync && mark != SyncMark.Running) {
-                Icon(Icons.Outlined.Sync, null, Modifier.size(18.dp))
-                Box(Modifier.width(8.dp))
-                Text(stringResource(Res.string.sync_now))
-            }
+            if (!wide) button(Modifier.fillMaxWidth())
+        }
         }
     }
 }
