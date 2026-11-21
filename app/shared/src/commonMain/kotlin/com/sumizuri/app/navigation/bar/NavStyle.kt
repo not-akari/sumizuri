@@ -1,5 +1,10 @@
 package com.sumizuri.app.navigation.bar
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.nav_labels_always
@@ -39,4 +44,13 @@ internal object IslandMetrics {
     val MaxSlot = 52.dp
     val MinSlot = 36.dp
     val Reach = Margin + SlotHeight + Padding * 2 + 8.dp
+}
+
+// The faint line down the right edge of the tabs at the side, which sets them apart from the page without a panel.
+@Composable
+internal fun Modifier.sideEdge(): Modifier {
+    val line = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
+    return drawBehind {
+        drawLine(line, Offset(size.width - 0.5f, 0f), Offset(size.width - 0.5f, size.height), strokeWidth = 1f)
+    }
 }

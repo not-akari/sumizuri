@@ -14,12 +14,14 @@ import com.sumizuri.app.feature.browse.source.SourceBrowseRoute
 import com.sumizuri.app.feature.comments.CommentsRoute
 import com.sumizuri.app.feature.history.HistoryRoute
 import com.sumizuri.app.feature.library.display.LibraryDisplayRoute
+import com.sumizuri.app.feature.library.shelves.EditShelfRoute
 import com.sumizuri.app.feature.library.shelves.ShelvesRoute
 import com.sumizuri.app.feature.logs.LogsRoute
 import com.sumizuri.app.feature.migration.MigrationRoute
 import com.sumizuri.app.feature.migration.single.MigrateRoute
 import com.sumizuri.app.feature.player.ChapterRoute
 import com.sumizuri.app.feature.profile.arrange.ArrangeRoute
+import com.sumizuri.app.feature.profile.layouts.LayoutsRoute
 import com.sumizuri.app.feature.settings.SettingsRoute
 import com.sumizuri.app.feature.settings.SettingsTarget
 import com.sumizuri.app.feature.settings.SettingsTargetRoute
@@ -28,6 +30,7 @@ import com.sumizuri.app.feature.share.ImportRoute
 import com.sumizuri.app.feature.theme.ThemeEditorRoute
 import com.sumizuri.app.feature.title.PreviewRoute
 import com.sumizuri.app.feature.title.TitleRoute
+import com.sumizuri.app.feature.title.edit.EditTitleRoute
 import com.sumizuri.app.feature.updates.UpdatesRoute
 import com.sumizuri.app.feature.web.WebPage
 import com.sumizuri.app.ui.kit.page.LocalPageBack
@@ -50,8 +53,11 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
 
         is Page.BlockScript -> BlockScriptRoute(page.blockId, onBack = navigation::pop)
 
+        Page.ProfileLayouts -> LayoutsRoute(onBack = navigation::pop)
+
         Page.ArrangeBlocks -> ArrangeRoute(
             onBack = navigation::pop,
+            onLayouts = { navigation.push(Page.ProfileLayouts) },
             onEditScript = { navigation.push(Page.BlockScript(it)) },
         )
 
@@ -59,7 +65,9 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
 
         Page.Logs -> LogsRoute(onBack = navigation::pop)
 
-        Page.Shelves -> ShelvesRoute(onBack = navigation::pop)
+        Page.Shelves -> ShelvesRoute(onBack = navigation::pop, onEdit = { navigation.push(Page.EditShelf(it)) })
+
+        is Page.EditShelf -> EditShelfRoute(page.shelfId, onBack = navigation::pop)
 
         Page.LibraryDisplay -> LibraryDisplayRoute(onBack = navigation::pop)
 
@@ -104,7 +112,10 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
             onOpenChapter = { navigation.push(Page.Reader(it)) },
             onMigrate = { navigation.push(Page.Migrate(it)) },
             onOpenComments = { navigation.push(Page.Comments(it)) },
+            onEdit = { navigation.push(Page.EditTitle(it)) },
         )
+
+        is Page.EditTitle -> EditTitleRoute(page.titleId, onBack = navigation::pop)
 
         is Page.Migration -> MigrationRoute(page.ids, onBack = navigation::pop, onOpenTitle = {
             navigation.push(Page.Saved(it))

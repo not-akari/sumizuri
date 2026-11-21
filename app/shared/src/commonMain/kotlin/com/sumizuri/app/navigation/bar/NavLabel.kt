@@ -14,9 +14,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.ui.kit.art.StretchDot
 
-// The name of a tab with a small bar under it that stretches out when the tab is chosen and shrinks away when another is.
+// The name of a tab, and when asked a small bar under it that stretches out when the tab is chosen and shrinks away when another is.
 @Composable
-internal fun NavLabel(text: String, selected: Boolean, color: Color) {
+internal fun NavLabel(text: String, selected: Boolean, color: Color, dot: Boolean = true) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         // One line, at most a fifth smaller where a long name or a big font would not fit, and cut with dots past that, so no letter falls to a second line and a big font stays big.
         val style = MaterialTheme.typography.labelMedium
@@ -27,6 +27,6 @@ internal fun NavLabel(text: String, selected: Boolean, color: Color) {
             overflow = TextOverflow.Ellipsis,
             autoSize = TextAutoSize.StepBased(minFontSize = style.fontSize * 0.8f, maxFontSize = style.fontSize),
         )
-        StretchDot(selected, Modifier.padding(top = 3.dp), idle = 0.dp, wide = 18.dp, height = 4.dp)
+        if (dot) StretchDot(selected, Modifier.padding(top = 3.dp), idle = 0.dp, wide = 18.dp, height = 4.dp)
     }
 }

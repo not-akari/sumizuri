@@ -15,24 +15,28 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.zIndex
+import com.sumizuri.app.AppStart
 import com.sumizuri.app.core.perf.FrameActivity
 import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.ui.motion.MotionShift
 import com.sumizuri.app.ui.motion.PageMotion
 import com.sumizuri.app.ui.motion.tabMotion
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 
 // Whether the tab this is in is the one showing, so a kept tab that is out of sight leaves the search shortcut, the bottom bar and Back to the one in sight.
 val LocalTabShown = compositionLocalOf { true }
 
-// How long after the start the tabs not opened yet are made, and how long the app must be left alone before each one, so making them never gets in the way.
-private const val PrepareAfterMs = 3_000L
+// How long after the first screen has drawn the tabs not opened yet are made, once the opening is over, and how long the app must be left alone before each one, so making them never gets in the way. Each new tab is also laid out and drawn out of sight for a moment, so its first visit runs code that is already warm.
+private const val PrepareAfterMs = 1_200L
 private const val QuietMs = 800L
-private const val GapMs = 400L
+private const val GapMs = 300L
+private const val WarmMs = 250L
 
 // The tabs of the app. Each is made once and kept, out of sight and untouchable while another shows, so going back to a tab is only a matter of showing it. The tabs not opened yet are made one at a time once the app has been left alone for a moment after the start, so even the first visit is quick. A change of tab moves the two tabs by hand in the style the person chose.
 @Composable
@@ -46,22 +50,44 @@ internal fun KeptTabs(
 ) {
     val made = remember { mutableStateListOf(tab) }
     if (tab !in made) made += tab
+    var shown by remember { mutableStateOf(tab) }
+    var warming by remember { mutableStateOf<Destination?>(null) }
+    val warmed = remember { mutableSetOf(tab) }
     LaunchedEffect(tabs) {
+        AppStart.drawn.first { it }
         delay(PrepareAfterMs)
         for (next in tabs) {
             if (next in made) continue
-            while (nowMillis() - FrameActivity.last.value < QuietMs) delay(QuietMs)
+            // A move of the mouse does not hold it back, only a press or a scroll.
+            while (nowMillis() - FrameActivity.lastAction.value < QuietMs) delay(QuietMs)
+            if (next in made) continue
+            // Each tab gets a frame of its own to be made, then a few more to be laid out and drawn where no one sees or touches it.
             made += next
-            // Each tab gets a frame of its own, so making them never adds up to one long frame.
             delay(GapMs)
+            if (next != shown) warming = next
+            try {
+                delay(WarmMs)
+                warmed += next
+            } finally {
+                warming = null
+            }
         }
     }
-    var shown by remember { mutableStateOf(tab) }
     var leaving by remember { mutableStateOf<Destination?>(null) }
     var toRight by remember { mutableStateOf(true) }
     val time = remember { Animatable(1f) }
     LaunchedEffect(tab) {
         if (tab == shown) return@LaunchedEffect
+        // A tab never drawn yet is laid out and drawn out of sight for two frames first, so its slow first frames pass before anything moves.
+        if (tab !in warmed) {
+            warming = tab
+            try {
+                repeat(2) { withFrameNanos { } }
+                warmed += tab
+            } finally {
+                warming = null
+            }
+        }
         toRight = tabs.indexOf(tab) > tabs.indexOf(shown)
         leaving = shown
         shown = tab
@@ -82,7 +108,7 @@ internal fun KeptTabs(
                         Modifier
                             .fillMaxSize()
                             .zIndex(if (inSight) 1f else 0f)
-                            .placedWhen(inSight || going)
+                            .placedWhen(inSight || going, warm = each == warming)
                             .graphicsLayer {
                                 if (leaving != null &&
                                     (inSight || going)
@@ -97,8 +123,13 @@ internal fun KeptTabs(
     }
 }
 
-// Measures a tab always, so its lists are ready, but places it only while it is in sight, so a kept tab is neither drawn nor touched.
-private fun Modifier.placedWhen(placed: Boolean): Modifier = layout { measurable, constraints ->
+// Measures a tab always, so its lists are ready, but places it only while it is in sight, so a kept tab is neither drawn nor touched. A tab being warmed is placed outside the window, where it is laid out and drawn but never seen or touched.
+private fun Modifier.placedWhen(placed: Boolean, warm: Boolean): Modifier = layout { measurable, constraints ->
     val content = measurable.measure(constraints)
-    layout(content.width, content.height) { if (placed) content.place(0, 0) }
+    layout(content.width, content.height) {
+        when {
+            placed -> content.place(0, 0)
+            warm -> content.place(-content.width * 2, 0)
+        }
+    }
 }

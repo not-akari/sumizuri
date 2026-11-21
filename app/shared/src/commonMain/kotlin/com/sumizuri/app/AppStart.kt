@@ -27,6 +27,9 @@ object AppStart {
     // The background the theme had the last time, kept by the platform, which shows until the look is read again.
     var remembered: Int? = null
 
+    // Whether the opening has played in this run of the app.
+    var opened = false
+
     internal fun markDrawn() {
         drawnNow.value = true
     }
