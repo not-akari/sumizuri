@@ -2,6 +2,7 @@ package com.sumizuri.app.ui.kit.page
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -22,11 +23,15 @@ fun PageGrid(
     state: LazyGridState = rememberLazyGridState(),
     // The space between the cells, with a little more under each than beside it.
     gap: Dp = 12.dp,
+    // The space between rows, which a list of rows that keep their own room can set to nothing.
+    rowGap: Dp = gap + 2.dp,
+    // How the columns are counted, by the widest a cell may be unless a page asks for another way.
+    columns: GridCells = MaxCellWidth(maxCell),
     content: LazyGridScope.() -> Unit,
 ) {
     RegisterScrollTarget(state)
     LazyVerticalGrid(
-        columns = MaxCellWidth(maxCell),
+        columns = columns,
         modifier = modifier.mouseDragScroll(state),
         state = state,
         contentPadding = PaddingValues(
@@ -37,7 +42,7 @@ fun PageGrid(
             8.dp + LocalBottomClearance.current,
         ),
         horizontalArrangement = Arrangement.spacedBy(gap),
-        verticalArrangement = Arrangement.spacedBy(gap + 2.dp),
+        verticalArrangement = Arrangement.spacedBy(rowGap),
         content = content,
     )
 }

@@ -16,9 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,6 +37,9 @@ import com.sumizuri.app.ui.kit.input.InkSlider
 import com.sumizuri.app.ui.theme.LocalCompactLists
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
+import com.sumizuri.app.ui.kit.chips.SoftChip
 
 // The most options that sit side by side as buttons.
 private const val MostSegments = 4
@@ -139,10 +139,10 @@ private fun <T> MenuChoice(title: String, options: List<T>, selected: T, words: 
                     Text(words.getOrElse(options.indexOf(selected)) { "" }, style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Icon(Icons.Filled.ArrowDropDown, null)
                 }
-                DropdownMenu(open, { open = false }) {
+                AppMenu(open, { open = false }) {
                     options.forEachIndexed { index, option ->
                         val chosen = option == selected
-                        DropdownMenuItem(
+                        AppMenuItem(
                             { Text(words[index], color = if (chosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) },
                             {
                                 open = false
@@ -228,7 +228,7 @@ fun ChipsSetting(title: String, options: List<Pair<String, String>>, selected: S
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             for ((value, words) in options) {
                 val on = value in selected
-                FilterChip(on, { onToggle(value) }, { Text(words) }, leadingIcon = if (on) ({ Icon(Icons.Filled.Check, null, Modifier.size(16.dp)) }) else null)
+                SoftChip(on, { onToggle(value) }, { Text(words) }, leadingIcon = if (on) ({ Icon(Icons.Filled.Check, null, Modifier.size(16.dp)) }) else null)
             }
         }
     }

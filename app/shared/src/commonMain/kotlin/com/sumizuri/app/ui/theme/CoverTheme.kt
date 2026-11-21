@@ -10,6 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.unit.dp
+import com.sumizuri.app.navigation.LocalSideNavWidth
 import com.sumizuri.app.ui.kit.cover.LocalCoverPalette
 import com.sumizuri.app.ui.kit.cover.rememberCoverPalette
 import com.sumizuri.app.ui.theme.background.HideBackdropBehind
@@ -50,12 +52,14 @@ fun CoverTheme(coverUrl: String?, content: @Composable () -> Unit) {
             )
         }
     }
-    // This page draws its own background over the whole of the page it is on, so that one is not drawn under it.
-    HideBackdropBehind()
+    // A page tinted by its cover draws its own background. With the accents alone it keeps the background of the page it is on, which also runs under the tabs at the side.
+    val ownBackground = look.mode == CoverColorMode.Tinted || look.mode == CoverColorMode.Immersive
+    // The background under it is hidden only when nothing else shows it, which the tabs at the side do.
+    if (ownBackground && LocalSideNavWidth.current == 0.dp) HideBackdropBehind()
     CompositionLocalProvider(LocalThemeSpec provides pageSpec, LocalCoverPalette provides palette) {
         MaterialTheme(colorScheme = scheme, shapes = MaterialTheme.shapes, typography = MaterialTheme.typography) {
             Surface(
-                Modifier.fillMaxSize().ambientBackground(onPage = true),
+                Modifier.fillMaxSize().then(if (ownBackground) Modifier.ambientBackground(onPage = true) else Modifier),
                 color = Color.Transparent,
                 contentColor = MaterialTheme.colorScheme.onBackground,
                 content = content,

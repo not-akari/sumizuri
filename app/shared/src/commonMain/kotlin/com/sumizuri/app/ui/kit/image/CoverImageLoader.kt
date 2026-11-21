@@ -6,7 +6,6 @@ import coil3.SingletonImageLoader
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
-import com.sumizuri.app.core.perf.memoryUse
 import com.sumizuri.app.source.host.net.ImageHost
 import io.ktor.client.HttpClient
 import okio.FileSystem
@@ -36,7 +35,7 @@ fun coverImageLoader(
         MemoryCache
             .Builder()
             .maxSizeBytes(
-                minOf(memoryUse().maxMb.toLong() * 1024 * 1024 * memoryPercent / 100, MaxMemoryBytes),
+                minOf(coverMemoryBaseMb(context).toLong() * 1024 * 1024 * memoryPercent / 100, MaxMemoryBytes),
             ).build()
     }.diskCache {
         DiskCache

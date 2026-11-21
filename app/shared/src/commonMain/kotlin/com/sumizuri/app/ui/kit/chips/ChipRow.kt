@@ -2,6 +2,7 @@ package com.sumizuri.app.ui.kit.chips
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.height
@@ -13,8 +14,6 @@ import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -29,9 +28,18 @@ import com.sumizuri.app.shared.resources.all
 import com.sumizuri.app.ui.kit.scroll.mouseDragScroll
 import org.jetbrains.compose.resources.stringResource
 
-// One row of chips under the top bar of a page, which scrolls sideways when the window is narrow. Every page puts its order, kinds and filters here.
+// One row of chips under the top bar of a page, which scrolls sideways when the window is narrow. Every page puts its order, kinds and filters here. A long row can wrap onto more lines instead, on a window wide enough for that.
 @Composable
-fun ChipRow(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit) {
+fun ChipRow(modifier: Modifier = Modifier, wrap: Boolean = false, content: @Composable RowScope.() -> Unit) {
+    if (wrap) {
+        FlowRow(
+            modifier,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            itemVerticalAlignment = Alignment.CenterVertically,
+        ) { content() }
+        return
+    }
     val scroll = rememberScrollState()
     Row(
         modifier.mouseDragScroll(scroll, horizontal = true).horizontalScroll(scroll),
@@ -48,7 +56,7 @@ fun ChipSeparator() = VerticalDivider(Modifier.height(20.dp).padding(horizontal 
 // A chip that is on or off, with a tick while it is on.
 @Composable
 fun ToggleChip(label: String, on: Boolean, onClick: () -> Unit, icon: ImageVector? = null) {
-    FilterChip(
+    SoftChip(
         selected = on,
         onClick = onClick,
         label = { Text(label) },
@@ -63,13 +71,13 @@ fun ToggleChip(label: String, on: Boolean, onClick: () -> Unit, icon: ImageVecto
 // A chip that says which of a few things is chosen, without a tick, for the kinds and other single choices.
 @Composable
 fun ChoiceChip(label: String, on: Boolean, onClick: () -> Unit) {
-    FilterChip(selected = on, onClick = onClick, label = { Text(label) })
+    SoftChip(selected = on, onClick = onClick, label = { Text(label) })
 }
 
 // The order of a page in a chip: what it is ordered by and which way, which opens the place to change it.
 @Composable
 fun SortChip(label: String, ascending: Boolean, onClick: () -> Unit, description: String? = null) {
-    AssistChip(
+    SoftActionChip(
         onClick = onClick,
         label = { Text(label) },
         leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Sort, description, Modifier.size(18.dp)) },

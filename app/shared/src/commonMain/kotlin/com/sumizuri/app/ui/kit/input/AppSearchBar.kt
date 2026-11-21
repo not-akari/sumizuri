@@ -1,6 +1,5 @@
 package com.sumizuri.app.ui.kit.input
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.sumizuri.app.navigation.LocalTabShown
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.clear
+import com.sumizuri.app.ui.kit.card.softFill
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 
@@ -97,8 +97,7 @@ fun AppSearchBar(
         Surface(
             Modifier.fillMaxWidth().height(44.dp),
             shape = MaterialTheme.shapes.small,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            color = softFill(lit = focused),
         ) {
             Row(Modifier.padding(start = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.Search, null, tint = MaterialTheme.colorScheme.outline)

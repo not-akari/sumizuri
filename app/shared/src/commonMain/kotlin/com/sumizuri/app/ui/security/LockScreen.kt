@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,6 +49,7 @@ import com.sumizuri.app.shared.resources.lock_prompt
 import com.sumizuri.app.shared.resources.lock_title
 import com.sumizuri.app.shared.resources.lock_unlock
 import com.sumizuri.app.ui.kit.art.InkButton
+import com.sumizuri.app.ui.kit.input.AppTextField
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -161,7 +161,7 @@ private fun PinEntry(lock: AppLock) {
         }
         Unit
     }
-    OutlinedTextField(
+    AppTextField(
         pin,
         { typed ->
             pin = typed.filter(Char::isDigit).take(PinMaxLength)
