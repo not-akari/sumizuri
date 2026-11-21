@@ -21,6 +21,7 @@ import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.model.library.LibraryPrefs
 import com.sumizuri.app.feature.backup.BackupRoute
 import com.sumizuri.app.feature.library.display.LibraryDisplayRoute
+import com.sumizuri.app.feature.library.shelves.EditShelfRoute
 import com.sumizuri.app.feature.library.shelves.ShelvesRoute
 import com.sumizuri.app.feature.logs.LogsRoute
 import com.sumizuri.app.feature.migration.MigrationRoute
@@ -45,6 +46,7 @@ private sealed interface PaneEntry {
     data class Controls(val page: ControlsPage) : PaneEntry
     data class Migrate(val titleId: Long) : PaneEntry
     data class Migration(val ids: List<Long>) : PaneEntry
+    data class EditShelf(val shelfId: Long) : PaneEntry
 }
 
 // The pages open beside the list, the last one on top. It is kept outside the page, so a title opened over the settings and closed again finds the same page beside the list.
@@ -135,7 +137,7 @@ fun SettingsRoute(
                         is PaneEntry.Target -> when (shown.target) {
                             SettingsTarget.LibraryDisplay -> LibraryDisplayRoute(onBack = back)
 
-                            SettingsTarget.Shelves -> ShelvesRoute(onBack = back)
+                            SettingsTarget.Shelves -> ShelvesRoute(onBack = back) { push(PaneEntry.EditShelf(it)) }
 
                             SettingsTarget.Backup -> BackupRoute(
                                 onBack = back,
@@ -170,6 +172,8 @@ fun SettingsRoute(
                         is PaneEntry.Migrate -> MigrateRoute(shown.titleId, onBack = back, onMoved = { back() })
 
                         is PaneEntry.Migration -> MigrationRoute(shown.ids, onBack = back, onOpenTitle = onOpenTitle)
+
+                        is PaneEntry.EditShelf -> EditShelfRoute(shown.shelfId, onBack = back)
                     }
                 }
             }

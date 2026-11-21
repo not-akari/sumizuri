@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Save
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,6 +54,8 @@ import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.dialog.CancelButton
+import com.sumizuri.app.ui.kit.input.AppTextField
+import com.sumizuri.app.ui.kit.input.CheckRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 import com.sumizuri.app.ui.text.progressTimeText
 import org.jetbrains.compose.resources.stringResource
@@ -112,7 +112,7 @@ internal fun BackupDialogs(state: BackupState, calls: BackupCalls) {
                 title = { Text(stringResource(Res.string.backup_password_title)) },
                 text = {
                     Column {
-                        OutlinedTextField(password, {
+                        AppTextField(password, {
                             password = it
                         }, Modifier.fillMaxWidth(), singleLine = true, label = {
                             Text(stringResource(Res.string.backup_password_label))
@@ -146,13 +146,12 @@ internal fun BackupDialogs(state: BackupState, calls: BackupCalls) {
                     Column {
                         Text(stringResource(Res.string.backup_confirm_message, state.titles, state.shelves))
                         if (state.settings > 0) {
-                            Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Checkbox(withSettings, { withSettings = it })
-                                Text(
-                                    stringResource(Res.string.backup_restore_settings),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
-                            }
+                            CheckRow(
+                                stringResource(Res.string.backup_restore_settings),
+                                withSettings,
+                                { withSettings = it },
+                                Modifier.padding(top = 8.dp),
+                            )
                         }
                     }
                 },

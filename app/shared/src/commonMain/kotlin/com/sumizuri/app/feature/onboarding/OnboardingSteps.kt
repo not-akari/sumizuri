@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,6 +66,7 @@ import com.sumizuri.app.ui.kit.art.KindTiles
 import com.sumizuri.app.ui.kit.art.QuietButton
 import com.sumizuri.app.ui.kit.art.rise
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.input.rememberImagePicker
 import com.sumizuri.app.ui.kit.input.squareAvatar
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
@@ -118,7 +118,12 @@ internal fun LookStep() {
     val settings = viewModel { SettingsViewModel(container.settings) }
     val language by settings.language.collectAsStateWithLifecycle()
     val mode by settings.themeMode.collectAsStateWithLifecycle()
-    StepHeader(stringResource(Res.string.onboarding_look_title), stringResource(Res.string.onboarding_look_text))
+    StepHeader(
+        stringResource(
+            Res.string.onboarding_look_title,
+        ),
+        stringResource(Res.string.onboarding_look_text),
+    )
     Box(Modifier.rise(2)) {
         SettingsSection {
             padded {
@@ -162,7 +167,12 @@ internal fun ProfileStep() {
                 keepAvatar(profiles, bytes)?.let { profiles.setAvatar(profile.id, it) }
             }
         }
-    StepHeader(stringResource(Res.string.onboarding_profile_title), stringResource(Res.string.onboarding_profile_text))
+    StepHeader(
+        stringResource(
+            Res.string.onboarding_profile_title,
+        ),
+        stringResource(Res.string.onboarding_profile_text),
+    )
     Column(
         Modifier.fillMaxWidth().rise(2),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -174,9 +184,17 @@ internal fun ProfileStep() {
         }
         QuietButton(stringResource(Res.string.onboarding_profile_photo), pick, Icons.Outlined.PhotoCamera)
     }
-    OutlinedTextField(name, {
-        name = it
-    }, Modifier.fillMaxWidth().rise(3), singleLine = true, label = { Text(stringResource(Res.string.profile_name)) })
+    AppTextField(
+        name,
+        {
+            name = it
+        },
+        Modifier.fillMaxWidth().rise(
+            3,
+        ),
+        singleLine = true,
+        label = { Text(stringResource(Res.string.profile_name)) },
+    )
 }
 
 // A ring of the theme's color turning slowly round the picture of the profile.

@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Icon
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,6 +33,7 @@ import com.sumizuri.app.shared.resources.keys_reset_all
 import com.sumizuri.app.ui.controls.KeyChord
 import com.sumizuri.app.ui.controls.text
 import com.sumizuri.app.ui.kit.card.AppCard
+import com.sumizuri.app.ui.kit.chips.SoftChip
 import com.sumizuri.app.ui.kit.input.ActionButton
 import com.sumizuri.app.ui.motion.entrance
 import org.jetbrains.compose.resources.StringResource
@@ -82,7 +82,7 @@ internal fun <T> KeyBindingsList(
                             )
                         }
                         for (chord in chords) {
-                            InputChip(
+                            SoftChip(
                                 selected = false,
                                 onClick = { onRemove(row.action, chord) },
                                 label = { Text(chord.text()) },

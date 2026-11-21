@@ -9,12 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,11 +49,14 @@ import com.sumizuri.app.shared.resources.backup_writing
 import com.sumizuri.app.shared.resources.ok
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
+import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
+import com.sumizuri.app.ui.kit.chips.SoftChip
 import com.sumizuri.app.ui.kit.dialog.AppDialog
 import com.sumizuri.app.ui.kit.dialog.CancelButton
+import com.sumizuri.app.ui.kit.input.AppTextField
+import com.sumizuri.app.ui.kit.input.CheckRow
 import com.sumizuri.app.ui.kit.input.rememberFileSaver
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 // The window where a backup is set up: what goes in, how much it is squeezed, and an optional password typed twice.
@@ -74,14 +73,17 @@ internal fun MakeBackupDialog(choices: MakeChoices, onMake: (MakeChoices, String
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 AppSectionLabel(Res.string.backup_create_parts)
-                PartRow(Res.string.backup_part_library, checked = true, enabled = false) {}
+                CheckRow(stringResource(Res.string.backup_part_library), checked = true, onChange = {}, enabled = false)
                 for ((part, label) in listOf(
                     BackupPart.Sources to Res.string.backup_part_sources,
                     BackupPart.SourceSettings to Res.string.backup_part_source_settings,
                     BackupPart.Settings to Res.string.backup_part_settings,
                     BackupPart.Logins to Res.string.backup_part_logins,
                 )) {
-                    PartRow(label, part in parts) { on -> parts = if (on) parts + part else parts - part }
+                    CheckRow(stringResource(label), part in parts, { on ->
+                        parts =
+                            if (on) parts + part else parts - part
+                    })
                 }
                 if (BackupPart.Logins in
                     parts
@@ -100,17 +102,17 @@ internal fun MakeBackupDialog(choices: MakeChoices, onMake: (MakeChoices, String
                         BackupCompression.Fast to Res.string.backup_compression_fast,
                         BackupCompression.Small to Res.string.backup_compression_small,
                     )) {
-                        FilterChip(compression == choice, { compression = choice }, { Text(stringResource(label)) })
+                        SoftChip(compression == choice, { compression = choice }, { Text(stringResource(label)) })
                     }
                 }
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(password, {
+                AppTextField(password, {
                     password = it
                 }, Modifier.fillMaxWidth(), singleLine = true, label = {
                     Text(stringResource(Res.string.backup_password_optional))
                 }, visualTransformation = PasswordVisualTransformation())
                 if (password.isNotEmpty()) {
-                    OutlinedTextField(
+                    AppTextField(
                         repeat,
                         { repeat = it },
                         Modifier.fillMaxWidth(),
@@ -149,14 +151,6 @@ internal fun MakeBackupDialog(choices: MakeChoices, onMake: (MakeChoices, String
     )
 }
 
-@Composable
-private fun PartRow(label: StringResource, checked: Boolean, enabled: Boolean = true, onChange: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked, onChange, enabled = enabled)
-        Text(stringResource(label), style = MaterialTheme.typography.bodyMedium)
-    }
-}
-
 // What the making of a backup says while it goes: the count of titles written, the place to save it, and how it ended.
 @Composable
 internal fun MakeDialogs(make: MakeState, calls: BackupCalls) {
@@ -173,7 +167,7 @@ internal fun MakeDialogs(make: MakeState, calls: BackupCalls) {
                     Text(stringResource(Res.string.backup_writing, make.done, make.total))
                 }
             },
-            dismissButton = { TextButton(calls.onStopMaking) { Text(stringResource(Res.string.backup_stop)) } },
+            dismissButton = { InkOutlinedButton(calls.onStopMaking) { Text(stringResource(Res.string.backup_stop)) } },
         )
 
         // The window to pick where the file goes opens once, as soon as the file is made.

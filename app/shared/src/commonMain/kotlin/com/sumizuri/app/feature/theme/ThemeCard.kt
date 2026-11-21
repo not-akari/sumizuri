@@ -17,8 +17,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.feature.theme.panel.CardAction
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import com.sumizuri.app.ui.motion.feedbackScale
 import com.sumizuri.app.ui.theme.colorScheme
 import com.sumizuri.app.ui.theme.spec.AppThemeSpec
@@ -149,9 +149,9 @@ private fun CardMenu(actions: List<CardAction>) {
     // The menu opens under its button, so the two are in one box.
     Box {
         IconButton({ open = true }, Modifier.size(32.dp)) { Icon(Icons.Outlined.MoreVert, null, Modifier.size(18.dp)) }
-        DropdownMenu(open, { open = false }) {
+        AppMenu(open, { open = false }) {
             for (action in actions) {
-                DropdownMenuItem({ Text(stringResource(action.label)) }, {
+                AppMenuItem({ Text(stringResource(action.label)) }, {
                     open = false
                     action.run()
                 })

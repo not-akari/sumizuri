@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,7 +19,9 @@ import com.sumizuri.app.shared.resources.editor_text_scale
 import com.sumizuri.app.shared.resources.editor_weight_body
 import com.sumizuri.app.shared.resources.editor_weight_heading
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
+import com.sumizuri.app.ui.kit.chips.SoftChip
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
+import com.sumizuri.app.ui.text.percentText
 import com.sumizuri.app.ui.theme.ThemeFonts
 import com.sumizuri.app.ui.theme.fontFamilyOf
 import com.sumizuri.app.ui.theme.spec.LayoutDensity
@@ -82,7 +83,7 @@ private fun FontChoice(title: StringResource, selected: String, onSelect: (Strin
         AppSectionLabel(title)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             for (font in ThemeFonts) {
-                FilterChip(font == selected, {
+                SoftChip(font == selected, {
                     onSelect(font)
                 }, { Text(fontLabel(font), fontFamily = fontFamilyOf(font)) }, Modifier)
             }

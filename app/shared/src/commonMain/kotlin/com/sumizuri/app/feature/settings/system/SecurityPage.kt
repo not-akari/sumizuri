@@ -7,7 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LockClock
 import androidx.compose.material.icons.outlined.Password
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -66,6 +65,7 @@ import com.sumizuri.app.shared.resources.settings_security_hint
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.dialog.AppDialog
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
@@ -269,7 +269,7 @@ private fun PinDialog(onDismiss: () -> Unit, onSet: (String) -> Unit) {
 
 @Composable
 private fun PinField(value: String, label: StringResource, onChange: (String) -> Unit) {
-    OutlinedTextField(
+    AppTextField(
         value,
         { typed -> onChange(typed.filter(Char::isDigit).take(PinMaxLength)) },
         label = { Text(stringResource(label)) },

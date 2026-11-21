@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,6 +28,7 @@ import com.sumizuri.app.feature.theme.panel.PiecesPanel
 import com.sumizuri.app.feature.theme.panel.TextPanel
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.editor_reset_section
+import com.sumizuri.app.ui.kit.card.Hairline
 import com.sumizuri.app.ui.motion.AppMotion
 import com.sumizuri.app.ui.motion.motionMs
 import org.jetbrains.compose.resources.stringResource
@@ -44,7 +44,7 @@ internal fun EditorControls(state: ThemeEditorState, modifier: Modifier) {
     ) {
         Column {
             SectionTabs(state.section, state::open, Modifier.padding(horizontal = 4.dp, vertical = 4.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            Hairline(alpha = 0.5f)
             AnimatedContent(state.section, Modifier.weight(1f), transitionSpec = {
                 fadeIn(tween(fast)) togetherWith
                     fadeOut(tween(fast))

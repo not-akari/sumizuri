@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -50,6 +49,7 @@ import com.sumizuri.app.ui.kit.page.PageList
 import com.sumizuri.app.ui.kit.page.PageTopBar
 import com.sumizuri.app.ui.kit.page.ReadableColumn
 import com.sumizuri.app.ui.kit.setting.ChipsSetting
+import com.sumizuri.app.ui.kit.text.NoteText
 import org.jetbrains.compose.resources.stringResource
 
 // A result whose name is at least this close to the name of the title counts as the same name, the way the move of many titles tells a clear match.
@@ -94,11 +94,15 @@ fun MigrateScreen(
                             }.sortedByDescending { it.second }
                 }.sortedByDescending { (_, entries) -> entries.firstOrNull()?.second ?: -1.0 }
             PageList {
-                if (state.loaded && title == null) item { Note(stringResource(Res.string.migrate_gone)) }
+                if (state.loaded &&
+                    title == null
+                ) {
+                    item { NoteText(stringResource(Res.string.migrate_gone), Modifier.padding(vertical = 4.dp)) }
+                }
                 if (state.loaded && title != null &&
                     state.candidates.isEmpty()
                 ) {
-                    item { Note(stringResource(Res.string.migrate_no_sources)) }
+                    item { NoteText(stringResource(Res.string.migrate_no_sources), Modifier.padding(vertical = 4.dp)) }
                 }
                 if (state.candidates.isNotEmpty()) {
                     item {
@@ -156,7 +160,15 @@ fun MigrateScreen(
                             )
                         }
                     }
-                    result.error?.let { message -> item { Note(message, error = true) } }
+                    result.error?.let { message ->
+                        item {
+                            NoteText(
+                                message,
+                                Modifier.padding(vertical = 4.dp),
+                                error = true,
+                            )
+                        }
+                    }
                     items(entries.size) { index ->
                         val (entry, score) = entries[index]
                         AppListRow(
@@ -175,7 +187,7 @@ fun MigrateScreen(
                     }
                 }
                 if (state.results.isNotEmpty() && !state.searching && state.results.all { it.entries.isEmpty() }) {
-                    item { Note(stringResource(Res.string.migrate_no_results)) }
+                    item { NoteText(stringResource(Res.string.migrate_no_results), Modifier.padding(vertical = 4.dp)) }
                 }
             }
         }
@@ -196,16 +208,5 @@ private fun SameNameMark() {
         style = MaterialTheme.typography.labelMedium,
         fontWeight = FontWeight.SemiBold,
         color = colors.primary,
-    )
-}
-
-@Composable
-private fun Note(text: String, error: Boolean = false) {
-    val color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
-    Text(
-        text,
-        Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        style = MaterialTheme.typography.bodyMedium,
-        color = color,
     )
 }

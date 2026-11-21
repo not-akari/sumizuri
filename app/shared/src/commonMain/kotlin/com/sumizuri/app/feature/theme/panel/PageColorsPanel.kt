@@ -18,6 +18,7 @@ import com.sumizuri.app.shared.resources.editor_page_colors_vibrance
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
+import com.sumizuri.app.ui.text.percentText
 import com.sumizuri.app.ui.theme.spec.AppThemeSpec
 import com.sumizuri.app.ui.theme.spec.CoverColorMode
 import com.sumizuri.app.ui.theme.spec.ThemePageColors

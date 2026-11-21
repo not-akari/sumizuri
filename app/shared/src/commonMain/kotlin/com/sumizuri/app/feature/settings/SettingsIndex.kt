@@ -4,7 +4,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.outlined.AutoStories
-import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.GridView
@@ -15,10 +14,8 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.PieChart
 import androidx.compose.material.icons.outlined.PlayCircle
-import androidx.compose.material.icons.outlined.FileOpen
 import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material.icons.outlined.SwapHoriz
-import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Update
@@ -141,12 +138,10 @@ import com.sumizuri.app.shared.resources.settings_advanced
 import com.sumizuri.app.shared.resources.settings_advanced_hint
 import com.sumizuri.app.shared.resources.settings_appearance
 import com.sumizuri.app.shared.resources.settings_backup
-import com.sumizuri.app.shared.resources.settings_backup_hint
 import com.sumizuri.app.shared.resources.settings_import_page
 import com.sumizuri.app.shared.resources.settings_import_page_hint
 import com.sumizuri.app.shared.resources.settings_compact_lists
 import com.sumizuri.app.shared.resources.settings_diagnostics
-import com.sumizuri.app.shared.resources.settings_diagnostics_hint
 import com.sumizuri.app.shared.resources.settings_home_parts
 import com.sumizuri.app.shared.resources.settings_language
 import com.sumizuri.app.shared.resources.settings_layout
@@ -195,6 +190,12 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.material.icons.outlined.AppShortcut
+import com.sumizuri.app.data.AppIcons
+import com.sumizuri.app.data.appIconsShown
+import com.sumizuri.app.shared.resources.app_icon
+import com.sumizuri.app.shared.resources.app_icon_hint_short
+import com.sumizuri.app.shared.resources.experimental_show
 
 // The pages of the settings with what each is set to now. This list is the one place that says which pages there are, so the home and the search both come from it. The words a search can find inside a page are the names of the settings in it.
 @Composable
@@ -226,6 +227,7 @@ internal fun settingsPages(now: SettingsNow, opens: SettingsOpens): List<Setting
     return buildList {
         // Look: what the app looks like and how it is laid out, with what each is set to.
         add(page(SettingsGroup.Look, Icons.Outlined.Palette, stringResource(Res.string.settings_appearance), "${now.themeName} · $theme", listOf(Res.string.settings_theme, Res.string.settings_mode, Res.string.settings_oled, Res.string.settings_oled_glow, Res.string.theme_new, Res.string.theme_import), SettingsTarget.Appearance))
+        if (appIconsShown && AppIcons.supported) add(page(SettingsGroup.Look, Icons.Outlined.AppShortcut, stringResource(Res.string.app_icon), stringResource(Res.string.app_icon_hint_short), emptyList(), SettingsTarget.AppIcon))
         add(page(SettingsGroup.Look, Icons.Outlined.Dashboard, stringResource(Res.string.settings_layout), "${now.language} · $navigation", listOf(Res.string.settings_language, Res.string.settings_compact_lists, Res.string.settings_reduce_motion, Res.string.page_motion, Res.string.page_stagger, Res.string.settings_nav_style, Res.string.settings_home_parts), SettingsTarget.Layout))
 
         // Library: how it is shown, its shelves and its checks for new chapters.
@@ -246,8 +248,7 @@ internal fun settingsPages(now: SettingsNow, opens: SettingsOpens): List<Setting
 
         // Data: what is kept and moved, the backups, and the tools that mend the library.
         add(page(SettingsGroup.Data, Icons.Outlined.Download, stringResource(Res.string.download_title), stringResource(Res.string.download_settings_hint), listOf(Res.string.download_queue_open, Res.string.download_pause, Res.string.download_retry_all, Res.string.download_wifi_only, Res.string.download_pages_at_once, Res.string.download_new, Res.string.download_new_limit, Res.string.download_skip_shelves, Res.string.download_ahead, Res.string.download_delete_after, Res.string.download_delete_on_mark, Res.string.download_keep_bookmarked), SettingsTarget.DownloadOptions))
-        add(page(SettingsGroup.Data, Icons.Outlined.SettingsBackupRestore, stringResource(Res.string.settings_backup), stringResource(Res.string.settings_backup_hint), emptyList(), SettingsTarget.Backup))
-        add(page(SettingsGroup.Data, Icons.Outlined.FileOpen, stringResource(Res.string.settings_import_page), stringResource(Res.string.settings_import_page_hint), emptyList(), SettingsTarget.Import))
+        add(page(SettingsGroup.Data, Icons.Outlined.SettingsBackupRestore, stringResource(Res.string.settings_import_page), stringResource(Res.string.settings_import_page_hint), listOf(Res.string.settings_backup), SettingsTarget.Import))
         add(page(SettingsGroup.Data, Icons.Outlined.PieChart, stringResource(Res.string.settings_storage), stringResource(Res.string.settings_storage_hint), listOf(Res.string.storage_image_cache, Res.string.storage_page_cache, Res.string.storage_path_database, Res.string.storage_path_images), SettingsTarget.Storage))
         add(page(SettingsGroup.Data, Icons.Outlined.SwapHoriz, stringResource(Res.string.mig_title), stringResource(Res.string.mig_subtitle), listOf(Res.string.mig_rule_strictness, Res.string.mig_rule_chapters, Res.string.mig_rule_compare_all, Res.string.mig_rule_try_address, Res.string.mig_rule_keep_old), SettingsTarget.Migration))
         if (now.unreachable > 0) add(page(SettingsGroup.Data, Icons.Outlined.LinkOff, stringResource(Res.string.settings_missing_sources), unreachable, emptyList(), SettingsTarget.MissingSources))
@@ -255,9 +256,7 @@ internal fun settingsPages(now: SettingsNow, opens: SettingsOpens): List<Setting
         // System
         add(page(SettingsGroup.System, Icons.Outlined.Lock, stringResource(Res.string.settings_security), stringResource(Res.string.settings_security_hint), listOf(Res.string.lock_on, Res.string.lock_after, Res.string.lock_now, Res.string.secure_screen, Res.string.incognito_mode), SettingsTarget.Security))
         if (networkSupported) add(page(SettingsGroup.System, Icons.Outlined.Lan, stringResource(Res.string.settings_network), stringResource(Res.string.settings_network_hint), listOf(Res.string.network_routes_title, Res.string.network_connections, Res.string.network_type_wireguard), SettingsTarget.Network))
-        add(page(SettingsGroup.System, Icons.Outlined.Tune, stringResource(Res.string.settings_advanced), stringResource(Res.string.settings_advanced_hint), listOf(Res.string.advanced_reset_look, Res.string.advanced_reset_library, Res.string.advanced_reset_reader), SettingsTarget.Advanced))
-        add(page(SettingsGroup.System, Icons.Outlined.BugReport, stringResource(Res.string.settings_diagnostics), stringResource(Res.string.settings_diagnostics_hint), listOf(Res.string.settings_logs, Res.string.diagnostics_copy), SettingsTarget.Diagnostics))
-        add(page(SettingsGroup.System, Icons.Outlined.Info, stringResource(Res.string.settings_about), stringResource(Res.string.settings_version, BuildInfo.Version), listOf(Res.string.about_licenses, Res.string.legal_title, Res.string.privacy_title), SettingsTarget.About))
-        add(page(SettingsGroup.System, Icons.Outlined.SystemUpdate, stringResource(Res.string.appupdate_title), updateLine, listOf(Res.string.appupdate_check_now, Res.string.appupdate_auto_check, Res.string.appupdate_prerelease, Res.string.appupdate_source, Res.string.appupdate_changes), SettingsTarget.AppUpdate))
+        add(page(SettingsGroup.System, Icons.Outlined.Tune, stringResource(Res.string.settings_advanced), stringResource(Res.string.settings_advanced_hint), listOf(Res.string.advanced_reset_look, Res.string.advanced_reset_library, Res.string.advanced_reset_reader, Res.string.settings_diagnostics, Res.string.settings_logs, Res.string.diagnostics_copy, Res.string.experimental_show), SettingsTarget.Advanced))
+        add(page(SettingsGroup.System, Icons.Outlined.Info, stringResource(Res.string.settings_about), updateLine, listOf(Res.string.about_licenses, Res.string.legal_title, Res.string.privacy_title, Res.string.appupdate_title, Res.string.appupdate_check_now, Res.string.appupdate_auto_check, Res.string.appupdate_prerelease, Res.string.appupdate_source, Res.string.appupdate_changes), SettingsTarget.About))
     }
 }

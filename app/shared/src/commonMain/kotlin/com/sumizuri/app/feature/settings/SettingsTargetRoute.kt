@@ -11,6 +11,10 @@ import com.sumizuri.app.feature.settings.controls.ControlsHubRoute
 import com.sumizuri.app.feature.settings.controls.ControlsPage
 import com.sumizuri.app.feature.settings.data.DownloadSettingsRoute
 import com.sumizuri.app.feature.settings.data.MissingSourcesRoute
+import com.sumizuri.app.feature.settings.data.StorageDataRoute
+import com.sumizuri.app.feature.settings.data.StorageDownloadsRoute
+import com.sumizuri.app.feature.settings.data.StorageImagesRoute
+import com.sumizuri.app.feature.settings.data.StorageReaderRoute
 import com.sumizuri.app.feature.settings.data.StorageRoute
 import com.sumizuri.app.feature.settings.library.ChapterListRoute
 import com.sumizuri.app.feature.settings.library.LibraryUpdatesRoute
@@ -44,6 +48,11 @@ import com.sumizuri.app.feature.trackers.TrackerDetailsRoute
 import com.sumizuri.app.feature.trackers.TrackerRoute
 import com.sumizuri.app.feature.trackers.TrackerRulesRoute
 import com.sumizuri.app.feature.trackers.TrackersRoute
+import com.sumizuri.app.feature.settings.system.ExperimentalRoute
+import com.sumizuri.app.feature.sync.home.SyncServerRoute
+import com.sumizuri.app.feature.sync.home.SyncAccountRoute
+import com.sumizuri.app.feature.sync.home.SyncAdminRoute
+import com.sumizuri.app.feature.settings.look.AppIconRoute
 
 // The page a target of the settings stands for, for the targets that have no page of their own above. A page that leads on to another asks for it with onOpen, the page of the controls opens one of them with onOpenControls, and the page of the missing sources moves a title with onMove.
 @Composable
@@ -51,16 +60,24 @@ fun SettingsTargetRoute(target: SettingsTarget, onBack: () -> Unit, onOpen: (Set
     when (target) {
         SettingsTarget.Controls -> ControlsHubRoute(onBack, onOpenControls)
         SettingsTarget.Appearance -> AppearanceRoute(onBack, onEditTheme)
+        SettingsTarget.AppIcon -> AppIconRoute(onBack)
         SettingsTarget.Layout -> LayoutRoute(onBack) { onOpen(SettingsTarget.LibraryDisplay) }
         SettingsTarget.LibraryUpdates -> LibraryUpdatesRoute(onBack) { onOpen(SettingsTarget.Shelves) }
         SettingsTarget.MissingSources -> MissingSourcesRoute(onBack, onMove, onMigrate)
         SettingsTarget.Reading -> ReadingRoute(onBack)
         SettingsTarget.Player -> PlayerSettingsRoute(onBack)
-        SettingsTarget.Storage -> StorageRoute(onBack)
+        SettingsTarget.Storage -> StorageRoute(onBack, onOpen)
+        SettingsTarget.StorageDownloads -> StorageDownloadsRoute(onBack, onOpen)
+        SettingsTarget.StorageImages -> StorageImagesRoute(onBack)
+        SettingsTarget.StorageReader -> StorageReaderRoute(onBack)
+        SettingsTarget.StorageData -> StorageDataRoute(onBack)
         SettingsTarget.Downloads -> DownloadsRoute(onBack) { onOpen(SettingsTarget.DownloadOptions) }
         SettingsTarget.DownloadOptions -> DownloadSettingsRoute(onBack) { onOpen(SettingsTarget.Downloads) }
         SettingsTarget.Sync -> SyncRoute(onBack, onOpen)
         SettingsTarget.SyncLink -> SyncLinkRoute(onBack)
+        SettingsTarget.SyncServer -> SyncServerRoute(onBack)
+        SettingsTarget.SyncAccount -> SyncAccountRoute(onBack, onOpen)
+        SettingsTarget.SyncAdmin -> SyncAdminRoute(onBack, onOpen)
         SettingsTarget.SyncWhat -> SyncWhatRoute(onBack)
         SettingsTarget.SyncWhen -> SyncWhenRoute(onBack)
         SettingsTarget.SyncDevices -> SyncDevicesRoute(onBack)
@@ -77,8 +94,9 @@ fun SettingsTargetRoute(target: SettingsTarget, onBack: () -> Unit, onOpen: (Set
         SettingsTarget.SyncAdminLog -> SyncAdminLogRoute(onBack)
         SettingsTarget.Security -> SecurityRoute(onBack)
         SettingsTarget.Network -> NetworkRoute(onBack)
-        SettingsTarget.Advanced -> AdvancedRoute(onBack, { onOpen(SettingsTarget.Performance) }) { onOpen(SettingsTarget.Import) }
+        SettingsTarget.Advanced -> AdvancedRoute(onBack, onOpen)
         SettingsTarget.Performance -> PerformanceRoute(onBack)
+        SettingsTarget.Experimental -> ExperimentalRoute(onBack)
         SettingsTarget.Diagnostics -> DiagnosticsRoute(onBack) { onOpen(SettingsTarget.Logs) }
         SettingsTarget.About -> AboutRoute(onBack, onOpen)
         SettingsTarget.Licenses -> LicensesRoute(onBack)

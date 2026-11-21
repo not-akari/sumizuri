@@ -1,7 +1,6 @@
 package com.sumizuri.app.feature.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +36,7 @@ import com.sumizuri.app.shared.resources.settings_no_match
 import com.sumizuri.app.shared.resources.settings_search_hint
 import com.sumizuri.app.shared.resources.settings_title
 import com.sumizuri.app.ui.kit.card.ListChevron
+import com.sumizuri.app.ui.kit.card.softFill
 import com.sumizuri.app.ui.kit.input.AppSearchBar
 import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.page.PageTopBar
@@ -186,17 +186,12 @@ internal fun IconTile(icon: ImageVector) {
         Icon(icon, null, Modifier.size(24.dp), tint = colors.onSurfaceVariant)
         return
     }
+    // A soft wash of the accent with the icon in the accent, as the list of the settings draws its icons.
     val shape = theme.shapes.iconTile.toShape()
     Box(
-        Modifier
-            .size(
-                40.dp,
-            ).background(
-                colors.surfaceContainerHighest,
-                shape,
-            ).border(theme.shapes.borderWidth.dp, colors.outlineVariant, shape),
+        Modifier.size(40.dp).background(softFill(strong = true), shape),
         contentAlignment = Alignment.Center,
-    ) { Icon(icon, null, Modifier.size(19.dp), tint = colors.onSurfaceVariant) }
+    ) { Icon(icon, null, Modifier.size(19.dp), tint = colors.primary) }
 }
 
 // A small pill that says a page is new.

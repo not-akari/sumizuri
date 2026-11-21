@@ -22,7 +22,6 @@ import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -49,6 +48,7 @@ import com.sumizuri.app.shared.resources.editor_start_from
 import com.sumizuri.app.shared.resources.editor_start_over
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.card.AppSectionLabel
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.setting.SwitchSetting
 import com.sumizuri.app.ui.theme.readableOn
 import com.sumizuri.app.ui.theme.roleColor
@@ -69,10 +69,10 @@ internal fun BasicsPanel(state: ThemeEditorState) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.outline,
         )
-        OutlinedTextField(draft.name, {
+        AppTextField(draft.name, {
             state.change(draft.copy(name = it.take(40)), group = "name")
         }, Modifier.fillMaxWidth(), label = { Text(stringResource(Res.string.editor_name)) }, singleLine = true)
-        OutlinedTextField(draft.author, {
+        AppTextField(draft.author, {
             state.change(draft.copy(author = it.take(40)), group = "author")
         }, Modifier.fillMaxWidth(), label = { Text(stringResource(Res.string.editor_author)) }, singleLine = true)
         AppSectionLabel(Res.string.editor_accent)

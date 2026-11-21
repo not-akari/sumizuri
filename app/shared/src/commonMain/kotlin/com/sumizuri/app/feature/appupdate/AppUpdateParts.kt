@@ -24,7 +24,6 @@ import androidx.compose.material.icons.outlined.NewReleases
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -75,6 +74,7 @@ import com.sumizuri.app.ui.kit.art.InkLinearProgressIndicator
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.card.AppCard
 import com.sumizuri.app.ui.kit.dialog.AppDialog
+import com.sumizuri.app.ui.kit.input.AppTextField
 import com.sumizuri.app.ui.kit.text.MarkdownText
 import com.sumizuri.app.ui.text.agoText
 import com.sumizuri.app.ui.text.byteSizeText
@@ -336,7 +336,7 @@ internal fun SourceDialog(current: String, onDismiss: () -> Unit, onSave: (Strin
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline,
                 )
-                OutlinedTextField(text, {
+                AppTextField(text, {
                     text = it
                 }, singleLine = true, isError = !valid, placeholder = { Text("https://github.com/owner/repo") })
                 if (!valid) {

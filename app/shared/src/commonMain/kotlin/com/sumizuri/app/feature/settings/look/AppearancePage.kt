@@ -50,7 +50,6 @@ fun AppearanceRoute(onBack: () -> Unit, onEditTheme: (String) -> Unit) {
             padded { SwitchSetting(Res.string.settings_oled, oled, settings::onOled, Res.string.settings_oled_hint) }
             if (oled) padded { SwitchSetting(Res.string.settings_oled_glow, oledGlow, settings::onOledGlow, Res.string.settings_oled_glow_hint) }
         }
-        AppIconSection()
         SettingsHeading(stringResource(Res.string.settings_theme))
         ThemeGallery(onEditTheme)
     }

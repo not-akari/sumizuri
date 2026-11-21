@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +23,7 @@ import com.sumizuri.app.shared.resources.tap_bands_top
 import com.sumizuri.app.shared.resources.tap_mirror
 import com.sumizuri.app.shared.resources.tap_presets
 import com.sumizuri.app.shared.resources.tap_reset
+import com.sumizuri.app.ui.kit.chips.SoftActionChip
 import com.sumizuri.app.ui.kit.input.ActionButton
 import com.sumizuri.app.ui.kit.setting.PartTabs
 import com.sumizuri.app.ui.kit.setting.SettingsSection
@@ -56,7 +56,7 @@ internal fun TapZonesPage(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     for (preset in TapPreset.entries) {
-                        AssistChip(
+                        SoftActionChip(
                             { onChange { it.withPreset(layout, preset) } },
                             { Text(stringResource(preset.label)) },
                         )

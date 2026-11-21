@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Downloading
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,6 +62,7 @@ import com.sumizuri.app.shared.resources.download_title
 import com.sumizuri.app.shared.resources.download_wifi_only
 import com.sumizuri.app.shared.resources.download_wifi_only_hint
 import com.sumizuri.app.ui.kit.card.ListChevron
+import com.sumizuri.app.ui.kit.chips.SoftChip
 import com.sumizuri.app.ui.kit.setting.ChoiceSetting
 import com.sumizuri.app.ui.kit.setting.SettingIcon
 import com.sumizuri.app.ui.kit.setting.SettingRow
@@ -175,7 +175,7 @@ fun DownloadSettingsRoute(onBack: () -> Unit, onOpenQueue: () -> Unit) {
                             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 for (shelf in shelves) {
                                     val skipped = shelf.id in now.skipShelves
-                                    FilterChip(skipped, {
+                                    SoftChip(skipped, {
                                         val next = if (skipped) {
                                             now.skipShelves - shelf.id
                                         } else {

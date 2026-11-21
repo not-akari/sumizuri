@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,6 +49,8 @@ import com.sumizuri.app.shared.resources.more
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.card.AppCard
 import com.sumizuri.app.ui.kit.cover.CoverArt
+import com.sumizuri.app.ui.kit.menu.AppMenu
+import com.sumizuri.app.ui.kit.menu.AppMenuItem
 import com.sumizuri.app.ui.text.displayName
 import org.jetbrains.compose.resources.stringResource
 
@@ -208,16 +208,16 @@ internal fun ResultCard(
                     var menu by remember { mutableStateOf(false) }
                     Box {
                         IconButton({ menu = true }) { Icon(Icons.Outlined.MoreVert, stringResource(Res.string.more)) }
-                        DropdownMenu(menu, { menu = false }) {
-                            DropdownMenuItem({ Text(stringResource(Res.string.mig_action_hand)) }, {
+                        AppMenu(menu, { menu = false }) {
+                            AppMenuItem({ Text(stringResource(Res.string.mig_action_hand)) }, {
                                 menu = false
                                 onHand()
                             }, enabled = !busy)
-                            DropdownMenuItem({ Text(stringResource(Res.string.mig_action_exclude)) }, {
+                            AppMenuItem({ Text(stringResource(Res.string.mig_action_exclude)) }, {
                                 menu = false
                                 session.setIncluded(setOf(item.id), false)
                             })
-                            DropdownMenuItem({ Text(stringResource(Res.string.mig_action_open)) }, {
+                            AppMenuItem({ Text(stringResource(Res.string.mig_action_open)) }, {
                                 menu = false
                                 onOpenTitle(item.id)
                             })
