@@ -16,6 +16,17 @@ const guides: Partial<Record<Device, Steps>> = {
       'Press <strong>Install</strong>.',
     ],
   },
+  tv: {
+    label: 'TV',
+    intro: 'For Android TV and Google TV. The TV app is its own app, made for the remote, and only shows videos.',
+    steps: [
+      'On the TV, install <strong>Downloader</strong> from the Play Store.',
+      'Let Downloader install apps. On Google TV, open <strong>Settings</strong>, <strong>Apps</strong>, <strong>Security and restrictions</strong>, <strong>Unknown sources</strong> and turn on Downloader. Other TVs have it in a similar place.',
+      'In Downloader, open <code>sumizuri.notakari.com/download</code>, pick <strong>TV</strong> and download the <strong>Universal</strong> file.',
+      'Press <strong>Install</strong>.',
+    ],
+    after: 'You can also copy the file to a USB stick and open it with a file manager on the TV.',
+  },
   ios: {
     label: 'iPhone and iPad',
     intro: 'The file is not signed, so a sideloading tool on your computer signs it with your own Apple ID. You need iOS 15 or newer and the cable of the phone. A free Apple ID makes an app that lasts 7 days, and the tool renews it on the same Wi-Fi.',
@@ -54,7 +65,7 @@ const guides: Partial<Record<Device, Steps>> = {
   },
 }
 
-const order: Device[] = ['android', 'ios', 'windows', 'mac', 'linux']
+const order: Device[] = ['android', 'tv', 'ios', 'windows', 'mac', 'linux']
 const chosen = ref<Device>('android')
 watch(seen, (value) => {
   if (value in guides) chosen.value = value as Device
@@ -167,5 +178,22 @@ li {
   color: var(--vp-c-brand-1);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+/* On a phone the devices sit in one row that slides sideways, out to the edges of the screen. */
+@media (max-width: 767px) {
+  .picker {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 0 calc(50vw - 50%) 4px;
+    scrollbar-width: none;
+  }
+  .picker::-webkit-scrollbar {
+    display: none;
+  }
+  .picker button {
+    flex: none;
+  }
 }
 </style>
