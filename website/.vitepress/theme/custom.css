@@ -250,6 +250,16 @@
   width: 100%;
   border: 1px solid var(--sz-outline-variant);
 }
+/* Long names and code in a cell may break, and a table that is still too wide scrolls on its own instead of the page. */
+.vp-doc td code {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 767px) {
+  .vp-doc table {
+    display: block;
+    overflow-x: auto;
+  }
+}
 .vp-doc th {
   background: var(--sz-container);
 }
