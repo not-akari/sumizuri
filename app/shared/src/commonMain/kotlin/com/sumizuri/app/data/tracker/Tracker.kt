@@ -93,7 +93,7 @@ private const val RenewBeforeMs = 24 * 60 * 60 * 1000L
 private const val Sealed = "s:"
 private const val Plain = "p:"
 
-// Keeps the tracker accounts of a profile with its settings, so they follow the profile when it is renamed and go with it when it is removed. Each is sealed with a key of the system where there is one, so the token is not plain text. They never leave the device: not in a backup, not in a settings file, and not through sync.
+// Keeps the tracker accounts of a profile with its settings, so they follow the profile when it is renamed and go with it when it is removed. Each is sealed with a key of the system where there is one, so the token is not plain text. They never leave the device in a backup, a settings file or sync, and only go to a TV of the same person when they choose to send them from their phone, locked on the way.
 @OptIn(ExperimentalEncodingApi::class)
 class TrackerAccounts(private val settings: SettingsRepository, scope: CoroutineScope) {
     private val json = Json { ignoreUnknownKeys = true }

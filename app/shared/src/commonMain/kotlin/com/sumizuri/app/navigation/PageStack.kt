@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.rememberTransition
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -18,11 +19,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -104,7 +108,15 @@ internal fun PageStack(
     }
     val transition = rememberTransition(seekable, label = "page")
     // The tabs stay composed under the pages so a grid keeps its place. They move as the page that gives way to the first page, and are not drawn while a page covers them.
-    Box(Modifier.fillMaxSize().underPages(style, seekable, shift)) { tabs() }
+    // While a page covers them, the remote and the keyboard cannot move into them either.
+    val covered by rememberUpdatedState(place.pages.isNotEmpty())
+    Box(
+        Modifier
+            .fillMaxSize()
+            .underPages(style, seekable, shift)
+            .focusProperties { onEnter = { if (covered) cancelFocusChange() } }
+            .focusGroup(),
+    ) { tabs() }
     transition.AnimatedContent(
         // Always the whole window, so a page never grows out of a corner when there was no page before it.
         modifier = Modifier.fillMaxSize(),

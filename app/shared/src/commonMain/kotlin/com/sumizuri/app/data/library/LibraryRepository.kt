@@ -193,6 +193,9 @@ class LibraryRepository(private val db: AppDatabase, private val scope: Coroutin
     // The number for the badge of the updates tab, counted the way the page shows them.
     val unreadUpdateCount: Flow<Int> = db.chapters().observeUnreadUpdateCount().shareHere()
 
+    // The badge number on a TV, which counts the new episodes of videos only.
+    val unreadVideoUpdateCount: Flow<Int> = db.chapters().observeUnreadUpdateCountOfKind(Kind.Anime.code).shareHere()
+
     val history: Flow<List<FeedItem>> = feed(db.progress().observeHistory(FeedLimit))
 
     // The chapters that were read, newest first, for the history page.

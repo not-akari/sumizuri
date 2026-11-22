@@ -1,5 +1,6 @@
 package com.sumizuri.app.navigation.bar
 
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,8 +13,13 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.sumizuri.app.navigation.Destination
@@ -34,6 +40,7 @@ internal fun SideNavRail(
     marker.Follow(tabs.indexOf(selected), vertical = true)
     val fill = softFill(strong = true)
     val ring = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+    val current = remember { FocusRequester() }
     Surface(Modifier.fillMaxHeight().width(RailWidth).sideEdge(), color = Color.Transparent) {
         Column(
             Modifier
@@ -44,7 +51,19 @@ internal fun SideNavRail(
                     fill,
                     ring,
                 ).windowInsetsPadding(WindowInsets.safeDrawing)
-                .padding(vertical = 12.dp),
+                .padding(vertical = 12.dp)
+                // A remote coming in lands on the open tab, and up and down stay in the rail instead of falling into the page.
+                .focusProperties {
+                    onEnter = { if (requestedFocusDirection != FocusDirection.Enter) current.requestFocus() }
+                    onExit =
+                        {
+                            if (requestedFocusDirection == FocusDirection.Up ||
+                                requestedFocusDirection == FocusDirection.Down
+                            ) {
+                                cancelFocusChange()
+                            }
+                        }
+                }.focusGroup(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
@@ -58,6 +77,7 @@ internal fun SideNavRail(
                     labels,
                     wide = true,
                     onClick = { onSelect(tab) },
+                    modifier = if (tab == selected) Modifier.focusRequester(current) else Modifier,
                     spot = Modifier.inkSpot(marker, at),
                 )
             }

@@ -19,6 +19,7 @@ import com.sumizuri.app.feature.player.overlay.subtitleStyle
 import com.sumizuri.app.feature.reader.ChapterOpening
 import com.sumizuri.app.feature.reader.OpeningLayer
 import com.sumizuri.app.feature.reader.OpeningSteps
+import com.sumizuri.app.feature.tv.player.TvPlayerScreen
 import com.sumizuri.app.playback.PlayerState
 import com.sumizuri.app.playback.PlayerWindow
 import com.sumizuri.app.playback.rememberPlayerEngine
@@ -30,6 +31,7 @@ import com.sumizuri.app.shared.resources.player_loading_opening_quality
 import com.sumizuri.app.shared.resources.player_loading_resuming
 import com.sumizuri.app.shared.resources.player_loading_starting
 import com.sumizuri.app.ui.text.numberedUnit
+import com.sumizuri.app.ui.tv.LocalTv
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import org.jetbrains.compose.resources.stringResource
@@ -90,7 +92,8 @@ fun PlayerRoute(chapterId: Long, onBack: () -> Unit, opening: ChapterPlace? = nu
         started = true
     }
     OpeningLayer(done = started, opening = { EpisodeOpening(opening, state, player, turning, onBack) }) {
-        PlayerScreen(session, engine, onBack)
+        // A TV has a player of its own, moved with the remote.
+        if (LocalTv.current) TvPlayerScreen(session, engine, onBack) else PlayerScreen(session, engine, onBack)
     }
 }
 

@@ -62,12 +62,16 @@ import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.feature.appupdate.AppUpdateNotices
 import com.sumizuri.app.feature.library.continueChapterOf
 import com.sumizuri.app.feature.onboarding.OnboardingScreen
+import com.sumizuri.app.feature.tv.onboarding.TvOnboardingScreen
+import com.sumizuri.app.ui.tv.LocalTv
+import com.sumizuri.app.ui.tv.isTvDevice
+import com.sumizuri.app.ui.tv.keyboardOverOnTv
 import com.sumizuri.app.feature.settings.SettingsTarget
 import com.sumizuri.app.feature.settings.SettingsViewModel
 import com.sumizuri.app.feature.settings.controls.ControlsViewModel
 import com.sumizuri.app.feature.settings.system.perfDetails
 import com.sumizuri.app.feature.sync.HandoffNotice
-import com.sumizuri.app.feature.trackers.TrackerRemovePrompt
+import com.sumizuri.app.navigation.AppPrompts
 import com.sumizuri.app.feature.theme.ThemeViewModel
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.navigation.Destination
@@ -162,7 +166,6 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
     }
     LaunchedEffect(pageMemoryMb, pageKeepMinutes) { PageCache.configure(pageMemoryMb * 1024L * 1024L, pageKeepMinutes * 60_000L) }
     LaunchedEffect(booksKept) { FetchedBooks.kept = booksKept }
-
     AppBackgroundWork(container, loader)
     val perfOverlay by remember(container) { container.settings.flag(SettingKey.PerfOverlay, false) }.collectAsStateWithLifecycle(false)
     val perfAdvanced by remember(container) { container.settings.text(SettingKey.PerfOverlayLevel) }.collectAsStateWithLifecycle(null)
@@ -190,7 +193,7 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
     val profileState by LocalProfiles.current.state.collectAsStateWithLifecycle()
     val navAvatar = profileState.active.let { NavAvatar(it.name, it.avatar) }
     // The count of new chapters that are not read, on the tab of the updates.
-    val unreadCount by remember(container) { container.library.unreadUpdateCount }.collectAsStateWithLifecycle(0)
+    val unreadCount by remember(container) { if (isTvDevice()) container.library.unreadVideoUpdateCount else container.library.unreadUpdateCount }.collectAsStateWithLifecycle(0)
     val badges = mapOf(Destination.Updates to unreadCount)
     val language by settings.language.collectAsStateWithLifecycle()
     // The words are read again from the language the person chose, so the screens below are built again when it changes.
@@ -210,12 +213,12 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
             container.library.library.map { titles -> titles.mapNotNull { it.coverUrl?.takeIf(String::isNotBlank) }.sortedBy { it.hashCode() }.take(30) }
         }
     }.collectAsStateWithLifecycle(emptyList())
-
     key(language) {
         CompositionLocalProvider(
             LocalAppContainer provides container,
             LocalCompactLists provides compactLists,
             LocalReduceMotion provides reduceMotion,
+            LocalTv provides remember { isTvDevice() },
             LocalReaderControls provides readerControls,
             LocalAppGestures provides gestures,
             LocalBackdropCovers provides backdropCovers,
@@ -331,7 +334,7 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                             Surface(Modifier.weight(1f).fillMaxWidth().openingRise(opening), color = Color.Transparent, contentColor = MaterialTheme.colorScheme.onBackground) {
                                 // The tabs stay composed under the pages so a grid keeps its place, and nothing draws until the saved place is read.
                                 if (place.restored && onboardingDone != null) {
-                                    BoxWithConstraints(Modifier.fillMaxSize()) {
+                                    BoxWithConstraints(Modifier.fillMaxSize().keyboardOverOnTv()) {
                                         val shownNav = shownNavStyle(navStyle, maxWidth)
                                         // The tabs are the page under the first one, so they give way to it and come back in the same motion.
                                         CompositionLocalProvider(LocalSideNavWidth provides sideNavWidth(shownNav)) {
@@ -360,14 +363,14 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                                             onDismiss = { container.librarySync.handoff.value = null },
                                             Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)).padding(12.dp),
                                         )
-                                        // What happens to the entries on the trackers of titles just taken out of the library.
-                                        TrackerRemovePrompt()
                                         // A new version of the app at the top for five seconds, and the notes of this one once after an update.
                                         AppUpdateNotices({ navigation.push(Page.SettingsPage(SettingsTarget.AppUpdate)) }, Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)).padding(12.dp))
                                         // The first steps after installing, over everything until they are gone through or skipped, then fading away to the library.
                                         androidx.compose.animation.AnimatedVisibility(onboardingDone == false, enter = fadeIn(tween(300)), exit = fadeOut(tween(450)) + scaleOut(tween(450), targetScale = 1.03f)) {
-                                            OnboardingScreen(onMigrate = { navigation.push(Page.Migration(it)) }, onOpenSettings = { navigation.push(Page.SettingsPage(it)) })
+                                            if (LocalTv.current) TvOnboardingScreen(onOpenSettings = { navigation.push(Page.SettingsPage(it)) }) else OnboardingScreen(onMigrate = { navigation.push(Page.Migration(it)) }, onOpenSettings = { navigation.push(Page.SettingsPage(it)) })
                                         }
+                                        // Prompts over everything, even the first steps: trackers of titles just removed, sending to a TV, and who is watching on a TV.
+                                        AppPrompts()
                                         if (perfOverlay) {
                                             // The box stays where it was dragged to, and starts in a corner that suits the screen.
                                             val place = perfAt

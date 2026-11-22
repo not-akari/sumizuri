@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -115,6 +116,19 @@ class Trackers(
         onSignedOut(tracker)
         set(tracker, SignIn.Idle)
         AppLog.info(Tag, "signed out of ${tracker.id}")
+    }
+
+    // Keeps the accounts another device of the same person handed over, as if signed in here, and starts their sync. A tracker this profile is signed in to already keeps its own account. Gives how many were taken.
+    suspend fun takeHanded(handed: Map<TrackerId, TrackerAccount>): Int {
+        val mine = accounts.accounts.first()
+        var taken = 0
+        for ((tracker, account) in handed) {
+            if (tracker in mine) continue
+            accounts.save(tracker, account)
+            onSignedIn(tracker)
+            taken++
+        }
+        return taken
     }
 
     private fun set(tracker: TrackerId, state: SignIn) = mutable.update { it + (tracker to state) }

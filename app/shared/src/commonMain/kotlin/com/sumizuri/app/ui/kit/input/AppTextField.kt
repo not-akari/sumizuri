@@ -5,11 +5,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import com.sumizuri.app.ui.kit.card.softFill
 
@@ -37,7 +39,6 @@ fun AppTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
 ) {
-    val rest = softFill()
     TextField(
         value,
         onValueChange,
@@ -60,15 +61,48 @@ fun AppTextField(
         maxLines,
         minLines,
         shape = MaterialTheme.shapes.small,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = softFill(lit = true),
-            unfocusedContainerColor = rest,
-            disabledContainerColor = rest.copy(alpha = rest.alpha / 2),
-            errorContainerColor = rest,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent,
-            errorIndicatorColor = MaterialTheme.colorScheme.error,
-        ),
+        colors = fieldColors(),
+    )
+}
+
+// The same for a value that also holds where the cursor is, for a field whose text is also changed from outside, such as by keys that add a piece at its end.
+@Composable
+fun AppTextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = LocalTextStyle.current,
+    singleLine: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+) {
+    TextField(
+        value,
+        onValueChange,
+        modifier,
+        textStyle = textStyle,
+        singleLine = singleLine,
+        visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        shape = MaterialTheme.shapes.small,
+        colors = fieldColors(),
+    )
+}
+
+// The colors of the field: a wash of the accent with no line, lighter while typed in, and a red line when it is wrong.
+@Composable
+private fun fieldColors(): TextFieldColors {
+    val rest = softFill()
+    return TextFieldDefaults.colors(
+        focusedContainerColor = softFill(lit = true),
+        unfocusedContainerColor = rest,
+        disabledContainerColor = rest.copy(alpha = rest.alpha / 2),
+        errorContainerColor = rest,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        disabledIndicatorColor = Color.Transparent,
+        errorIndicatorColor = MaterialTheme.colorScheme.error,
     )
 }

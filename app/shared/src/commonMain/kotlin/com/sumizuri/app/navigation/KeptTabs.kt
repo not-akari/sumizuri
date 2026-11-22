@@ -26,6 +26,7 @@ import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.ui.motion.MotionShift
 import com.sumizuri.app.ui.motion.PageMotion
 import com.sumizuri.app.ui.motion.tabMotion
+import com.sumizuri.app.ui.tv.LocalTv
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 
@@ -48,6 +49,11 @@ internal fun KeptTabs(
     shift: MotionShift,
     content: @Composable (Destination) -> Unit,
 ) {
+    // A TV builds only the tab in sight, since hidden tabs still hold places the remote could move to.
+    if (LocalTv.current) {
+        Box(Modifier.fillMaxSize()) { key(tab) { content(tab) } }
+        return
+    }
     val made = remember { mutableStateListOf(tab) }
     if (tab !in made) made += tab
     var shown by remember { mutableStateOf(tab) }
