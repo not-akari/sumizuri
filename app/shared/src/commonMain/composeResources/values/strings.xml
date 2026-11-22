@@ -1646,6 +1646,7 @@
     <string name="player_set_quality">Default quality</string>
     <string name="player_quality_remember">Last used</string>
     <string name="player_quality_highest">Highest</string>
+    <string name="player_quality_middle">Middle</string>
     <string name="player_quality_lowest">Lowest</string>
     <string name="player_set_resume">Resume where I left off</string>
     <string name="player_set_auto_next">Autoplay next episode</string>

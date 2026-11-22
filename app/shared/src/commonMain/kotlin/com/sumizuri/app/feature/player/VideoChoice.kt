@@ -40,7 +40,7 @@ object VideoChoice {
             ?.toInt()
     }
 
-    // The video to start with. The audio preference narrows the list when any video has it, then the quality mode takes the one that was remembered, the tallest or the shortest.
+    // The video to start with. The audio preference narrows the list when any video has it, then the quality mode takes the one that was remembered, the tallest, the one in the middle or the shortest.
     fun pick(videos: List<SourceVideo>, remembered: String?, mode: QualityMode, audio: AudioPreference): SourceVideo? {
         if (videos.isEmpty()) return null
         val pool = narrowed(videos, audio)
@@ -55,6 +55,14 @@ object VideoChoice {
                         }
                     }.maxByOrNull { it.second }
                     ?.first
+                    ?: pool.first()
+
+            // The middle of the heights there are, which is 720p when a source gives 360p, 720p and 1080p.
+            QualityMode.Middle ->
+                pool
+                    .mapNotNull { video -> height(video.quality)?.let { video to it } }
+                    .sortedBy { it.second }
+                    .let { sized -> sized.getOrNull(sized.size / 2)?.first }
                     ?: pool.first()
 
             QualityMode.Lowest ->

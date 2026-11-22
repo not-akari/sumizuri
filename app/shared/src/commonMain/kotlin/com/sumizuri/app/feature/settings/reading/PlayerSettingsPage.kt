@@ -23,6 +23,7 @@ import com.sumizuri.app.shared.resources.player_group_playback
 import com.sumizuri.app.shared.resources.player_hide_never
 import com.sumizuri.app.shared.resources.player_quality_highest
 import com.sumizuri.app.shared.resources.player_quality_lowest
+import com.sumizuri.app.shared.resources.player_quality_middle
 import com.sumizuri.app.shared.resources.player_quality_remember
 import com.sumizuri.app.shared.resources.player_set_ambient
 import com.sumizuri.app.shared.resources.player_set_ambient_hint
@@ -81,6 +82,7 @@ fun PlayerSettingsRoute(onBack: () -> Unit) {
                         when (it) {
                             QualityMode.Remember -> Res.string.player_quality_remember
                             QualityMode.Best -> Res.string.player_quality_highest
+                            QualityMode.Middle -> Res.string.player_quality_middle
                             QualityMode.Lowest -> Res.string.player_quality_lowest
                         },
                     )
