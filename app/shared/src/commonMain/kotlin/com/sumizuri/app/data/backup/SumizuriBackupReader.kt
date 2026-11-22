@@ -243,7 +243,7 @@ private fun statusOf(name: String): Status? = when (name) {
 }
 
 // A time the Flutter app wrote as text. It leaves the zone off, which means the clock of the device that made it, so the clock of this device is the best guess.
-private fun timeOf(text: String): Long? {
+internal fun timeOf(text: String): Long? {
     if (text.isEmpty()) return null
     val zoned = text.endsWith("Z") || text.lastIndexOf('+') > 10 || text.lastIndexOf('-') > 10
     return try {

@@ -15,7 +15,7 @@ import org.jetbrains.compose.resources.StringResource
 // How many bytes at the start of a file are enough to tell what it is.
 const val HeadSize = 512L
 
-// Tells which app a backup file came from by its first bytes: a packed backup of this app starts with its name, gzip is Mihon, zip is Mangayomi, and text that begins with a brace is Sumizuri. Null when it is none of them.
+// Tells which app a backup file came from by its first bytes: a packed backup of this app starts with its name, gzip is Mihon, or Boundless when it holds text, a first byte of 0xE1 is a Boundless backup with a password, zip is Mangayomi, and text that begins with a brace is Sumizuri, or Boundless when it names the time it was made. Null when it is none of them.
 fun sniffBackup(file: Path, system: FileSystem = FileSystem.SYSTEM): BackupApp? {
     val head = try {
         system.source(file).buffer().use { source ->
@@ -31,10 +31,14 @@ fun sniffBackup(file: Path, system: FileSystem = FileSystem.SYSTEM): BackupApp? 
 // The same, from the first bytes of a file already read.
 fun sniffHead(head: ByteArray): BackupApp? {
     if (isPackedBackup(head)) return BackupApp.Sumizuri
-    if (head.size >= 2 && head[0] == 0x1f.toByte() && head[1] == 0x8b.toByte()) return BackupApp.Mihon
+    if (isBoundlessSealed(head)) return BackupApp.Boundless
+    if (head.size >= 2 && head[0] == 0x1f.toByte() && head[1] == 0x8b.toByte()) {
+        return if (isBoundlessGzip(head)) BackupApp.Boundless else BackupApp.Mihon
+    }
     if (head.size >= 2 && head[0] == 'P'.code.toByte() && head[1] == 'K'.code.toByte()) return BackupApp.Mangayomi
     val text = head.decodeToString().removePrefix("").trimStart()
-    return if (text.startsWith("{")) BackupApp.Sumizuri else null
+    if (!text.startsWith("{")) return null
+    return if (isBoundlessText(head)) BackupApp.Boundless else BackupApp.Sumizuri
 }
 
 // Reads the text of a file, which is a Sumizuri backup or the envelope of one that has a password.
