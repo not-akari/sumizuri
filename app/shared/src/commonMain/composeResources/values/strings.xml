@@ -752,8 +752,8 @@
     <string name="import_title">Import and export</string>
     <string name="import_choose">Choose a file</string>
     <string name="import_reading">Reading</string>
-    <string name="import_drop_hint">Or drop a file here. A .sumizuri file, or a backup from Mihon, Mangayomi or Boundless Reader.</string>
-    <string name="import_choose_hint">A .sumizuri file, or a backup from Mihon, Mangayomi or Boundless Reader</string>
+    <string name="import_drop_hint">Or drop a file here. A .sumizuri file, or a backup from Mihon or Mangayomi.</string>
+    <string name="import_choose_hint">A .sumizuri file, or a backup from Mihon or Mangayomi</string>
     <string name="import_dropping">Let go to open it</string>
     <string name="import_out_section">Share from this device</string>
     <string name="import_out_backup">Back up your library</string>
