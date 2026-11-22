@@ -118,6 +118,10 @@
     <string name="browse_tab_delete">Delete</string>
     <string name="browse_filtered">Filtered</string>
     <string name="browse_preferences">Source settings</string>
+    <string name="browse_home_network">Home network</string>
+    <string name="browse_home_network_hint">Lets this source reach servers at home, like 192.168.1.20 or nas.local. Turn it on only for sources you trust.</string>
+    <string name="browse_secret_show">Show</string>
+    <string name="browse_secret_hide">Hide</string>
     <string name="browse_repeated">Reached the end of the list.</string>
     <string name="listing_popular">Popular</string>
     <string name="listing_latest">Latest</string>
@@ -1051,7 +1055,7 @@
     <string name="legal_intro">Sumizuri is an app, not a content service.</string>
     <string name="legal_what_title">What Sumizuri is</string>
     <string name="legal_what_1">Sumizuri is a viewer. It shows the manga, comics, novels and videos you add yourself, and keeps your library, progress and settings.</string>
-    <string name="legal_what_2">It comes with no content, no sources and no repos. It shows nothing until you add something.</string>
+    <string name="legal_what_2">It comes with no content and no sources. It adds one repo for you, the official one, which only has connectors for servers you run yourself. It shows nothing until you add something.</string>
     <string name="legal_provide_title">What we do not provide</string>
     <string name="legal_provide_1">We do not host, upload, sell or hand out any content. We run no servers that hold content, and the app does not point you to any.</string>
     <string name="legal_provide_2">Sources and repos are made and shared by other people. We do not make, check, list or stand behind them, and we have no tie to the sites they reach.</string>
@@ -1075,7 +1079,7 @@
     <string name="privacy_device_2">Backups are files you make. They go where you save them, and you can lock one with a password.</string>
     <string name="privacy_leaves_title">What leaves your device</string>
     <string name="privacy_leaves_sources">Sources you add ask the sites they reach straight from your device, as a browser would. Those sites see your IP address and can set cookies.</string>
-    <string name="privacy_leaves_repos">Repos you add are read to install and update their sources.</string>
+    <string name="privacy_leaves_repos">Repos are read to install and update their sources. The official repo is added on the first start, which reads it once from GitHub.</string>
     <string name="privacy_leaves_updates">The app asks GitHub for new versions of Sumizuri. You can turn this off in App updates.</string>
     <string name="privacy_leaves_lookup">A word you look up in the reader goes to Wiktionary or Jisho. Web search opens Google.</string>
     <string name="privacy_leaves_browser">On desktop, the first time a source needs it, the app downloads the browser it uses for sites with a bot check.</string>
@@ -2378,7 +2382,7 @@
     <string name="onboarding_library_done">Your library is here</string>
     <string name="onboarding_library_waiting">%1$d titles wait for a source. You can move them later from Backup in Profile.</string>
     <string name="onboarding_library_another">Bring another</string>
-    <string name="onboarding_repo_hint">A repo lists sources you can browse. Sumizuri comes with none of its own.</string>
+    <string name="onboarding_repo_hint">A repo lists sources you can browse. The official repo, with connectors for servers you run yourself, is added for you.</string>
     <plurals name="onboarding_repos_added">
         <item quantity="one">%1$d repo added</item>
         <item quantity="other">%1$d repos added</item>

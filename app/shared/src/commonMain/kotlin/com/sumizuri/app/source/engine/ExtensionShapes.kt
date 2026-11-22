@@ -113,6 +113,7 @@ internal fun preferencesOf(schema: List<JsonObject>): List<SourcePreference> = s
         type = type,
         summary = ResultParser.text(field, "placeholder"),
         defaultValue = if (type == PreferenceType.Switch) fallback?.toString() == "true" else fallback,
+        secure = field["secure"]?.let(::primitiveValue)?.toString() == "true",
         options = (field["options"] as? JsonArray).orEmpty().mapNotNull { option ->
             val item = option as? JsonObject ?: return@mapNotNull null
             val value = ResultParser.text(item, "value") ?: return@mapNotNull null

@@ -10,6 +10,8 @@ data class SourcePreference(
     val options: List<PreferenceOption> = emptyList(),
     val dialogTitle: String? = null,
     val dialogMessage: String? = null,
+    // A password or a key, hidden on screen and locked with the key of this device.
+    val secure: Boolean = false,
 )
 
 data class PreferenceOption(val label: String, val value: String)

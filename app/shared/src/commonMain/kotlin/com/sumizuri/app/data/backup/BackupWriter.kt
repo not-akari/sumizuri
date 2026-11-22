@@ -11,6 +11,7 @@ import com.sumizuri.app.data.model.Status
 import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.data.tracker.ImportedTrack
 import com.sumizuri.app.data.tracker.carried
+import com.sumizuri.app.source.host.store.SealMark
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
@@ -99,7 +100,8 @@ class BackupWriter(private val db: AppDatabase) {
                 put(
                     "sourceValues",
                     JsonArray(
-                        db.values().everything().map {
+                        // A value locked with the key of this device opens nowhere else, so it stays here.
+                        db.values().everything().filterNot { it.value.startsWith(SealMark) }.map {
                             buildJsonObject {
                                 put("scope", it.scope)
                                 put("area", it.area)

@@ -46,6 +46,9 @@ object SettingKey {
     // The pages new in this version that the person has opened, so the home stops marking them.
     const val SettingsSeen = "settings.seen"
 
+    // Set once the official repo was added, so a person who removes it does not get it back.
+    const val OfficialRepoAdded = "repos.officialAdded"
+
     // How the entries of a source are laid out, the same for every source.
     const val BrowseStyle = "browse.style"
 

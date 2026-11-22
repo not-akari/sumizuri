@@ -1934,7 +1934,7 @@
     <string name="legal_intro">Sumizuri es una app, no un servicio de contenido.</string>
     <string name="legal_what_title">Qué es Sumizuri</string>
     <string name="legal_what_1">Sumizuri es un visor. Muestra el manga, los cómics, las novelas y los videos que tú mismo agregas, y guarda tu biblioteca, tu progreso y tus ajustes.</string>
-    <string name="legal_what_2">No trae contenido, fuentes ni repos. No muestra nada hasta que agregas algo.</string>
+    <string name="legal_what_2">No trae contenido ni fuentes. Agrega un repo por ti, el oficial, que solo tiene conectores para servidores que tú mismo manejas. No muestra nada hasta que agregas algo.</string>
     <string name="legal_provide_title">Lo que no ofrecemos</string>
     <string name="legal_provide_1">No alojamos, subimos, vendemos ni repartimos contenido. No tenemos servidores con contenido, y la app no te dirige a ninguno.</string>
     <string name="legal_provide_2">Las fuentes y los repos los crean y comparten otras personas. No los hacemos, revisamos, listamos ni respaldamos, y no tenemos relación con los sitios a los que acceden.</string>
@@ -1958,7 +1958,7 @@
     <string name="privacy_device_2">Los respaldos son archivos que tú haces. Van a donde los guardes, y puedes protegerlos con contraseña.</string>
     <string name="privacy_leaves_title">Lo que sale de tu dispositivo</string>
     <string name="privacy_leaves_sources">Las fuentes que agregas consultan directamente desde tu dispositivo los sitios a los que acceden, como lo haría un navegador. Esos sitios ven tu dirección IP y pueden guardar cookies.</string>
-    <string name="privacy_leaves_repos">Los repos que agregas se leen para instalar y actualizar sus fuentes.</string>
+    <string name="privacy_leaves_repos">Los repos se leen para instalar y actualizar sus fuentes. El repo oficial se agrega en el primer inicio, y se lee una vez desde GitHub.</string>
     <string name="privacy_leaves_updates">La app le pregunta a GitHub si hay versiones nuevas de Sumizuri. Puedes apagarlo en Actualizaciones de la app.</string>
     <string name="privacy_leaves_lookup">Una palabra que buscas en el lector va a Wiktionary o Jisho. La búsqueda web abre Google.</string>
     <string name="privacy_leaves_browser">En computadora, la primera vez que una fuente lo necesita, la app descarga el navegador que usa para los sitios con verificación anti-bots.</string>
@@ -2601,7 +2601,7 @@
     <string name="notice_mark_read">Marcar como leído</string>
     <string name="handoff_title">Leíste más adelante en otro dispositivo</string>
     <string name="handoff_continue">Continuar</string>
-    <string name="onboarding_repo_hint">Un repo enumera las fuentes que puedes explorar. Sumizuri no trae ninguna propia.</string>
+    <string name="onboarding_repo_hint">Un repo enumera las fuentes que puedes explorar. El repo oficial, con conectores para servidores que tú mismo manejas, se agrega por ti.</string>
     <plurals name="onboarding_repos_added">
         <item quantity="one">%1$d repo agregado</item>
         <item quantity="many">%1$d repos agregados</item>

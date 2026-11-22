@@ -64,7 +64,7 @@ class ChapterPictures(
             }
             ?: return null
         val page = pickPage(pages.filter { it.imageUrl != null && it.descramble == null }, chapterId) ?: return null
-        return ChapterPicture(page.imageUrl ?: return null, pictureHeaders(installed), place.sourceId)
+        return ChapterPicture(page.imageUrl ?: return null, pictureHeaders(installed, page.imageUrl), place.sourceId)
     }
 }
 

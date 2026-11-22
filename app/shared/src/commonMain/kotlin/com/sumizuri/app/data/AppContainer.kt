@@ -61,6 +61,8 @@ import com.sumizuri.app.feature.title.chapter.ChapterPictures
 import com.sumizuri.app.source.SourceManager
 import com.sumizuri.app.source.browser.ChallengeSolver
 import com.sumizuri.app.source.browser.page.RenderPageFactory
+import com.sumizuri.app.source.engine.fillSettingHeaders
+import com.sumizuri.app.source.host.store.FilledHeaders
 import com.sumizuri.app.ui.kit.image.PageCache
 import com.sumizuri.app.ui.kit.image.PageSnapshots
 import com.sumizuri.app.ui.kit.image.SourceReferers
@@ -208,8 +210,12 @@ class AppContainer(
                 SiteKinds.bySource = list.associate { it.id to it.kind }
                 SourceReferers.headersBySource =
                     list.associate { it.id to it.imageHeaders() }.filterValues { it.isNotEmpty() }
+                list.forEach { fillSettingHeaders(it, hostStore) }
             }
         }
+        // Covers ask again with the headers a source fills from its settings once they change.
+        shared.launch { FilledHeaders.bySource.collect { SourceReferers.filledBySource = it } }
+        work.launch { repos.addOfficialOnce(settings) }
         // The pictures of the pages last read sit beside the database of this profile.
         PageSnapshots.useFolder(snapshotFolder(databasePath))
         // Chapters that wait to be saved go on from where they were.

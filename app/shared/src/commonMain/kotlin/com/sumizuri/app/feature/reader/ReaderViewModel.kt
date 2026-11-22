@@ -344,7 +344,7 @@ class ReaderViewModel(
             is ChapterLoad.Failed -> return fail(loaded.message, loaded.challengeUrl)
             is ChapterLoad.Pages -> loaded.pages
         }
-        show(here, shown, found.baseUrl, pictureHeaders(found))
+        show(here, shown, found.baseUrl, pictureHeaders(found, shown.firstNotNullOfOrNull { it.imageUrl }))
     }
 
     // Keeps the source for the chapters after this one, and offers the comments of the chapter when the code of the source has them.

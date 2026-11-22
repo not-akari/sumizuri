@@ -6,10 +6,12 @@ import com.sumizuri.app.source.browser.BrowserBroker
 import com.sumizuri.app.source.browser.page.RenderPageFactory
 import com.sumizuri.app.source.engine.EngineScripts
 import com.sumizuri.app.source.engine.ExtensionSource
+import com.sumizuri.app.source.engine.open
 import com.sumizuri.app.source.host.StandardHost
 import com.sumizuri.app.source.host.net.HttpHost
 import com.sumizuri.app.source.host.net.ImageHost
 import com.sumizuri.app.source.host.store.CookieStore
+import com.sumizuri.app.source.host.store.HomeNetwork
 import com.sumizuri.app.source.host.store.StorageHost
 import com.sumizuri.app.source.host.store.StoredBrowserFirstFlag
 import com.sumizuri.app.source.host.store.ValueStore
@@ -84,15 +86,19 @@ class SourceManager(
                 allowedHosts = installed.allowedHosts(),
                 kind = installed.kind,
                 sourceId = installed.id,
+                homeNetwork = { HomeNetwork.allowed(installed.id, values) },
             )
+            val storage = StorageHost(installed.id, values, installed.secureSettingKeys())
+            storage.sealOld()
             val host =
                 StandardHost(
                     http = http,
-                    storage = StorageHost(installed.id, values),
+                    storage = storage,
                     browser = broker,
                     label = installed.id,
                 )
             val source = ExtensionSource.open(runnable(installed), engine, host)
+            source.fillHeaders()
             running[installed.id] = Running(installed.version, source)
             runningIds = running.keys.toList()
             AppLog.info("sources", "started ${installed.id} version ${installed.version}")
@@ -118,8 +124,10 @@ class SourceManager(
             allowedHosts = draft.allowedHosts(),
             kind = draft.kind,
             sourceId = draft.id,
+            homeNetwork = { HomeNetwork.allowed(draft.id, values) },
         )
-        val host = StandardHost(http = http, storage = StorageHost(draft.id, values), browser = broker, label = label)
+        val storage = StorageHost(draft.id, values, draft.secureSettingKeys())
+        val host = StandardHost(http = http, storage = storage, browser = broker, label = label)
         val source = ExtensionSource.open(runnable(draft), engine, host, callTimeoutMs = TestTimeoutMs)
         SourceResult.Ok(source)
     } catch (error: CancellationException) {
