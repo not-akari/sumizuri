@@ -122,7 +122,7 @@ jobs:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       # Both apps in one Gradle run, so the Android and the Windows build share the cores instead of taking turns. The installer holds the app with its own Java and the small libmpv, so nothing else needs to be installed first.
       - name: Build the APKs and the installer
-        run: ./gradlew :app:android:assembleRelease :app:desktop:packageReleaseSetup -Pmpv.dll=build/libmpv/out/libmpv-2.dll ${{ steps.version.outputs.args }}
+        run: ./gradlew :app:android:assembleRelease :app:tv:assembleRelease :app:desktop:packageReleaseSetup -Pmpv.dll=build/libmpv/out/libmpv-2.dll ${{ steps.version.outputs.args }}
         env:
           ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/sumizuri-release.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -140,6 +140,11 @@ jobs:
           for apk in app/android/build/outputs/apk/release/android-*-release.apk; do
             kind=$(basename "$apk" -release.apk)
             cp "$apk" "Sumizuri-$VERSION-${kind#android-}.apk"
+          done
+          # The app for TVs has TV in its names, which is how each app updates only to its own files.
+          for apk in app/tv/build/outputs/apk/release/tv-*-release.apk; do
+            kind=$(basename "$apk" -release.apk)
+            cp "$apk" "Sumizuri-TV-$VERSION-${kind#tv-}.apk"
           done
           cp app/desktop/build/installer/*-setup.exe "Sumizuri-$VERSION-setup.exe"
           ls -l Sumizuri-*

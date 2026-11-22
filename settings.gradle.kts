@@ -35,6 +35,6 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-include(":app:android", ":app:desktop", ":app:shared")
+include(":app:android", ":app:desktop", ":app:shared", ":app:tv")
 // Sync: the part shared by the app and the server, and the server itself.
 include(":sync:core", ":sync:server")

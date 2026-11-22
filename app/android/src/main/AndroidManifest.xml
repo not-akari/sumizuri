@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <!-- The updater installs a new version it downloaded from the releases of the app. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- A TV has an app of its own in app/tv, so this one is not in the launcher of a TV. It still runs where there is no touch screen, such as a tablet with a keyboard. -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <application
             android:allowBackup="true"
