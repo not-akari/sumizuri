@@ -15,9 +15,11 @@ import com.sumizuri.app.data.backup.BackupWriter
 import com.sumizuri.app.data.backup.ImportedBackup
 import com.sumizuri.app.data.backup.SourceMatcher
 import com.sumizuri.app.data.backup.backupFileName
+import com.sumizuri.app.data.backup.boundlessNeedsPassword
 import com.sumizuri.app.data.backup.packedNeedsPassword
 import com.sumizuri.app.data.backup.readBackupFile
 import com.sumizuri.app.data.backup.readBackupText
+import com.sumizuri.app.data.backup.readBoundlessBackup
 import com.sumizuri.app.data.backup.readMangayomiBackup
 import com.sumizuri.app.data.backup.readMihonBackup
 import com.sumizuri.app.data.backup.sniffBackup
@@ -61,6 +63,7 @@ class BackupViewModel(
 
     // What is waiting for the person: the packed file of a backup with a password, or a backup that is read.
     private var sealed: Path? = null
+    private var sealedIsBoundless = false
     private var ready: ImportedBackup? = null
     private var cancelled = false
 
@@ -100,6 +103,14 @@ class BackupViewModel(
 
                     BackupApp.Mihon -> run(withContext(Dispatchers.IO) { readMihonBackup(file) }, withSettings = false)
 
+                    BackupApp.Boundless -> if (withContext(Dispatchers.IO) { boundlessNeedsPassword(file) }) {
+                        sealed = file
+                        sealedIsBoundless = true
+                        mutable.value = BackupState.Password(wrong = false)
+                    } else {
+                        run(withContext(Dispatchers.IO) { readBoundlessBackup(file) }, withSettings = false)
+                    }
+
                     BackupApp.Mangayomi -> run(
                         withContext(Dispatchers.IO) { readMangayomiBackup(file) },
                         withSettings = false,
@@ -122,8 +133,11 @@ class BackupViewModel(
         mutable.value = BackupState.Reading
         viewModelScope.launch {
             try {
-                val backup = withContext(Dispatchers.IO) { unpacked(file, password) }
+                val backup = withContext(Dispatchers.IO) {
+                    if (sealedIsBoundless) readBoundlessBackup(file, password) else unpacked(file, password)
+                }
                 sealed = null
+                sealedIsBoundless = false
                 offer(backup)
             } catch (error: CancellationException) {
                 throw error
@@ -163,6 +177,7 @@ class BackupViewModel(
     // Closes a window, or gives up on a file that waits.
     fun onDismiss() {
         sealed = null
+        sealedIsBoundless = false
         ready = null
         mutable.value = BackupState.Idle
     }
