@@ -35,11 +35,12 @@ Sumizuri is one app for the things you read and watch. Open files from your devi
 - **Your own files:** folders of pictures, ZIP and CBZ, and EPUB.
 - **Library:** shelves, a feed of new chapters, downloads, and backups you can lock with a password.
 - **Phones, tablets and desktop:** on a wide screen the reader and the player keep their controls in one row, and their menus open in a corner so the page or the video is never covered.
+- **TV:** a separate app for Android TV and Google TV, made for the remote, with your videos, seasons and a player you drive with the arrows.
 - **Sync:** keep your library, progress and reading habits the same on every device through your own [sync server](docs/sync-server.md). Each device keeps its own look and theme.
 
 ## Download
 
-Android 7.0 and newer, iPhone and iPad (iOS 15 and newer, installed with a sideloading tool), Windows, Mac (Apple silicon) and Linux. Get the newest version from the [download page](https://sumizuri.notakari.com/download) or the [releases](https://github.com/not-akari/sumizuri/releases/latest). If you are not sure which Android file to take, take **Universal**.
+Android 7.0 and newer, Android TV and Google TV, iPhone and iPad (iOS 15 and newer, installed with a sideloading tool), Windows, Mac (Apple silicon) and Linux. Get the newest version from the [download page](https://sumizuri.notakari.com/download) or the [releases](https://github.com/not-akari/sumizuri/releases/latest). If you are not sure which Android or TV file to take, take **Universal**.
 
 ## Install
 
@@ -50,6 +51,17 @@ Get the file for your device from the download page above, then follow the steps
 1. Download the **Universal** `.apk`, or the one for your processor.
 2. Open it. Android asks you to allow installs from your browser or file manager. Allow it for this once.
 3. Press **Install**.
+
+### Android TV and Google TV
+
+The TV app is its own app, with **TV** in the file name.
+
+1. On the TV, install **Downloader** from the Play Store.
+2. Let Downloader install apps. On Google TV, open **Settings**, **Apps**, **Security and restrictions**, **Unknown sources** and turn on Downloader.
+3. In Downloader, open `sumizuri.notakari.com/download`, pick **TV** and download the **Universal** file.
+4. Press **Install**.
+
+You can also copy the file to a USB stick and open it with a file manager on the TV.
 
 ### iPhone and iPad
 
@@ -112,6 +124,7 @@ Open **Settings**, then **App updates**. Sumizuri looks for a new version, and y
 | Device | What Install does |
 | --- | --- |
 | Android | Hands the new `.apk` to the installer of the phone. |
+| TV | Hands the new TV `.apk` to the installer of the TV. The phone and TV apps each take only their own files. |
 | Windows | Runs the new installer, which closes the app first. |
 | Mac | Opens the new disk image. Quit Sumizuri, then drag the new **Sumizuri** onto **Applications** and press **Replace**. |
 | Linux | Opens the new package, where the system can. |
@@ -130,6 +143,7 @@ You need JDK 21, and the Android SDK for the Android app.
 ```bash
 ./gradlew :app:desktop:runReleaseDistributable   # run the desktop app
 ./gradlew :app:android:assembleDebug             # build an Android debug APK
+./gradlew :app:tv:assembleDebug                  # build the TV debug APK
 ./gradlew :sync:server:installDist               # build the sync server
 ./gradlew :app:desktop:packageReleaseDmg         # build the Mac disk image, on a Mac
 ```

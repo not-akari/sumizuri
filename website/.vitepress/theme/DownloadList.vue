@@ -12,6 +12,7 @@ watch(seen, (value) => {
 
 const devices: { id: Device; label: string }[] = [
   { id: 'android', label: 'Android' },
+  { id: 'tv', label: 'TV' },
   { id: 'ios', label: 'iPhone and iPad' },
   { id: 'windows', label: 'Windows' },
   { id: 'mac', label: 'Mac' },
@@ -21,7 +22,8 @@ const devices: { id: Device; label: string }[] = [
 
 const files = computed(() => filesOf())
 const main = computed(() => recommended(chosen.value))
-const rest = computed(() => files.value[chosen.value].filter((entry) => entry !== main.value))
+// The file offered on top is left out of the list under it. The two lists are made apart, so they are matched by name.
+const rest = computed(() => files.value[chosen.value].filter((entry) => entry.asset.name !== main.value?.asset.name))
 const deviceName = computed(() => devices.find((d) => d.id === chosen.value)?.label ?? '')
 </script>
 
@@ -103,10 +105,11 @@ const deviceName = computed(() => devices.find((d) => d.id === chosen.value)?.la
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  border-radius: 12px;
+  border-radius: 999px;
   border: 1px solid var(--vp-c-divider);
   background: var(--vp-c-bg-soft);
   color: var(--vp-c-text-1);
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -194,6 +197,23 @@ ul {
   }
   .button {
     text-align: center;
+  }
+}
+/* On a phone the devices sit in one row that slides sideways, out to the edges of the screen. */
+@media (max-width: 767px) {
+  .picker {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 0 calc(50vw - 50%) 4px;
+    scrollbar-width: none;
+  }
+  .picker::-webkit-scrollbar {
+    display: none;
+  }
+  .picker button {
+    flex: none;
   }
 }
 </style>
