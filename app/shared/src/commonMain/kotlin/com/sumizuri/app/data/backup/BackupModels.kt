@@ -11,7 +11,7 @@ import com.sumizuri.app.data.model.library.LibrarySortField
 import com.sumizuri.app.data.tracker.ImportedTrack
 
 // The apps a backup can come from.
-enum class BackupApp { Sumizuri, Mihon, Mangayomi }
+enum class BackupApp { Sumizuri, Mihon, Mangayomi, Boundless }
 
 // A chapter of a title in a backup, with what the reader did with it. The times are epoch milliseconds, and 0 means unknown.
 data class ImportedChapter(
