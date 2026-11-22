@@ -85,6 +85,8 @@ class HttpHost(
     private val kind: Kind? = null,
     // The source the requests are for, for the routes set for single sources.
     private val sourceId: String? = null,
+    // Whether the person let this source reach addresses on the home network, asked at each request so a change applies at once.
+    private val homeNetwork: (suspend () -> Boolean)? = null,
 ) {
     val cookies: CookiesStorage =
         if (cookieStore == null) AcceptAllCookiesStorage() else PersistentCookiesStorage(cookieScope, cookieStore)
@@ -326,18 +328,21 @@ class HttpHost(
             }
         }
         if (allowPrivateAddresses) return url.trim()
-        val clean = AddressGuard.check(url)
+        // With the home network allowed for this source, only the kind of address is still checked.
+        if (homeNetwork?.invoke() == true) return AddressGuard.checkScheme(url)
+        val homeAllowable = homeNetwork != null
+        val clean = AddressGuard.check(url, homeAllowable)
         val host = hostOf(clean)
         // A literal address was fully checked above.
         if (AddressGuard.isLiteralAddress(host)) return clean
         val known = lookupLock.withLock { lookups[host] }
         if (known != null && known.second.elapsedNow().inWholeMinutes < LOOKUP_MINUTES) {
-            if (known.first) throw BlockedException("Refusing to fetch a private or internal address: \"$host\"")
+            if (known.first) throw AddressGuard.blocked(host, homeAllowable)
             return clean
         }
         val blocked = resolver.resolve(host).any { AddressGuard.isBlockedHost(it) }
         lookupLock.withLock { lookups[host] = blocked to TimeSource.Monotonic.markNow() }
-        if (blocked) throw BlockedException("Refusing to fetch a private or internal address: \"$host\"")
+        if (blocked) throw AddressGuard.blocked(host, homeAllowable)
         return clean
     }
 

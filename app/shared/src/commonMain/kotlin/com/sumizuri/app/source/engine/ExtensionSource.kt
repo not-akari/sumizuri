@@ -7,6 +7,9 @@ import com.sumizuri.app.source.Source
 import com.sumizuri.app.source.SourceError
 import com.sumizuri.app.source.SourceResult
 import com.sumizuri.app.source.host.StandardHost
+import com.sumizuri.app.source.host.store.FilledHeaders
+import com.sumizuri.app.source.host.store.HomeNetwork
+import com.sumizuri.app.source.host.store.HomeNetworkKey
 import com.sumizuri.app.source.model.CommentPage
 import com.sumizuri.app.source.model.CommentSort
 import com.sumizuri.app.source.model.FilterGroup
@@ -19,7 +22,6 @@ import com.sumizuri.app.source.model.SourceInfo
 import com.sumizuri.app.source.model.SourcePage
 import com.sumizuri.app.source.model.SourcePreference
 import com.sumizuri.app.source.model.SourceVideo
-import com.sumizuri.app.source.repo.InstalledSource
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
@@ -46,13 +48,16 @@ private const val PagesAtOnce = 4
 private const val EmbedsAtOnce = 4
 
 // A source backed by an extension in the source format: a Source class whose methods are called as the format calls them, with its answers read in the shapes the format defines.
-class ExtensionSource private constructor(
+class ExtensionSource internal constructor(
     private val runtime: ExtensionRuntime,
     private val host: StandardHost,
     override val info: SourceInfo,
     // The settings the extension declares in its repo entry, without the section headings.
     private val schema: List<JsonObject>,
     private val callTimeoutMs: Long,
+    // The id of the installed source and the picture headers it fills from its settings.
+    private val scope: String,
+    private val settingHeaders: Map<String, String>,
 ) : Source {
     private val methods = runtime.shape.methods
 
@@ -231,7 +236,16 @@ class ExtensionSource private constructor(
         primitiveValue(it.value)
     }
 
-    override suspend fun setPreference(key: String, value: Any?) = host.storage.putPreference(key, anyToJson(value))
+    override suspend fun setPreference(key: String, value: Any?) {
+        host.storage.putPreference(key, anyToJson(value))
+        if (key == HomeNetworkKey) HomeNetwork.changed(scope)
+        fillHeaders()
+    }
+
+    // Fills the picture headers that name a setting, so covers and pages on the server of this source load with them.
+    suspend fun fillHeaders() {
+        if (settingHeaders.isNotEmpty()) FilledHeaders.update(scope, settingHeaders, settings())
+    }
 
     override fun close() {
         runtime.close()
@@ -318,6 +332,7 @@ class ExtensionSource private constructor(
             field["default"]?.let { values[key] = settingText(it) }
         }
         host.storage.preferenceMap().forEach { (key, value) -> values[key] = settingText(value) }
+        values.remove(HomeNetworkKey)
         return values
     }
 
@@ -355,39 +370,8 @@ class ExtensionSource private constructor(
 
     private fun waited() = if (callTimeoutMs < 1000) "$callTimeoutMs ms" else "${callTimeoutMs / 1000} seconds"
 
-    companion object {
-        // Loads an installed extension and reads what its repo entry and its Source say about it.
-        suspend fun open(
-            installed: InstalledSource,
-            scripts: EngineScripts,
-            host: StandardHost,
-            callTimeoutMs: Long = 90_000,
-        ): ExtensionSource {
-            val runtime = ExtensionRuntime.open(installed.id, installed.code, scripts, host.bridge)
-            try {
-                val extra = runCatching { Json.parseToJsonElement(installed.extra) }.getOrNull() as? JsonObject
-                val schema = (extra?.get("settingsSchema") as? JsonArray)
-                    .orEmpty()
-                    .mapNotNull { it as? JsonObject }
-                    .filter { ResultParser.text(it, "type") != "section" && ResultParser.text(it, "key") != null }
-                val methods = runtime.shape.methods
-                val info = SourceInfo(
-                    name = installed.name,
-                    lang = installed.lang,
-                    iconUrl = installed.iconUrl.ifEmpty { null },
-                    baseUrl = installed.baseUrl.ifEmpty { null },
-                    hasDetails = true,
-                    hasFilters = "getSearchTags" in methods || "getSortOptions" in methods,
-                    hasCatalogs = runtime.shape.feeds.size > 2,
-                    hasPreferences = schema.isNotEmpty(),
-                )
-                return ExtensionSource(runtime, host, info, schema, callTimeoutMs)
-            } catch (error: Throwable) {
-                runtime.close()
-                throw error
-            }
-        }
-    }
+    // Holds open, which sits in its own file.
+    companion object
 }
 
 // The same result with its value changed, an error kept as it is.

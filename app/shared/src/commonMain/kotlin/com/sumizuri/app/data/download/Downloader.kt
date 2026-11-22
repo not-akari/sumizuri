@@ -274,7 +274,7 @@ class Downloader(
                 is SourceResult.Ok -> got.value
             }.sortedBy { it.index }.filter { it.imageUrl != null || !it.text.isNullOrBlank() }
             if (pages.isEmpty()) throw DownloadProblem(getString(Res.string.download_err_no_pages))
-            val headers = pictureHeaders(installed)
+            val headers = pictureHeaders(installed, pages.firstNotNullOfOrNull { it.imageUrl })
             val part = withContext(Dispatchers.IO) { files.begin(place.titleId, place.id) }
             val progress = MutableStateFlow(0 to 0L)
             val clock = TimeSource.Monotonic.markNow()

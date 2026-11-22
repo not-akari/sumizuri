@@ -6,18 +6,33 @@ import com.sumizuri.app.source.host.BridgeException
 
 // Only public web addresses are allowed, so a source cannot reach this device or the network around it.
 internal object AddressGuard {
-    fun check(url: String): String {
+    // A source that can be allowed the home network is told how to allow it.
+    fun check(url: String, homeAllowable: Boolean = false): String {
+        val trimmed = checkScheme(url)
+        val host = hostOf(trimmed)
+        if (isBlockedHost(host)) throw blocked(host, homeAllowable)
+        return trimmed
+    }
+
+    // Only that the address is a full http or https one, for a source the person let reach the home network.
+    fun checkScheme(url: String): String {
         val trimmed = url.trim()
         val scheme = trimmed.substringBefore("://", missingDelimiterValue = "").lowercase()
         if (scheme != "http" && scheme != "https") {
             if (!trimmed.contains("://")) throw BridgeException("Not a valid absolute URL: \"$url\"")
             throw BridgeException("Only http and https addresses are allowed, got \"$scheme\"")
         }
-        val host = hostOf(trimmed)
-        if (host.isEmpty()) throw BridgeException("Not a valid absolute URL: \"$url\"")
-        if (isBlockedHost(host)) throw BlockedException("Refusing to fetch a private or internal address: \"$host\"")
+        if (hostOf(trimmed).isEmpty()) throw BridgeException("Not a valid absolute URL: \"$url\"")
         return trimmed
     }
+
+    fun blocked(host: String, homeAllowable: Boolean) = BlockedException(
+        if (homeAllowable) {
+            "\"$host\" is on your home network. Turn on Home network in this source's settings to reach it."
+        } else {
+            "Refusing to fetch a private or internal address: \"$host\""
+        },
+    )
 
     // True for a host written as an IP address, which needs no lookup.
     fun isLiteralAddress(host: String): Boolean = parseIpv4(host.lowercase()) != null || host.contains(':')

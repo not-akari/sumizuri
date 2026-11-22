@@ -17,6 +17,8 @@ import coil3.size.Dimension
 import coil3.size.Precision
 import coil3.size.Size
 import com.sumizuri.app.data.net.SiteKinds
+import com.sumizuri.app.data.net.hostOf
+import com.sumizuri.app.source.host.store.SettingHeaders
 
 // The start of an address up to its host, made once.
 private val OriginPattern = Regex("^(https?://[^/]+)")
@@ -35,7 +37,7 @@ fun imageRequest(
     val site = SourceReferers.of(sourceId)
     // The host of the picture takes the way of the kind of its source.
     remember(url, sourceId) { SiteKinds.markFor(url, sourceId) }
-    val asked = SourceReferers.headersOf(sourceId)
+    val asked = SourceReferers.headersOf(sourceId) + SourceReferers.filledOf(sourceId, url)
     val headers = remember(extra, site, asked) {
         if (site == null ||
             extra.keys.any { it.equals("Referer", ignoreCase = true) }
@@ -106,4 +108,13 @@ object SourceReferers {
 
     fun headersOf(sourceId: String?): Map<String, String> =
         sourceId?.takeIf { it.isNotEmpty() }?.let { headersBySource[it] }.orEmpty()
+
+    // The picture headers each source fills from its settings, kept as state so covers ask again once a key is entered.
+    var filledBySource: Map<String, SettingHeaders> by mutableStateOf(emptyMap())
+
+    // Only a picture on the server named in the source's settings gets them.
+    fun filledOf(sourceId: String?, url: String): Map<String, String> {
+        val filled = sourceId?.takeIf { it.isNotEmpty() }?.let { filledBySource[it] } ?: return emptyMap()
+        return if (hostOf(url).lowercase() in filled.hosts) filled.headers else emptyMap()
+    }
 }
