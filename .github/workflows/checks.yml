@@ -58,4 +58,4 @@ jobs:
           printf '\norg.gradle.parallel=true\norg.gradle.caching=true\norg.gradle.jvmargs=-Xmx6g -Dfile.encoding=UTF-8\n' >> gradle.properties
       # The Linux machines of GitHub come with the Android SDK, set in ANDROID_HOME. The desktop code is compiled, and the Android app is built in full, which also checks its resources and its manifest.
       - name: Compile desktop and build Android
-        run: ./gradlew :app:desktop:compileKotlin :app:android:assembleDebug --console=plain
+        run: ./gradlew :app:desktop:compileKotlin :app:android:assembleDebug :app:tv:assembleDebug --console=plain

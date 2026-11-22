@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- The check of the library while the app is closed shows notices, and runs as a data sync while it shows its progress. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- The lock of the app asks for the screen lock of the TV. -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <!-- The updater installs a new version it downloaded from the releases of the app. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- An app for TVs: it needs the launcher of a TV and no touch screen. -->
+    <uses-feature android:name="android.software.leanback" android:required="true" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <application
+            android:allowBackup="true"
+            android:enableOnBackInvokedCallback="true"
+            android:name=".SumizuriApplication"
+            android:icon="@mipmap/ic_launcher"
+            android:banner="@drawable/tv_banner"
+            android:label="@string/app_name"
+            android:supportsRtl="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <!-- Tells the shared code this is the TV app, so it always shows the screens of a TV and updates from the TV files. -->
+        <meta-data android:name="sumizuri.tv_app" android:value="true" />
+        <activity
+                android:exported="true"
+                android:launchMode="singleTop"
+                android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|keyboard|navigation"
+                android:theme="@style/Theme.Sumizuri.Start"
+                android:name=".MainActivity">
+            <!-- An Open in Sumizuri button on the page of a repo, which asks to add that repo. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="sumizuri" android:host="add-repo" />
+            </intent-filter>
+            <!-- The app in the launcher of a TV. -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+                android:exported="false"
+                android:name=".ChallengeActivity" />
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+        <!-- Keeps long work going while the app is out of sight, with a notice that shows it. -->
+        <service
+            android:name="com.sumizuri.app.data.work.BusyService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+        <receiver
+            android:name="com.sumizuri.app.data.sync.StopCheckReceiver"
+            android:exported="false" />
+        <receiver
+            android:name="com.sumizuri.app.data.sync.NewsReceiver"
+            android:exported="false" />
+        <!-- Hands a downloaded update to the installer of the system. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.updates"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/update_paths" />
+        </provider>
+    </application>
+</manifest>
