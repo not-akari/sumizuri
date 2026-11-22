@@ -42,7 +42,7 @@ fun SumizuriTheme(
         MaterialTheme(colorScheme = scheme, shapes = shapes, typography = themedTypography(spec.options.typography)) {
             // Text that is not on a Material surface takes the color of the page text, since the default would be black.
             CompositionLocalProvider(LocalContentColor provides scheme.onBackground) {
-                if (fade) ThemeFade(scheme, content) else content()
+                if (fade) ThemeFade(scheme, content = content) else content()
             }
         }
     }
