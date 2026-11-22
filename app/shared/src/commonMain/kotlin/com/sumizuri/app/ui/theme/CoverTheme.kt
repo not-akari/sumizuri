@@ -36,7 +36,7 @@ fun CoverTheme(coverUrl: String?, content: @Composable () -> Unit) {
             palette?.takeIf { look.mode != CoverColorMode.Off }?.let { base.followingCover(it, dark, look) }
                 ?: base
         }
-    val scheme = animatedColorScheme(target)
+    val scheme = target
     // An immersive page lets its glow take the colors of the cover, however the theme colors its glow elsewhere.
     val pageSpec = remember(spec, look.mode) {
         if (look.mode != CoverColorMode.Immersive) {
@@ -58,12 +58,17 @@ fun CoverTheme(coverUrl: String?, content: @Composable () -> Unit) {
     if (ownBackground && LocalSideNavWidth.current == 0.dp) HideBackdropBehind()
     CompositionLocalProvider(LocalThemeSpec provides pageSpec, LocalCoverPalette provides palette) {
         MaterialTheme(colorScheme = scheme, shapes = MaterialTheme.shapes, typography = MaterialTheme.typography) {
-            Surface(
-                Modifier.fillMaxSize().then(if (ownBackground) Modifier.ambientBackground(onPage = true) else Modifier),
-                color = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onBackground,
-                content = content,
-            )
+            // The page fades into the colors of its cover as one picture, so it is not built again for every step.
+            ThemeFade(scheme, spread = false) {
+                Surface(
+                    Modifier.fillMaxSize().then(
+                        if (ownBackground) Modifier.ambientBackground(onPage = true) else Modifier,
+                    ),
+                    color = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onBackground,
+                    content = content,
+                )
+            }
         }
     }
 }
