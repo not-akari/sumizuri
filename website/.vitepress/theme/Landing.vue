@@ -431,10 +431,13 @@ h1 {
     grid-auto-columns: 62%;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    padding-bottom: 8px;
+    /* The row runs to the edges of the screen, so the next picture slides off the screen instead of being cut short inside the page. */
+    margin-inline: calc(50% - 50vw);
+    padding: 0 calc(50vw - 50%) 8px;
   }
+  /* Cards snap to the middle, which leaves the first and the last in line with the text. */
   .screen {
-    scroll-snap-align: start;
+    scroll-snap-align: center;
   }
 }
 

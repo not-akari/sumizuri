@@ -35,6 +35,13 @@ const { frontmatter } = useData()
   filter: blur(8px);
   pointer-events: none;
 }
+/* On a phone the glow stops at the edge of the screen, so the page does not scroll sideways. */
+@media (max-width: 767px) {
+  .wash {
+    right: -24px;
+    width: 240px;
+  }
+}
 .eyebrow {
   position: relative;
   display: inline-flex;
