@@ -27,6 +27,7 @@ import com.sumizuri.app.ui.theme.spec.BackgroundPalette
 import com.sumizuri.app.ui.theme.spec.BackgroundStyle
 import com.sumizuri.app.ui.theme.spec.ThemeBackground
 import com.sumizuri.app.ui.theme.spec.toColor
+import com.sumizuri.app.ui.tv.LocalTv
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -84,7 +85,8 @@ fun Modifier.ambientBackground(slot: BackdropSlot? = null, onPage: Boolean = fal
     val dark = scheme.background.luminance() < 0.5f
     val page = if (dark) scheme.background else scheme.surfaceContainerLow
     if (options.effects.bloom <= 0f && look.vignette <= 0f) return background(page)
-    val still = LocalReduceMotion.current || (onPage && look.pagesStill)
+    // A TV keeps it still, since redrawing the whole big screen makes a TV box lag.
+    val still = LocalReduceMotion.current || LocalTv.current || (onPage && look.pagesStill)
     val clock = rememberBackdropClock(look.speed, look.fps, still)
     val colors = backdropColors(look, scheme)
     val strength = (if (dark) DarkInk else 1f) * options.effects.bloom * (if (onPage) look.pageStrength else 1f)

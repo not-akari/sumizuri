@@ -1,5 +1,6 @@
 package com.sumizuri.app.navigation
 
+import com.sumizuri.app.data.pair.PairLink
 import io.ktor.http.Url
 import io.ktor.http.parseQueryString
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,6 +43,12 @@ object AppLinks {
 
             "updates" -> {
                 updates.value = true
+                true
+            }
+
+            // A TV showed its code, and the phone sends it what it chooses.
+            "pair" -> {
+                pair.value = PairLink.read(url) ?: return false
                 true
             }
 
@@ -90,6 +97,15 @@ object AppLinks {
 
     fun updatesTaken() {
         updates.value = false
+    }
+
+    private val pair = MutableStateFlow<PairLink?>(null)
+
+    // The TV a code asked to send to, until the window of sending closes.
+    val pairWith: StateFlow<PairLink?> = pair
+
+    fun pairTaken() {
+        pair.value = null
     }
 
     // The link that opens a title, or reads on in it.

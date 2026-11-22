@@ -7,8 +7,10 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,6 +53,8 @@ internal fun NavItem(
     val colors = MaterialTheme.colorScheme
     val source = remember { MutableInteractionSource() }
     val hovered by source.collectIsHoveredAsState()
+    // A remote or a keyboard on it lights the pill and rings it, so the place of the focus is always seen.
+    val focused by source.collectIsFocusedAsState()
     val ms = motionMs(AppMotion.Fast)
     val reduce = LocalReduceMotion.current
     val lift by animateFloatAsState(
@@ -59,7 +63,11 @@ internal fun NavItem(
         label = "lift",
     )
     val glow by animateColorAsState(
-        colors.onSurface.copy(alpha = if (hovered && !selected) 0.07f else 0f),
+        when {
+            focused -> colors.primary.copy(alpha = 0.22f)
+            hovered && !selected -> colors.onSurface.copy(alpha = 0.07f)
+            else -> colors.onSurface.copy(alpha = 0f)
+        },
         tween(ms),
         label = "glow",
     )
@@ -90,7 +98,8 @@ internal fun NavItem(
             spot
                 .width(if (wide) 56.dp else 64.dp)
                 .height(32.dp)
-                .background(glow, CircleShape),
+                .background(glow, CircleShape)
+                .border(2.dp, colors.primary.copy(alpha = if (focused) 1f else 0f), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Box(

@@ -8,6 +8,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.sumizuri.app.ui.theme.spec.AccentSource
 import com.sumizuri.app.ui.theme.spec.AppThemeSpec
+import com.sumizuri.app.ui.tv.LocalTv
 
 // The look of the app from the theme in use: its colors in the light or dark mode, the corners of its pieces and its fonts. Pieces with a look of their own beyond those read the theme from LocalThemeSpec.
 @Composable
@@ -42,7 +43,8 @@ fun SumizuriTheme(
         MaterialTheme(colorScheme = scheme, shapes = shapes, typography = themedTypography(spec.options.typography)) {
             // Text that is not on a Material surface takes the color of the page text, since the default would be black.
             CompositionLocalProvider(LocalContentColor provides scheme.onBackground) {
-                if (fade) ThemeFade(scheme, content = content) else content()
+                // A TV changes its look with ink over the screen instead, since a picture of the screen is not a true copy on Android.
+                if (fade && !LocalTv.current) ThemeFade(scheme, content = content) else content()
             }
         }
     }

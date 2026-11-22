@@ -36,6 +36,8 @@
                 <data android:scheme="sumizuri" android:host="add-repo" />
                 <!-- A tracking site sends the person back here after they allowed the app, with the token that signs them in. -->
                 <data android:scheme="sumizuri" android:host="track" />
+                <!-- The code a TV shows, which the camera of the phone opens here to send the TV repos, sources, trackers and a sign in to sync. -->
+                <data android:scheme="sumizuri" android:host="pair" />
             </intent-filter>
         </activity>
         <!-- The app in the launcher, one entry for each icon. Made by scripts/app-icons.js. -->

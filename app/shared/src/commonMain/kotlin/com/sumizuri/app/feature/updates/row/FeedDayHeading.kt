@@ -44,14 +44,7 @@ internal fun FeedDayHeading(
     onMarkAllRead: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
-    val text = when (heading.kind) {
-        HeadingKind.Today -> stringResource(Res.string.day_today)
-        HeadingKind.Yesterday -> stringResource(Res.string.day_yesterday)
-        HeadingKind.Date -> dateText(at)
-        HeadingKind.ThisWeek -> stringResource(Res.string.day_this_week)
-        HeadingKind.LastWeek -> stringResource(Res.string.day_last_week)
-        HeadingKind.Month -> monthYearText(at)
-    }
+    val text = feedHeadingText(heading, at)
     val colors = MaterialTheme.colorScheme
     Row(
         modifier.fillMaxWidth().heightIn(min = 30.dp).padding(top = 6.dp, bottom = 2.dp),
@@ -84,6 +77,17 @@ internal fun FeedDayHeading(
             }
         }
     }
+}
+
+// The words of a heading: today, yesterday, a date, the week or the month of the time given.
+@Composable
+internal fun feedHeadingText(heading: FeedHeading, at: Long): String = when (heading.kind) {
+    HeadingKind.Today -> stringResource(Res.string.day_today)
+    HeadingKind.Yesterday -> stringResource(Res.string.day_yesterday)
+    HeadingKind.Date -> dateText(at)
+    HeadingKind.ThisWeek -> stringResource(Res.string.day_this_week)
+    HeadingKind.LastWeek -> stringResource(Res.string.day_last_week)
+    HeadingKind.Month -> monthYearText(at)
 }
 
 // The items in the order they came, under the heading of today, yesterday, the week or the month, or only the week or the month in a grid.

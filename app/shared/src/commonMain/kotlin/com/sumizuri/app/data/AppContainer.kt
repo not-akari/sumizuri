@@ -22,6 +22,7 @@ import com.sumizuri.app.data.download.downloadFolder
 import com.sumizuri.app.data.library.CategoryRepository
 import com.sumizuri.app.data.library.ChapterCarry
 import com.sumizuri.app.data.library.CoverFiles
+import com.sumizuri.app.data.library.EpisodeStills
 import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.library.SeasonCovers
 import com.sumizuri.app.data.library.StatisticsRepository
@@ -100,6 +101,7 @@ class AppContainer(
     val settings = SettingsRepository(database, shared)
 
     // The covers of the seasons of anime from AniList, kept beside the cache of pictures.
+    val episodeStills = EpisodeStills()
     val seasonCovers = SeasonCovers(FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "sumizuri_covers_meta")
     val session = SessionRepository(database)
     val reading = ReaderSettingsRepository(database)

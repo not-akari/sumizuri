@@ -83,6 +83,18 @@ interface ChapterDao {
     )
     fun observeUnreadUpdateCount(): Flow<Int>
 
+    // The same count for the titles of one kind only, for a TV that shows videos alone.
+    @Query(
+        """
+        SELECT COUNT(*) FROM title t
+        JOIN chapter c ON c.titleId = t.id AND c.publishedAt >= t.addedAt - 86400000 AND c.publishedAt > 0
+        WHERE t.inLibrary = 1 AND t.kind = :kind
+        AND t.sourceId IN (SELECT id FROM source WHERE enabled = 1)
+        AND NOT EXISTS (SELECT 1 FROM progress p WHERE p.chapterId = c.id AND p.read = 1)
+        """,
+    )
+    fun observeUnreadUpdateCountOfKind(kind: Int): Flow<Int>
+
     @Query("SELECT * FROM chapter WHERE titleId = :titleId")
     suspend fun allOf(titleId: Long): List<ChapterEntity>
 

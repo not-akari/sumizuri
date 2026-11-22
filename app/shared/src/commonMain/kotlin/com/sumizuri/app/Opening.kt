@@ -34,14 +34,20 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.settings.SettingKey
@@ -52,6 +58,7 @@ import com.sumizuri.app.shared.resources.opening_off
 import com.sumizuri.app.ui.kit.art.AppIconArt
 import com.sumizuri.app.ui.motion.AppMotion
 import com.sumizuri.app.ui.theme.LocalReduceMotion
+import com.sumizuri.app.ui.tv.LocalTv
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import org.jetbrains.compose.resources.StringResource
@@ -75,12 +82,19 @@ private const val RingMs = 320
 private const val LeaveMs = 440
 private const val FadeMs = 220
 
+// The ink of a TV opening spreading behind the logo, and its fade into the first screen.
+private const val InkMs = 460
+private const val InkLeaveMs = 260
+
 // A start that takes longer than this shows a small moving bar under the name, so a slow first load never looks stuck.
 private const val SlowMs = 600L
 
 // Where the opening is. It plays once for each start of the app, so turning a phone or a new language does not play it again.
-internal class OpeningState(private val chosen: State<OpeningStyle?>) {
+internal class OpeningState(private val chosen: State<OpeningStyle?>, val tv: Boolean) {
     val ring = Animatable(0f)
+
+    // How far the ink of a TV opening has spread, from 0 to 1.
+    val ink = Animatable(0f)
     val leave = Animatable(0f)
     var done by mutableStateOf(AppStart.opened)
 
@@ -103,19 +117,34 @@ internal fun rememberOpening(ready: Boolean): OpeningState {
     val saved by remember(container) { container.settings.text(SettingKey.Opening).map { OpeningStyle.of(it) } }
         .collectAsStateWithLifecycle(null)
     val chosen = rememberUpdatedState(if (LocalReduceMotion.current) OpeningStyle.Off else saved)
-    val state = remember { OpeningState(chosen) }
+    val tv = LocalTv.current
+    val state = remember { OpeningState(chosen, tv) }
     val style = chosen.value
+    // A TV starts its ink at once, so the logo is drawn in while the first screen loads.
+    LaunchedEffect(style) {
+        if (tv && !state.done && style != null &&
+            style != OpeningStyle.Off
+        ) {
+            state.ink.animateTo(1f, tween(InkMs, easing = FastOutSlowInEasing))
+        }
+    }
     LaunchedEffect(ready, style) {
         if (state.done || !ready || style == null) return@LaunchedEffect
-        when (style) {
-            OpeningStyle.Handoff -> {
+        when {
+            style == OpeningStyle.Off -> Unit
+
+            // A TV keeps it short: the ink finishes, then the cover fades into the first screen.
+            tv -> {
+                state.ink.animateTo(1f, tween(((1f - state.ink.value) * InkMs).toInt(), easing = FastOutSlowInEasing))
+                state.leave.animateTo(1f, tween(InkLeaveMs))
+            }
+
+            style == OpeningStyle.Handoff -> {
                 state.ring.animateTo(1f, tween(RingMs, easing = FastOutSlowInEasing))
                 state.leave.animateTo(1f, tween(LeaveMs, easing = AppMotion.Entrance))
             }
 
-            OpeningStyle.Fade -> state.leave.animateTo(1f, tween(FadeMs))
-
-            OpeningStyle.Off -> Unit
+            else -> state.leave.animateTo(1f, tween(FadeMs))
         }
         state.finish()
     }
@@ -124,7 +153,7 @@ internal fun rememberOpening(ready: Boolean): OpeningState {
 
 // The first screen rises a little into place as the logo gives way to it.
 internal fun Modifier.openingRise(state: OpeningState): Modifier = graphicsLayer {
-    if (state.done || state.style != OpeningStyle.Handoff) return@graphicsLayer
+    if (state.done || state.tv || state.style != OpeningStyle.Handoff) return@graphicsLayer
     val left = 1f - state.leave.value
     translationY = left * 24.dp.toPx()
     scaleX = 1f - left * 0.02f
@@ -150,6 +179,10 @@ internal fun OpeningCover(state: OpeningState, ready: Boolean) {
             .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center,
     ) {
+        if (state.tv && style != null) {
+            TvInk(state)
+            return@BoxWithConstraints
+        }
         // Until the style is read only the page shows, so a person who turned the opening off never sees the logo flash.
         if (style != OpeningStyle.Handoff) return@BoxWithConstraints
         // A phone shows a bigger logo, closer to the one on its own splash screen.
@@ -186,6 +219,44 @@ internal fun OpeningCover(state: OpeningState, ready: Boolean) {
         }
     }
 }
+
+// The opening of a TV: a pool of the accent spreads from the middle and the logo is drawn in inside it, then the name comes under it. Nothing grows or shrinks.
+@Composable
+private fun TvInk(state: OpeningState) {
+    val color = MaterialTheme.colorScheme.primary
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            Modifier.size(TvLogo * 2.2f).drawBehind {
+                val spread = state.ink.value
+                if (spread > 0f) drawCircle(color.copy(alpha = 0.16f * spread), radius = size.minDimension / 2 * spread)
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                AppIconArt,
+                null,
+                Modifier.size(TvLogo).drawWithContent {
+                    val shown = (state.ink.value * 1.4f).coerceAtMost(1f)
+                    clipPath(
+                        Path().apply {
+                            addOval(Rect(center, size.maxDimension * 0.75f * shown))
+                        },
+                    ) { this@drawWithContent.drawContent() }
+                },
+            )
+        }
+        Text(
+            "Sumizuri",
+            Modifier.graphicsLayer { alpha = ((state.ink.value - 0.5f) * 2f).coerceIn(0f, 1f) },
+            fontSize = 30.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
+}
+
+// How big the logo of a TV opening is.
+private val TvLogo = 104.dp
 
 // A ring of the accent round the logo that closes from the top, for the moment the app is ready.
 @Composable
