@@ -2,8 +2,8 @@ package com.sumizuri.app.data.model.player
 
 import com.sumizuri.app.playback.AspectMode
 
-// Which video of an episode is taken when it has several: the one that was picked last, the sharpest, or the lightest.
-enum class QualityMode { Remember, Best, Lowest }
+// Which video of an episode is taken when it has several: the one that was picked last, the sharpest, the one in the middle, or the lightest.
+enum class QualityMode { Remember, Best, Middle, Lowest }
 
 // Whether the subtitled or the dubbed version is taken when the source gives both.
 enum class AudioPreference { Any, Sub, Dub }
