@@ -82,21 +82,26 @@ internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
         settings,
     ) { settings.flag(SettingKey.ProfileBanner, false) }.collectAsStateWithLifecycle(false)
     val active = state.active
+    val bar: @Composable () -> Unit = {
+        PageTopBar(stringResource(Res.string.profile_title)) {
+            IconButton(
+                calls.onLayouts,
+            ) { Icon(Icons.Outlined.AutoAwesomeMosaic, stringResource(Res.string.blocks_layouts)) }
+            IconButton(
+                calls.onArrange,
+            ) { Icon(Icons.Outlined.DashboardCustomize, stringResource(Res.string.blocks_edit)) }
+            IconButton(
+                calls.onOpenSettings,
+            ) { Icon(Icons.Outlined.Settings, stringResource(Res.string.nav_settings)) }
+        }
+    }
+    // With the banner on, the bar sits on its top and scrolls with it. Without it, the bar stays over the content.
+    val barOnBanner = banner && active != null
     Column(Modifier.fillMaxSize()) {
-        // The bar sits over the content, centered with it on a wide window.
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-            Box(Modifier.widthIn(max = ContentWidth).fillMaxWidth()) {
-                PageTopBar(stringResource(Res.string.profile_title)) {
-                    IconButton(
-                        calls.onLayouts,
-                    ) { Icon(Icons.Outlined.AutoAwesomeMosaic, stringResource(Res.string.blocks_layouts)) }
-                    IconButton(
-                        calls.onArrange,
-                    ) { Icon(Icons.Outlined.DashboardCustomize, stringResource(Res.string.blocks_edit)) }
-                    IconButton(
-                        calls.onOpenSettings,
-                    ) { Icon(Icons.Outlined.Settings, stringResource(Res.string.nav_settings)) }
-                }
+        if (!barOnBanner) {
+            // Centered with the content on a wide window.
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                Box(Modifier.widthIn(max = ContentWidth).fillMaxWidth()) { bar() }
             }
         }
         if (active != null) {
@@ -108,7 +113,7 @@ internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
                             .widthIn(max = ContentWidth)
                             .fillMaxWidth()
                             .padding(horizontal = PageGutter)
-                            .padding(top = 4.dp, bottom = 32.dp),
+                            .padding(top = if (barOnBanner) 0.dp else 4.dp, bottom = 32.dp),
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
                         ProfileHeader(active, state.stats, state.recent, banner = banner, onSwitch = {
@@ -116,7 +121,7 @@ internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
                         }, onEdit = {
                             window =
                                 Window.Form(active)
-                        })
+                        }, bar = bar.takeIf { barOnBanner })
                         SyncEntry(calls.onOpenSync, calls.onOpenTrackers)
                         if (state.unreachable > 0) Missing(state.unreachable, calls.onOpenMissing)
                         BlockGrid(

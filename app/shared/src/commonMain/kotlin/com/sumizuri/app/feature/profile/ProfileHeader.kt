@@ -55,12 +55,16 @@ import com.sumizuri.app.ui.kit.chips.SoftActionChip
 import com.sumizuri.app.ui.kit.cover.SoftCover
 import com.sumizuri.app.ui.kit.cover.focus.focusAlignment
 import com.sumizuri.app.ui.kit.cover.focus.rememberCoverFocus
+import com.sumizuri.app.ui.kit.page.PageGutter
 import com.sumizuri.app.ui.kit.text.Figure
 import com.sumizuri.app.ui.text.compactCount
 import org.jetbrains.compose.resources.stringResource
 
 // How tall the banner of covers is, how big the picture is, and how far the picture reaches into the banner.
 private val BannerHeight = 150.dp
+
+// The extra height the banner takes when the bar of the page sits on its top.
+private val BarRoom = 56.dp
 private val AvatarSize = 104.dp
 private val AvatarOverlap = 52.dp
 
@@ -77,10 +81,12 @@ internal fun ProfileHeader(
     onEdit: () -> Unit,
     banner: Boolean,
     modifier: Modifier = Modifier,
+    // The bar of the page, drawn on the top of the banner so there is no gap above it.
+    bar: (@Composable () -> Unit)? = null,
 ) {
     val colors = MaterialTheme.colorScheme
     Column(modifier.fillMaxWidth()) {
-        if (banner) Banner(recent)
+        if (banner) Banner(recent, bar)
         Row(
             Modifier.padding(start = 20.dp, end = 8.dp),
             verticalAlignment = Alignment.Bottom,
@@ -136,16 +142,24 @@ internal fun ProfileHeader(
     }
 }
 
-// The covers read lately side by side, blurred and fading into the page, or a soft wash of the accent before anything was read.
+// The covers read lately side by side and blurred, or a soft wash of the accent before anything was read. It has no edges of its own: it turns see-through toward the bottom and the sides, so it melts into whatever background the theme draws.
 @Composable
-private fun Banner(recent: List<FeedItem>) {
-    val shape = MaterialTheme.shapes.large
-    val page = MaterialTheme.colorScheme.background
+private fun Banner(recent: List<FeedItem>, bar: (@Composable () -> Unit)?) {
+    val height = if (bar != null) BannerHeight + BarRoom else BannerHeight
+    // It reaches past the side room of the page, so it runs edge to edge with the bar on it.
+    Box(Modifier.bleed(PageGutter).fillMaxWidth().height(height)) {
+        Covers(recent, height)
+        bar?.invoke()
+    }
+}
+
+@Composable
+private fun Covers(recent: List<FeedItem>, height: Dp) {
     Box(
         Modifier
             .fillMaxWidth()
-            .height(BannerHeight)
-            .clip(shape)
+            .height(height)
+            .meltIntoPage()
             .background(softFill(strong = true)),
     ) {
         val titles = recent.map { it.title }.filter { !it.coverUrl.isNullOrBlank() }.take(6)
@@ -171,22 +185,50 @@ private fun Banner(recent: List<FeedItem>) {
                         // A light blur, so the covers can still be told apart.
                         width = 200,
                         height = 300,
-                        alignment = focusAlignment(focus, width.value, BannerHeight.value),
+                        alignment = focusAlignment(focus, width.value, height.value),
                         passes = 2,
                     )
                 }
             }
         }
-        // The banner darkens and fades into the page, so the name under it reads on any cover.
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .background(
-                    Brush.verticalGradient(listOf(Color.Transparent, page.copy(alpha = 0.35f), page)),
-                ),
+    }
+}
+
+// Lets what is drawn fade out to nothing at the bottom, and a little at the top and at each side.
+private fun Modifier.meltIntoPage(): Modifier =
+    graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen).drawWithContent {
+        drawContent()
+        drawRect(
+            Brush.verticalGradient(
+                0f to Color.Transparent,
+                0.18f to Color.Black,
+                0.45f to Color.Black,
+                1f to Color.Transparent,
+            ),
+            blendMode = BlendMode.DstIn,
+        )
+        drawRect(
+            Brush.horizontalGradient(
+                0f to Color.Transparent,
+                0.08f to Color.Black,
+                0.92f to Color.Black,
+                1f to Color.Transparent,
+            ),
+            blendMode = BlendMode.DstIn,
         )
     }
+
+// Lets a part reach past the side room of what holds it by the given amount on each side.
+private fun Modifier.bleed(by: Dp): Modifier = layout { measurable, constraints ->
+    val extra = by.roundToPx() * 2
+    val placeable = measurable.measure(
+        constraints.copy(
+            maxWidth = constraints.maxWidth + extra,
+            minWidth =
+            constraints.minWidth + extra,
+        ),
+    )
+    layout(constraints.maxWidth, placeable.height) { placeable.place(-extra / 2, 0) }
 }
 
 // Draws a part higher by the given room and gives back that room below it, so it reaches over what is above.
