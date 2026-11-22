@@ -46,6 +46,12 @@ class DesktopBrowserRuntime(
         )
         clearBrokenInstall()
         trimBrowserFolder(cacheDir)
+        if (crashedBefore()) {
+            AppLog.error(TAG, "the browser engine took the app down the last time it started here, it stays off")
+            failure =
+                "The embedded browser crashed the app the last time it started on this system, so it stays off. Update the app or the system, or delete ${startMark.absolutePath} to try again."
+            return failure
+        }
         var lastTen = -1
         try {
             KCEF.init(
@@ -69,7 +75,9 @@ class DesktopBrowserRuntime(
                             AppLog.info(TAG, "unpacking the browser")
                             onProgress("Unpacking the browser")
                         }
+                        onInitializing { markStarting() }
                         onInitialized {
+                            clearStartMark()
                             AppLog.info(TAG, "the browser engine is ready")
                             onProgress("Browser ready")
                         }
@@ -92,6 +100,7 @@ class DesktopBrowserRuntime(
                     }
                 },
                 onError = { error ->
+                    clearStartMark()
                     AppLog.error(TAG, "the browser engine reported an error", error)
                     failure = "Could not start the embedded browser: ${error?.message}"
                 },
@@ -101,11 +110,30 @@ class DesktopBrowserRuntime(
                 },
             )
         } catch (error: Exception) {
+            clearStartMark()
             AppLog.error(TAG, "the browser engine could not be started", error)
             failure = "Could not start the embedded browser: ${error.message}"
         }
         return failure
     }
+
+    // Written just before the native engine starts and removed once it is ready, so a start that killed the whole app leaves it behind.
+    private val startMark = File(installDir.parentFile ?: installDir, "browser-start.mark")
+
+    // Names the Java and the system the engine starts on, so a new Java or system gets another try.
+    private fun startSignature() = listOf("java.version", "os.name", "os.version", "jpackage.app-version")
+        .joinToString("|") { System.getProperty(it).orEmpty() }
+
+    private fun markStarting() {
+        runCatching { startMark.writeText(startSignature()) }
+    }
+
+    private fun clearStartMark() {
+        runCatching { startMark.delete() }
+    }
+
+    private fun crashedBefore(): Boolean = runCatching { startMark.isFile && startMark.readText() == startSignature() }
+        .getOrDefault(false)
 
     // An unpacking that was cut short leaves the files of Chromium without the program it starts its helpers with, and the browser then never starts. Such a folder is cleared so the next start installs it again, and the cache with the passed bot checks stays.
     private fun clearBrokenInstall() {
