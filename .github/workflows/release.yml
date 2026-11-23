@@ -3,6 +3,12 @@ name: Release
 # Builds every app for a release, and on a version tag such as 0.2.0 or v0.2.0 puts them on a new release with that version, or when run by hand keeps them as files of the run for a day. Android and Windows build on the Windows runner of the developer, Linux on their Linux runner in WSL, and the Mac and the iPhone builds and the small jobs on the machines of GitHub.
 on:
   workflow_dispatch:
+    inputs:
+      # A run by hand builds the version in the project settings, or this one, such as to build again a file a release is missing.
+      version:
+        description: Version to build, empty for the one in the project settings
+        type: string
+        default: ""
   push:
     tags: ["v*", "[0-9]*"]
 
@@ -21,6 +27,8 @@ env:
   ANILIST_CLIENT_ID: ${{ secrets.ANILIST_CLIENT_ID || vars.ANILIST_CLIENT_ID }}
   MAL_CLIENT_ID: ${{ secrets.MAL_CLIENT_ID || vars.MAL_CLIENT_ID }}
   MANGABAKA_CLIENT_ID: ${{ secrets.MANGABAKA_CLIENT_ID || vars.MANGABAKA_CLIENT_ID }}
+  # The version asked for on a run by hand, read by the script that picks the version.
+  RELEASE_VERSION: ${{ inputs.version }}
 
 jobs:
   # On a version tag, makes the release as a draft first, so each build puts its files straight on it and nobody sees it half done.
