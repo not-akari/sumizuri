@@ -49,7 +49,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 // The parts of the legal page, each a heading with its paragraphs.
-private val LegalParts = listOf(
+internal val LegalParts = listOf(
     Res.string.legal_what_title to listOf(Res.string.legal_what_1, Res.string.legal_what_2),
     Res.string.legal_provide_title to
         listOf(Res.string.legal_provide_1, Res.string.legal_provide_2, Res.string.legal_provide_3),
@@ -60,7 +60,7 @@ private val LegalParts = listOf(
 )
 
 // The parts of the privacy page. Each line of what leaves the device names one place the app talks to.
-private val PrivacyParts = listOf(
+internal val PrivacyParts = listOf(
     Res.string.privacy_short_title to listOf(Res.string.privacy_short_1),
     Res.string.privacy_device_title to listOf(Res.string.privacy_device_1, Res.string.privacy_device_2),
     Res.string.privacy_leaves_title to listOf(
