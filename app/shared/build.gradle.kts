@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.util.Locale
 
 plugins {
@@ -35,6 +36,8 @@ kotlin {
         target.binaries.framework {
             baseName = "Shared"
             isStatic = true
+            // A release build is made for size, which Kotlin says also cuts its build time, as the full speed build of the whole app grew past an hour on a Mac of GitHub.
+            if (buildType == NativeBuildType.RELEASE) binaryOption("smallBinary", "true")
         }
     }
 

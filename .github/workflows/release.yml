@@ -312,7 +312,14 @@ jobs:
         run: brew install xcodegen
       # The framework is built here first, so its progress shows in the log as it goes instead of all at once when Xcode ends. Xcode then finds it built and only copies it in.
       - name: Build the Kotlin framework
-        run: ./gradlew :app:shared:linkReleaseFrameworkIosArm64 --console=plain
+        run: |
+          # The free memory and the swap of the Mac once a minute, to see whether the build runs short of memory.
+          ( while sleep 60; do echo "memory: $(memory_pressure | tail -1), swap: $(sysctl -n vm.swapusage)"; done ) &
+          watch=$!
+          status=0
+          ./gradlew :app:shared:linkReleaseFrameworkIosArm64 --console=plain || status=$?
+          kill "$watch"
+          exit "$status"
       - name: Build the app
         working-directory: iosApp
         env:
