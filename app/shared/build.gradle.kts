@@ -38,6 +38,8 @@ kotlin {
             isStatic = true
             // A release build is made for size, which Kotlin says also cuts its build time, as the full speed build of the whole app grew past an hour on a Mac of GitHub.
             if (buildType == NativeBuildType.RELEASE) binaryOption("smallBinary", "true")
+            // Asked for by the release job, the compiler tells how long each of its steps took.
+            if (providers.gradleProperty("native.profilePhases").isPresent) freeCompilerArgs += "-Xprofile-phases"
         }
     }
 
