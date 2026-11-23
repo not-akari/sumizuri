@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -65,8 +66,11 @@ internal fun TvNewProfileName() {
 }
 
 // Whether the person already picked who is watching since the app started, so switching to that profile does not ask again.
-private object WhoAsked {
+internal object WhoAsked {
     var done = false
+
+    // Asks again on the next frame, even with one profile, for trying the screen while making the app.
+    var preview by mutableStateOf(false)
 }
 
 // When a TV with two or more profiles starts, it first asks who is watching, with each profile as a big round picture in one row and the one used last in focus. OK opens that profile. A TV with one profile goes straight to its library.
@@ -77,6 +81,12 @@ internal fun TvWhoIsWatching() {
     val registry by profiles.state.collectAsStateWithLifecycle()
     var shown by remember { mutableStateOf(!WhoAsked.done && registry.profiles.size >= 2) }
     SideEffect { WhoAsked.done = true }
+    LaunchedEffect(WhoAsked.preview) {
+        if (WhoAsked.preview) {
+            shown = true
+            WhoAsked.preview = false
+        }
+    }
     TvNewProfileName()
     AnimatedVisibility(shown, enter = fadeIn(tween(0)), exit = fadeOut(tween(motionMs(AppMotion.Page)))) {
         val first = firstFocus()
