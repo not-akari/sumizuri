@@ -41,6 +41,7 @@ import com.sumizuri.app.data.profile.LocalProfiles
 import com.sumizuri.app.feature.profile.ProfileAvatar
 import com.sumizuri.app.feature.settings.SettingsTarget
 import com.sumizuri.app.feature.tv.library.meltLeftAndDown
+import com.sumizuri.app.feature.tv.library.rememberWideArt
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.profile_new
 import com.sumizuri.app.shared.resources.tv_profile_fig_days
@@ -135,7 +136,8 @@ internal fun TvProfileRoute(
 
 // The art of a show over the right of the page, fading out to the left and down so the words stay clear.
 @Composable
-private fun Art(title: Title) {
+private fun Art(shown: Title) {
+    val title = rememberWideArt(shown)
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
         BoxWithConstraints(Modifier.fillMaxWidth(0.62f).fillMaxHeight(0.74f).meltLeftAndDown()) {
             val focus by rememberCoverFocus(title.coverUrl)

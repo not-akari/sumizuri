@@ -27,6 +27,12 @@ import kotlinx.serialization.json.put
 import okio.FileSystem
 import okio.Path
 
+// The end of a name that says which season or part it is, such as "Season 2" or "2nd Season".
+private val SeasonEnding = Regex("""(?i)[\s:]*(season\s*\d+|\d+(st|nd|rd|th)\s+season|part\s*\d+)\s*$""")
+
+// The name of the whole show, without the season or part at its end.
+fun showNameOf(name: String): String = name.replace(SeasonEnding, "").trim().ifBlank { name }
+
 // Names asked of AniList in one request. Each is asked by up to five names it may be found by.
 private const val PerRequest = 5
 
@@ -112,6 +118,13 @@ class SeasonCovers(private val folder: Path) {
             }
         }
         return found
+    }
+
+    // The biggest picture of a show for a wide place: its TVmaze background the size of a screen, else its TVmaze poster at full size, else its large AniList cover. Null when none was found.
+    suspend fun wideArt(show: String, keep: Boolean): String? {
+        val name = showNameOf(show)
+        val tv = series.find(name, keep)
+        return tv?.background ?: tv?.poster ?: covers(listOf(name), keep)[name]
     }
 
     // Forgets every cover found, kept or recent, for when the person clears the cache of pictures.

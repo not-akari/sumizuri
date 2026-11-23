@@ -18,6 +18,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
@@ -30,8 +31,13 @@ private const val RecentMs = 5 * 60 * 1000L
 // How alike the name of a found show must be to the name asked for, as the share of words they have in common.
 private const val Alike = 0.75
 
-// A show found on TVmaze: its season posters by season number, and its IMDb id when TVmaze knows it.
-class SeriesFound(val posters: Map<Int, String>, val imdb: String?)
+// A show found on TVmaze: its season posters by season number, its IMDb id when TVmaze knows it, and its big pictures, a background the size of a screen and its poster at full size.
+class SeriesFound(
+    val posters: Map<Int, String>,
+    val imdb: String?,
+    val background: String? = null,
+    val poster: String? = null,
+)
 
 // The posters of the seasons of a show, found on TVmaze by the name of the show, which needs no key. TVmaze has movies and series of every kind, so it fills in what AniList does not have, such as live action shows. What is found for a show out of the library is kept five minutes, and for one in the library on disk until the cache is cleared.
 class SeriesCovers(private val folder: Path) {
@@ -46,7 +52,8 @@ class SeriesCovers(private val folder: Path) {
         val id = show.trim().lowercase()
         if (id.isEmpty()) return null
         lock.withLock {
-            keptShows()[id]?.let { return it }
+            // One kept before the big pictures were asked for is asked again once.
+            keptShows()[id]?.takeIf { it.poster != null || it.background != null }?.let { return it }
             recent[id]?.let { (at, found) -> if (nowMillis() - at < RecentMs) return found }
         }
         val found = runCatching { ask(show.trim()) }
@@ -54,7 +61,9 @@ class SeriesCovers(private val folder: Path) {
             .getOrElse { return null }
         lock.withLock {
             recent[id] = nowMillis() to found
-            if (keep && found != null && found.posters.isNotEmpty()) {
+            if (keep && found != null &&
+                (found.posters.isNotEmpty() || found.background != null || found.poster != null)
+            ) {
                 val saved = keptShows()
                 saved[id] = found
                 save(saved)
@@ -73,7 +82,8 @@ class SeriesCovers(private val folder: Path) {
     private suspend fun ask(show: String): SeriesFound? {
         val answer = http.get("https://api.tvmaze.com/singlesearch/shows") {
             parameter("q", show)
-            parameter("embed", "seasons")
+            parameter("embed[]", "seasons")
+            parameter("embed[]", "images")
         }
         // TVmaze answers that it found nothing as a missing page.
         if (answer.status == HttpStatusCode.NotFound) return null
@@ -96,7 +106,25 @@ class SeriesCovers(private val folder: Path) {
                 number to url
             }.toMap()
         val imdb = ((found["externals"] as? JsonObject)?.get("imdb") as? JsonPrimitive)?.contentOrNull
-        return SeriesFound(posters, imdb)
+        // The background marked main wins over the others, and the poster of the show comes at full size.
+        val images = ((found["_embedded"] as? JsonObject)?.get("images") as? JsonArray).orEmpty().mapNotNull {
+            it as? JsonObject
+        }
+        val backgrounds = images.filter { (it["type"] as? JsonPrimitive)?.contentOrNull == "background" }
+        val background = (
+            backgrounds.firstOrNull { (it["main"] as? JsonPrimitive)?.booleanOrNull == true }
+                ?: backgrounds.firstOrNull()
+            )?.let {
+            (
+                (
+                    (it["resolutions"] as? JsonObject)?.get(
+                        "original",
+                    ) as? JsonObject
+                    )?.get("url") as? JsonPrimitive
+                )?.contentOrNull
+        }
+        val poster = ((found["image"] as? JsonObject)?.get("original") as? JsonPrimitive)?.contentOrNull
+        return SeriesFound(posters, imdb, background, poster)
     }
 
     private suspend fun keptShows(): MutableMap<String, SeriesFound> {
@@ -115,7 +143,12 @@ class SeriesCovers(private val folder: Path) {
                                 val link = (url as? JsonPrimitive)?.contentOrNull ?: return@mapNotNull null
                                 at to link
                             }.toMap()
-                        SeriesFound(posters, (show["imdb"] as? JsonPrimitive)?.contentOrNull)
+                        SeriesFound(
+                            posters,
+                            (show["imdb"] as? JsonPrimitive)?.contentOrNull,
+                            (show["background"] as? JsonPrimitive)?.contentOrNull,
+                            (show["poster"] as? JsonPrimitive)?.contentOrNull,
+                        )
                     }.toMutableMap()
             }.getOrDefault(HashMap())
         }
@@ -138,6 +171,8 @@ class SeriesCovers(private val folder: Path) {
                                     },
                                 ),
                             "imdb" to JsonPrimitive(found.imdb),
+                            "background" to JsonPrimitive(found.background),
+                            "poster" to JsonPrimitive(found.poster),
                         ),
                     )
                 },

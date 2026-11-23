@@ -33,6 +33,7 @@ import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.library.EpisodeStill
+import com.sumizuri.app.data.library.showNameOf
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.Title
 import com.sumizuri.app.data.settings.SettingKey
@@ -43,6 +44,7 @@ import com.sumizuri.app.feature.title.chapter.seasonLookupNames
 import com.sumizuri.app.feature.title.chapter.seasonNumbers
 import com.sumizuri.app.feature.title.chapter.seasonTitle
 import com.sumizuri.app.feature.tv.library.meltLeftAndDown
+import com.sumizuri.app.feature.tv.library.rememberWideArt
 import com.sumizuri.app.feature.tv.onboarding.firstFocus
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.episodes_count
@@ -64,9 +66,6 @@ import com.sumizuri.app.ui.tv.TvButton
 import kotlinx.coroutines.flow.first
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
-
-// A season or part at the end of the name of a show, such as Season 4, 2nd Season or Part 2.
-private val SeasonEnding = Regex("""(?i)[\s:]*(season\s*\d+|\d+(st|nd|rd|th)\s+season|part\s*\d+)\s*$""")
 
 // What the page of a title can ask for on a TV.
 internal class TvTitleCalls(
@@ -98,7 +97,7 @@ private fun TitleBody(state: TitleState, title: Title, calls: TvTitleCalls) {
         val show = if (pairs.map { it.first }.distinct().size >
             1
         ) {
-            title.name.replace(SeasonEnding, "").ifBlank { title.name }
+            showNameOf(title.name)
         } else {
             title.name
         }
@@ -108,7 +107,7 @@ private fun TitleBody(state: TitleState, title: Title, calls: TvTitleCalls) {
     val targetSeason = seasons.firstOrNull { group -> group.chapters.any { it.id == state.target?.id } }?.id
     val withSeasons = seasons.size > 1
     // A source may name a show of many seasons after its last one, so with seasons the heading is the show alone.
-    val heading = if (withSeasons) title.name.replace(SeasonEnding, "").ifBlank { title.name } else title.name
+    val heading = if (withSeasons) showNameOf(title.name) else title.name
     var opened by rememberSaveable { mutableStateOf<String?>(null) }
     var left by rememberSaveable { mutableStateOf<String?>(null) }
     val open = if (withSeasons) seasons.firstOrNull { it.id == opened } else null
@@ -242,7 +241,8 @@ private fun TitleBody(state: TitleState, title: Title, calls: TvTitleCalls) {
 
 // The art of the title over the right of the page, fading out to the left and down so the words stay clear.
 @Composable
-private fun Art(title: Title) {
+private fun Art(shown: Title) {
+    val title = rememberWideArt(shown)
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
         BoxWithConstraints(Modifier.fillMaxWidth(0.62f).fillMaxHeight(0.72f).meltLeftAndDown()) {
             val focus by rememberCoverFocus(title.coverUrl)
