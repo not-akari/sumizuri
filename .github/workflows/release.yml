@@ -304,6 +304,8 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           printf 'app.version=%s\norg.gradle.jvmargs=-Xmx6g -XX:+UseParallelGC -Dfile.encoding=UTF-8\nkotlin.daemon.jvmargs=-Xmx1g\n' "$VERSION" >> ~/.gradle/gradle.properties
+          # Optimizing the whole app across all its libraries at once took over an hour, so each library is built once into a cache and the release link only optimizes the app. Kotlin calls this experimental and says the app may run a little slower. The time of each step of the build goes in the log.
+          printf 'kotlin.native.binary.enableReleaseBinaryCache=true\nkotlin.internal.native.enableReleaseBinaryCache=true\nnative.profilePhases=true\n' >> ~/.gradle/gradle.properties
       # Homebrew would update its whole list first, which takes minutes, and XcodeGen does not need the newest one.
       - name: Install XcodeGen
         env:
