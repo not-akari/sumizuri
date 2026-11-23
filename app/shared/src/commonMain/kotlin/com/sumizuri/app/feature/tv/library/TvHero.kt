@@ -99,9 +99,10 @@ internal fun TvHero(item: HeroItem, onPlay: (Long) -> Unit, onDetails: () -> Uni
                 .fillMaxHeight()
                 .meltLeftAndDown(),
         ) {
-            val focus by rememberCoverFocus(title.coverUrl)
+            val art = rememberWideArt(title)
+            val focus by rememberCoverFocus(art.coverUrl)
             CoverArt(
-                title,
+                art,
                 Modifier.fillMaxSize(),
                 letterSize = 48,
                 aspect = maxWidth / maxHeight,
