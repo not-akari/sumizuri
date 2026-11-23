@@ -2398,6 +2398,9 @@
     <string name="tv_about_saving">Saving %1$s of %2$s</string>
     <string name="tv_network_not_ready">Fill in every field it needs to save it.</string>
     <string name="tv_network_delete_sure">Press again to delete</string>
+    <string name="tv_dev_title">For development</string>
+    <string name="tv_dev_welcome">Show the first steps</string>
+    <string name="tv_dev_who">Show Who is watching</string>
     <string name="tv_done_title">You are all set</string>
     <string name="tv_done_text">Your library is ready. Add a source from Browse, or let sync bring your titles in.</string>
     <string name="tv_done_button">Start watching</string>

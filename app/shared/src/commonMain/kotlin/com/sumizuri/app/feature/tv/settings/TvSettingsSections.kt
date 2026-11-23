@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -17,9 +18,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sumizuri.app.BuildInfo
+import com.sumizuri.app.core.AppBuild
 import com.sumizuri.app.data.LocalAppContainer
 import com.sumizuri.app.data.net.networkSupported
 import com.sumizuri.app.data.profile.LocalProfiles
+import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.feature.settings.SettingsTarget
 import com.sumizuri.app.feature.settings.SettingsViewModel
 import com.sumizuri.app.feature.settings.library.UpdateIntervals
@@ -27,6 +30,7 @@ import com.sumizuri.app.feature.settings.library.updateIntervalLabel
 import com.sumizuri.app.feature.theme.rememberThemeModel
 import com.sumizuri.app.feature.tv.onboarding.WatchingRows
 import com.sumizuri.app.feature.tv.profile.TvPanel
+import com.sumizuri.app.feature.tv.profile.WhoAsked
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.settings_about
 import com.sumizuri.app.shared.resources.settings_logs
@@ -38,6 +42,9 @@ import com.sumizuri.app.shared.resources.settings_storage
 import com.sumizuri.app.shared.resources.settings_theme
 import com.sumizuri.app.shared.resources.settings_version
 import com.sumizuri.app.shared.resources.trackers_title
+import com.sumizuri.app.shared.resources.tv_dev_title
+import com.sumizuri.app.shared.resources.tv_dev_welcome
+import com.sumizuri.app.shared.resources.tv_dev_who
 import com.sumizuri.app.shared.resources.tv_library_phone
 import com.sumizuri.app.shared.resources.tv_off
 import com.sumizuri.app.shared.resources.tv_on
@@ -50,6 +57,7 @@ import com.sumizuri.app.shared.resources.tv_settings_skip_new
 import com.sumizuri.app.ui.theme.ThemeMode
 import com.sumizuri.app.ui.tv.TvChoiceRow
 import com.sumizuri.app.ui.tv.TvLinkRow
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -179,5 +187,15 @@ private fun SystemRows(first: FocusRequester, onOpen: (SettingsTarget) -> Unit) 
             { onOpen(target) },
             if (at == 0) Modifier.focusRequester(first) else Modifier,
         )
+    }
+    // Ways to see the screens that show only once, while making the app.
+    if (AppBuild.isDebug) {
+        val container = LocalAppContainer.current
+        val scope = rememberCoroutineScope()
+        val line = stringResource(Res.string.tv_dev_title)
+        TvLinkRow(stringResource(Res.string.tv_dev_welcome), line, {
+            scope.launch { container.settings.setFlag(SettingKey.OnboardingDone, false) }
+        })
+        TvLinkRow(stringResource(Res.string.tv_dev_who), line, { WhoAsked.preview = true })
     }
 }
