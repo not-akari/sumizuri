@@ -33,8 +33,8 @@ import com.sumizuri.app.feature.title.TitleRoute
 import com.sumizuri.app.feature.title.edit.EditTitleRoute
 import com.sumizuri.app.feature.tv.browse.TvRepoRoute
 import com.sumizuri.app.feature.tv.browse.TvSourceRoute
-import com.sumizuri.app.feature.tv.profile.TvTrackersRoute
 import com.sumizuri.app.feature.tv.settings.TvSettingsRoute
+import com.sumizuri.app.feature.tv.settings.system.tvSettingsPage
 import com.sumizuri.app.feature.tv.title.TvPreviewRoute
 import com.sumizuri.app.feature.tv.title.TvTitleRoute
 import com.sumizuri.app.feature.updates.UpdatesRoute
@@ -96,17 +96,20 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
             { navigation.push(Page.Backup) },
         ) { navigation.replaceTop(Page.Backup) }
 
-        // A TV has trackers of its own, made for the remote.
-        is Page.SettingsPage -> if (LocalTv.current && page.target == SettingsTarget.Trackers) {
-            BackedPage(navigation::pop) { TvTrackersRoute() }
-        } else {
-            SettingsTargetRoute(page.target, navigation::pop, {
-                navigation.push(pageOf(it))
-            }, {
-                navigation.push(Page.Migrate(it))
-            }, {
-                navigation.push(Page.Migration(it))
-            }, { navigation.push(Page.ThemeEditor(it)) }) { navigation.push(Page.Controls(it)) }
+        // A TV has pages of its own, made for the remote, for the settings it has.
+        is Page.SettingsPage -> {
+            val tv = if (LocalTv.current) tvSettingsPage(page.target) { navigation.push(pageOf(it)) } else null
+            if (tv != null) {
+                BackedPage(navigation::pop) { tv() }
+            } else {
+                SettingsTargetRoute(page.target, navigation::pop, {
+                    navigation.push(pageOf(it))
+                }, {
+                    navigation.push(Page.Migrate(it))
+                }, {
+                    navigation.push(Page.Migration(it))
+                }, { navigation.push(Page.ThemeEditor(it)) }) { navigation.push(Page.Controls(it)) }
+            }
         }
 
         is Page.ThemeEditor -> ThemeEditorRoute(page.themeId, onBack = navigation::pop)

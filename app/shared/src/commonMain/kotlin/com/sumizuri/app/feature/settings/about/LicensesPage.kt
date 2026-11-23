@@ -9,7 +9,7 @@ import com.sumizuri.app.ui.kit.setting.SettingRow
 import com.sumizuri.app.ui.kit.setting.SettingsSection
 
 // The libraries and fonts the app is built with, each with what it does for the app.
-private val Libraries = listOf(
+internal val Libraries = listOf(
     "Kotlin and Kotlin Multiplatform" to "Kotlin, JetBrains",
     "Compose Multiplatform and Material 3" to "JetBrains, Google",
     "Room and SQLite" to "Google",

@@ -2391,6 +2391,13 @@
     <string name="tv_on">On</string>
     <string name="tv_off">Off</string>
     <string name="tv_text_empty">Not set</string>
+    <string name="tv_storage_remove">Remove all</string>
+    <string name="tv_storage_sure">Press again to remove</string>
+    <string name="tv_logs_show">Lines to show</string>
+    <string name="tv_logs_text">What the app did lately. Move down to the lines and scroll them with up and down.</string>
+    <string name="tv_about_saving">Saving %1$s of %2$s</string>
+    <string name="tv_network_not_ready">Fill in every field it needs to save it.</string>
+    <string name="tv_network_delete_sure">Press again to delete</string>
     <string name="tv_done_title">You are all set</string>
     <string name="tv_done_text">Your library is ready. Add a source from Browse, or let sync bring your titles in.</string>
     <string name="tv_done_button">Start watching</string>
