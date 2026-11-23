@@ -110,11 +110,11 @@ jobs:
         run: |
           mkdir -p "$STORE"
           cp build/libmpv/out/libmpv-2.dll "$STORE/"
-      # The setup file starts with a small launcher of our own written in Rust. The runner has rustup, and the MSVC tools give the launcher its icon and version.
+      # The setup file starts with a small launcher of our own written in Rust. Rust sits in the home folder of the person the runner runs as, which is not on the path of the runner. The build uses the default toolchain, and a setup file gets its icon and version only where Visual Studio gives the MSVC tools.
       - name: Set up Rust
         run: |
-          rustup toolchain install stable --profile minimal
-          rustup default stable-x86_64-pc-windows-msvc
+          echo "$USERPROFILE\.cargo\bin" >> "$GITHUB_PATH"
+          "$(cygpath -u "$USERPROFILE")/.cargo/bin/rustup" toolchain install stable --profile minimal
       # Signed with the key kept in the GitHub secrets, the same key as on the computer of the developer, so every build installs over the one before it.
       - name: Put the key in a file
         run: echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/sumizuri-release.jks"
