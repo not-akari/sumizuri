@@ -280,7 +280,8 @@ jobs:
     # A run by hand has no start job, so the builds still run when it is skipped.
     if: ${{ !failure() && !cancelled() }}
     runs-on: macos-latest
-    timeout-minutes: 60
+    # The Release build of the framework studies the whole app at once, which takes a long time on a Mac of GitHub.
+    timeout-minutes: 120
     permissions:
       contents: write
     steps:
@@ -296,19 +297,22 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
         with:
           cache-disabled: true
-      # Xcode runs Gradle itself, without the version of the release, so the version goes in the Gradle settings of the user of the runner, which is thrown away after the run. The Release build of the framework studies the whole app at once and ran out of 5 GB as the app grew, so the Mac gives it 6 of its 7.
+      # Xcode runs Gradle itself, without the version of the release, so the version goes in the Gradle settings of the user of the runner, which is thrown away after the run. The Release build of the framework studies the whole app at once inside Gradle and ran out of 5 GB as the app grew, so Gradle gets 6 of the 7 of the Mac, with the collector made for long builds. The Kotlin daemon is not used for it, so it gets little, as both together were more than the Mac has.
       - name: Give Gradle the version
         env:
           VERSION: ${{ steps.version.outputs.name }}
         run: |
           mkdir -p ~/.gradle
-          printf 'app.version=%s\norg.gradle.jvmargs=-Xmx6g -Dfile.encoding=UTF-8\nkotlin.daemon.jvmargs=-Xmx6g\n' "$VERSION" >> ~/.gradle/gradle.properties
+          printf 'app.version=%s\norg.gradle.jvmargs=-Xmx6g -XX:+UseParallelGC -Dfile.encoding=UTF-8\nkotlin.daemon.jvmargs=-Xmx1g\n' "$VERSION" >> ~/.gradle/gradle.properties
       # Homebrew would update its whole list first, which takes minutes, and XcodeGen does not need the newest one.
       - name: Install XcodeGen
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
           HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: brew install xcodegen
+      # The framework is built here first, so its progress shows in the log as it goes instead of all at once when Xcode ends. Xcode then finds it built and only copies it in.
+      - name: Build the Kotlin framework
+        run: ./gradlew :app:shared:linkReleaseFrameworkIosArm64 --console=plain
       - name: Build the app
         working-directory: iosApp
         env:
