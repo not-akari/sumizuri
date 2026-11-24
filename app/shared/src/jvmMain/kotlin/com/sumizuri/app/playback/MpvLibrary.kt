@@ -101,8 +101,14 @@ internal object MpvLibrary {
             if ("mac" in system) addAll(listOf("/opt/homebrew/lib", "/usr/local/lib"))
         }.filter { File(it).isDirectory }
         for (name in names) for (folder in folders) NativeLibrary.addSearchPath(name, folder)
+        // JNA opens a library for the whole process, so the libraries libmpv brings come first for every library opened after it. libmpv brings MuJS, whose js_malloc, js_free, js_realloc and js_strdup have the names of QuickJS calls, and QuickJS opened after the player took them and crashed. Opened apart, they stay with libmpv. RTLD_LAZY, plus RTLD_LOCAL on a Mac, where it is not the default.
+        val apart = when {
+            "linux" in system -> mapOf(Library.OPTION_OPEN_FLAGS to 1)
+            "mac" in system -> mapOf(Library.OPTION_OPEN_FLAGS to 5)
+            else -> emptyMap()
+        }
         for (name in names) {
-            val api = runCatching { Native.load(name, MpvApi::class.java) }.getOrNull()
+            val api = runCatching { Native.load(name, MpvApi::class.java, apart) }.getOrNull()
             if (api != null) {
                 if ("win" !in system) numbersInC(mac = "mac" in system)
                 return api
