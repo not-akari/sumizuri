@@ -197,21 +197,9 @@ compose.desktop {
                 bundleID = "com.sumizuri.app"
                 dockName = "Sumizuri"
                 minimumSystemVersion = "12.0"
-                // The links that start with sumizuri:, such as the Open in Sumizuri button on the page of a repo, open the app.
+                // The links that start with sumizuri: and .sumizuri files open the app. The keys are in their own file.
                 infoPlist {
-                    extraKeysRawXml = """
-                        <key>CFBundleURLTypes</key>
-                        <array>
-                            <dict>
-                                <key>CFBundleURLName</key>
-                                <string>com.sumizuri.app</string>
-                                <key>CFBundleURLSchemes</key>
-                                <array>
-                                    <string>sumizuri</string>
-                                </array>
-                            </dict>
-                        </array>
-                    """.trimIndent()
+                    extraKeysRawXml = file("packaging/macos/extra-keys.plist").readText().substringAfter("-->").trim()
                 }
                 // Signed and notarized only when the release is given the certificate of an Apple developer account. Without it the app is not signed, and a Mac asks the person to allow it once.
                 val identity = providers.environmentVariable("MAC_SIGN_IDENTITY").orNull?.takeIf { it.isNotBlank() }

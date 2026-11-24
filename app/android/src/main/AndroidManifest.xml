@@ -41,6 +41,21 @@
                 <!-- The code a TV shows, which the camera of the phone opens here to send the TV repos, sources, trackers and a sign in to sync. -->
                 <data android:scheme="sumizuri" android:host="pair" />
             </intent-filter>
+            <!-- A .sumizuri file, such as a shared backup or theme, opened or shared from a file manager or a chat. Android knows no type for the ending, so other apps hand it over as any data. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="application/x-sumizuri" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="application/x-sumizuri" />
+            </intent-filter>
         </activity>
         <!-- The app in the launcher, one entry for each icon. Made by scripts/app-icons.js. -->
         <activity-alias

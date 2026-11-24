@@ -1,0 +1,47 @@
+<!-- Added to the Info.plist of the Mac app: sumizuri links and .sumizuri files, such as a shared backup or theme, open the app. -->
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLName</key>
+        <string>com.sumizuri.app</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>sumizuri</string>
+        </array>
+    </dict>
+</array>
+<key>UTExportedTypeDeclarations</key>
+<array>
+    <dict>
+        <key>UTTypeIdentifier</key>
+        <string>com.sumizuri.file</string>
+        <key>UTTypeDescription</key>
+        <string>Sumizuri file</string>
+        <key>UTTypeConformsTo</key>
+        <array>
+            <string>public.data</string>
+        </array>
+        <key>UTTypeTagSpecification</key>
+        <dict>
+            <key>public.filename-extension</key>
+            <array>
+                <string>sumizuri</string>
+            </array>
+        </dict>
+    </dict>
+</array>
+<key>CFBundleDocumentTypes</key>
+<array>
+    <dict>
+        <key>CFBundleTypeName</key>
+        <string>Sumizuri file</string>
+        <key>CFBundleTypeRole</key>
+        <string>Viewer</string>
+        <key>LSHandlerRank</key>
+        <string>Owner</string>
+        <key>LSItemContentTypes</key>
+        <array>
+            <string>com.sumizuri.file</string>
+        </array>
+    </dict>
+</array>

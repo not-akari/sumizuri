@@ -56,7 +56,7 @@ import com.sumizuri.app.data.model.library.LibraryPrefs
 import com.sumizuri.app.data.profile.LocalProfiles
 import com.sumizuri.app.data.profile.ProfileHost
 import com.sumizuri.app.data.profile.ProfileStoreOwner
-import com.sumizuri.app.data.tracker.TrackerId
+
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.feature.appupdate.AppUpdateNotices
@@ -73,7 +73,7 @@ import com.sumizuri.app.feature.settings.system.perfDetails
 import com.sumizuri.app.feature.sync.HandoffNotice
 import com.sumizuri.app.navigation.AppPrompts
 import com.sumizuri.app.feature.theme.ThemeViewModel
-import com.sumizuri.app.navigation.AppLinks
+import com.sumizuri.app.navigation.AppLinkEffects
 import com.sumizuri.app.navigation.Destination
 import com.sumizuri.app.navigation.KeptTabs
 import com.sumizuri.app.navigation.LocalSideNavWidth
@@ -235,35 +235,7 @@ private fun AppContent(container: AppContainer, windowBar: (@Composable () -> Un
                     onTabOpened()
                 }
             }
-            // A link that asks to add a repo opens Browse, where the window of adding one shows it and waits for a yes.
-            val linkedRepo by AppLinks.addRepo.collectAsStateWithLifecycle()
-            LaunchedEffect(linkedRepo, place.restored) {
-                if (linkedRepo != null && place.restored) navigation.select(Destination.Browse)
-            }
-
-            // A notice of new chapters opens its title, or reads on in it from where it was left.
-            val linkedTitle by AppLinks.openTitle.collectAsStateWithLifecycle()
-            LaunchedEffect(linkedTitle, place.restored) {
-                val link = linkedTitle ?: return@LaunchedEffect
-                if (!place.restored) return@LaunchedEffect
-                AppLinks.titleTaken()
-                val chapter = if (link.read) continueChapterOf(container.library, link.id) else null
-                navigation.push(chapter?.let { Page.Reader(it) } ?: Page.Saved(link.id))
-            }
-            // A tracker that sent the person back with a token signs this profile in. The page the person left shows how it went.
-            val linkedTrack by AppLinks.trackSignIn.collectAsStateWithLifecycle()
-            LaunchedEffect(linkedTrack) {
-                val link = linkedTrack ?: return@LaunchedEffect
-                AppLinks.trackTaken()
-                TrackerId.of(link.tracker)?.let { container.trackers.finish(it, link.answer) }
-            }
-            val linkedUpdates by AppLinks.openUpdates.collectAsStateWithLifecycle()
-            LaunchedEffect(linkedUpdates, place.restored) {
-                if (linkedUpdates && place.restored) {
-                    AppLinks.updatesTaken()
-                    navigation.select(Destination.Updates)
-                }
-            }
+            AppLinkEffects(place, navigation, container)
 
             // Back closes the top page, and on a tab other than the library it goes to the library first. A back gesture of the system moves the top page with the finger, and one given up lets the page slide back.
             val backState = rememberNavigationEventState(NavigationEventInfo.None)

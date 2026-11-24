@@ -30,6 +30,7 @@ import com.sumizuri.app.data.AppContainer
 import com.sumizuri.app.data.db.databaseBuilder
 import com.sumizuri.app.data.profile.ProfileHost
 import com.sumizuri.app.data.profile.ProfileRegistry
+import com.sumizuri.app.data.share.Incoming
 import com.sumizuri.app.data.sync.DesktopFront
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.playback.LocalFullscreen
@@ -99,15 +100,15 @@ fun main(args: Array<String>) {
     // A hidden run that only loads the code of the app and ends, which the archive of classes is made from.
     if ("--warm" in args) warmUp()
     val folder = InstallSettings.dataFolder()
-    // A sumizuri link the app was opened with, such as from an Open in Sumizuri button. When a copy already runs on this library, it gets the link and comes forward, and this start ends. A run from the build always opens its own window.
-    val link = args.firstOrNull { it.startsWith("${AppLinks.Scheme}:", ignoreCase = true) }
+    // A sumizuri link the app was opened with, such as from an Open in Sumizuri button, or a file of the app, such as one double clicked. When a copy already runs on this library, it gets the link or the full path of the file and comes forward, and this start ends. A run from the build always opens its own window.
+    val link = args.firstOrNull { it.startsWith("${AppLinks.Scheme}:", ignoreCase = true) } ?: openedFileOf(args)
     if (AppBuild.isDebug) {
         // A run of the build that a link started, while another run of the build is open, gives it the link and ends.
         if (link != null && SingleInstance.handOver(folder, link, SingleInstance.BuildFile)) exitProcess(0)
     } else if (SingleInstance.handOver(folder, link)) {
         exitProcess(0)
     }
-    AppLinks.open(link)
+    openStart(link)
     val sink = FileLogSink(File(folder, "logs/sumizuri.log"))
     AppLog.sink = sink
     CrashReport.install(folder.absolutePath.toPath())
@@ -119,13 +120,20 @@ fun main(args: Array<String>) {
             Forward.value++
         }
     }
+    // A Mac hands a file opened with the app to the running app in the same way, such as one double clicked in the Finder.
+    if (isMac && Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_FILE)) {
+        Desktop.getDesktop().setOpenFileHandler { event ->
+            event.files.firstOrNull()?.let { openStart(it.absolutePath) }
+            Forward.value++
+        }
+    }
     val runtime = DesktopBrowserRuntime(File(folder, "browser"))
     // The pages that show a site inside the app use the same browser, and so the same cookies, as the sources.
     DesktopWeb.runtime = runtime
     StartColor.load(folder)
     if (!AppBuild.isDebug) {
         SingleInstance.listen(folder) { later ->
-            AppLinks.open(later)
+            openStart(later)
             Forward.value++
         }
         thread(isDaemon = true, name = "app-links") { refreshAppLinks() }
@@ -136,7 +144,7 @@ fun main(args: Array<String>) {
     } else {
         // A run of the build takes the sumizuri links while it is open, so signing in to a tracker comes back to it and not to the installed app.
         SingleInstance.listen(folder, SingleInstance.BuildFile) { later ->
-            AppLinks.open(later)
+            openStart(later)
             Forward.value++
         }
         thread(isDaemon = true, name = "build-links") { BuildLinks.take(File(folder, "build-links.args")) }
@@ -290,4 +298,16 @@ private fun toggleMaximized(window: java.awt.Frame, state: WindowState) {
         window.maximizedBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().maximumWindowBounds
         state.placement = WindowPlacement.Maximized
     }
+}
+
+// The full path of a file the app was started with, such as a .sumizuri file double clicked, so a copy that already runs elsewhere can find it.
+private fun openedFileOf(args: Array<String>): String? =
+    args.firstOrNull { !it.startsWith("--") && File(it).isFile }?.let { File(it).absolutePath }
+
+// Opens what a start brought: a sumizuri link, or a file of the app, which goes to the import page.
+private fun openStart(what: String?) {
+    val text = what?.trim().orEmpty()
+    if (text.isEmpty() || AppLinks.open(text)) return
+    val file = File(text)
+    if (file.isFile) Incoming.open(file.absolutePath.toPath())
 }

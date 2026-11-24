@@ -11,6 +11,7 @@ import com.sumizuri.app.data.AppContainer
 import com.sumizuri.app.data.db.databaseBuilder
 import com.sumizuri.app.data.profile.ProfileHost
 import com.sumizuri.app.data.profile.ProfileRegistry
+import com.sumizuri.app.data.share.Incoming
 import com.sumizuri.app.navigation.AppLinks
 import com.sumizuri.app.source.browser.IosChallengeSolver
 import com.sumizuri.app.source.browser.page.IosRenderPageFactory
@@ -91,6 +92,11 @@ object IosApp {
     // A link of the app the system opened, such as from a button on a site.
     fun open(link: String) {
         AppLinks.open(link)
+    }
+
+    // A file the system opened the app with, copied by the app where it may read it, which goes to the import page.
+    fun openFile(path: String) {
+        Incoming.open(path.toPath())
     }
 }
 

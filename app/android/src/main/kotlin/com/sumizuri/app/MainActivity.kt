@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) requestedTab = requestedTabOf(intent.getStringExtra("tab"))
         // A link the app was first opened with is not opened again when the app comes back from the recent apps.
         val fromHistory = intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
-        if (savedInstanceState == null && !fromHistory) AppLinks.open(intent.dataString)
+        if (savedInstanceState == null && !fromHistory) openStart(intent)
         setContent {
             val mini = MiniPlayerControl(inPicture, enter = ::enterPicture, exit = {})
             CompositionLocalProvider(LocalMiniPlayer provides mini) {
@@ -102,7 +102,14 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         requestedTabOf(intent.getStringExtra("tab"))?.let { requestedTab = it }
-        AppLinks.open(intent.dataString)
+        openStart(intent)
+    }
+
+    // Opens what the app was started with: a sumizuri link, or a file another app opened or shared with it.
+    private fun openStart(intent: Intent) {
+        if (AppLinks.open(intent.dataString)) return
+        val uri = openedUriOf(intent) ?: return
+        lifecycleScope.launch { openFile(applicationContext, uri) }
     }
 }
 
