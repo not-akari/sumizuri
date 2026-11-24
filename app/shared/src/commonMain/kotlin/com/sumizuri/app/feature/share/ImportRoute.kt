@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sumizuri.app.data.LocalAppContainer
+import com.sumizuri.app.data.share.Incoming
 import com.sumizuri.app.data.share.ShareKind
 import com.sumizuri.app.data.share.ShareProblem
 import com.sumizuri.app.feature.settings.SettingsPageFrame
@@ -67,6 +68,13 @@ fun ImportRoute(onBack: () -> Unit, onOpenBackup: () -> Unit, onRestore: () -> U
             model.onAgain()
             onRestore()
         }
+    }
+    // A file the app was opened with is read the same way as one chosen here.
+    val opened by Incoming.opened.collectAsStateWithLifecycle()
+    LaunchedEffect(opened) {
+        val path = opened ?: return@LaunchedEffect
+        Incoming.openedTaken()
+        model.onSource(path)
     }
     val pick = rememberFilePicker(onPicked = model::onSource)
     SettingsPageFrame(Res.string.import_title, onBack, subtitle = Res.string.settings_import_page_hint) {

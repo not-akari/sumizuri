@@ -18,7 +18,7 @@ internal object SetupRemoval {
         foreach (${'$'}name in ${'$'}appItems) { Remove-Item -LiteralPath (Join-Path ${'$'}app ${'$'}name) -Recurse -Force }
         if (-not (Get-ChildItem -LiteralPath ${'$'}app -Force)) { Remove-Item -LiteralPath ${'$'}app -Force }
         foreach (${'$'}link in ${'$'}links) { Remove-Item -LiteralPath ${'$'}link -Force }
-        if (${'$'}dropRecord) { Remove-Item -LiteralPath 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Sumizuri' -Recurse -Force; Remove-Item -LiteralPath 'HKCU:\Software\Classes\sumizuri' -Recurse -Force }
+        if (${'$'}dropRecord) { Remove-Item -LiteralPath 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Sumizuri' -Recurse -Force; Remove-Item -LiteralPath 'HKCU:\Software\Classes\sumizuri' -Recurse -Force; Remove-Item -LiteralPath 'HKCU:\Software\Classes\.sumizuri' -Recurse -Force; Remove-Item -LiteralPath 'HKCU:\Software\Classes\Sumizuri.File' -Recurse -Force }
         if (${'$'}data) {
             foreach (${'$'}name in ${'$'}dataItems) { Remove-Item -LiteralPath (Join-Path ${'$'}data ${'$'}name) -Recurse -Force }
             if (-not (Get-ChildItem -LiteralPath ${'$'}data -Force)) { Remove-Item -LiteralPath ${'$'}data -Force }

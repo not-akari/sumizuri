@@ -24,7 +24,7 @@ sealed interface Identified {
     data class Small(val thing: SharedThing) : Identified
 }
 
-// A backup the import page found, held until the backup page takes it.
+// A backup the import page found, held until the backup page takes it, and a file the app was opened with, held until the import page takes it.
 object Incoming {
     private val backupFile = MutableStateFlow<Path?>(null)
     val backup: StateFlow<Path?> = backupFile
@@ -35,6 +35,19 @@ object Incoming {
 
     fun backupTaken() {
         backupFile.value = null
+    }
+
+    private val openedFile = MutableStateFlow<Path?>(null)
+
+    // A file the system opened the app with, such as one double clicked or picked with Open with, until the import page takes it.
+    val opened: StateFlow<Path?> = openedFile
+
+    fun open(path: Path) {
+        openedFile.value = path
+    }
+
+    fun openedTaken() {
+        openedFile.value = null
     }
 }
 

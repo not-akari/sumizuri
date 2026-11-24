@@ -35,6 +35,45 @@
 			</array>
 		</dict>
 	</array>
+	<!-- A .sumizuri file, such as a shared backup or theme, opens in the app from Files or from a chat. -->
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.sumizuri.file</string>
+			<key>UTTypeDescription</key>
+			<string>Sumizuri file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>sumizuri</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Sumizuri file</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.sumizuri.file</string>
+			</array>
+		</dict>
+	</array>
+	<!-- The system hands the app a copy of an opened file, which the app reads and then lets go. -->
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
 	<!-- The lock of the app asks for Face ID. -->
 	<key>NSFaceIDUsageDescription</key>
 	<string>Sumizuri uses Face ID to open the app lock.</string>
