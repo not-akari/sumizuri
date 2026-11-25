@@ -125,6 +125,7 @@ export function useRelease() {
       else if (name.endsWith('.ipa')) out.ios.push({ asset, label: 'App file (.ipa)', note: 'Not signed. Install it with AltStore or Sideloadly.' })
       else if (name.endsWith('.dmg')) out.mac.push({ asset, label: 'Disk image (.dmg)', note: 'Macs with Apple silicon. Intel Macs are not supported.' })
       else if (name.endsWith('.deb')) out.linux.push({ asset, label: '.deb package', note: 'Debian, Ubuntu and their relatives.' })
+      else if (name.endsWith('.tar.xz')) out.linux.push({ asset, label: 'Archive (.tar.xz)', note: 'Any other Linux. Unpack it and run.' })
       else if (name.endsWith('.tar.gz')) out.linux.push({ asset, label: 'Archive (.tar.gz)', note: 'Any other Linux. Unpack it and run.' })
       else if (name.startsWith('sumizuri-sync')) out.server.push({ asset, label: name })
     }

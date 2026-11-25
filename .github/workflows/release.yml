@@ -203,15 +203,19 @@ jobs:
       - name: Set up fakeroot
         run: command -v fakeroot || sudo apt-get install -y fakeroot
       # The player uses the libmpv of the system, from a package such as libmpv2, so nothing of mpv goes in.
+      # The package is packed at the strongest level of its packer, which takes a little longer once and makes every download smaller.
       - name: Build the Linux package and app folder
+        env:
+          DPKG_DEB_COMPRESSOR_TYPE: xz
+          DPKG_DEB_COMPRESSOR_LEVEL: 9
         run: ./gradlew :app:desktop:packageReleaseDeb :app:desktop:createReleaseDistributable ${{ steps.version.outputs.args }}
-      # A .deb for Debian and Ubuntu, and the app folder packed for every other Linux.
+      # A .deb for Debian and Ubuntu, and the app folder packed for every other Linux, with xz, which made it a fifth smaller than gzip.
       - name: Name the files after the version
         env:
           VERSION: ${{ steps.version.outputs.name }}
         run: |
           cp app/desktop/build/compose/binaries/main-release/deb/*.deb "Sumizuri-$VERSION-linux-amd64.deb"
-          tar -C app/desktop/build/compose/binaries/main-release/app -czf "Sumizuri-$VERSION-linux-x64.tar.gz" Sumizuri
+          tar -C app/desktop/build/compose/binaries/main-release/app -cf - Sumizuri | xz -9e -T0 > "Sumizuri-$VERSION-linux-x64.tar.xz"
           ls -l Sumizuri-*
       # On a version tag the files go straight on the draft release, so they never fill the storage of artifacts. A run by hand keeps them as files of the run.
       - name: Put the files on the release
