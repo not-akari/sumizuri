@@ -3,6 +3,7 @@ import org.jetbrains.compose.desktop.application.tasks.AbstractJLinkTask
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import java.net.URI
 import java.security.MessageDigest
+import java.util.zip.CRC32
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
@@ -280,13 +281,14 @@ afterEvaluate {
     }
 }
 
-// Makes the release folder smaller before it goes into the Windows installer, keeping only the Material icons the code names.
+// Makes the release folder smaller before it goes into the Windows installer or the Linux package and archive: only the Material icons the code names are kept, and every jar is stored without its own packing, so the one packer of the download packs all of them together, which halved the Linux archive. The folder grows on the disk for that. A Mac disk image packs with zlib, where this gains nothing, so a Mac leaves it alone.
 val shrinkReleaseImage = tasks.register("shrinkReleaseImage") {
     dependsOn("createReleaseDistributable")
-    val folder = layout.buildDirectory.dir("compose/binaries/main-release/app/Sumizuri/app")
-    onlyIf { System.getProperty("os.name").lowercase().contains("win") }
+    val folder = layout.buildDirectory.dir("compose/binaries/main-release/app/Sumizuri")
+    onlyIf { !System.getProperty("os.name").lowercase().contains("mac") }
     doLast {
-        val dir = folder.get().asFile
+        // The jars sit in app on Windows and in lib/app on Linux.
+        val dir = listOf("app", "lib/app").map { folder.get().asFile.resolve(it) }.first { it.isDirectory }
         // Writes a jar again with only the entries kept, in place.
         fun rewrite(jar: File, keep: (String) -> Boolean) {
             val kept = File(jar.path + ".tmp")
@@ -334,10 +336,37 @@ val shrinkReleaseImage = tasks.register("shrinkReleaseImage") {
             }
             rewrite(icons) { name -> !name.endsWith(".class") || kept(name) }
         }
+        // Every jar is written again with its entries stored as they are, each with the check sum a stored entry needs.
+        for (jar in dir.listFiles { file -> file.name.endsWith(".jar") }.orEmpty()) {
+            val stored = File(jar.path + ".tmp")
+            ZipFile(jar).use { zip ->
+                ZipOutputStream(stored.outputStream().buffered()).use { out ->
+                    for (entry in zip.entries()) {
+                        val bytes = zip.getInputStream(entry).use { it.readBytes() }
+                        out.putNextEntry(
+                            ZipEntry(entry.name).apply {
+                                method = ZipEntry.STORED
+                                size = bytes.size.toLong()
+                                compressedSize = bytes.size.toLong()
+                                crc = CRC32().apply { update(bytes) }.value
+                                time = entry.time
+                            },
+                        )
+                        out.write(bytes)
+                        out.closeEntry()
+                    }
+                }
+            }
+            jar.delete()
+            stored.renameTo(jar)
+        }
         val after = dir.walkTopDown().filter { it.isFile }.sumOf { it.length() }
         logger.lifecycle("The app folder went from ${before / 1_048_576} MB to ${after / 1_048_576} MB.")
     }
 }
+
+// The Linux package is made from the release folder, so it waits for the folder to be made smaller.
+tasks.matching { it.name == "packageReleaseDeb" }.configureEach { dependsOn(shrinkReleaseImage) }
 
 // The Windows setup file: a small launcher of our own with the release folder packed after it, in its own script.
 apply(from = "launcher/pack.gradle.kts")
