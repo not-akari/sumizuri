@@ -86,6 +86,14 @@ A free Apple ID makes an app that lasts **7 days**, and the tool renews it while
 4. In AltStore, open **My Apps**, press **+** and pick the `.ipa`.
 5. Leave AltServer running on your computer, so AltStore can renew the app every week.
 
+To get new versions inside AltStore, add the Sumizuri source in its **Sources** tab:
+
+```
+https://github.com/not-akari/sumizuri/releases/latest/download/Sumizuri-altstore.json
+```
+
+SideStore and other stores that read AltStore sources take the same link. The newest `.ipa` is always at `https://github.com/not-akari/sumizuri/releases/latest/download/Sumizuri-ios-unsigned.ipa`.
+
 #### With Xcode, if you have a Mac
 
 1. Install [XcodeGen](https://github.com/yonaskolb/XcodeGen) and run `xcodegen` in the `iosApp` folder of the code.
@@ -113,7 +121,7 @@ The disk image is for Macs with Apple silicon, such as the M1 and newer. Macs wi
 
 ### Linux
 
-- On Debian and Ubuntu, install the `.deb` with `sudo apt install ./Sumizuri-*-linux-amd64.deb`.
+- On Debian and Ubuntu, install the `.deb` with `sudo apt install ./Sumizuri-linux-amd64.deb`.
 - On other Linux, unpack the `.tar.xz` and run `Sumizuri/bin/Sumizuri`.
 - For video, install mpv, for example the `libmpv2` package.
 

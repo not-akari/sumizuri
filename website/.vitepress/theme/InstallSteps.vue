@@ -58,7 +58,7 @@ const guides: Partial<Record<Device, Steps>> = {
   linux: {
     label: 'Linux',
     steps: [
-      'On Debian and Ubuntu, run <code>sudo apt install ./Sumizuri-*-linux-amd64.deb</code>.',
+      'On Debian and Ubuntu, run <code>sudo apt install ./Sumizuri-linux-amd64.deb</code>.',
       'On other Linux, unpack the <code>.tar.xz</code> and run <code>Sumizuri/bin/Sumizuri</code>.',
       'For video, install mpv, for example the <code>libmpv2</code> package.',
     ],
