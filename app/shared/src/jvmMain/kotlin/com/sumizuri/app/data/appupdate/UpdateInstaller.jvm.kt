@@ -25,7 +25,7 @@ actual object UpdateInstaller {
         val kinds = when {
             "win" in system -> listOf(".msi", ".exe")
             "mac" in system -> listOf(".dmg", ".pkg")
-            else -> listOf(".deb", ".rpm", ".appimage", ".tar.gz")
+            else -> listOf(".deb", ".rpm", ".appimage", ".tar.xz", ".tar.gz")
         }
         return kinds.firstNotNullOfOrNull { kind -> assets.firstOrNull { it.name.lowercase().endsWith(kind) } }
     }

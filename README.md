@@ -114,7 +114,7 @@ The disk image is for Macs with Apple silicon, such as the M1 and newer. Macs wi
 ### Linux
 
 - On Debian and Ubuntu, install the `.deb` with `sudo apt install ./Sumizuri-*-linux-amd64.deb`.
-- On other Linux, unpack the `.tar.gz` and run `Sumizuri/bin/Sumizuri`.
+- On other Linux, unpack the `.tar.xz` and run `Sumizuri/bin/Sumizuri`.
 - For video, install mpv, for example the `libmpv2` package.
 
 ### Update

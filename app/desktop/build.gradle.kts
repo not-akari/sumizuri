@@ -243,6 +243,16 @@ compose.desktop {
 
 // A full Java comes with an archive of its own classes, which lets them start without being read and checked one by one, but jlink leaves it out. The java command of the same Java is put in to make it, and stays, since the installed app uses it to make the archive of its own classes.
 tasks.withType<AbstractJLinkTask>().configureEach {
+    // The formats of dates and numbers are kept only for the languages the app is translated to, read from the folders of its texts, as those of every language were the largest part of the runtime.
+    val languages = listOf("en") +
+        rootProject
+            .file("app/shared/src/commonMain/composeResources")
+            .listFiles()
+            .orEmpty()
+            .map { it.name }
+            .filter { it.startsWith("values-") }
+            .map { it.removePrefix("values-").substringBefore('-') }
+    freeArgs.add("--include-locales=${languages.distinct().sorted().joinToString(",")}")
     val image = destinationDir
     val jdk = javaHome
     doLast {
