@@ -147,14 +147,14 @@ jobs:
         run: |
           for apk in app/android/build/outputs/apk/release/android-*-release.apk; do
             kind=$(basename "$apk" -release.apk)
-            cp "$apk" "Sumizuri-$VERSION-${kind#android-}.apk"
+            cp "$apk" "Sumizuri-${kind#android-}.apk"
           done
           # The app for TVs has TV in its names, which is how each app updates only to its own files.
           for apk in app/tv/build/outputs/apk/release/tv-*-release.apk; do
             kind=$(basename "$apk" -release.apk)
-            cp "$apk" "Sumizuri-TV-$VERSION-${kind#tv-}.apk"
+            cp "$apk" "Sumizuri-TV-${kind#tv-}.apk"
           done
-          cp app/desktop/build/installer/*-setup.exe "Sumizuri-$VERSION-setup.exe"
+          cp app/desktop/build/installer/*-setup.exe "Sumizuri-setup.exe"
           ls -l Sumizuri-*
       # On a version tag the files go straight on the draft release, so they never fill the storage of artifacts. A run by hand keeps them as files of the run.
       - name: Put the files on the release
@@ -214,8 +214,8 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.name }}
         run: |
-          cp app/desktop/build/compose/binaries/main-release/deb/*.deb "Sumizuri-$VERSION-linux-amd64.deb"
-          tar -C app/desktop/build/compose/binaries/main-release/app -cf - Sumizuri | xz -9e -T0 > "Sumizuri-$VERSION-linux-x64.tar.xz"
+          cp app/desktop/build/compose/binaries/main-release/deb/*.deb "Sumizuri-linux-amd64.deb"
+          tar -C app/desktop/build/compose/binaries/main-release/app -cf - Sumizuri | xz -9e -T0 > "Sumizuri-linux-x64.tar.xz"
           ls -l Sumizuri-*
       # On a version tag the files go straight on the draft release, so they never fill the storage of artifacts. A run by hand keeps them as files of the run.
       - name: Put the files on the release
@@ -267,7 +267,7 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.name }}
         run: |
-          cp app/desktop/build/compose/binaries/main-release/dmg/*.dmg "Sumizuri-$VERSION-macos-arm64.dmg"
+          cp app/desktop/build/compose/binaries/main-release/dmg/*.dmg "Sumizuri-macos-arm64.dmg"
           ls -l Sumizuri-*
       # On a version tag the files go straight on the draft release, so they never fill the storage of artifacts. A run by hand keeps them as files of the run.
       - name: Put the files on the release
@@ -350,8 +350,14 @@ jobs:
           rm -rf Payload
           mkdir Payload
           cp -R iosApp/build/Build/Products/Release-iphoneos/Sumizuri.app Payload/
-          zip -qry "Sumizuri-$VERSION-ios-unsigned.ipa" Payload
+          zip -qry Sumizuri-ios-unsigned.ipa Payload
           ls -l Sumizuri-*
+      # The source that AltStore, SideStore and similar stores read, so the app can be added there and updated from there. Its link never changes, as it sits on every release under the same name.
+      - name: Make the store source
+        env:
+          VERSION: ${{ steps.version.outputs.name }}
+          CODE: ${{ steps.version.outputs.args }}
+        run: node scripts/altstore-source.js
       # On a version tag the files go straight on the draft release, so they never fill the storage of artifacts. A run by hand keeps them as files of the run.
       - name: Put the files on the release
         if: startsWith(github.ref, 'refs/tags/')

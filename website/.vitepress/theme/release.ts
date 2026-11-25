@@ -117,7 +117,9 @@ export function useRelease() {
     const out: Record<Device, Entry[]> = { android: [], tv: [], ios: [], windows: [], mac: [], linux: [], server: [] }
     for (const asset of release.value?.assets ?? []) {
       const name = asset.name
-      const apk = name.match(/-([A-Za-z0-9_-]+)\.apk$/)
+      // The processor is the last part of the name, after the version on older releases and right after Sumizuri or Sumizuri-TV on newer ones.
+      const key = name.endsWith('.apk') ? Object.keys(abi).find((k) => name.endsWith(`-${k}.apk`)) : undefined
+      const apk = key ? [name, key] : null
       // The files of the app for TVs have TV in their names, and would look like phone files by their ending alone.
       if (apk && name.includes('-TV-') && tvAbi[apk[1]]) out.tv.push({ asset, key: apk[1], label: tvAbi[apk[1]].label, note: tvAbi[apk[1]].note })
       else if (apk && abi[apk[1]]) out.android.push({ asset, key: apk[1], label: abi[apk[1]].label, note: abi[apk[1]].note })
