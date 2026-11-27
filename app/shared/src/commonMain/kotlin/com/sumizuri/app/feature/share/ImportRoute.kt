@@ -31,14 +31,17 @@ import com.sumizuri.app.feature.settings.SettingsPageFrame
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.import_damaged
 import com.sumizuri.app.shared.resources.import_done_block
+import com.sumizuri.app.shared.resources.import_done_list
 import com.sumizuri.app.shared.resources.import_done_repos
 import com.sumizuri.app.shared.resources.import_done_repos_all
 import com.sumizuri.app.shared.resources.import_done_settings
 import com.sumizuri.app.shared.resources.import_done_theme
 import com.sumizuri.app.shared.resources.import_finish
 import com.sumizuri.app.shared.resources.import_newer
+import com.sumizuri.app.shared.resources.import_no_room
 import com.sumizuri.app.shared.resources.import_not_now
 import com.sumizuri.app.shared.resources.import_not_ours
+import com.sumizuri.app.shared.resources.import_open_list
 import com.sumizuri.app.shared.resources.import_reading
 import com.sumizuri.app.shared.resources.import_title
 import com.sumizuri.app.shared.resources.import_try_again
@@ -46,6 +49,7 @@ import com.sumizuri.app.shared.resources.import_undo
 import com.sumizuri.app.shared.resources.settings_import_page_hint
 import com.sumizuri.app.ui.kit.art.InkButton
 import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
+import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.art.Notice
 import com.sumizuri.app.ui.kit.input.rememberFilePicker
 import org.jetbrains.compose.resources.pluralStringResource
@@ -53,9 +57,18 @@ import org.jetbrains.compose.resources.stringResource
 
 // The one place files come into the app and things go out of it. A file is shown before anything is taken, and a backup goes on to the backup page, which asks how to restore it. The backup page opens on top of this one to make a backup, and in its place to restore one.
 @Composable
-fun ImportRoute(onBack: () -> Unit, onOpenBackup: () -> Unit, onRestore: () -> Unit) {
+fun ImportRoute(onBack: () -> Unit, onOpenBackup: () -> Unit, onOpenList: (Long) -> Unit, onRestore: () -> Unit) {
     val container = LocalAppContainer.current
-    val model = viewModel { ImportViewModel(container.settings, container.themes, container.blocks, container.repos) }
+    val model =
+        viewModel {
+            ImportViewModel(
+                container.settings,
+                container.themes,
+                container.blocks,
+                container.repos,
+                container.lists,
+            )
+        }
     val state by model.state.collectAsStateWithLifecycle()
     // A page opened again starts clean, unless a file is still being read.
     LaunchedEffect(Unit) {
@@ -103,7 +116,22 @@ fun ImportRoute(onBack: () -> Unit, onOpenBackup: () -> Unit, onRestore: () -> U
 
             is ImportState.Done -> Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 ResultNotice(Icons.Outlined.CheckCircle, doneText(now), MaterialTheme.colorScheme.primary)
-                InkButton(model::onAgain, Modifier.fillMaxWidth()) { Text(stringResource(Res.string.import_finish)) }
+                val opens = now.opens
+                if (opens != null) {
+                    InkButton(
+                        { onOpenList(opens) },
+                        Modifier.fillMaxWidth(),
+                    ) { Text(stringResource(Res.string.import_open_list)) }
+                    InkOutlinedButton(
+                        model::onAgain,
+                        Modifier.fillMaxWidth(),
+                    ) { Text(stringResource(Res.string.import_finish)) }
+                } else {
+                    InkButton(
+                        model::onAgain,
+                        Modifier.fillMaxWidth(),
+                    ) { Text(stringResource(Res.string.import_finish)) }
+                }
                 if (now.undo != null) {
                     TextButton(model::onUndo, Modifier.fillMaxWidth()) { Text(stringResource(Res.string.import_undo)) }
                 }
@@ -141,6 +169,8 @@ private fun doneText(done: ImportState.Done): String = when (done.kind) {
         stringResource(Res.string.import_done_repos, done.taken, done.of)
     }
 
+    ShareKind.List -> pluralStringResource(Res.plurals.import_done_list, done.taken, done.taken, done.name.orEmpty())
+
     ShareKind.Backup -> error("a backup goes to the backup page")
 }
 
@@ -148,4 +178,5 @@ private fun problemText(problem: ShareProblem) = when (problem) {
     ShareProblem.NotOurs -> Res.string.import_not_ours
     ShareProblem.Newer -> Res.string.import_newer
     ShareProblem.Damaged -> Res.string.import_damaged
+    ShareProblem.NoRoom -> Res.string.import_no_room
 }

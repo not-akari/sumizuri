@@ -48,6 +48,13 @@ internal object PlaceJson {
 
                                 Page.Shelves -> put("type", "shelves")
 
+                                Page.Lists -> put("type", "lists")
+
+                                is Page.ReadingList -> {
+                                    put("type", "list")
+                                    put("id", page.listId)
+                                }
+
                                 Page.LibraryDisplay -> put("type", "library_display")
 
                                 Page.Settings -> put("type", "settings")
@@ -165,6 +172,10 @@ internal object PlaceJson {
                 "saved" -> number("id")?.let { Page.Saved(it) }
 
                 "shelves" -> Page.Shelves
+
+                "lists" -> Page.Lists
+
+                "list" -> number("id")?.let { Page.ReadingList(it) }
 
                 "library_display" -> Page.LibraryDisplay
 

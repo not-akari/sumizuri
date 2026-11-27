@@ -158,7 +158,7 @@ private fun AddMenu(actions: BrowseHubActions) {
     if (sharing) {
         val data = remember(repos) { reposData(repos) }
         val name = stringResource(Res.string.share_kind_repos)
-        ShareDialog(stringResource(Res.string.share_title, name), "Sumizuri repos", ShareKind.Repos, data) {
+        ShareDialog(stringResource(Res.string.share_title, name), "Sumizuri", ShareKind.Repos, data) {
             sharing =
                 false
         }

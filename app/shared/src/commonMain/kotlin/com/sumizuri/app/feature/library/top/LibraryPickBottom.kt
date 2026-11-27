@@ -2,6 +2,7 @@ package com.sumizuri.app.feature.library.top
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
 import androidx.compose.material.icons.outlined.DoneAll
 import androidx.compose.material.icons.outlined.PlaylistRemove
 import androidx.compose.material.icons.outlined.RemoveDone
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import com.sumizuri.app.feature.library.LibraryPickCalls
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.library_shelves
+import com.sumizuri.app.shared.resources.list_add_to
 import com.sumizuri.app.shared.resources.pick_favorite
 import com.sumizuri.app.shared.resources.pick_migrate
 import com.sumizuri.app.shared.resources.pick_read
@@ -54,6 +56,12 @@ internal fun LibraryPickBottom(
             stringResource(Res.string.library_shelves),
             false,
             calls.onShelves,
+        )
+        DockAction(
+            Icons.AutoMirrored.Outlined.PlaylistAdd,
+            stringResource(Res.string.list_add_to),
+            false,
+            calls.onLists,
         )
         if (count == 1) {
             DockAction(Icons.Outlined.SwapHoriz, stringResource(Res.string.title_action_move), false, calls.onMove)

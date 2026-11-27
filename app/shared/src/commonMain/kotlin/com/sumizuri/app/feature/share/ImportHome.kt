@@ -106,7 +106,7 @@ internal fun ImportHome(onPick: () -> Unit, onDrop: (Path) -> Unit, onOpenBackup
                 ) {
                     scope.launch {
                         val data = container.settings.exportData()
-                        sharing = Sharing(settingsTitle, "Sumizuri settings", ShareKind.Settings, data)
+                        sharing = Sharing(settingsTitle, "Sumizuri", ShareKind.Settings, data)
                     }
                 }
             }
@@ -124,7 +124,7 @@ internal fun ImportHome(onPick: () -> Unit, onDrop: (Path) -> Unit, onOpenBackup
                         stringResource(Res.string.import_out_repos),
                         pluralStringResource(Res.plurals.import_out_repos_hint, repos.size, repos.size),
                     ) {
-                        sharing = Sharing(reposTitle, "Sumizuri repos", ShareKind.Repos, reposData(repos))
+                        sharing = Sharing(reposTitle, "Sumizuri", ShareKind.Repos, reposData(repos))
                     }
                 }
             }

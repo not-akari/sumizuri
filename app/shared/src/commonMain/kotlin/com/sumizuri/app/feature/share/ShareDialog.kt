@@ -51,7 +51,7 @@ import org.jetbrains.compose.resources.stringResource
 // The one way to share anything of the app: a .sumizuri file, sent to another app or saved, as big buttons side by side.
 @Composable
 fun ShareDialog(title: String, name: String, kind: ShareKind, data: JsonElement, onDismiss: () -> Unit) {
-    val fileName = remember(name) { shareFileName(name) }
+    val fileName = remember(name, kind) { shareFileName(name, kind) }
     val save = rememberFileSaver { if (it) onDismiss() }
     val send = rememberFileSharer()
     val scope = rememberCoroutineScope()

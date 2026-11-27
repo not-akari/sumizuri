@@ -106,6 +106,7 @@ internal fun AppTab(tab: Destination, tabs: List<Destination>, navigation: Navig
                 onOpenSettings = { navigation.push(Page.Settings) },
                 onOpenSync = { navigation.push(Page.SettingsPage(SettingsTarget.Sync)) },
                 onOpenTrackers = { navigation.push(Page.SettingsPage(SettingsTarget.Trackers)) },
+                onOpenLists = { navigation.push(Page.Lists) },
                 onArrange = { navigation.push(Page.ArrangeBlocks) },
                 onLayouts = { navigation.push(Page.ProfileLayouts) },
                 onOpenMissing = { navigation.push(Page.SettingsPage(SettingsTarget.MissingSources)) },

@@ -107,7 +107,7 @@ fun AdvancedRoute(onBack: () -> Unit, onOpen: (SettingsTarget) -> Unit) {
     sharing?.let { data ->
         ShareDialog(
             stringResource(Res.string.share_title, stringResource(Res.string.share_kind_settings)),
-            "Sumizuri settings",
+            "Sumizuri",
             ShareKind.Settings,
             data,
         ) {

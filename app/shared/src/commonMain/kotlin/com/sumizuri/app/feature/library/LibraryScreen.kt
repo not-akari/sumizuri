@@ -52,6 +52,7 @@ import com.sumizuri.app.feature.library.top.ShelvesDialog
 import com.sumizuri.app.feature.library.top.UpdateFailuresSheet
 import com.sumizuri.app.feature.library.top.shelfOrder
 import com.sumizuri.app.feature.library.top.swipeShelves
+import com.sumizuri.app.feature.lists.AddToListDialog
 import com.sumizuri.app.navigation.LocalTabShown
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.library_empty
@@ -87,7 +88,7 @@ import org.jetbrains.compose.resources.stringResource
 private val RowWidth = 620.dp
 private val RowGap = SoftGap
 
-private enum class Window { None, Sort, Display, Failures, Shelves, Remove }
+private enum class Window { None, Sort, Display, Failures, Shelves, Lists, Remove }
 
 // The library. A bar on top, which becomes the bar of the picked titles. Under it the notes about titles that cannot be reached, the search, the shelves as tabs, a row of chips for the order, the kinds and the filters, the titles read last, and the covers. Pulling the page down checks the library for new chapters, and a swipe sideways changes the shelf.
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,6 +171,7 @@ internal fun LibraryScreen(state: LibraryState, calls: LibraryCalls) {
         onMarkRead = calls.onMarkRead,
         onFavorite = calls.onFavorite,
         onShelves = { window = Window.Shelves },
+        onLists = { window = Window.Lists },
         onMove = { state.selected.singleOrNull()?.let(calls.onMove) },
         onMigrate = { calls.onMigrate(state.selected.toList()) },
         onRemove = { window = Window.Remove },
@@ -308,6 +310,16 @@ internal fun LibraryScreen(state: LibraryState, calls: LibraryCalls) {
             onApply = { add, remove ->
                 calls.onShelves(add, remove)
                 close()
+            },
+            onDismiss = close,
+        )
+
+        Window.Lists -> AddToListDialog(
+            remember(state.titles, state.selected) {
+                state.titles.filter { it.id in state.selected }.map {
+                    it.name to
+                        it.kind
+                }
             },
             onDismiss = close,
         )

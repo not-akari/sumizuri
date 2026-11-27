@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.outlined.AutoAwesomeMosaic
 import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.DashboardCustomize
@@ -42,6 +43,9 @@ import com.sumizuri.app.feature.settings.PageRow
 import com.sumizuri.app.shared.resources.Res
 import com.sumizuri.app.shared.resources.blocks_edit
 import com.sumizuri.app.shared.resources.blocks_layouts
+import com.sumizuri.app.shared.resources.lists_count
+import com.sumizuri.app.shared.resources.lists_row_hint
+import com.sumizuri.app.shared.resources.lists_title
 import com.sumizuri.app.shared.resources.nav_settings
 import com.sumizuri.app.shared.resources.profile_title
 import com.sumizuri.app.shared.resources.settings_missing_sources
@@ -122,7 +126,7 @@ internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
                             window =
                                 Window.Form(active)
                         }, bar = bar.takeIf { barOnBanner })
-                        SyncEntry(calls.onOpenSync, calls.onOpenTrackers)
+                        SyncEntry(calls.onOpenSync, calls.onOpenTrackers, calls.onOpenLists, wide)
                         if (state.unreachable > 0) Missing(state.unreachable, calls.onOpenMissing)
                         BlockGrid(
                             state.blocks,
@@ -153,7 +157,7 @@ internal fun ProfileScreen(state: ProfileState, calls: ProfileCalls) {
 
 // The ways to sync and to the trackers, as two tiles side by side. The first says how the sync of this profile stands, or what sync is while it is not set up, and the second who is signed in to which tracker.
 @Composable
-private fun SyncEntry(onOpen: () -> Unit, onOpenTrackers: () -> Unit) {
+private fun SyncEntry(onOpen: () -> Unit, onOpenTrackers: () -> Unit, onOpenLists: () -> Unit, wide: Boolean) {
     val account by LocalProfiles.current.syncAccounts.account
         .collectAsStateWithLifecycle()
     // Once signed in the row says how the sync stands, so a sync that did not finish shows without opening the page.
@@ -193,21 +197,43 @@ private fun SyncEntry(onOpen: () -> Unit, onOpenTrackers: () -> Unit) {
     } else {
         tracked.entries.joinToString(" · ") { (tracker, account) -> tracker.label + ": " + account.name }
     }
-    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        PageTile(
-            Icons.Outlined.Sync,
-            stringResource(Res.string.sync_title),
-            summary,
-            onOpen,
-            Modifier.weight(1f).fillMaxHeight(),
-        )
+    // The lists sit beside them, and say how many there are.
+    val lists by remember(container) { container.lists.lists }.collectAsStateWithLifecycle(null)
+    val count = lists?.size ?: 0
+    val listsSummary = if (count == 0) {
+        stringResource(Res.string.lists_row_hint)
+    } else {
+        pluralStringResource(Res.plurals.lists_count, count, count)
+    }
+    val syncTile = @Composable { modifier: Modifier ->
+        PageTile(Icons.Outlined.Sync, stringResource(Res.string.sync_title), summary, onOpen, modifier)
+    }
+    val trackersTile = @Composable { modifier: Modifier ->
         PageTile(
             Icons.Outlined.Checklist,
             stringResource(Res.string.trackers_title),
             trackers,
             onOpenTrackers,
-            Modifier.weight(1f).fillMaxHeight(),
+            modifier,
         )
+    }
+    val listsTile = @Composable { modifier: Modifier ->
+        PageTile(
+            Icons.AutoMirrored.Outlined.FormatListBulleted,
+            stringResource(Res.string.lists_title),
+            listsSummary,
+            onOpenLists,
+            modifier,
+        )
+    }
+    // A wide window has the three in one row, and a phone has the lists under the other two.
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            syncTile(Modifier.weight(1f).fillMaxHeight())
+            trackersTile(Modifier.weight(1f).fillMaxHeight())
+            if (wide) listsTile(Modifier.weight(1f).fillMaxHeight())
+        }
+        if (!wide) listsTile(Modifier.fillMaxWidth())
     }
 }
 

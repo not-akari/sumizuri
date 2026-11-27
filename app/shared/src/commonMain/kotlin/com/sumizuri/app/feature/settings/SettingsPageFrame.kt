@@ -50,6 +50,30 @@ internal fun SettingsPageFrame(
     onBack: () -> Unit,
     subtitle: StringResource? = null,
     onReset: (suspend () -> Unit)? = null,
+    maxWidth: Dp = ReadableWidth,
+    refresh: PageRefresh? = null,
+    jumps: List<String> = emptyList(),
+    actions: @Composable RowScope.() -> Unit = {},
+    content: @Composable ColumnScope.() -> Unit,
+) = SettingsPageFrame(
+    stringResource(title),
+    onBack,
+    subtitle?.let { stringResource(it) },
+    onReset,
+    maxWidth,
+    refresh,
+    jumps,
+    actions,
+    content,
+)
+
+// The same frame for a page whose name is not a fixed text, such as one named by the person.
+@Composable
+internal fun SettingsPageFrame(
+    title: String,
+    onBack: () -> Unit,
+    subtitle: String?,
+    onReset: (suspend () -> Unit)? = null,
     // How wide the page may get on a wide window.
     maxWidth: Dp = ReadableWidth,
     // A page that can be pulled down to load again, such as the server tabs of sync, gives what is running and what to do.
@@ -82,9 +106,9 @@ internal fun SettingsPageFrame(
     frame {
         Column(Modifier.fillMaxSize()) {
             PageTopBar(
-                stringResource(title),
+                title,
                 // The line about the page sits under its name, as the list beside it says the same.
-                subtitle = subtitle?.let { stringResource(it) },
+                subtitle = subtitle,
                 onBack = onBack,
                 actions = {
                     actions()
@@ -125,7 +149,7 @@ internal fun SettingsPageFrame(
     if (asking && onReset != null) {
         ConfirmDialog(
             stringResource(Res.string.settings_reset_page),
-            stringResource(Res.string.settings_reset_page_message, stringResource(title)),
+            stringResource(Res.string.settings_reset_page_message, title),
             stringResource(Res.string.advanced_reset_action),
             onConfirm = {
                 asking = false

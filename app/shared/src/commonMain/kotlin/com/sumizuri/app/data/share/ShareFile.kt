@@ -32,13 +32,14 @@ enum class ShareKind(val id: String) {
     Theme("theme"),
     Block("block"),
     Repos("repos"),
+    List("list"),
 }
 
 // A file of the app as it was read: what it holds, its content, and when it was made.
 data class SharedThing(val kind: ShareKind, val data: JsonElement, val made: Long?)
 
 // Why a file could not be read as a file of the app.
-enum class ShareProblem { NotOurs, Newer, Damaged }
+enum class ShareProblem { NotOurs, Newer, Damaged, NoRoom }
 
 class ShareUnreadable(val problem: ShareProblem, cause: Throwable? = null) : Exception(problem.name, cause)
 
@@ -93,12 +94,21 @@ fun reposOf(thing: SharedThing): List<SharedRepo> = (thing.data as? JsonArray).o
     SharedRepo(url, (row["name"] as? JsonPrimitive)?.content ?: url)
 }
 
-// A plain name for a file of this kind, such as Midnight.sumizuri, with the marks a file name cannot have taken out.
-fun shareFileName(name: String): String {
-    val clean = name
-        .map { if (it.isLetterOrDigit() || it in " -_.()") it else '_' }
-        .joinToString("")
-        .trim()
+// Names Windows keeps for itself, which no file may have.
+private val Reserved = setOf("con", "prn", "aux", "nul") + (1..9).flatMap { listOf("com$it", "lpt$it") }
+
+private val Underscores = Regex("_+")
+
+// A file name that works on every system, with the kind as a second ending, such as Best_of_2026.list.sumizuri. Only letters, digits, the dash and the underscore are kept, spaces and every other mark become one underscore, and an empty or kept name becomes sumizuri.
+fun shareFileName(name: String, kind: ShareKind): String {
+    val marked = buildString {
+        for (char in name) append(if (char.isLetterOrDigit() || char == '-') char else '_')
+    }
+    val clean = marked
+        .replace(Underscores, "_")
+        .trim('_', '-')
         .take(60)
-    return clean.ifEmpty { "sumizuri" } + ShareEnding
+        .trimEnd('_', '-')
+    val base = clean.takeIf { it.isNotEmpty() && it.lowercase() !in Reserved } ?: "sumizuri"
+    return base + "." + kind.id + ShareEnding
 }

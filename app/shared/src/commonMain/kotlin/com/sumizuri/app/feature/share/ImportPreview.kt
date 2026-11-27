@@ -27,10 +27,12 @@ import com.sumizuri.app.shared.resources.import_repos
 import com.sumizuri.app.shared.resources.import_settings
 import com.sumizuri.app.shared.resources.share_kind_backup
 import com.sumizuri.app.shared.resources.share_kind_block
+import com.sumizuri.app.shared.resources.share_kind_list
 import com.sumizuri.app.shared.resources.share_kind_repos
 import com.sumizuri.app.shared.resources.share_kind_settings
 import com.sumizuri.app.shared.resources.share_kind_theme
 import com.sumizuri.app.shared.resources.take_block
+import com.sumizuri.app.shared.resources.take_list
 import com.sumizuri.app.shared.resources.take_repos
 import com.sumizuri.app.shared.resources.take_settings
 import com.sumizuri.app.shared.resources.take_theme
@@ -99,6 +101,8 @@ internal fun ImportPreview(thing: SharedThing, theme: AppThemeSpec?) {
                     }
                 }
 
+                ShareKind.List -> SharedListPreview(thing)
+
                 ShareKind.Backup -> Unit
             }
         }
@@ -111,6 +115,7 @@ internal fun kindName(kind: ShareKind): StringResource = when (kind) {
     ShareKind.Theme -> Res.string.share_kind_theme
     ShareKind.Block -> Res.string.share_kind_block
     ShareKind.Repos -> Res.string.share_kind_repos
+    ShareKind.List -> Res.string.share_kind_list
 }
 
 internal fun takeLabel(kind: ShareKind): StringResource = when (kind) {
@@ -118,5 +123,6 @@ internal fun takeLabel(kind: ShareKind): StringResource = when (kind) {
     ShareKind.Theme -> Res.string.take_theme
     ShareKind.Block -> Res.string.take_block
     ShareKind.Repos -> Res.string.take_repos
+    ShareKind.List -> Res.string.take_list
     ShareKind.Backup -> Res.string.share_kind_backup
 }

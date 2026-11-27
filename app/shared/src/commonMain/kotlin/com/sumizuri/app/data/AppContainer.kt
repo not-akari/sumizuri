@@ -27,6 +27,7 @@ import com.sumizuri.app.data.library.LibraryRepository
 import com.sumizuri.app.data.library.SeasonCovers
 import com.sumizuri.app.data.library.StatisticsRepository
 import com.sumizuri.app.data.library.coverFolder
+import com.sumizuri.app.data.lists.ListRepository
 import com.sumizuri.app.data.local.localFolder
 import com.sumizuri.app.data.migration.MigrationPrefsRepository
 import com.sumizuri.app.data.migration.MigrationSession
@@ -136,6 +137,7 @@ class AppContainer(
             PlayerPrefsRepository(database),
         )
     val categories = CategoryRepository(database)
+    val lists = ListRepository(database)
     val autoDownloads = AutoDownloads(library, categories, downloads, settings, work)
 
     // A page from inside each chapter for the cells of the chapter grid, kept while the app runs.
