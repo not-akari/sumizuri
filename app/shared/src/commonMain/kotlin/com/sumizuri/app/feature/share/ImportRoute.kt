@@ -37,6 +37,7 @@ import com.sumizuri.app.shared.resources.import_done_repos_all
 import com.sumizuri.app.shared.resources.import_done_settings
 import com.sumizuri.app.shared.resources.import_done_theme
 import com.sumizuri.app.shared.resources.import_finish
+import com.sumizuri.app.shared.resources.import_list_tv
 import com.sumizuri.app.shared.resources.import_newer
 import com.sumizuri.app.shared.resources.import_no_room
 import com.sumizuri.app.shared.resources.import_not_now
@@ -52,6 +53,7 @@ import com.sumizuri.app.ui.kit.art.InkCircularProgressIndicator
 import com.sumizuri.app.ui.kit.art.InkOutlinedButton
 import com.sumizuri.app.ui.kit.art.Notice
 import com.sumizuri.app.ui.kit.input.rememberFilePicker
+import com.sumizuri.app.ui.tv.LocalTv
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -70,6 +72,7 @@ fun ImportRoute(onBack: () -> Unit, onOpenBackup: () -> Unit, onOpenList: (Long)
             )
         }
     val state by model.state.collectAsStateWithLifecycle()
+    val tv = LocalTv.current
     // A page opened again starts clean, unless a file is still being read.
     LaunchedEffect(Unit) {
         if (model.state.value !is ImportState.Reading) model.onAgain()
@@ -107,7 +110,13 @@ fun ImportRoute(onBack: () -> Unit, onOpenBackup: () -> Unit, onOpenList: (Long)
                 Text(stringResource(Res.string.import_reading))
             }
 
-            is ImportState.Ready -> Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            // The TV has no lists, so a list file is not taken there.
+            is ImportState.Ready -> if (tv && now.thing.kind == ShareKind.List) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    ResultNotice(Icons.Outlined.ErrorOutline, stringResource(Res.string.import_list_tv), MaterialTheme.colorScheme.error)
+                    InkButton(model::onAgain, Modifier.fillMaxWidth()) { Text(stringResource(Res.string.import_finish)) }
+                }
+            } else Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 val theme = remember(now.thing) { model.themeOf(now.thing) }
                 ImportPreview(now.thing, theme)
                 InkButton(model::onTake, Modifier.fillMaxWidth()) { Text(stringResource(takeLabel(now.thing.kind))) }
