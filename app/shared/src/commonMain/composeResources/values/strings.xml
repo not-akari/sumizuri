@@ -3329,4 +3329,5 @@
     <string name="list_add_search">Search your library or type a name</string>
     <string name="list_add_hint">Find titles in your library, or type any name to add it as it is.</string>
     <string name="list_add_name">Add %1$s as %2$s</string>
+    <string name="import_list_tv">Lists are not on the TV. Open this file on a phone or computer.</string>
 </resources>
