@@ -16,6 +16,8 @@ import com.sumizuri.app.feature.history.HistoryRoute
 import com.sumizuri.app.feature.library.display.LibraryDisplayRoute
 import com.sumizuri.app.feature.library.shelves.EditShelfRoute
 import com.sumizuri.app.feature.library.shelves.ShelvesRoute
+import com.sumizuri.app.feature.lists.ListRoute
+import com.sumizuri.app.feature.lists.ListsRoute
 import com.sumizuri.app.feature.logs.LogsRoute
 import com.sumizuri.app.feature.migration.MigrationRoute
 import com.sumizuri.app.feature.migration.single.MigrateRoute
@@ -87,6 +89,12 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
 
         is Page.EditShelf -> EditShelfRoute(page.shelfId, onBack = navigation::pop)
 
+        Page.Lists -> ListsRoute(onBack = navigation::pop, onOpen = { navigation.push(Page.ReadingList(it)) })
+
+        is Page.ReadingList -> ListRoute(page.listId, onBack = navigation::pop, onOpenSaved = {
+            navigation.push(Page.Saved(it))
+        })
+
         Page.LibraryDisplay -> LibraryDisplayRoute(onBack = navigation::pop)
 
         Page.Backup -> BackupRoute(onBack = navigation::pop, onMigrate = { navigation.push(Page.Migration(it)) })
@@ -94,6 +102,7 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
         Page.Import -> ImportRoute(
             navigation::pop,
             { navigation.push(Page.Backup) },
+            { navigation.replaceTop(Page.ReadingList(it)) },
         ) { navigation.replaceTop(Page.Backup) }
 
         // A TV has pages of its own, made for the remote, for the settings it has.
@@ -131,6 +140,7 @@ fun PageHost(page: Page, navigation: NavigationViewModel) {
                 onOpen = { navigation.push(pageOf(it)) },
                 onOpenControls = { navigation.push(Page.Controls(it)) },
                 onOpenTitle = { navigation.push(Page.Saved(it)) },
+                onOpenList = { navigation.push(Page.ReadingList(it)) },
                 onEditTheme = { navigation.push(Page.ThemeEditor(it)) },
             )
         }

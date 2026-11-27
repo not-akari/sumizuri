@@ -6,6 +6,8 @@ import com.sumizuri.app.core.log.AppLog
 import com.sumizuri.app.data.blocks.ProfileBlocksRepository
 import com.sumizuri.app.data.blocks.decodeBlock
 import com.sumizuri.app.data.blocks.newBlockId
+import com.sumizuri.app.data.lists.ListRepository
+import com.sumizuri.app.data.lists.sharedListOf
 import com.sumizuri.app.data.settings.SettingsRepository
 import com.sumizuri.app.data.settings.ThemeRepository
 import com.sumizuri.app.data.settings.importData
@@ -19,6 +21,8 @@ import com.sumizuri.app.data.share.identify
 import com.sumizuri.app.data.share.reposOf
 import com.sumizuri.app.data.sources.RepoRepository
 import com.sumizuri.app.feature.theme.newThemeId
+import com.sumizuri.app.shared.resources.Res
+import com.sumizuri.app.shared.resources.list_shared_name
 import com.sumizuri.app.ui.theme.spec.AppThemeSpec
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
@@ -30,6 +34,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.jsonObject
 import okio.Path
+import org.jetbrains.compose.resources.getString
 
 // Where the import page is: nothing chosen yet, reading, a thing to look at before it is taken, done, or a file it cannot read.
 sealed interface ImportState {
@@ -46,6 +51,9 @@ sealed interface ImportState {
         val thing: SharedThing,
         val taken: Int = 1,
         val of: Int = taken,
+        // The name it was saved under and the list to open, for a list.
+        val name: String? = null,
+        val opens: Long? = null,
         val undo: (suspend () -> Unit)? = null,
     ) : ImportState {
         val kind: ShareKind get() = thing.kind
@@ -60,6 +68,7 @@ class ImportViewModel(
     private val themes: ThemeRepository,
     private val blocks: ProfileBlocksRepository,
     private val repos: RepoRepository,
+    private val lists: ListRepository,
 ) : ViewModel() {
     private val mutable = MutableStateFlow<ImportState>(ImportState.Empty)
     val state: StateFlow<ImportState> = mutable
@@ -182,6 +191,23 @@ class ImportViewModel(
                 added.size + wanted.count { it in had },
                 wanted.size,
             ) { added.forEach { repos.remove(it) } }
+        }
+
+        // A shared list is always saved as a new list, so nothing the person has is changed, and undo deletes it again.
+        ShareKind.List -> {
+            val shared = sharedListOf(thing.data) ?: throw IllegalStateException("no list in the file")
+            val saved = lists.import(shared, getString(Res.string.list_shared_name))
+            if (saved == null) {
+                ImportState.Failed(ShareProblem.NoRoom)
+            } else {
+                ImportState.Done(
+                    thing,
+                    saved.added,
+                    shared.titles.size,
+                    saved.name,
+                    saved.id,
+                ) { lists.delete(saved.id) }
+            }
         }
 
         ShareKind.Backup -> error("a backup goes to the backup page")

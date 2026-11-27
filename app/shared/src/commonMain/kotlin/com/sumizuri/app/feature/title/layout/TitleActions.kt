@@ -3,6 +3,7 @@ package com.sumizuri.app.feature.title.layout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
 import androidx.compose.material.icons.outlined.CenterFocusStrong
 import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.DeleteOutline
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.sumizuri.app.data.model.Title
+import com.sumizuri.app.feature.lists.AddToListDialog
 import com.sumizuri.app.feature.title.TitleCallbacks
 import com.sumizuri.app.feature.title.TitleState
 import com.sumizuri.app.feature.title.chapter.ChapterOptionsSheet
@@ -41,6 +43,7 @@ import com.sumizuri.app.shared.resources.download_all
 import com.sumizuri.app.shared.resources.download_delete_all
 import com.sumizuri.app.shared.resources.download_title
 import com.sumizuri.app.shared.resources.download_unread
+import com.sumizuri.app.shared.resources.list_add_to
 import com.sumizuri.app.shared.resources.refresh
 import com.sumizuri.app.shared.resources.title_action_background
 import com.sumizuri.app.shared.resources.title_action_edit
@@ -80,12 +83,8 @@ internal fun RowScope.TitleBarActions(
             tint = if (state.filtering) MaterialTheme.colorScheme.primary else LocalContentColor.current,
         )
     }
-    // A preview whose source gives no website has nothing for the menu, so it has no button.
+    var lists by remember { mutableStateOf(false) }
     val web = title.webUrl?.takeIf { it.isNotBlank() }
-    if (state.preview && web == null) {
-        if (options) ChapterOptionsSheet(state, calls) { options = false }
-        return
-    }
     // The menu opens under its button, so the two are in one box.
     Box {
         IconButton({
@@ -137,10 +136,11 @@ internal fun RowScope.TitleBarActions(
                 AppMenuLabel(stringResource(Res.string.title_menu_group))
                 item(stringResource(Res.string.title_action_edit), Icons.Outlined.Edit, action = calls.onEdit)
             }
+            if (state.preview) AppMenuLabel(stringResource(Res.string.title_menu_group))
             web?.let { address ->
-                if (state.preview) AppMenuLabel(stringResource(Res.string.title_menu_group))
                 item(stringResource(Res.string.title_action_web), Icons.Outlined.Public) { openSite(address) }
             }
+            item(stringResource(Res.string.list_add_to), Icons.AutoMirrored.Outlined.PlaylistAdd) { lists = true }
             // A title that cannot be reached has a button for moving it of its own.
             if (!state.preview &&
                 state.readable
@@ -157,4 +157,5 @@ internal fun RowScope.TitleBarActions(
         }
     }
     if (options) ChapterOptionsSheet(state, calls) { options = false }
+    if (lists) AddToListDialog(listOf(title.name to title.kind)) { lists = false }
 }

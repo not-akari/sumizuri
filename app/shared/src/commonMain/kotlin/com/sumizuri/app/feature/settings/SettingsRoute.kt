@@ -60,6 +60,8 @@ fun SettingsRoute(
     onOpen: (SettingsTarget) -> Unit,
     onOpenControls: (ControlsPage) -> Unit,
     onOpenTitle: (Long) -> Unit,
+    // A list saved from a shared file, opened over the settings.
+    onOpenList: (Long) -> Unit,
     // The editor of a theme opens over the whole window, since it needs the room for its preview.
     onEditTheme: (String) -> Unit,
 ) {
@@ -147,7 +149,7 @@ fun SettingsRoute(
 
                             SettingsTarget.Import -> {
                                 val backup = { push(PaneEntry.Target(SettingsTarget.Backup)) }
-                                ImportRoute(back, backup, backup)
+                                ImportRoute(back, backup, onOpenList, backup)
                             }
 
                             SettingsTarget.Migration -> MigrationRoute(

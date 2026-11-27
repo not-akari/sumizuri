@@ -3281,4 +3281,52 @@
     <string name="download_err_no_video">The source gave no video for this episode</string>
     <string name="reader_translate">Translate chapter</string>
     <string name="reader_translate_off">Show the original text</string>
+    <string name="lists_title">Lists</string>
+    <string name="lists_hint">Lists hold titles by name, to keep or to share. Opening a title finds it in your library or your sources.</string>
+    <string name="lists_row_hint">Make lists of titles to keep or share</string>
+    <string name="lists_new">New list</string>
+    <string name="lists_empty">No lists yet. Make one above.</string>
+    <plurals name="lists_count">
+        <item quantity="one">%1$d list</item>
+        <item quantity="other">%1$d lists</item>
+    </plurals>
+    <string name="list_empty">This list is empty. Add titles here, from a title page or from the library.</string>
+    <string name="list_edit">Edit list</string>
+    <string name="list_about">About this list</string>
+    <string name="list_delete">Delete list</string>
+    <string name="list_delete_message">The list goes away. Titles in your library stay.</string>
+    <string name="list_add_title">Add a title</string>
+    <string name="list_note">Note</string>
+    <string name="list_note_edit">Edit note</string>
+    <string name="list_remove_item">Remove from list</string>
+    <string name="list_add_to">Add to list</string>
+    <string name="lists_find_or_new">Find or make a list</string>
+    <string name="list_make">Make the list %1$s</string>
+    <string name="lists_taken">There is a list with that name already.</string>
+    <string name="lists_full">You have %1$d lists, the most there can be.</string>
+    <string name="list_full">This list is full. A list holds %1$d titles.</string>
+    <plurals name="list_left_out">
+        <item quantity="one">%1$d title did not fit. A list holds %2$d.</item>
+        <item quantity="other">%1$d titles did not fit. A list holds %2$d.</item>
+    </plurals>
+    <string name="share_kind_list">List</string>
+    <string name="take_list">Save the list</string>
+    <string name="import_open_list">Open the list</string>
+    <string name="import_no_room">You have the most lists there can be. Delete one to save this list.</string>
+    <string name="list_shared_name">Shared list</string>
+    <string name="list_share">Share list</string>
+    <plurals name="import_done_list">
+        <item quantity="one">Saved %2$s with %1$d title.</item>
+        <item quantity="other">Saved %2$s with %1$d titles.</item>
+    </plurals>
+    <plurals name="import_list_extra">
+        <item quantity="one">%1$d more title is in the file, but a list holds %2$d.</item>
+        <item quantity="other">%1$d more titles are in the file, but a list holds %2$d.</item>
+    </plurals>
+    <string name="import_list_more">and %1$d more</string>
+    <string name="lists_find">Find a list</string>
+    <string name="list_add_titles">Add titles</string>
+    <string name="list_add_search">Search your library or type a name</string>
+    <string name="list_add_hint">Find titles in your library, or type any name to add it as it is.</string>
+    <string name="list_add_name">Add %1$s as %2$s</string>
 </resources>

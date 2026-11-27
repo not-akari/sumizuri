@@ -17,6 +17,9 @@ import com.sumizuri.app.data.db.download.DownloadDao
 import com.sumizuri.app.data.db.download.DownloadEntity
 import com.sumizuri.app.data.db.tracker.TrackerLinkDao
 import com.sumizuri.app.data.db.tracker.TrackerLinkEntity
+import com.sumizuri.app.data.db.lists.ReadingListDao
+import com.sumizuri.app.data.db.lists.ReadingListEntity
+import com.sumizuri.app.data.db.lists.ReadingListItemEntity
 import com.sumizuri.app.data.db.log.LogDao
 import com.sumizuri.app.data.db.log.LogRow
 import com.sumizuri.app.data.db.progress.ProgressDao
@@ -36,8 +39,8 @@ import kotlinx.coroutines.IO
 
 // When a table changes, raise the version, export the new schema and add a migration.
 @Database(
-    entities = [TitleEntity::class, ChapterEntity::class, ProgressEntity::class, SettingEntity::class, SourceEntity::class, SourceValueEntity::class, CookieEntity::class, LogRow::class, RepoEntity::class, CategoryEntity::class, TitleCategoryEntity::class, DownloadEntity::class, TrackerLinkEntity::class],
-    version = 20,
+    entities = [TitleEntity::class, ChapterEntity::class, ProgressEntity::class, SettingEntity::class, SourceEntity::class, SourceValueEntity::class, CookieEntity::class, LogRow::class, RepoEntity::class, CategoryEntity::class, TitleCategoryEntity::class, DownloadEntity::class, TrackerLinkEntity::class, ReadingListEntity::class, ReadingListItemEntity::class],
+    version = 21,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -58,6 +61,7 @@ import kotlinx.coroutines.IO
         AutoMigration(from = 17, to = 18),
         AutoMigration(from = 18, to = 19),
         AutoMigration(from = 19, to = 20),
+        AutoMigration(from = 20, to = 21),
     ],
 )
 @ConstructedBy(AppDatabaseConstructor::class)
@@ -74,6 +78,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categories(): CategoryDao
     abstract fun downloads(): DownloadDao
     abstract fun trackerLinks(): TrackerLinkDao
+    abstract fun lists(): ReadingListDao
 }
 
 // Room writes the platform versions of this itself.

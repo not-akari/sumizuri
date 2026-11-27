@@ -55,6 +55,7 @@ internal class LibraryPickCalls(
     val onMarkRead: (Boolean) -> Unit,
     val onFavorite: (Boolean) -> Unit,
     val onShelves: () -> Unit,
+    val onLists: () -> Unit,
     val onMove: () -> Unit,
     val onMigrate: () -> Unit,
     val onRemove: () -> Unit,

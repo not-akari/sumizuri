@@ -83,6 +83,10 @@ sealed interface Page {
     // The page where the blocks of the profile are put in order, sized, added and removed.
     data object ArrangeBlocks : Page
 
+    // The lists of titles the person made, and one of them.
+    data object Lists : Page
+    data class ReadingList(val listId: Long) : Page
+
     // The editor of the script of one block of the profile.
     data class BlockScript(val blockId: String) : Page
 }
