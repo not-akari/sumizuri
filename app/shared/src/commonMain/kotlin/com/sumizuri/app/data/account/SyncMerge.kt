@@ -1,7 +1,13 @@
 package com.sumizuri.app.data.account
 
 // What sync takes part in, from the switches of What syncs. The library itself always does.
-data class SyncParts(val progress: Boolean, val shelves: Boolean, val settings: Boolean, val sources: Boolean = true)
+data class SyncParts(
+    val progress: Boolean,
+    val shelves: Boolean,
+    val settings: Boolean,
+    val sources: Boolean = true,
+    val lists: Boolean = true,
+)
 
 // The kinds of value a conflict can be about, as the details page names them.
 object ConflictKind {
@@ -13,6 +19,7 @@ object ConflictKind {
     const val Shelves = "shelves"
     const val Setting = "setting"
     const val Source = "source"
+    const val List = "list"
 }
 
 // Joins this device and the server by what each changed since they last agreed. A side that left a value as it was takes the other side's change. When both changed one value, the merge keeps what is safer to keep: in the library, a favorite, read, bookmarked, the further place, the shelves of both, the newer version of a source, and this device's setting. Each such case is told to onConflict with the key it was found under.
@@ -70,7 +77,21 @@ object SyncMerge {
         } else {
             local.sources
         }
-        return SyncState(merged, settings, sources)
+        // A list changed on both sides keeps the newer change, and one changed on one side and deleted on the other is kept.
+        val lists = if (parts.lists) {
+            values(local.lists, server.lists, base.lists, {
+                onConflict(it, ConflictKind.List)
+            }) { mine, theirs ->
+                when {
+                    mine == null -> theirs
+                    theirs == null -> mine
+                    else -> if (theirs.changed > mine.changed) theirs else mine
+                }
+            }
+        } else {
+            local.lists
+        }
+        return SyncState(merged, settings, sources, lists)
     }
 
     private fun chapters(

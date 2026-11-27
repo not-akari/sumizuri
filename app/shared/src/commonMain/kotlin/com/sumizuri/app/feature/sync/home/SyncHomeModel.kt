@@ -2,12 +2,14 @@ package com.sumizuri.app.feature.sync.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sumizuri.app.data.account.BigChoice
 import com.sumizuri.app.data.account.LibrarySyncer
 import com.sumizuri.app.data.account.SyncAccount
 import com.sumizuri.app.data.account.SyncAccountStore
 import com.sumizuri.app.data.account.SyncClient
 import com.sumizuri.app.data.account.SyncProblem
 import com.sumizuri.app.data.account.SyncRun
+import com.sumizuri.app.data.account.SyncWhy
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.settings.SettingsRepository
 import com.sumizuri.app.feature.sync.data.ServerCopy
@@ -152,6 +154,15 @@ class SyncHomeModel(
 
     // The syncs of this profile, newest first.
     val syncHistory = syncer.history
+
+    // A sync that would take a lot from this device and waits for the person.
+    val waiting = syncer.waiting
+
+    // Goes on with a sync that waited, keeping what this device has or letting the change through after a backup.
+    fun resolve(choice: BigChoice) = work {
+        syncer.sync(SyncWhy.Asked, choice)
+        fetchLibraries()
+    }
 
     // Forgets what this device and the server last agreed on and syncs, joining both without removing anything.
     fun syncFromScratch() = work {

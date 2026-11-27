@@ -81,7 +81,7 @@ class LibrarySyncWorker(context: Context, params: WorkerParameters) : CoroutineW
                 }
             }
             try {
-                syncer.syncAuto()
+                syncer.syncAuto(SyncWhy.Background)
             } finally {
                 shown.cancel()
             }

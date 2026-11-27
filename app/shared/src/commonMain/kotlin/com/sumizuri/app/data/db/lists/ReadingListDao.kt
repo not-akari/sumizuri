@@ -56,8 +56,9 @@ interface ReadingListDao {
     @Query("UPDATE reading_list SET changed = :at WHERE id = :id")
     suspend fun touch(id: Long, at: Long)
 
-    @Query("UPDATE reading_list SET sortOrder = :order WHERE id = :id")
-    suspend fun setOrder(id: Long, order: Int)
+    // A list that moved counts as changed, so sync takes its new place.
+    @Query("UPDATE reading_list SET sortOrder = :order, changed = :at WHERE id = :id AND sortOrder != :order")
+    suspend fun setOrder(id: Long, order: Int, at: Long)
 
     @Query("DELETE FROM reading_list WHERE id = :id")
     suspend fun delete(id: Long)
@@ -70,6 +71,23 @@ interface ReadingListDao {
 
     @Query("DELETE FROM reading_list_item WHERE id IN (:ids)")
     suspend fun deleteItems(ids: List<Long>)
+
+    @Query("SELECT * FROM reading_list_item ORDER BY listId, position, id")
+    suspend fun allItems(): List<ReadingListItemEntity>
+
+    @Query("SELECT * FROM reading_list WHERE uid = :uid")
+    suspend fun byUid(uid: String): ReadingListEntity?
+
+    @Query("UPDATE reading_list SET uid = :uid WHERE id = :id")
+    suspend fun setUid(id: Long, uid: String)
+
+    @Query(
+        "UPDATE reading_list SET name = :name, about = :about, sortOrder = :order, changed = :changed WHERE id = :id",
+    )
+    suspend fun replace(id: Long, name: String, about: String, order: Int, changed: Long)
+
+    @Query("DELETE FROM reading_list_item WHERE listId = :listId")
+    suspend fun clearItems(listId: Long)
 
     @Query("DELETE FROM reading_list_item WHERE listId = :listId AND matchKey IN (:keys)")
     suspend fun deleteKeys(listId: Long, keys: List<String>)

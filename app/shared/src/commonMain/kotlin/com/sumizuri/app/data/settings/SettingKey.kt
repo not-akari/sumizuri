@@ -118,6 +118,7 @@ object SettingKey {
     // What syncs, reset together on its page.
     const val SyncProgress = "sync.what.progress"
     const val SyncShelves = "sync.what.shelves"
+    const val SyncLists = "sync.what.lists"
     const val SyncSources = "sync.what.sources"
     const val SyncSettings = "sync.what.settings"
 

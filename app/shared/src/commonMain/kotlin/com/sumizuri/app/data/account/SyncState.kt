@@ -1,6 +1,7 @@
 package com.sumizuri.app.data.account
 
 import com.sumizuri.app.data.backup.ImportedBackup
+import com.sumizuri.app.data.lists.ListMark
 import com.sumizuri.app.data.tracker.LinkSync
 import kotlinx.serialization.Serializable
 
@@ -30,6 +31,7 @@ data class SyncState(
     val titles: Map<String, TitleMark> = emptyMap(),
     val settings: Map<String, String> = emptyMap(),
     val sources: Map<String, Int> = emptyMap(),
+    val lists: Map<String, ListMark> = emptyMap(),
 )
 
 // A case where this device and the server both changed one value since they last agreed, by the name of the title, setting or source, and what kind of value it was.
@@ -46,6 +48,7 @@ fun SyncState.only(parts: SyncParts): SyncState = SyncState(
     },
     settings = if (parts.settings) settings else emptyMap(),
     sources = if (parts.sources) sources else emptyMap(),
+    lists = if (parts.lists) lists else emptyMap(),
 )
 
 // A title is the same on every device when its source and its address on the source are the same.
@@ -89,4 +92,5 @@ fun stateOf(backup: ImportedBackup): SyncState = SyncState(
         ?.sources
         .orEmpty()
         .associate { it.id to it.version },
+    backup.lists,
 )

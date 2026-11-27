@@ -49,6 +49,8 @@ import com.sumizuri.app.shared.resources.sync_on_open_hint
 import com.sumizuri.app.shared.resources.sync_signed_out_note
 import com.sumizuri.app.shared.resources.sync_triggers_section
 import com.sumizuri.app.shared.resources.sync_what_hint
+import com.sumizuri.app.shared.resources.sync_what_lists
+import com.sumizuri.app.shared.resources.sync_what_lists_hint
 import com.sumizuri.app.shared.resources.sync_what_progress
 import com.sumizuri.app.shared.resources.sync_what_progress_hint
 import com.sumizuri.app.shared.resources.sync_what_section
@@ -239,6 +241,7 @@ internal fun SyncWhenRoute(onBack: () -> Unit) {
 internal val WhatSyncs = listOf(
     Triple(SettingKey.SyncProgress, Res.string.sync_what_progress, Res.string.sync_what_progress_hint),
     Triple(SettingKey.SyncShelves, Res.string.sync_what_shelves, Res.string.sync_what_shelves_hint),
+    Triple(SettingKey.SyncLists, Res.string.sync_what_lists, Res.string.sync_what_lists_hint),
     Triple(SettingKey.SyncSources, Res.string.sync_what_sources, Res.string.sync_what_sources_hint),
     Triple(SettingKey.SyncSettings, Res.string.sync_what_settings, Res.string.sync_what_settings_hint),
 )

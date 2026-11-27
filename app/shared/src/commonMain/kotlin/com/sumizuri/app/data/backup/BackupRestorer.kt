@@ -1,5 +1,8 @@
 package com.sumizuri.app.data.backup
 
+import com.sumizuri.app.data.lists.applyListMarks
+import com.sumizuri.app.data.lists.listMarksOf
+
 import com.sumizuri.app.data.tracker.linkOf
 import androidx.room3.withWriteTransaction
 import com.sumizuri.app.core.log.AppLog
@@ -75,6 +78,13 @@ class BackupRestorer(
             onProgress(index + 1, backup.titles.size)
         }
         AppLog.info("backup", "${backup.app.name} backup: $added added, $skipped already there, $failed failed")
+        // The lists of the backup join the ones here: a list this profile lacks is added, and one it has is taken only when the backup has a newer change.
+        if (backup.lists.isNotEmpty() && !cancelled) {
+            val have = listMarksOf(db)
+            val want = have + backup.lists.filter { (uid, list) -> (have[uid]?.changed ?: -1) < list.changed }
+            val lists = applyListMarks(db, want, have)
+            AppLog.info("backup", "$lists lists added or brought up to date")
+        }
         return RestoreResult(added, skipped, failed, candidates, cancelled)
     }
 

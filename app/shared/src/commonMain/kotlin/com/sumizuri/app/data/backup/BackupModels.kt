@@ -5,6 +5,7 @@ import com.sumizuri.app.data.db.cookie.CookieEntity
 import com.sumizuri.app.data.db.repo.RepoEntity
 import com.sumizuri.app.data.db.source.SourceEntity
 import com.sumizuri.app.data.db.value.SourceValueEntity
+import com.sumizuri.app.data.lists.ListMark
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.Status
 import com.sumizuri.app.data.model.library.LibrarySortField
@@ -73,6 +74,8 @@ class ImportedBackup(
     val titles: List<ImportedTitle>,
     val shelves: List<ImportedShelf>,
     val extras: BackupExtras? = null,
+    // The lists of a backup of this app, by their ids.
+    val lists: Map<String, ListMark> = emptyMap(),
 )
 
 // What a backup of this app holds beyond the titles and shelves, each part empty when the backup left it out.

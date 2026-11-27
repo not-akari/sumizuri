@@ -10,6 +10,7 @@ import com.sumizuri.app.data.json.int
 import com.sumizuri.app.data.json.list
 import com.sumizuri.app.data.json.strings
 import com.sumizuri.app.data.json.text
+import com.sumizuri.app.data.lists.listsOf
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.Status
 import com.sumizuri.app.data.model.library.LibrarySortField
@@ -142,6 +143,7 @@ fun readSumizuriBackup(root: JsonObject): ImportedBackup {
                 it.name.isNotEmpty()
             },
             if (ours) extrasOf(root) else null,
+            if (ours) listsOf(root["lists"]) else emptyMap(),
         )
     } catch (error: Exception) {
         throw BackupUnreadable(BackupProblem.Damaged, error)
