@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sumizuri.app.data.LocalAppContainer
+import com.sumizuri.app.data.account.BigChoice
 import com.sumizuri.app.data.account.SyncAccount
 import com.sumizuri.app.data.account.SyncProblem
 import com.sumizuri.app.data.settings.SettingKey
@@ -207,6 +208,10 @@ internal fun SyncHomeView(account: SyncAccount, onOpen: (SettingsTarget) -> Unit
                 )
             }
             SyncStatusCard(home, linked != null, model.syncRun, model::syncNow, model::checkServer)
+            val waiting by model.waiting.collectAsStateWithLifecycle()
+            waiting?.let {
+                BigChangeCard(it, !home.busy, { model.resolve(BigChoice.KeepMine) }, { model.resolve(BigChoice.Allow) })
+            }
             TileGrid(columns, tiles, Modifier.entrance())
             if (home.busy) Working()
             home.problem?.let { Problem(it) }

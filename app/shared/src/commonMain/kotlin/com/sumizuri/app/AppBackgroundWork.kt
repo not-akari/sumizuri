@@ -18,6 +18,7 @@ import com.sumizuri.app.core.perf.StartMark
 import com.sumizuri.app.data.AppContainer
 import com.sumizuri.app.data.account.SyncPlan
 import com.sumizuri.app.data.account.SyncPlatform
+import com.sumizuri.app.data.account.SyncWhy
 import com.sumizuri.app.data.settings.SettingKey
 import com.sumizuri.app.data.sync.UpdatePlan
 import com.sumizuri.app.data.sync.UpdatePlatform
@@ -86,11 +87,11 @@ internal fun AppBackgroundWork(container: AppContainer, loader: ImageLoader) {
         // A little after the library check, so the two do not start together.
         delay(StartQuietMs + StaggerMs)
         awaitQuiet()
-        if (settings.flag(SettingKey.SyncOnOpen, true).first()) container.librarySync.syncAuto()
+        if (settings.flag(SettingKey.SyncOnOpen, true).first()) container.librarySync.syncAuto(SyncWhy.Opened)
         while (true) {
             val minutes = settings.number(SettingKey.SyncEveryMinutes, DefaultSyncMinutes).first()
             delay(if (minutes > 0) minutes * 60_000L else DueLookEveryMs)
-            if (minutes > 0) container.librarySync.syncAuto()
+            if (minutes > 0) container.librarySync.syncAuto(SyncWhy.Timer)
         }
     }
     // Keeps the linked titles in step with the trackers as often as chosen while the app stays open.

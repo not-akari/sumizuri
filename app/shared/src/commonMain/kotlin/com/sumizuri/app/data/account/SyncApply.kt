@@ -11,6 +11,7 @@ import com.sumizuri.app.data.db.progress.ProgressEntity
 import com.sumizuri.app.data.db.setting.SettingEntity
 import com.sumizuri.app.data.library.CategoryRepository
 import com.sumizuri.app.data.library.ChapterCarry
+import com.sumizuri.app.data.lists.applyListMarks
 import com.sumizuri.app.data.text.nowMillis
 import com.sumizuri.app.data.tracker.LinkSync
 import com.sumizuri.app.data.tracker.linkOf
@@ -87,6 +88,8 @@ class SyncApply(
             if (want == null) db.settings().delete(key) else db.settings().put(SettingEntity(key, want))
         }
         furthest?.let { (id, _) -> handoff.value = id }
+        // The lists go in as the merge settled them, when they sync at all.
+        if (merged.lists != local.lists) changed += applyListMarks(db, merged.lists, local.lists)
         return changed
     }
 

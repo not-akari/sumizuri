@@ -40,7 +40,7 @@ import kotlinx.coroutines.IO
 // When a table changes, raise the version, export the new schema and add a migration.
 @Database(
     entities = [TitleEntity::class, ChapterEntity::class, ProgressEntity::class, SettingEntity::class, SourceEntity::class, SourceValueEntity::class, CookieEntity::class, LogRow::class, RepoEntity::class, CategoryEntity::class, TitleCategoryEntity::class, DownloadEntity::class, TrackerLinkEntity::class, ReadingListEntity::class, ReadingListItemEntity::class],
-    version = 21,
+    version = 22,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -62,6 +62,7 @@ import kotlinx.coroutines.IO
         AutoMigration(from = 18, to = 19),
         AutoMigration(from = 19, to = 20),
         AutoMigration(from = 20, to = 21),
+        AutoMigration(from = 21, to = 22),
     ],
 )
 @ConstructedBy(AppDatabaseConstructor::class)

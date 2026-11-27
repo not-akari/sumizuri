@@ -91,6 +91,7 @@ class ListRepository(private val db: AppDatabase) {
             else -> {
                 val now = nowMillis()
                 val row = ReadingListEntity(
+                    uid = newListUid(),
                     name = clean,
                     about = cleanNote(about, ListAboutLimit),
                     sortOrder = dao.lastOrder() + 1,
@@ -122,6 +123,7 @@ class ListRepository(private val db: AppDatabase) {
         val now = nowMillis()
         val id = dao.insert(
             ReadingListEntity(
+                uid = newListUid(),
                 name = name,
                 about = shared.about,
                 sortOrder = dao.lastOrder() + 1,
@@ -135,7 +137,8 @@ class ListRepository(private val db: AppDatabase) {
     }
 
     suspend fun reorder(ids: List<Long>) = writing.withLock {
-        db.withWriteTransaction { ids.forEachIndexed { order, list -> dao.setOrder(list, order) } }
+        val now = nowMillis()
+        db.withWriteTransaction { ids.forEachIndexed { order, list -> dao.setOrder(list, order, now) } }
     }
 
     // Puts titles at the end of a list, leaving out the ones it holds already and the ones there is no room for.

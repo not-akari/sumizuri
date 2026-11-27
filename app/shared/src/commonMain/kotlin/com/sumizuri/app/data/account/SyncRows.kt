@@ -3,6 +3,7 @@ package com.sumizuri.app.data.account
 import com.sumizuri.app.data.backup.ImportedBackup
 import com.sumizuri.app.data.backup.SumizuriBackupVersion
 import com.sumizuri.app.data.backup.readSumizuriBackup
+import com.sumizuri.app.data.lists.ListMark
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -22,6 +23,7 @@ internal object RowKind {
     const val Setting = "s"
     const val Source = "x"
     const val Extras = "e"
+    const val List = "l"
 }
 
 // What one row holds once unlocked. A title row has its flags and shelves, a chapter row its marks, a setting its value and a source its version, each null when it was removed. Titles, chapters and sources also carry the piece of a backup that lets a device that lacks them put them in. The names are kept to one letter, since a big library has a row for each read chapter.
@@ -37,6 +39,7 @@ internal data class RowBody(
     @SerialName("r") val version: Int? = null,
     @SerialName("e") val entry: JsonObject? = null,
     @SerialName("x") val extras: JsonObject? = null,
+    @SerialName("o") val list: ListMark? = null,
 ) {
     // The key of the row, the same on every device, which the id the server sees is made from.
     val key: String
@@ -45,6 +48,7 @@ internal data class RowBody(
             RowKind.Chapter -> "c\n$titleKey\n$url"
             RowKind.Setting -> "s\n$name"
             RowKind.Source -> "x\n$name"
+            RowKind.List -> "l\n$name"
             else -> "e"
         }
 }
@@ -126,6 +130,7 @@ internal object SyncRowCodec {
         val titles = base.titles.toMutableMap()
         val settings = base.settings.toMutableMap()
         val sources = base.sources.toMutableMap()
+        val lists = base.lists.toMutableMap()
         for (row in rows) {
             when (row.kind) {
                 RowKind.Title -> {
@@ -154,10 +159,12 @@ internal object SyncRowCodec {
                 }
 
                 RowKind.Source -> row.name?.let { id -> row.version?.let { sources[id] = it } ?: sources.remove(id) }
+
+                RowKind.List -> row.name?.let { uid -> row.list?.let { lists[uid] = it } ?: lists.remove(uid) }
             }
         }
         // Settings of a device that an older version sent are left out, so they never reach this one.
-        return SyncState(titles, settings.filterKeys(::syncsAcrossDevices), sources)
+        return SyncState(titles, settings.filterKeys(::syncsAcrossDevices), sources, lists)
     }
 
     // The rows to send so the server holds what this device wants: the ones that differ, in the parts that sync. A part that does not sync is never sent, and a title row then keeps the shelves the server has.
@@ -197,6 +204,15 @@ internal object SyncRowCodec {
                     server.settings[name]
                 ) {
                     out += RowBody(RowKind.Setting, name = name, value = want.settings[name])
+                }
+            }
+        }
+        if (parts.lists) {
+            for (uid in want.lists.keys + server.lists.keys) {
+                if (want.lists[uid] !=
+                    server.lists[uid]
+                ) {
+                    out += RowBody(RowKind.List, name = uid, list = want.lists[uid])
                 }
             }
         }

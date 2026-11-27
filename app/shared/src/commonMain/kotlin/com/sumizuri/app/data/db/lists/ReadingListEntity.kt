@@ -7,9 +7,11 @@ import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
 // A list the person made of titles to share or keep, such as the best of a year. It holds names and kinds only, never a source.
-@Entity(tableName = "reading_list")
+@Entity(tableName = "reading_list", indices = [Index("uid")])
 data class ReadingListEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    // The same on every device, so sync and backups know a list after it was renamed.
+    @ColumnInfo(defaultValue = "") val uid: String = "",
     val name: String,
     @ColumnInfo(defaultValue = "") val about: String = "",
     val sortOrder: Int,

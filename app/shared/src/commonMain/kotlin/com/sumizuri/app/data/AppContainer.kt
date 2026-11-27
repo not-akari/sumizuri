@@ -185,6 +185,7 @@ class AppContainer(
             SyncApply(database, categories, carry, restorer),
             databasePath,
             work,
+            backups = autoBackups,
         )
 
     // Puts a title the server has into the library of this device, from the pages of the sync.

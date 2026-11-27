@@ -3330,4 +3330,71 @@
     <string name="list_add_hint">Find titles in your library, or type any name to add it as it is.</string>
     <string name="list_add_name">Add %1$s as %2$s</string>
     <string name="import_list_tv">Lists are not on the TV. Open this file on a phone or computer.</string>
+    <string name="sync_why_asked">You asked</string>
+    <string name="sync_why_opened">Opening the app</string>
+    <string name="sync_why_timer">On the timer</string>
+    <string name="sync_why_after_reading">After reading</string>
+    <string name="sync_why_other_device">From another device</string>
+    <string name="sync_why_background">In the background</string>
+    <string name="sync_why_from_scratch">From scratch</string>
+    <string name="sync_why_unknown">Sync</string>
+    <string name="sync_run_nothing">Nothing changed</string>
+    <string name="sync_run_repeated">%1$d times, last %2$s</string>
+    <string name="sync_run_here">Changed on this device</string>
+    <string name="sync_run_there">Sent to the server</string>
+    <string name="sync_run_more">And %1$d more titles</string>
+    <plurals name="sync_run_settings">
+        <item quantity="one">%1$d setting</item>
+        <item quantity="other">%1$d settings</item>
+    </plurals>
+    <plurals name="sync_run_sources">
+        <item quantity="one">%1$d source</item>
+        <item quantity="other">%1$d sources</item>
+    </plurals>
+    <string name="sync_run_conflicts_title">Conflicts</string>
+    <string name="sync_change_added">added to the library</string>
+    <string name="sync_change_removed">taken out of the library</string>
+    <string name="sync_change_favorite">made a favorite</string>
+    <string name="sync_change_unfavorite">no longer a favorite</string>
+    <plurals name="sync_change_read">
+        <item quantity="one">%1$d chapter read</item>
+        <item quantity="other">%1$d chapters read</item>
+    </plurals>
+    <plurals name="sync_change_unread">
+        <item quantity="one">%1$d chapter marked unread</item>
+        <item quantity="other">%1$d chapters marked unread</item>
+    </plurals>
+    <plurals name="sync_change_bookmarks">
+        <item quantity="one">%1$d bookmark changed</item>
+        <item quantity="other">%1$d bookmarks changed</item>
+    </plurals>
+    <plurals name="sync_change_places">
+        <item quantity="one">%1$d reading place moved</item>
+        <item quantity="other">%1$d reading places moved</item>
+    </plurals>
+    <string name="sync_change_on">put on %1$s</string>
+    <string name="sync_change_off">taken off %1$s</string>
+    <string name="sync_report">Copy sync report</string>
+    <string name="sync_report_hint">Puts the recent syncs on the clipboard as text, to send when asking for help. No passwords or keys are in it.</string>
+    <string name="sync_report_copied">Copied</string>
+    <string name="sync_big_title">A sync is waiting for you</string>
+    <string name="sync_big_titles">It would take %1$d of your %2$d titles out of the library on this device.</string>
+    <string name="sync_big_unread">It would mark %1$d read chapters as unread.</string>
+    <string name="sync_big_names">Such as %1$s</string>
+    <string name="sync_big_keep">Keep mine</string>
+    <string name="sync_big_allow">Allow it</string>
+    <string name="sync_big_allow_hint">Keep mine puts them back on the server too. Allow it makes a backup first, which you can restore from Backups.</string>
+    <string name="sync_what_lists">Lists</string>
+    <string name="sync_what_lists_hint">Your lists of titles, with their order and notes. A TV never takes them.</string>
+    <string name="sync_conflict_list">%1$s: changed on both, kept the newer list</string>
+    <plurals name="sync_run_lists">
+        <item quantity="one">%1$d list</item>
+        <item quantity="other">%1$d lists</item>
+    </plurals>
+    <string name="sync_fig_in">Came in</string>
+    <string name="sync_fig_out">Went out</string>
+    <string name="sync_fig_fetched">Fetched</string>
+    <string name="sync_fig_sent">Sent</string>
+    <string name="sync_run_when">%1$s, took %2$s</string>
+    <string name="sync_run_inout">%1$d came in, %2$d went out</string>
 </resources>

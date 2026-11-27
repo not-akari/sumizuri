@@ -6,6 +6,8 @@ import com.sumizuri.app.data.db.chapter.ChapterEntity
 import com.sumizuri.app.data.db.progress.ProgressEntity
 import com.sumizuri.app.data.db.title.TitleEntity
 import com.sumizuri.app.data.db.tracker.TrackerLinkEntity
+import com.sumizuri.app.data.lists.listMarksOf
+import com.sumizuri.app.data.lists.listsJson
 import com.sumizuri.app.data.model.Kind
 import com.sumizuri.app.data.model.Status
 import com.sumizuri.app.data.text.nowMillis
@@ -61,6 +63,7 @@ class BackupWriter(private val db: AppDatabase) {
                 },
             )
             put("categories", JsonArray(shelves.map(::shelfJson)))
+            put("lists", listsJson(listMarksOf(db)))
             if (BackupPart.Sources in parts) {
                 put(
                     "sources",
